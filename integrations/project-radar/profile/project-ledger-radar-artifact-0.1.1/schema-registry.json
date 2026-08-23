@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1.1",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "source_spec_sha256": "277f356cd96c276b3dddf5ef64197e9531cb3acffdbca94232c23de8b7d68c6b",
+  "entries": [
+    {
+      "name": "ledger-radar-project-projection",
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "path": "schemas/v0.2/radar/ledger-radar-project-projection.schema.json",
+      "raw_sha256": "sha256:ac8458a88a07ab99ae30b0495026d23560f985a7d8df55152156aaebacd29e1d"
+    },
+    {
+      "name": "radar-field-ownership-policy",
+      "schema_id": "urn:project-ledger:schema:radar:radar-field-ownership-policy:0.1.1",
+      "path": "schemas/v0.2/radar/radar-field-ownership-policy.schema.json",
+      "raw_sha256": "sha256:663c5096e9ca777ebc7f461e4cf5dbfba462413e9d35f73cfbd882fa42ad930b"
+    },
+    {
+      "name": "radar-project-link",
+      "schema_id": "urn:project-ledger:schema:radar:radar-project-link:0.1.1",
+      "path": "schemas/v0.2/radar/radar-project-link.schema.json",
+      "raw_sha256": "sha256:ff1e7b7c6c2a120fe04994f232e1e4197b0034e3d721e8bdffb2ede6e6442e18"
+    },
+    {
+      "name": "radar-status-mapping-policy",
+      "schema_id": "urn:project-ledger:schema:radar:radar-status-mapping-policy:0.1.1",
+      "path": "schemas/v0.2/radar/radar-status-mapping-policy.schema.json",
+      "raw_sha256": "sha256:a35db7935d4f82b682ff13ea2390638669484498a2a00dc5cb7f40b96b040612"
+    },
+    {
+      "name": "radar-sync-envelope",
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "path": "schemas/v0.2/radar/radar-sync-envelope.schema.json",
+      "raw_sha256": "sha256:2df971abbd18221b66f0e0ff3c0b328d0488255ceea107f12064510b30154991"
+    }
+  ]
+}

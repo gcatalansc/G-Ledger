@@ -2,7 +2,7 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0–S11: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos y el bridge GSP exact-contract. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+El repositorio ha materializado S0–S12: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos, bridge GSP exact-contract y el perfil de artefacto read-only Project Radar. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
 S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
 
@@ -18,7 +18,9 @@ S10 añade cinco contratos write exactos, policy externa con `TRUSTED_FOR_RECORD
 
 S11 fija GSP-Gemma Compiler v0.2 y `gsp-exact-2026.04.12`: 28 contratos, 31 schemas y 140 fixtures byte-locked. `interop-gsp` construye un corpus explícito/acotado, valida el `EvidenceBundle` y los seis artefactos completos del `CompilationResult`, conserva contradicción/incertidumbre en receipts/reports y aísla un sidecar opcional sin storage. Exportar/validar son read-only; sólo `link-result` crea un `LINK_EXTERNAL_EVIDENCE` nativo y explícito.
 
-La semántica ejecutable sigue acotada por la especificación: Radar, Agent Skill, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen pendientes de slices/evidencia posteriores. `certified_compatibility=false` continúa siendo obligatorio; S9–S11 demuestran fronteras locales, no compatibilidad bilateral/live-sidecar, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
+S12 añade `project-ledger-radar-artifact/0.1.1`: cinco schemas y diez fixtures raw-locked, proyección/envelope deterministas, identity fuerte consumer-owned, importador de referencia puro, merge idempotente, ownership no destructivo y CLI SQLite read-only para proyecto o catálogo explícito. Nombre/alias nunca autoriza apply y el perfil no contiene tombstones, acceso a IndexedDB ni writes de lifecycle.
+
+La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, Agent Skill, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen pendientes de slices/evidencia posteriores. `certified_compatibility=false` continúa siendo obligatorio; S9–S12 demuestran fronteras locales, no compatibilidad bilateral/live-sidecar, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
 
 ## Autoridad
 
@@ -39,6 +41,7 @@ cargo run -p project-ledger-cli -- specs verify
 cargo run -p project-ledger-cli -- contracts verify
 cargo run -p project-ledger-cli -- integration gskills verify-contracts
 cargo run -p project-ledger-cli -- integration gsp verify-contracts
+cargo run -p project-ledger-cli -- integration radar verify-contracts
 ```
 
 Inicialización offline contra una ubicación explícita:
@@ -102,5 +105,16 @@ cargo run -p project-ledger-cli -- integration gsp link-result --database <ledge
 ```
 
 `scope.json` es un `GspCorpusRequest` cerrado, con query, referencias seleccionadas y budgets. El corpus queda unido por digest canónico a su manifest, contenidos y `EvidenceBundle`. Los tres primeros comandos no mutan el stream. `link-result` verifica identidad/digest del receipt y su binding con la proyección SQLite vigente, y exige concurrencia, idempotencia, actor, URI y tiempo explícitos; no puede cerrar fases, verificar gates ni cambiar lifecycle.
+
+Perfil Project Radar por artifact exchange local:
+
+```powershell
+cargo run -p project-ledger-cli -- integration radar verify-contracts
+cargo run -p project-ledger-cli -- integration radar export --database <ledger.db> --project-ref project:<uuid-v7> --phase-catalog <phases.json> --source-instance-ref project-ledger://instances/local --observed-at <timestamp-rfc3339> --output <radar.json>
+cargo run -p project-ledger-cli -- integration radar validate-export --input <radar.json>
+cargo run -p project-ledger-cli -- catalog radar-export --all --catalog <known-ledgers.json> --source-instance-ref project-ledger://instances/local --observed-at <timestamp-rfc3339> --output <radar-catalog.json>
+```
+
+`known-ledgers.json` es un array explícito de `database`, `project_ref`, `phase_catalog` y `source_aliases`; no existe discovery del filesystem. Los exports verifican cadena/proyección, son canónicos, read-only y no-clobber. El importador incluido es sólo una referencia pura/fixture: no abre Project Radar ni su IndexedDB.
 
 La red no forma parte del runtime ni de las pruebas. La descarga inicial de dependencias es una operación de desarrollo de Cargo.

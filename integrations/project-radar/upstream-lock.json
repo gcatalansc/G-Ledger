@@ -4,7 +4,27 @@
   "product_version": "0.1.0",
   "source_spec_sha256": "277f356cd96c276b3dddf5ef64197e9531cb3acffdbca94232c23de8b7d68c6b",
   "profile": "project-ledger-radar-artifact/0.1.1",
-  "profile_schema_sha256": null,
+  "profile_schema_sha256": "2df971abbd18221b66f0e0ff3c0b328d0488255ceea107f12064510b30154991",
+  "schema_registry_sha256": "b80e2659dad658da72d86d9ff74186e9f3f86077ef114845b192a1391404dc99",
+  "fixture_manifest_sha256": "d0aae58b0136b4fa80362b948022353508cc317eb5563dadf91374cf75ffa077",
+  "compatibility_range": {
+    "protocol": "project-ledger-radar-artifact",
+    "minimum": "0.1.1",
+    "maximum": "0.2.0"
+  },
+  "contract_status": "EXACT_LOCAL_PROFILE_PASS",
+  "field_mapping_status": "EXACT_ALLOWLISTED_PASS",
+  "field_mapping_report": "integrations/project-radar/reports/radar-field-mapping.json",
+  "field_mapping_report_sha256": "c05f54714b24910a8957846eeca2bd0a8ff4c1bfe70d77f8315152c2e69f524f",
+  "loss_report_status": "ZERO_UNDECLARED_MATERIAL_LOSS",
+  "loss_report": "integrations/project-radar/reports/radar-loss-report.json",
+  "loss_report_sha256": "b19a90b6949bb7d6eb49c93cc0d41b3cb46d95b0a86f3511c150413deb13b090",
+  "conformance_status": "PASS_LOCAL_LEDGER_SIDE",
+  "conformance_report": "integrations/project-radar/reports/radar-conformance.json",
+  "conformance_report_sha256": "0870be0f7ac8bd8b988b7a52c3c91d8ef26110ba2794e737ec2d35ffd7a5c506",
+  "reference_importer_status": "PURE_FIXTURE_PASS",
+  "sqlite_cli_status": "READ_ONLY_PASS",
+  "bilateral_e2e_status": "PENDING_SEPARATE_EVIDENCE",
   "counterpart_extension_status": "PENDING",
   "certified_compatibility": false
 }

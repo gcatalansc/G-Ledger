@@ -32,11 +32,16 @@ use project_ledger_interop_gsp::{
     GSP_CONTRACT_TAG, GspBridge, GspCompilationReceipt, GspCorpus, GspCorpusRequest,
     verify_vendored_contracts as verify_gsp_vendored_contracts,
 };
+use project_ledger_interop_radar::{
+    RADAR_PROFILE, RadarContractCatalog, RadarEnvelopeRequest, RadarExportContext,
+    build_project_projection, build_sync_envelope, validate_sync_envelope,
+    verify_profile_contracts as verify_radar_profile_contracts,
+};
 use project_ledger_projection_engine::ProjectStateProjection;
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
 use project_ledger_transport_stdio::{FrameLimits, JsonRpcHandler, dispatch_frame};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
@@ -68,6 +73,10 @@ enum TopLevelCommand {
     Integration {
         #[command(subcommand)]
         command: IntegrationCommand,
+    },
+    Catalog {
+        #[command(subcommand)]
+        command: CatalogCommand,
     },
     Serve {
         #[command(subcommand)]
@@ -104,6 +113,10 @@ enum IntegrationCommand {
         #[command(subcommand)]
         command: GspIntegrationCommand,
     },
+    Radar {
+        #[command(subcommand)]
+        command: RadarIntegrationCommand,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Subcommand)]
@@ -117,6 +130,66 @@ enum GspIntegrationCommand {
     ExportCorpus(GspExportCorpusArgs),
     ValidateResult(GspValidateResultArgs),
     LinkResult(GspLinkResultArgs),
+}
+
+#[derive(Clone, Debug, Subcommand)]
+enum RadarIntegrationCommand {
+    VerifyContracts,
+    Export(RadarExportArgs),
+    ValidateExport(RadarValidateExportArgs),
+}
+
+#[derive(Clone, Debug, Subcommand)]
+enum CatalogCommand {
+    RadarExport(RadarCatalogExportArgs),
+}
+
+#[derive(Clone, Debug, Args)]
+struct RadarExportArgs {
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    phase_catalog: PathBuf,
+    #[arg(long)]
+    source_instance_ref: String,
+    #[arg(long)]
+    observed_at: String,
+    #[arg(long = "source-alias")]
+    source_aliases: Vec<String>,
+    #[arg(long)]
+    output: PathBuf,
+}
+
+#[derive(Clone, Debug, Args)]
+struct RadarValidateExportArgs {
+    #[arg(long)]
+    input: PathBuf,
+}
+
+#[derive(Clone, Debug, Args)]
+struct RadarCatalogExportArgs {
+    #[arg(long)]
+    all: bool,
+    #[arg(long)]
+    catalog: PathBuf,
+    #[arg(long)]
+    source_instance_ref: String,
+    #[arg(long)]
+    observed_at: String,
+    #[arg(long)]
+    output: PathBuf,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RadarCatalogSource {
+    database: PathBuf,
+    project_ref: String,
+    phase_catalog: PathBuf,
+    #[serde(default)]
+    source_aliases: Vec<String>,
 }
 
 #[derive(Clone, Debug, Args)]
@@ -249,6 +322,27 @@ fn main() -> ExitCode {
                     command: GspIntegrationCommand::LinkResult(args),
                 },
         } => link_gsp_result(&args),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Radar {
+                    command: RadarIntegrationCommand::VerifyContracts,
+                },
+        } => repository_root().and_then(|root| verify_radar_contracts(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Radar {
+                    command: RadarIntegrationCommand::Export(args),
+                },
+        } => export_radar_project(&args),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Radar {
+                    command: RadarIntegrationCommand::ValidateExport(args),
+                },
+        } => repository_root().and_then(|root| validate_radar_export(&root, &args)),
+        TopLevelCommand::Catalog {
+            command: CatalogCommand::RadarExport(args),
+        } => export_radar_catalog(&args),
         TopLevelCommand::Serve {
             command: ServeCommand::Provider(args),
         } => serve_gskills_provider(args),
@@ -469,6 +563,153 @@ fn verify_gsp_contracts(root: &Path) -> Result<String, String> {
         report.valid_fixture_count + report.invalid_fixture_count,
         GSP_CONTRACT_TAG
     ))
+}
+
+fn verify_radar_contracts(root: &Path) -> Result<String, String> {
+    let report = verify_radar_profile_contracts(root).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "radar contracts MATCH schemas={} fixtures={} profile={}\n",
+        report.schema_count,
+        report.valid_fixture_count + report.invalid_fixture_count,
+        RADAR_PROFILE
+    ))
+}
+
+fn export_radar_project(args: &RadarExportArgs) -> Result<String, String> {
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let source_instance_ref =
+        ResourceRef::parse(&args.source_instance_ref).map_err(|error| error.to_string())?;
+    let project = radar_project_from_sqlite(
+        &args.database,
+        &project_ref,
+        &args.phase_catalog,
+        &args.source_aliases,
+        &observed_at,
+    )?;
+    let state_version = project.source.state_version;
+    let envelope = build_sync_envelope(
+        vec![project],
+        &RadarEnvelopeRequest {
+            sync_envelope_id: StableId::parse(&format!(
+                "radar-sync:{}:{state_version}",
+                project_ref.uuid()
+            ))
+            .map_err(|error| error.to_string())?,
+            source_instance_ref,
+            exported_at: observed_at,
+        },
+    )
+    .map_err(|error| error.to_string())?;
+    validate_sync_envelope(&envelope).map_err(|error| error.to_string())?;
+    write_new_json(&args.output, &envelope)?;
+    Ok(format!(
+        "radar export EXPORTED projects=1 output={}\n",
+        args.output.display()
+    ))
+}
+
+fn validate_radar_export(root: &Path, args: &RadarValidateExportArgs) -> Result<String, String> {
+    require_file(&args.input, "Project Radar export")?;
+    let value: Value = read_json_file(&args.input)?;
+    let catalog = RadarContractCatalog::load(root).map_err(|error| error.to_string())?;
+    catalog
+        .validate("radar-sync-envelope", &value)
+        .map_err(|error| error.to_string())?;
+    let envelope = serde_json::from_value(value).map_err(|error| error.to_string())?;
+    validate_sync_envelope(&envelope).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "radar export VALID projects={} profile={}\n",
+        envelope.projects.len(),
+        envelope.profile
+    ))
+}
+
+fn export_radar_catalog(args: &RadarCatalogExportArgs) -> Result<String, String> {
+    if !args.all {
+        return Err("catalog radar-export requires explicit --all".to_owned());
+    }
+    require_file(&args.catalog, "Project Radar known-ledger catalog")?;
+    let catalog_bytes =
+        fs::read(&args.catalog).map_err(|error| format!("{}: {error}", args.catalog.display()))?;
+    let sources: Vec<RadarCatalogSource> = serde_json::from_slice(&catalog_bytes)
+        .map_err(|error| format!("{}: {error}", args.catalog.display()))?;
+    if sources.is_empty() {
+        return Err("Project Radar known-ledger catalog is empty".to_owned());
+    }
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let source_instance_ref =
+        ResourceRef::parse(&args.source_instance_ref).map_err(|error| error.to_string())?;
+    let mut projects = Vec::with_capacity(sources.len());
+    for source in sources {
+        let project_ref =
+            ProjectId::parse(&source.project_ref).map_err(|error| error.to_string())?;
+        projects.push(radar_project_from_sqlite(
+            &source.database,
+            &project_ref,
+            &source.phase_catalog,
+            &source.source_aliases,
+            &observed_at,
+        )?);
+    }
+    let digest = sha256_bytes(&catalog_bytes).to_string();
+    let envelope = build_sync_envelope(
+        projects,
+        &RadarEnvelopeRequest {
+            sync_envelope_id: StableId::parse(&format!(
+                "radar-sync:catalog:{}",
+                digest.trim_start_matches("sha256:")
+            ))
+            .map_err(|error| error.to_string())?,
+            source_instance_ref,
+            exported_at: observed_at,
+        },
+    )
+    .map_err(|error| error.to_string())?;
+    write_new_json(&args.output, &envelope)?;
+    Ok(format!(
+        "radar catalog EXPORTED projects={} output={}\n",
+        envelope.projects.len(),
+        args.output.display()
+    ))
+}
+
+fn radar_project_from_sqlite(
+    database: &Path,
+    project_ref: &ProjectId,
+    phase_catalog_path: &Path,
+    source_aliases: &[String],
+    observed_at: &LedgerTimestamp,
+) -> Result<project_ledger_domain::LedgerRadarProjectProjection, String> {
+    require_file(database, "Project Radar export database")?;
+    require_file(phase_catalog_path, "Project Radar phase catalog")?;
+    let phase_catalog = load_phase_catalog(phase_catalog_path)?;
+    let store = SqliteEventStore::open(database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(project_ref)
+        .map_err(|error| error.to_string())?;
+    let stream = store
+        .load_stream(project_ref)
+        .map_err(|error| error.to_string())?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let provenance_ref = ResourceRef::parse(&format!(
+        "project-ledger://provenance/radar-export/{}/{}",
+        project_ref.uuid(),
+        projection.state().state_version
+    ))
+    .map_err(|error| error.to_string())?;
+    build_project_projection(
+        &projection,
+        &RadarExportContext {
+            phase_catalog,
+            source_aliases: source_aliases.to_vec(),
+            observed_at: observed_at.clone(),
+            provenance_ref,
+        },
+    )
+    .map_err(|error| error.to_string())
 }
 
 fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, String> {

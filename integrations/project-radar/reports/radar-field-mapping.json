@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "direction": "LEDGER_TO_RADAR",
+  "mappings": [
+    {
+      "source": "ProjectState.project + state_version + state_digest",
+      "target": "LedgerRadarProjectProjection.source + project",
+      "status": "EXACT_ALLOWLISTED"
+    },
+    {
+      "source": "ProjectState active/completed phases + explicit Phase catalog",
+      "target": "continuity.primary_phase + active_phases + progress",
+      "status": "EXACT_FAIL_CLOSED"
+    },
+    {
+      "source": "blocker/risk/gate/conflict/action/checkpoint/authority indexes",
+      "target": "continuity counts + normative attention signals",
+      "status": "EXACT_ALLOWLISTED"
+    },
+    {
+      "source": "current RepositoryBinding.remote_identity_digest + source aliases",
+      "target": "identity anchors",
+      "status": "CANDIDATE_ONLY_NO_RADAR_IDENTITY"
+    },
+    {
+      "source": "ProjectLifecycleStatus + primary PhaseKind",
+      "target": "SuggestedRadarStatus",
+      "status": "EXACT_NORMATIVE_TABLE"
+    },
+    {
+      "source": "projection provenance_ref",
+      "target": "reference importer provenance_chain",
+      "status": "PRESERVED_LEDGER_AUTHORITY"
+    }
+  ],
+  "excluded_from_export": [
+    "raw event log",
+    "evidence payloads",
+    "repository paths",
+    "Radar priority",
+    "Radar tags",
+    "Radar notes",
+    "Radar ideas",
+    "Radar chats",
+    "Radar tasks",
+    "Radar artifacts",
+    "Radar presentation metadata"
+  ],
+  "automatic_name_mapping": false,
+  "delete_or_archive_commands": false,
+  "shared_database": false
+}

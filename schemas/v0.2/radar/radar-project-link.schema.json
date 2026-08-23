@@ -1,18 +1,18 @@
 {
   "$defs": {
-    "IdentityMethod": {
-      "enum": [
-        "EXPLICIT_ID",
-        "REMOTE_DIGEST",
-        "SIGNED_BINDING",
-        "USER_CONFIRMED",
-        "IMPORTED_MAPPING_REVIEWED"
-      ],
-      "type": "string"
-    },
     "LedgerTimestamp": {
       "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
       "format": "date-time",
+      "type": "string"
+    },
+    "RadarIdentityMethod": {
+      "enum": [
+        "USER_CONFIRMED",
+        "EXACT_STABLE_ID",
+        "EXACT_REPOSITORY_REMOTE_DIGEST",
+        "SIGNED_MAPPING",
+        "IMPORTED_MAPPING_REVIEWED"
+      ],
       "type": "string"
     },
     "RadarLinkStatus": {
@@ -68,7 +68,7 @@
       "$ref": "#/$defs/StableId"
     },
     "method": {
-      "$ref": "#/$defs/IdentityMethod"
+      "$ref": "#/$defs/RadarIdentityMethod"
     },
     "radar_project_ref": {
       "$ref": "#/$defs/ResourceRef"

@@ -12,6 +12,7 @@ members = [
   "crates/integration-protocol",
   "crates/interop-gskills",
   "crates/interop-gsp",
+  "crates/interop-radar",
   "crates/legacy-import",
   "crates/portable-bundle",
   "crates/project-catalog",

@@ -1105,3 +1105,116 @@ Repetir desde cero el gate integral S11 sobre el árbol final corregido y cerrar
 **Siguiente paso según la especificación**
 
 Iniciar, sólo tras una nueva autorización, Fase 9 / S12: articulación Project Radar mediante schemas/profile, project link, artifact export, agregación de catálogo, fixtures de reference importer, mapping de status/progress, ownership de campos y provenance transitiva. Su gate exige PL-21…32 y AC-065…080 PASS; S12 no modifica el código de Project Radar desde este repositorio.
+
+### 2026-08-23 — Apertura de Fase 9 / S12: perfil de artefacto Project Radar
+
+**Autoridad y alcance reconciliados**
+
+- Se releyeron `00_START_HERE.md`, el lock Project Radar y las secciones normativas §36–§37, PL-21…32, AC-065…080, §50 y §51 antes de editar producción.
+- El alcance autorizado es exclusivamente Ledger: contratos/profile `project-ledger-radar-artifact/0.1.1`, export read-only, catálogo explícito, fixtures de importador de referencia, mapping conservador, ownership y provenance.
+- No se localizaron ni se autorizan cambios en un checkout de Project Radar. No habrá acceso a IndexedDB, DB compartida, escritura remota ni certificación bilateral.
+- El source spec digest permanece fijado en `277f356cd96c276b3dddf5ef64197e9531cb3acffdbca94232c23de8b7d68c6b`; `counterpart_extension_status=PENDING` y `certified_compatibility=false` no se elevarán por tests locales.
+- Se creó el plan persistente `docs/superpowers/plans/2026-08-23-project-ledger-phase-9-s12.md` con ejecución TDD inline, gates completos y límite explícito de no iniciar S13.
+
+**Estado de apertura**
+
+- Base Git limpia confirmada en `a46d29d` (`feat: add exact GSP bridge`).
+- Avance se mantiene en 9/12 macrofases y 12/15 slices hasta que S12 supere su gate completo y sea versionada.
+- Primer paso de implementación: escribir y ejecutar el RED del lock, registry y replay exactos del perfil Radar.
+
+**Hito S12.1 — Profile contracts RED confirmado**
+
+- Se añadió el test de contrato antes de la implementación. Exige el perfil y source digest literales, cinco schemas, cinco fixtures válidos, cinco inválidos, hashes de registry/manifest en el lock y conservación de la certificación falsa.
+- La prueba adversarial prepara una copia aislada de toda la superficie y agrega un byte al schema de proyección; el resultado requerido es `RawDigestMismatch` antes del replay.
+- RED confirmado con `cargo test -p project-ledger-interop-radar --test profile_contracts`: el crate de prueba no encontró constantes, catálogo, error ni verificador.
+- Los manifests del perfil referencian los schemas y fixtures canónicos generados de Ledger, evitando una segunda copia que pudiera divergir. Cada path queda fijado por SHA-256 de bytes crudos.
+
+**Siguiente acción**
+
+Implementar el catálogo offline mínimo, validar shape/identidad/hashes antes de compilar schemas, ejecutar todos los fixtures y volver a GREEN.
+
+**Hito S12.2 — Profile contracts GREEN y export RED**
+
+- `RadarContractCatalog` valida primero los bytes de ambos manifests y de cada artefacto, luego identidad `$id`, compilación de schema y resultados de los diez fixtures. No usa red ni resolución externa.
+- GREEN focalizado: 2/2 tests PASS, incluido drift de un byte; Clippy estricto del crate, formato y `git diff --check` PASS.
+- El lock fija `profile_schema_sha256`, `schema_registry_sha256` y `fixture_manifest_sha256`, pero todavía no declara mapping/conformance S12 completo.
+- Se escribió el RED de exportación antes del builder. Exige la matriz normativa de status, rechazo de estados activos no mapeados, progreso estable o explícitamente unavailable, privacidad mínima, ausencia de Radar identity/`NOT_IMPLEMENTED`, self-digests y envelope sin tombstones.
+- RED confirmado: `RadarEnvelopeRequest`, `RadarExportContext`, ambos builders y el mapper de status no existen todavía.
+
+**Siguiente acción**
+
+Implementar la derivación pura desde `ProjectStateProjection` más metadata explícita de fases, con validación fail-closed y digests RFC 8785.
+
+**Hito S12.3 — Export GREEN e importador de referencia RED**
+
+- La proyección valida el estado antes de mapear, exige metadata de fases activa coherente y rechaza combinaciones `ACTIVE + phase kind` no incluidas en la tabla normativa en vez de inventar `NOT_IMPLEMENTED`.
+- Status, progress, counts, diez códigos de atención allowlisted, freshness, identidad Ledger, privacidad y provenance se derivan sin incluir un Radar project ref ni campos Radar-owned.
+- El porcentaje sólo está disponible con roadmap lineal y denominador de fases completo; roadmap ausente, metadata incompleta, mismatch o denominador cero producen razón explícita y `basis_points=null`.
+- El envelope ordena proyectos, rechaza duplicados y child digests alterados, contiene cero tombstones y fija las semánticas no destructivas del profile. Projection y envelope usan self-digest RFC 8785.
+- La expectativa de `LEDGER_NO_MATERIAL_ACTIVITY` sobre genesis se corrigió: `PROJECT_CREATED` ya es actividad material canónica y la spec no define un umbral temporal; no se inventó uno.
+- GREEN focalizado: 3/3 tests de export y 2/2 de contratos PASS. El primer Clippy detectó sólo una comparación booleana literal en el test, ya corregida.
+- RED del importador confirmado: faltan el enum exacto de cinco métodos Radar y todos los modelos/evaluador de importación.
+
+**Siguiente acción**
+
+Implementar la evaluación pura de identity/merge, preservando campos Radar-owned y devolviendo preview/conflicto sin puertos de persistencia.
+
+**Hito S12.4 — Reference importer y CLI SQLite GREEN previo al gate**
+
+- `RadarProjectLink` usa ahora los cinco métodos exactos del contrato Radar: `USER_CONFIRMED`, `EXACT_STABLE_ID`, `EXACT_REPOSITORY_REMOTE_DIGEST`, `SIGNED_MAPPING` e `IMPORTED_MAPPING_REVIEWED`. El enum genérico de identidad Ledger permanece separado.
+- El evaluador puro valida envelope, child projections y link por self-digest antes del preview. Link ausente/nombre/alias produce candidato; link no confirmado no aplica; mismatch de Radar/Ledger identity produce conflicto.
+- La matriz implementada distingue `DUPLICATE_REPLAY`, `STALE_IGNORED`, `APPLY_OVERLAY_UPDATE`, `SOURCE_DIVERGENCE` y `NO_ACTION`; nunca crea clear/delete/archive ni usa last-write-wins.
+- Priority, tags, notes, ideas, chats, tasks, artifacts y presentation se copian sin alteración a cada evaluación. El overlay conserva `provenance_ref` de Ledger y declara `lifecycle_authority=project-ledger`.
+- Tras el cambio contractual se regeneró el schema `RadarProjectLink`, se actualizó su digest en el registry del profile y `cargo xtask schema check` volvió a PASS. Un intento inicial con el subcomando inexistente `schema write` se diagnosticó por el usage real y se corrigió a `schema generate`; no hubo cambio de producto asociado al error.
+- La CLI añade `integration radar verify-contracts|export|validate-export` y `catalog radar-export --all`. Recibe DBs/proyectos/catálogos de fase explícitos, verifica cadena y proyección, escribe JSON canónico no-clobber y no descubre el filesystem.
+- GREEN focalizado: 2/2 tests del importador, 3/3 de CLI Radar, 3/3 de export y 2/2 de contracts PASS; export/validate/catalog conservaron el conteo de eventos en SQLite real.
+- Se publicaron mapping, loss y conformance con hashes fijados en el lock. Degradación semántica no declarada 0, elevación de autoridad 0; `counterpart_extension_status=PENDING`, `bilateral_e2e_status=PENDING_SEPARATE_EVIDENCE` y `certified_compatibility=false` siguen explícitos.
+- README, changelog, matriz ejecutable y compatibilidad Radar distinguen cierre local S12 de código/IndexedDB/certificación counterpart.
+
+**Siguiente acción**
+
+Ejecutar el gate integral final desde el árbol reconciliado, revisar hashes/lock/diff/estado Git y cerrar Fase 9 / S12 con un solo commit únicamente si todo vuelve a pasar.
+
+**Hito S12.5 — Primera pasada del gate y corrección de expectativa histórica**
+
+- Formato y Clippy workspace pasaron, pero el workspace test detectó una expectativa histórica: `integration-protocol/tests/contracts.rs` aún esperaba Project Radar `PENDING` pese a que S12 ya aporta spec/schema/fixtures/range locales completos.
+- La implementación y la CLI coincidieron en `status=COMPLETE`, `missing_evidence=[]` y `certified_compatibility=false`; se actualizó únicamente la expectativa Radar a `COMPLETE`, manteniendo la aserción de no certificación.
+- El resto de la primera pasada continuó verde: schema/spec/contract checks, contratos G-Skills/GSP/Radar, compatibility y cargo-deny. Esta pasada no sirve como cierre porque el workspace test global tuvo un fallo.
+
+**Siguiente acción**
+
+Repetir el gate integral completo desde cero después de la corrección y usar sólo esa evidencia fresca para el cierre.
+
+### 2026-08-23 — Cierre de Fase 9 / S12: perfil de artefacto Project Radar
+
+**Resultado implementado**
+
+- Se incorporó `project-ledger-interop-radar` con replay offline y byte-exacto del perfil `project-ledger-radar-artifact/0.1.1`: cinco schemas, cinco fixtures válidos y cinco inválidos, con rechazo adversarial de drift antes de validar contenido.
+- La proyección y el envelope Radar se derivan de estado Ledger validado, con status/progress fail-closed, privacidad mínima, provenance y self-digests canónicos. No contienen `radar_project_ref`, tombstones ni campos de autoridad Radar.
+- El importador de referencia es una evaluación pura: requiere enlace fuerte confirmado para aplicar, distingue replay/stale/update/divergence/no-action, preserva todos los campos Radar-owned y no dispone de puerto de persistencia.
+- La CLI expone verificación, export, validación y catálogo sobre proyectos conocidos explícitamente. Cada operación valida SQLite real, usa salida canónica no-clobber y conserva el conteo de eventos.
+- Mapping, loss y conformance quedaron fijados por hash. La integración local figura `COMPLETE`, pero `counterpart_extension_status=PENDING`, `bilateral_e2e_status=PENDING_SEPARATE_EVIDENCE` y `certified_compatibility=false` permanecen deliberadamente.
+
+**Gate integral final**
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS.
+- `cargo test --workspace --all-targets --all-features`: PASS; 199 atributos `#[test]` inventariados, cero fallos.
+- `cargo xtask schema check`: PASS.
+- `project-ledger specs verify`: PASS; v0.1 `772ea517`, v0.2 `31cb7cd4`.
+- `project-ledger contracts verify`: PASS; 46 schemas, 92 fixtures y 53 filas de matriz.
+- Contratos G-Skills, GSP y Radar: PASS; Radar verificó cinco schemas y diez fixtures.
+- `integration compatibility`: PASS; los tres perfiles locales están completos y ninguno certificado.
+- `cargo deny --offline check`: PASS para advisories, bans, licenses y sources; sólo permanecen las duplicidades transitivas informativas ya conocidas de `getrandom`, `r-efi` y `syn`.
+- Los SHA-256 del registry, manifest y tres reportes Radar coinciden con el lock; `git diff --check`: PASS.
+
+**Estado y límites de evidencia**
+
+- Fase 9 / S12 cerrada; avance real: 10/12 macrofases y 13/15 slices, según §50/§51.
+- Degradación semántica no declarada: 0. Elevación de autoridad: 0.
+- S12 no demuestra código Project Radar, acceso IndexedDB, interoperabilidad bilateral viva, compatibilidad certificada, operación productiva ni validez científica.
+- El cierre se versiona mediante el commit de fase `feat: add Project Radar artifact profile`.
+
+**Siguiente paso según la especificación**
+
+Iniciar, sólo tras una nueva autorización, Fase 10 / S13 Agent Skill/Codex: manifest versionado, workflow, ejemplos, casos de trigger positivos/negativos, degradación explícita si falta la herramienta y handoff E2E; el gate exige conformance de la skill y ausencia de bypass de autoridad.

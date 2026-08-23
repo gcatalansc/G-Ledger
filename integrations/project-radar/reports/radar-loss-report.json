@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "undeclared_material_loss_count": 0,
+  "authority_elevation_count": 0,
+  "declared_omissions": [
+    {
+      "field": "event_history",
+      "reason": "privacy-minimized derived projection"
+    },
+    {
+      "field": "evidence_payloads",
+      "reason": "digest/reference only; raw evidence is outside the Radar profile"
+    },
+    {
+      "field": "repository_paths",
+      "reason": "only allowed repository identity digests may be exported"
+    },
+    {
+      "field": "radar_owned_fields",
+      "reason": "consumer-owned and preserved by reference import"
+    }
+  ],
+  "omission_semantics": "NOT_PROVIDED",
+  "omission_clears": false,
+  "tombstones_supported": false,
+  "counterpart_runtime_validated": false
+}

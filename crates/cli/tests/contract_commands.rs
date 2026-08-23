@@ -103,7 +103,7 @@ fn ac_003_cli_json_and_stdio_manifest_are_semantically_equivalent() {
 }
 
 #[test]
-fn integration_compatibility_reports_local_gskills_and_gsp_complete_but_uncertified() {
+fn integration_compatibility_reports_all_local_profiles_complete_but_uncertified() {
     let output = Command::cargo_bin("project-ledger")
         .unwrap()
         .current_dir(repository_root())
@@ -121,7 +121,7 @@ fn integration_compatibility_reports_local_gskills_and_gsp_complete_but_uncertif
     assert_eq!(integrations[1]["integration"], "gsp");
     assert_eq!(integrations[1]["status"], "COMPLETE");
     assert_eq!(integrations[2]["integration"], "project-radar");
-    assert_eq!(integrations[2]["status"], "PENDING");
+    assert_eq!(integrations[2]["status"], "COMPLETE");
     assert!(
         integrations
             .iter()

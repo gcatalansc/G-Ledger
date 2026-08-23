@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1.1",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "entries": [
+    {
+      "contract": "ledger-radar-project-projection",
+      "positive_path": "schemas/v0.2/fixtures/positive/radar-ledger-radar-project-projection.json",
+      "positive_raw_sha256": "sha256:62b0574dd982d721fcc8a9710f8b3006eb725631515ac780f7d3510197baec2e",
+      "negative_path": "schemas/v0.2/fixtures/negative/radar-ledger-radar-project-projection.json",
+      "negative_raw_sha256": "sha256:908cd9e9a34c27f320e43e28235f3cd3639fb392623332b03e8f13537d7fd8f6"
+    },
+    {
+      "contract": "radar-field-ownership-policy",
+      "positive_path": "schemas/v0.2/fixtures/positive/radar-radar-field-ownership-policy.json",
+      "positive_raw_sha256": "sha256:0d109161fd7b721e2c3595b060bf0255dbb279ed0c36b5918fc0d006e6c323e0",
+      "negative_path": "schemas/v0.2/fixtures/negative/radar-radar-field-ownership-policy.json",
+      "negative_raw_sha256": "sha256:d62ef70fc20d2839d496b842c01b203dc28454fae84b73862a12f3f532e74296"
+    },
+    {
+      "contract": "radar-project-link",
+      "positive_path": "schemas/v0.2/fixtures/positive/radar-radar-project-link.json",
+      "positive_raw_sha256": "sha256:b6efb6f8b9d9bf7cab16723e7b06685be0626112086aea91cfa0b619d93836d6",
+      "negative_path": "schemas/v0.2/fixtures/negative/radar-radar-project-link.json",
+      "negative_raw_sha256": "sha256:0decae053cca89291274873043893c077f2015e4c0025fb4f6c07441b722e7ce"
+    },
+    {
+      "contract": "radar-status-mapping-policy",
+      "positive_path": "schemas/v0.2/fixtures/positive/radar-radar-status-mapping-policy.json",
+      "positive_raw_sha256": "sha256:deae8722055ff83714e1eebe8ef89178f3f858f2687e8faddf172a7aa466d025",
+      "negative_path": "schemas/v0.2/fixtures/negative/radar-radar-status-mapping-policy.json",
+      "negative_raw_sha256": "sha256:46a8d16e2923d0dd1b065ddc9832cdb37b450f202b3b66bb9fe1268ad4f09d72"
+    },
+    {
+      "contract": "radar-sync-envelope",
+      "positive_path": "schemas/v0.2/fixtures/positive/radar-radar-sync-envelope.json",
+      "positive_raw_sha256": "sha256:b38b2268cb6399703108407959a8891544301b8e8898abf423d42f85a542a7ef",
+      "negative_path": "schemas/v0.2/fixtures/negative/radar-radar-sync-envelope.json",
+      "negative_raw_sha256": "sha256:ce13922a6710a6f955fa377eabed1f0a1c920cdbc35239ae5ba6f4d4708a2487"
+    }
+  ]
+}

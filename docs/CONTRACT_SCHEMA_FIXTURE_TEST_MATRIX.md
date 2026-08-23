@@ -134,3 +134,17 @@ El gate integral S10 vuelve a ejecutar el workspace completo. La evidencia local
 | Fase 8 gate | `gsp-conformance.json`, `upstream-lock.json`, `specs/compatibility/gsp-v0.2.md` | Degradación semántica 0 y elevación de autoridad 0; lock local COMPLETE con `certified_compatibility=false` hasta E2E live-sidecar |
 
 El gate integral S11 vuelve a ejecutar el workspace completo. La evidencia demuestra exactitud contractual y aislamiento local; no certifica un proceso GSP Python externo vivo, validez semántica/científica, operación productiva, rentabilidad ni compatibilidad runtime certificada.
+
+## Cobertura ejecutable S12
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| PL-21, PL-31, AC-065/066 | `interop-radar/tests/profile_contracts.rs`, `export.rs` | Cinco schemas/diez fixtures con hash crudo y replay offline; export canónico, privacy mínima, sin tombstones, DB compartida, red ni IndexedDB |
+| PL-22/23, AC-067–069 | `reference_importer.rs`, `radar-project-link.schema.json` | Sólo link confirmado con uno de cinco métodos fuertes permite apply; nombre/alias produce candidato y nunca identity automática |
+| PL-24–27, AC-070–074 | `reference_importer.rs` | Duplicate, stale, higher-version y same-version divergence son resultados distintos; project omission es NO_ACTION y no existe clear/delete/last-write-wins |
+| PL-28, AC-075/076 | `reference_importer.rs`, `radar-field-mapping.json` | Priority/tags/notes/ideas/chats/tasks/artifacts/presentation permanecen consumer-owned y byte-equivalent en preview/conflicto |
+| PL-29/30, AC-077/078 | `export.rs`, `radar-conformance.json` | Tabla de status cerrada; combinación no normativa falla; porcentaje sólo con denominador lineal completo y de otro modo unavailable con razón |
+| PL-32, AC-079 | `reference_importer.rs`, `radar-loss-report.json` | Provenance Ledger se conserva y Radar no se convierte en fuente independiente de lifecycle |
+| Fase 9, AC-080 | `cli/tests/radar_workflow.rs`, `upstream-lock.json`, `specs/compatibility/project-radar-v0.1.md` | Export/validate/catalog sobre SQLite real añaden cero eventos y rechazan overwrite/tampering; lock local COMPLETE pero counterpart/E2E/certificación siguen pendientes |
+
+El gate integral S12 vuelve a ejecutar el workspace completo. La evidencia demuestra el lado Ledger y un evaluador de referencia sin persistencia; no certifica código Project Radar, IndexedDB, migración/backup counterpart, integración bilateral, operación productiva, rentabilidad ni validez científica.

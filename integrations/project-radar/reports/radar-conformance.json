@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "local_slice": "S12",
+  "result": "PASS_LOCAL_LEDGER_SIDE",
+  "policy_checks": {
+    "PL-21": "PASS_READ_ONLY_EXPORT",
+    "PL-22": "PASS_EXPLICIT_CONFIRMED_LINK",
+    "PL-23": "PASS_NAME_ALIAS_CANDIDATE_ONLY",
+    "PL-24": "PASS_DUPLICATE_REPLAY",
+    "PL-25": "PASS_STALE_IGNORED",
+    "PL-26": "PASS_SOURCE_DIVERGENCE_CRITICAL",
+    "PL-27": "PASS_OMISSION_NO_ACTION_NO_CLEAR",
+    "PL-28": "PASS_RADAR_FIELDS_PRESERVED",
+    "PL-29": "PASS_NORMATIVE_STATUS_MAPPING",
+    "PL-30": "PASS_UNAVAILABLE_PROGRESS_EXPLICIT",
+    "PL-31": "PASS_PRIVACY_MINIMIZED",
+    "PL-32": "PASS_LEDGER_PROVENANCE_AUTHORITY_PRESERVED"
+  },
+  "acceptance_criteria": {
+    "AC-065..AC-080": "PASS_LOCAL_FIXTURES_AND_SQLITE_CLI"
+  },
+  "contract_counts": {
+    "schemas": 5,
+    "positive_fixtures": 5,
+    "negative_fixtures": 5
+  },
+  "reference_importer": {
+    "persistence_port_present": false,
+    "radar_indexeddb_access": false,
+    "duplicate_stale_update_divergence_covered": true,
+    "radar_owned_fields_preserved": true
+  },
+  "cli": {
+    "single_project_sqlite_export": "PASS_ZERO_EVENTS_APPENDED",
+    "validate_export": "PASS_DIGEST_AND_SCHEMA",
+    "explicit_catalog_all": "PASS_ZERO_EVENTS_APPENDED",
+    "overwrite_refusal": "PASS"
+  },
+  "semantic_degradation_count": 0,
+  "authority_elevation_count": 0,
+  "counterpart_extension_status": "PENDING",
+  "bilateral_e2e_status": "PENDING_SEPARATE_EVIDENCE",
+  "certified_compatibility": false
+}

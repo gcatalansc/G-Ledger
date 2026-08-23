@@ -184,7 +184,7 @@
     {
       "schema_id": "urn:project-ledger:schema:radar:radar-project-link:0.1.1",
       "relative_path": "radar/radar-project-link.schema.json",
-      "canonical_digest": "sha256:0bf843cdfaf1e19874bf34b0bd005a1e595d43dd30a9b8e018dd62310ae6523d"
+      "canonical_digest": "sha256:e476c370126d5056f35efd0c00025b7a5dc8016c3b95cbff883d0876f78d1d0b"
     },
     {
       "schema_id": "urn:project-ledger:schema:radar:radar-status-mapping-policy:0.1.1",

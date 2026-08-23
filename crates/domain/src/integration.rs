@@ -21,6 +21,7 @@ closed_enum! { pub enum SuggestedRadarStatus { Formalizing, SpecReady, InDevelop
 closed_enum! { pub enum RadarProgressMethod { LinearRequiredPhases } }
 closed_enum! { pub enum RadarProgressStatus { Complete, Partial, Unavailable } }
 closed_enum! { pub enum RadarLinkStatus { Candidate, Confirmed, Revoked, Conflicted } }
+closed_enum! { pub enum RadarIdentityMethod { UserConfirmed, ExactStableId, ExactRepositoryRemoteDigest, SignedMapping, ImportedMappingReviewed } }
 closed_enum! { pub enum RadarFieldOwner { Ledger, Radar, SharedDisplay } }
 
 #[derive(Clone, Debug, Deserialize, JsonSchema, PartialEq, Serialize)]
@@ -389,7 +390,7 @@ pub struct RadarProjectLink {
     pub ledger_project_ref: ResourceRef,
     pub radar_project_ref: ResourceRef,
     pub status: RadarLinkStatus,
-    pub method: IdentityMethod,
+    pub method: RadarIdentityMethod,
     pub actor_ref: StableId,
     pub created_at: LedgerTimestamp,
     pub digest: Sha256Digest,
