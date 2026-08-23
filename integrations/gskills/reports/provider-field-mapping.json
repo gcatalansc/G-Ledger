@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsProviderFieldMappingReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "source": {
+    "product": "Project Ledger",
+    "version": "0.2.0",
+    "schema_ref": "urn:project-ledger:schema:project-state:0.2.0",
+    "spec_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9"
+  },
+  "target": {
+    "product": "G-Skills",
+    "version": "0.3.0",
+    "document_revision": "PL-UPSTREAM-REFRESH-1",
+    "schema_ref": "urn:gskills:schema:project-continuity-projection:0.3.0",
+    "schema_digest": "sha256:13d8f22140113f13b1063a73a8c64f6cec279232e0d05f3a3a8525f856f0bcb1"
+  },
+  "status": "BLOCKED_UPSTREAM_SCHEMA_CONFLICT",
+  "executable_reproduction": "crates/interop-gskills/tests/upstream_contracts.rs::pl_10_upstream_schema_currently_rejects_normative_phase_and_action_fields",
+  "compatible_rows": [
+    {"source":"ProjectState.state_version","target":"project.state_version"},
+    {"source":"ProjectState.material_state_version","target":"project.material_state_version"},
+    {"source":"ProjectState.state_digest","target":"project.state_digest"},
+    {"source":"active_phase_refs[]","target":"active_phases[].ref"},
+    {"source":"primary_active_phase_ref","target":"primary_active_phase_ref"},
+    {"source":"completed_phase_refs[]","target":"verified_completed_phases[].ref"},
+    {"source":"gate statuses","target":"gates.pending/revalidation_required/stale/verified"},
+    {"source":"ContinuityCheckpoint N/N+1 fields","target":"checkpoint N/N+1 fields"},
+    {"source":"RepositoryBinding status/snapshot","target":"repository_binding status/snapshot"}
+  ],
+  "blocked_rows": [
+    {
+      "source":"active phase title/kind/status/started_at",
+      "normative_target":"active_phases[].title/kind/status/started_at",
+      "schema_conflict":"active_phases[].additionalProperties=false; only ref and extensions are admitted",
+      "severity":"MATERIAL"
+    },
+    {
+      "source":"NextAction title/classification/status/authority_ref and gskills_derivation",
+      "normative_target":"next_actions.ordered[].title/classification/status/authority_ref/gskills_derivation",
+      "schema_conflict":"next_actions.ordered[].additionalProperties=false; only ref and extensions are admitted",
+      "severity":"MATERIAL"
+    }
+  ],
+  "forbidden_workarounds": [
+    "DROP_FIELDS",
+    "MOVE_CANONICAL_FIELDS_TO_UNVERSIONED_EXTENSION",
+    "RELAX_OR_REWRITE_VENDORED_UPSTREAM_SCHEMA",
+    "DECLARE_ZERO_LOSS",
+    "CERTIFY_PROFILE"
+  ]
+}

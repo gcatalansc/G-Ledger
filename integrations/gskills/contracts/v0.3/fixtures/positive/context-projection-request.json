@@ -1,0 +1,19 @@
+{
+  "budget": {},
+  "consistency": {},
+  "context_projection_request_id": "context-projection-request:fixture",
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "identity": {},
+  "privacy": {},
+  "projection_kind": "FIXTURE_VALUE",
+  "provider_id": "FIXTURE_VALUE",
+  "purpose": "FIXTURE_VALUE",
+  "request_id": "FIXTURE_VALUE",
+  "requested_at": "FIXTURE_VALUE",
+  "requested_fields": [],
+  "schema_version": "0.3.0",
+  "stage": "FIXTURE_VALUE",
+  "structural_scope": {},
+  "traceparent": "FIXTURE_VALUE",
+  "write_capability": "FIXTURE_VALUE"
+}

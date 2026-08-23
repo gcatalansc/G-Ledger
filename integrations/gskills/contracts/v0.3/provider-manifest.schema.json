@@ -1,0 +1,115 @@
+{
+  "$id": "urn:gskills:schema:provider-manifest:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "claimed_authority_domains": {
+      "items": true,
+      "type": "array"
+    },
+    "contract_identity": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "freshness_model": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "implementation": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "operations": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "privacy": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "projection_capabilities": {
+      "items": true,
+      "type": "array"
+    },
+    "protocol": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "provided_domains": {
+      "items": true,
+      "type": "array"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_manifest_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provider_version": {
+      "type": "string"
+    },
+    "record_sink_capabilities": {
+      "items": true,
+      "type": "array"
+    },
+    "schema_refs": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "side_effect_contract": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "transports": {
+      "items": true,
+      "type": "array"
+    },
+    "upstream": {
+      "additionalProperties": true,
+      "type": "object"
+    }
+  },
+  "required": [
+    "claimed_authority_domains",
+    "contract_identity",
+    "created_at",
+    "digest",
+    "freshness_model",
+    "implementation",
+    "operations",
+    "privacy",
+    "projection_capabilities",
+    "protocol",
+    "provided_domains",
+    "provider_id",
+    "provider_manifest_id",
+    "provider_version",
+    "record_sink_capabilities",
+    "schema_refs",
+    "schema_version",
+    "side_effect_contract",
+    "transports",
+    "upstream"
+  ],
+  "title": "ProviderManifest",
+  "type": "object"
+}

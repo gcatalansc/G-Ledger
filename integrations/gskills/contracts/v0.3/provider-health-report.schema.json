@@ -1,0 +1,70 @@
+{
+  "$id": "urn:gskills:schema:provider-health-report:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "checked_at": {
+      "type": "string"
+    },
+    "checks": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "latency_ms": {
+      "type": "integer"
+    },
+    "provider_health_report_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provider_manifest_digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "provider_ref": {
+      "type": "string"
+    },
+    "quarantine_reason": true,
+    "runtime_status": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "valid_until": {
+      "type": "string"
+    },
+    "warnings": {
+      "items": true,
+      "type": "array"
+    }
+  },
+  "required": [
+    "checked_at",
+    "checks",
+    "digest",
+    "latency_ms",
+    "provider_health_report_id",
+    "provider_manifest_digest",
+    "provider_ref",
+    "quarantine_reason",
+    "runtime_status",
+    "schema_version",
+    "valid_until",
+    "warnings"
+  ],
+  "title": "ProviderHealthReport",
+  "type": "object"
+}

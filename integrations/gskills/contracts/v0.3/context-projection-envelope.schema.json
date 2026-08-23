@@ -1,0 +1,107 @@
+{
+  "$id": "urn:gskills:schema:context-projection-envelope:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "advisory_domains": {
+      "items": true,
+      "type": "array"
+    },
+    "claimed_authority_domains": {
+      "items": true,
+      "type": "array"
+    },
+    "context_projection_envelope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "delivery_status": {
+      "type": "string"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "effective_authority_domains": {
+      "items": true,
+      "type": "array"
+    },
+    "eligibility_record_ref": {
+      "type": "string"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "freshness_record_ref": {
+      "type": "string"
+    },
+    "loss_report_ref": true,
+    "payload": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "payload_validation_status": {
+      "type": "string"
+    },
+    "projection_kind": {
+      "type": "string"
+    },
+    "provenance_ref": {
+      "type": "string"
+    },
+    "provider": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "request_digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "request_ref": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "warnings": {
+      "items": true,
+      "type": "array"
+    }
+  },
+  "required": [
+    "advisory_domains",
+    "claimed_authority_domains",
+    "context_projection_envelope_id",
+    "coverage",
+    "created_at",
+    "delivery_status",
+    "digest",
+    "effective_authority_domains",
+    "eligibility_record_ref",
+    "freshness_record_ref",
+    "loss_report_ref",
+    "payload",
+    "payload_validation_status",
+    "projection_kind",
+    "provenance_ref",
+    "provider",
+    "request_digest",
+    "request_ref",
+    "schema_version",
+    "warnings"
+  ],
+  "title": "ContextProjectionEnvelope",
+  "type": "object"
+}

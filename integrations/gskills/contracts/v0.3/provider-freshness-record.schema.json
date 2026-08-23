@@ -1,0 +1,71 @@
+{
+  "$id": "urn:gskills:schema:provider-freshness-record:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "basis": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "compatibility_snapshot": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "evaluated_at": {
+      "type": "string"
+    },
+    "evaluator": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "expires_at": true,
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "projection_ref": {
+      "type": "string"
+    },
+    "provider_freshness_record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provider_ref": {
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": true,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "basis",
+    "compatibility_snapshot",
+    "digest",
+    "evaluated_at",
+    "evaluator",
+    "expires_at",
+    "projection_ref",
+    "provider_freshness_record_id",
+    "provider_ref",
+    "reason_codes",
+    "schema_version",
+    "status"
+  ],
+  "title": "ProviderFreshnessRecord",
+  "type": "object"
+}

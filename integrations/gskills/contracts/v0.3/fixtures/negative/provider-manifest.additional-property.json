@@ -1,0 +1,23 @@
+{
+  "claimed_authority_domains": [],
+  "contract_identity": {},
+  "created_at": "FIXTURE_VALUE",
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "freshness_model": {},
+  "implementation": {},
+  "operations": {},
+  "privacy": {},
+  "projection_capabilities": [],
+  "protocol": {},
+  "provided_domains": [],
+  "provider_id": "FIXTURE_VALUE",
+  "provider_manifest_id": "provider-manifest:fixture",
+  "provider_version": "FIXTURE_VALUE",
+  "record_sink_capabilities": [],
+  "schema_refs": {},
+  "schema_version": "0.3.0",
+  "side_effect_contract": {},
+  "transports": [],
+  "unexpected_s1_property": true,
+  "upstream": {}
+}

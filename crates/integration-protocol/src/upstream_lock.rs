@@ -57,6 +57,27 @@ pub fn inspect_upstream_lock(value: &Value) -> Result<UpstreamLockInspection, Pr
     {
         missing.push("reciprocal_lock".to_owned());
     }
+    inspect_optional_status(
+        object,
+        "provider_field_mapping_status",
+        &["PASS", "EXACT"],
+        "provider_field_mapping",
+        &mut missing,
+    )?;
+    inspect_optional_status(
+        object,
+        "provider_loss_report_status",
+        &["PASS", "ZERO_MATERIAL_LOSS"],
+        "provider_loss_report",
+        &mut missing,
+    )?;
+    inspect_optional_status(
+        object,
+        "provider_conformance_status",
+        &["PASS"],
+        "provider_conformance",
+        &mut missing,
+    )?;
     missing.sort();
     missing.dedup();
     if certified_compatibility && !missing.is_empty() {
@@ -72,6 +93,23 @@ pub fn inspect_upstream_lock(value: &Value) -> Result<UpstreamLockInspection, Pr
         missing_evidence: missing,
         certified_compatibility,
     })
+}
+
+fn inspect_optional_status(
+    object: &Map<String, Value>,
+    field: &str,
+    complete_values: &[&str],
+    evidence_name: &str,
+    missing: &mut Vec<String>,
+) -> Result<(), ProtocolError> {
+    let Some(value) = object.get(field) else {
+        return Ok(());
+    };
+    let status = value.as_str().ok_or_else(|| invalid(field))?;
+    if !complete_values.contains(&status) {
+        missing.push(evidence_name.to_owned());
+    }
+    Ok(())
 }
 
 fn inspect_digest(

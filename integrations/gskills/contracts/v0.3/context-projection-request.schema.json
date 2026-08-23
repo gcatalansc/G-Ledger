@@ -1,0 +1,95 @@
+{
+  "$id": "urn:gskills:schema:context-projection-request:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "budget": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "consistency": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "context_projection_request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "identity": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "privacy": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "projection_kind": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "requested_at": {
+      "type": "string"
+    },
+    "requested_fields": {
+      "items": true,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "stage": {
+      "type": "string"
+    },
+    "structural_scope": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "traceparent": {
+      "type": "string"
+    },
+    "write_capability": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "budget",
+    "consistency",
+    "context_projection_request_id",
+    "digest",
+    "identity",
+    "privacy",
+    "projection_kind",
+    "provider_id",
+    "purpose",
+    "request_id",
+    "requested_at",
+    "requested_fields",
+    "schema_version",
+    "stage",
+    "structural_scope",
+    "traceparent",
+    "write_capability"
+  ],
+  "title": "ContextProjectionRequest",
+  "type": "object"
+}

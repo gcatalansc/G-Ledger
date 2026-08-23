@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsProviderLossReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "source_schema_ref": "urn:project-ledger:schema:project-state:0.2.0",
+  "target_schema_ref": "urn:gskills:schema:project-continuity-projection:0.3.0",
+  "status": "MATERIAL_LOSS_BLOCKS_PROVIDER_GATE",
+  "items": [
+    {
+      "field_path": "/active_phases/*/{title,kind,status,started_at}",
+      "severity": "MATERIAL",
+      "reason": "Required by the normative G-Skills example but rejected by its locked schema."
+    },
+    {
+      "field_path": "/next_actions/ordered/*/{title,classification,status,authority_ref,gskills_derivation}",
+      "severity": "MATERIAL",
+      "reason": "Required by the normative minimum mapping but rejected by its locked schema."
+    }
+  ],
+  "material_loss_count": 2,
+  "resolution_required": "Publish a new exact G-Skills schema/fixture registry revision that admits the normative fields, then refresh the Ledger lock and rerun S9 RED-GREEN-conformance."
+}

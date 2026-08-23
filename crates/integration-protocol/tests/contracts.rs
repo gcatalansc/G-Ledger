@@ -173,6 +173,23 @@ fn upstream_locks_preserve_pending_evidence_and_reject_certification_overclaim()
     assert_eq!(inspection.status, UpstreamLockStatus::Complete);
     assert!(inspection.missing_evidence.is_empty());
 
+    let mut blocked_profile = complete.clone();
+    blocked_profile["provider_field_mapping_status"] =
+        Value::String("BLOCKED_UPSTREAM_SCHEMA_CONFLICT".to_owned());
+    blocked_profile["provider_loss_report_status"] = Value::String("MATERIAL_LOSS".to_owned());
+    blocked_profile["provider_conformance_status"] =
+        Value::String("BLOCKED_BY_MATERIAL_LOSS".to_owned());
+    let inspection = inspect_upstream_lock(&blocked_profile).unwrap();
+    assert_eq!(inspection.status, UpstreamLockStatus::Pending);
+    assert_eq!(
+        inspection.missing_evidence,
+        vec![
+            "provider_conformance",
+            "provider_field_mapping",
+            "provider_loss_report"
+        ]
+    );
+
     let mut overclaim = complete;
     overclaim["schema_registry_sha256"] = Value::Null;
     overclaim["certified_compatibility"] = Value::Bool(true);

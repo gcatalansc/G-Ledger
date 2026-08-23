@@ -1,0 +1,25 @@
+{
+  "active_phases": [],
+  "authority_documents": [],
+  "checkpoint": {},
+  "conflict_refs": [],
+  "current_decisions": [],
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "gates": {},
+  "last_material_activity_at": "FIXTURE_VALUE",
+  "next_actions": {
+    "ordered": []
+  },
+  "open_blockers": [],
+  "open_risks": [],
+  "primary_active_phase_ref": "FIXTURE_VALUE",
+  "project": {},
+  "project_continuity_projection_id": "project-continuity-projection:fixture",
+  "provenance_ref": "FIXTURE_VALUE",
+  "recent_material_events": [],
+  "repository_binding": {},
+  "schema_version": "0.3.0",
+  "source_profile": "FIXTURE_VALUE",
+  "unknowns": [],
+  "verified_completed_phases": []
+}

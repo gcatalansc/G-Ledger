@@ -1,0 +1,14 @@
+{
+  "checked_at": "FIXTURE_VALUE",
+  "checks": {},
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "latency_ms": 0,
+  "provider_health_report_id": "provider-health-report:fixture",
+  "provider_manifest_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "provider_ref": "FIXTURE_VALUE",
+  "quarantine_reason": null,
+  "runtime_status": "FIXTURE_VALUE",
+  "schema_version": "0.3.0",
+  "valid_until": "FIXTURE_VALUE",
+  "warnings": []
+}

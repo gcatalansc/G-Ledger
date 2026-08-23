@@ -1,0 +1,14 @@
+{
+  "basis": {},
+  "compatibility_snapshot": {},
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "evaluated_at": "FIXTURE_VALUE",
+  "evaluator": {},
+  "expires_at": null,
+  "projection_ref": "FIXTURE_VALUE",
+  "provider_freshness_record_id": "provider-freshness-record:fixture",
+  "provider_ref": "FIXTURE_VALUE",
+  "reason_codes": [],
+  "schema_version": "0.3.0",
+  "status": "FIXTURE_VALUE"
+}

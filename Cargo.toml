@@ -10,6 +10,7 @@ members = [
   "crates/evidence",
   "crates/continuity",
   "crates/integration-protocol",
+  "crates/interop-gskills",
   "crates/legacy-import",
   "crates/portable-bundle",
   "crates/project-catalog",

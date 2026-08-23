@@ -1,0 +1,179 @@
+{
+  "$id": "urn:gskills:schema:project-continuity-projection:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "active_phases": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "extensions": {
+            "additionalProperties": true,
+            "propertyNames": {
+              "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+            },
+            "type": "object"
+          },
+          "ref": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "ref"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "authority_documents": {
+      "items": true,
+      "type": "array"
+    },
+    "checkpoint": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "conflict_refs": {
+      "items": true,
+      "type": "array"
+    },
+    "current_decisions": {
+      "items": true,
+      "type": "array"
+    },
+    "digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+      },
+      "type": "object"
+    },
+    "gates": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "last_material_activity_at": {
+      "type": "string"
+    },
+    "next_actions": {
+      "additionalProperties": false,
+      "properties": {
+        "extensions": {
+          "additionalProperties": true,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+          },
+          "type": "object"
+        },
+        "ordered": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "extensions": {
+                "additionalProperties": true,
+                "propertyNames": {
+                  "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$"
+                },
+                "type": "object"
+              },
+              "ref": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "ref"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "preferred_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "ordered"
+      ],
+      "type": "object"
+    },
+    "open_blockers": {
+      "items": true,
+      "type": "array"
+    },
+    "open_risks": {
+      "items": true,
+      "type": "array"
+    },
+    "primary_active_phase_ref": {
+      "type": "string"
+    },
+    "project": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "project_continuity_projection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provenance_ref": {
+      "type": "string"
+    },
+    "recent_material_events": {
+      "items": true,
+      "type": "array"
+    },
+    "repository_binding": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "source_profile": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": true,
+      "type": "array"
+    },
+    "verified_completed_phases": {
+      "items": true,
+      "type": "array"
+    }
+  },
+  "required": [
+    "active_phases",
+    "authority_documents",
+    "checkpoint",
+    "conflict_refs",
+    "current_decisions",
+    "digest",
+    "gates",
+    "last_material_activity_at",
+    "next_actions",
+    "open_blockers",
+    "open_risks",
+    "primary_active_phase_ref",
+    "project",
+    "project_continuity_projection_id",
+    "provenance_ref",
+    "recent_material_events",
+    "repository_binding",
+    "schema_version",
+    "source_profile",
+    "unknowns",
+    "verified_completed_phases"
+  ],
+  "title": "ProjectContinuityProjection",
+  "type": "object"
+}

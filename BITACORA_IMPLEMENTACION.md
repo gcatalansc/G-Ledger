@@ -7,13 +7,13 @@
 | Campo | Valor |
 |---|---|
 | Fecha de actualización | 2026-08-23 |
-| Estado | FASE 5 COMPLETADA — S8 COMPLETADO |
+| Estado | FASE 6 EN CURSO — S9 INICIADO |
 | Macrofases completadas (§50) | 6/12 |
 | Slices completados (§51) | 9/15 |
 | Última macrofase completada | Fase 5 — Generic integration protocol |
-| Macrofase actual | Fase 6 — G-Skills provider (pendiente) |
+| Macrofase actual | Fase 6 — G-Skills provider (en curso) |
 | Último slice completado | S8 — generic integration protocol + SDK |
-| Slice actual | S9 — G-Skills provider (pendiente) |
+| Slice actual | S9 — G-Skills provider (en curso) |
 | Último commit de baseline | `6584c04227356cb156ff2614f8564f2ce2e1a68a` |
 | Commit de cierre más reciente | Este commit: `feat: add generic integration protocol and conformance` |
 
@@ -673,3 +673,76 @@ El primer gate agregado ejecutó formato, Clippy, 150 tests y schema check corre
 **Siguiente paso según la especificación**
 
 Iniciar Fase 6 / S9: G-Skills provider exacto v0.3.0, comenzando por verificar/hidratar los contratos upstream, schema registry y fixtures exactos y mantener la compatibilidad lock-gated mientras el lock recíproco continúe `PENDING_REFRESH`; después implementar mapping de continuidad, budget, freshness y provider conformance sin acceso a DB compartida.
+
+### 2026-08-23 — Inicio de S9 (Fase 6)
+
+**Estado al inicio**
+
+- HEAD limpio: `c9665f2 feat: add generic integration protocol and conformance`.
+- Avance conservado hasta superar el gate: 6/12 macrofases y 9/15 slices.
+- Plan ejecutable: `docs/superpowers/plans/2026-08-23-project-ledger-phase-6-s9.md`.
+- La ejecución continúa inline por autorización expresa del usuario y sin delegación.
+
+**Reconciliación upstream verificada antes de producción**
+
+- El handoff Ledger conserva como snapshot histórico G-Skills `E2E-CONSOLIDATED-1` (`8ddbb2a9...`) y marcaba el refresh recíproco pendiente.
+- El repositorio hermano G-Skills está limpio y ya publica la revisión posterior `PL-UPSTREAM-REFRESH-1`: spec SHA-256 `957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e`.
+- Su counterpart lock SHA-256 `49ff8bf60b33deb47cc688f288f7c2e1124d99fb223d0d8d4d2668ea4c60929d` fija el Ledger actual `31cb7cd4...` y preserva `e7acc496...`/`8ddbb2a9...` exclusivamente como historia pre-refresh.
+- El registry y manifest de fixtures G-Skills existen localmente y fueron medidos por bytes: `de9131a8...` y `316c0564...`. S9 puede fijarlos sin inferir contratos por nombre.
+- Los crates provider de G-Skills siguen reservados, por lo que el E2E de S9 se validará contra schemas/fixtures exactos y framing normativo, no contra una implementación counterpart inexistente.
+
+**Fronteras de S9**
+
+- Se implementará solo `ProjectContinuityProvider` read-only. RecordSink, writes, unknown outcome y revalidation mutable permanecen S10.
+- El adapter no dependerá de SQLite; recibirá una proyección inmutable desde la composición Ledger.
+- La fase puede cerrar su gate `projection/profile E2E PASS`, pero `certified_compatibility` seguirá en false hasta S10 y E2E bilateral.
+- El mapping preservará versiones state/material, buckets de gates, classification, checkpoint N/N+1, repository binding, unknowns/conflicts y provenance; toda pérdida material bloqueará el gate.
+
+**Siguiente acción**
+
+Escribir las pruebas RED del lock, seis schemas/fixtures read-only y verificación de digests; después materializar el crate y los contratos vendorizados mínimos hasta GREEN.
+
+**Hito S9.1 — Contratos upstream exactos GREEN**
+
+- RED confirmado primero por paquete inexistente y después por nueve APIs/constantes ausentes en el crate ya registrable.
+- Se vendorizaron los seis contratos read-only de S9 y sus 12 fixtures emparejados; no se copió ni redefinió un schema reducido.
+- GREEN focalizado: 2/2 pruebas, con seis positivos aceptados, seis negativos `additionalProperties` rechazados y seis IDs/digests canónicos iguales al registry upstream.
+- `upstream-lock.json` fija G-Skills `PL-UPSTREAM-REFRESH-1`, spec `957e62be...`, registry `de9131a8...`, fixture manifest `316c0564...`, counterpart lock `49ff8bf6...` y Ledger `31cb7cd4...`.
+- El refresh recíproco queda `CURRENT` a nivel de spec/lock. Mapping, loss y conformance siguen `PENDING_S9`; RecordSink y bilateral E2E siguen `PENDING_S10`; `certified_compatibility=false`.
+- La verificación es autocontenida en Ledger y no depende de que el repositorio hermano exista durante CI/release.
+- Siguiente: pruebas RED del mapping literal, budget, freshness e identidad sobre `ProjectStateProjection` real.
+
+**Hallazgo bloqueante S9.2 — conflicto spec/schema upstream reproducido**
+
+- Antes de escribir el mapper se comparó el ejemplo y tabla normativa G-Skills §28.11 con el schema exacto fijado `urn:gskills:schema:project-continuity-projection:0.3.0`.
+- El schema usa `additionalProperties=false` en `active_phases[]` y `next_actions.ordered[]`, admitiendo solo `ref` y `extensions`; rechaza `title/kind/status/started_at` de fase y `title/classification/status/authority_ref/gskills_derivation` de acciones exigidos por la spec.
+- La caracterización ejecutable `pl_10_upstream_schema_currently_rejects_normative_phase_and_action_fields` pasa porque confirma el rechazo en ambas rutas. El pase focalizado total queda 3/3.
+- `provider-field-mapping.json` registra las filas compatibles y dos grupos bloqueados. `provider-loss-report.json` registra `material_loss_count=2` y prohíbe drop, extensión no versionada, schema relajado o certificación.
+- El lock conserva contratos read-only exactos, pero cambia mapping a `BLOCKED_UPSTREAM_SCHEMA_CONFLICT`, loss a `MATERIAL_LOSS` y conformance a `BLOCKED_BY_MATERIAL_LOSS`; compatibilidad certificada permanece false.
+- No se inició producción del provider: TDD y REQ-PVD-008 impiden implementar una API cuyo comportamiento requerido no puede validar contra el contrato exacto.
+- Resolver exige una nueva revisión autorizada en G-Skills con schema/fixtures/registry corregidos, seguida de refresh del lock Ledger y reanudación RED→GREEN de Tasks 2-4.
+
+**Checkpoint verificable de S9 bloqueado**
+
+| Verificación | Resultado |
+|---|---|
+| RED→GREEN de contratos upstream | PASS — paquete/API ausentes primero; luego 3/3 pruebas, incluida la caracterización del conflicto |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo clippy --workspace --all-targets --all-features -- -D warnings` | PASS |
+| `cargo test --workspace --all-targets --all-features` | PASS — 153 pruebas enumeradas, 0 fallos |
+| `cargo xtask schema check` | PASS — árbol generado sincronizado |
+| `project-ledger specs verify` | PASS — v0.1.0 `772ea517`, v0.2.0 `31cb7cd4` |
+| `project-ledger contracts verify` | PASS — 46 schemas, 92 fixtures, 53 filas |
+| `project-ledger integration compatibility` | PASS conservador — G-Skills `PENDING`, faltan mapping/loss/conformance; global false |
+| `cargo-deny 0.20.2 --offline check` | PASS — advisories/bans/licenses/sources |
+| `git diff --check` | PASS |
+
+El primer pase de `cargo-deny` detectó que el nuevo crate interno omitía la versión exacta de `project-ledger-canonical-json` y lo interpretaba como dependencia wildcard. Se añadió `version = "=0.2.0"`, siguiendo todos los crates existentes, y se repitieron los gates posteriores con resultado verde. Las advertencias permitidas de duplicados transitivos `getrandom`, `r-efi` y `syn` permanecen sin cambio.
+
+La revisión pre-commit observó cambios ajenos de S8 en el worktree hermano G-Skills y los dejó intactos. Los cuatro inputs de autoridad usados por este checkpoint —spec, registry, fixture manifest y lock recíproco— se rehashearon pese a ello y siguen coincidiendo exactamente con `957e62be...`, `de9131a8...`, `316c0564...` y `49ff8bf6...`.
+
+Este checkpoint se versionará como `chore: pin exact G-Skills read contracts and blocker`; no es un commit de cierre de S9/Fase 6. El avance permanece deliberadamente en 6/12 macrofases y 9/15 slices. No existe provider operativo, profile E2E aprobado ni compatibilidad certificada.
+
+**Siguiente paso según la especificación**
+
+Publicar bajo autoridad de G-Skills una revisión corregida y coherente de `ProjectContinuityProjection`, sus fixtures positivo/negativo y registry/manifest; después refrescar sus digests exactos en Ledger y reanudar Tasks 2-4 del plan S9 sin omitir ni relegar campos materiales.

@@ -1041,6 +1041,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-ledger-interop-gskills"
+version = "0.2.0"
+dependencies = [
+ "jsonschema",
+ "project-ledger-canonical-json",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "project-ledger-legacy-import"
 version = "0.2.0"
 dependencies = [

@@ -1,0 +1,22 @@
+{
+  "advisory_domains": [],
+  "claimed_authority_domains": [],
+  "context_projection_envelope_id": "context-projection-envelope:fixture",
+  "coverage": {},
+  "created_at": "FIXTURE_VALUE",
+  "delivery_status": "FIXTURE_VALUE",
+  "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "effective_authority_domains": [],
+  "eligibility_record_ref": "FIXTURE_VALUE",
+  "freshness_record_ref": "FIXTURE_VALUE",
+  "loss_report_ref": null,
+  "payload": {},
+  "payload_validation_status": "FIXTURE_VALUE",
+  "projection_kind": "FIXTURE_VALUE",
+  "provenance_ref": "FIXTURE_VALUE",
+  "provider": {},
+  "request_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "request_ref": "FIXTURE_VALUE",
+  "schema_version": "0.3.0",
+  "warnings": []
+}
