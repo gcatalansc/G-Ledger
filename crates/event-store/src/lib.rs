@@ -10,7 +10,7 @@ pub use integrity::{
     validate_external_submission_integrity,
 };
 pub use ports::{
-    CommandCommit, CommitDisposition, EventStore, IdempotencyLookup, ProjectStateSnapshot,
-    ProjectionSnapshotLoad, ProjectionSnapshotStore, StoreError, SubmissionDisposition,
-    SubmissionStore,
+    CommandCommit, CommitDisposition, EventImportStore, EventStore, IdempotencyLookup,
+    ProjectStateSnapshot, ProjectionSnapshotLoad, ProjectionSnapshotStore, StoreError,
+    SubmissionDisposition, SubmissionStore,
 };

@@ -15,6 +15,7 @@ serde_json.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
+project-ledger-portable-bundle = { path = "../portable-bundle", version = "=0.2.0" }
 project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
 tempfile.workspace = true
 

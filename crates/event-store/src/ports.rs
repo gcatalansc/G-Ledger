@@ -149,6 +149,27 @@ pub trait EventStore {
     ) -> Result<Option<CommandResult>, StoreError>;
 }
 
+/// Narrow append boundary for event-only portable bundles.
+///
+/// The adapter must revalidate the current head and every immutable envelope
+/// inside the same transaction. Portable bundles intentionally do not expose
+/// private command/result tables.
+pub trait EventImportStore: EventStore {
+    /// Atomically appends a verified contiguous event suffix.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StoreError`] when the destination changed after planning or
+    /// any event identity, version, digest, causation metadata or genesis rule
+    /// is invalid. No event may remain appended on failure.
+    fn append_imported_events(
+        &mut self,
+        project_ref: &ProjectId,
+        expected_version: u64,
+        events: &[EventEnvelope],
+    ) -> Result<(), StoreError>;
+}
+
 /// Storage-independent boundary for mutable, discardable projection caches.
 pub trait ProjectionSnapshotStore {
     /// Loads a snapshot without treating cache corruption as canonical corruption.

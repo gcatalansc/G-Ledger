@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5 y continuidad/render/audit de S6. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6 y portable/legacy import de S7. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -77,4 +77,14 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | I-03, §28, AC-029–030, PL-14 | `markdown_audit.rs` | Warning y trece secciones exactas, LF/digest deterministas, render read-only, perfiles de privacidad y edición manual sin mutación canónica |
 | §30.1–30.3, AC-031–033 | `markdown_audit.rs` | Rebuild de stream, source version/digest y bytes verificables; modificación produce `GENERATED_ARTIFACT_MODIFIED`, regeneración restaura MATCH y hallazgos críticos permanecen visibles |
 
-Las 122 pruebas del workspace incluyen 11 pruebas incorporadas en S6. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.
+## Cobertura ejecutable S7
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| AC-005, PL-15, §31.1–31.2 | `portable-bundle/tests/export.rs`, `import.rs` | Árbol fijo, bytes canónicos y repetibles, manifest/checksums/schema lock, no overwrite, privacy fail-closed y roundtrip desde directorio |
+| AC-005, §31.5 | `portable-bundle/tests/import.rs`, `storage-sqlite/tests/portable_import.rs` | Checksums, cadena, identity, continuidad y estado reconstruido se verifican antes de new-project/fast-forward SQLite atómico |
+| AC-035, §31.3–31.4 | `portable-bundle/tests/import.rs`, `storage-sqlite/tests/portable_import.rs` | Identical es idempotente; destino más nuevo no se sobrescribe; siblings divergen sin merge; fork explícito devuelve target+provenance y no muta el stream original |
+| REQ-REL-002, §31.5 | `portable-bundle/src/export.rs`, `import.rs` | Sólo v0.2.0 se interpreta; otro schema exige migración explícita y no se reetiqueta silenciosamente |
+| AC-034, §29, ADR-014 | `legacy-import/tests/review.rs` | Preview por línea con conflictos preservados, toda recomendación `REVIEW`, decisión exacta por candidato, `TRUST_ALL` inválido y proposals sólo `ASSERTED` |
+
+Las 134 pruebas del workspace incluyen 12 pruebas incorporadas en S7. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.

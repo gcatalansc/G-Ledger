@@ -1015,6 +1015,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-ledger-legacy-import"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "project-ledger-lifecycle"
 version = "0.2.0"
 dependencies = [
@@ -1027,6 +1038,21 @@ dependencies = [
  "sha2",
  "thiserror",
  "uuid",
+]
+
+[[package]]
+name = "project-ledger-portable-bundle"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-continuity",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-projection-engine",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
 ]
 
 [[package]]
@@ -1073,6 +1099,7 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-portable-bundle",
  "project-ledger-projection-engine",
  "rusqlite",
  "serde",

@@ -4,7 +4,7 @@ use project_ledger_domain::{
     StableId,
 };
 use project_ledger_event_store::{
-    CommandCommit, CommitDisposition, EventStore, IdempotencyLookup, StoreError,
+    CommandCommit, CommitDisposition, EventImportStore, EventStore, IdempotencyLookup, StoreError,
     validate_command_integrity, validate_command_result_integrity, validate_event_integrity,
 };
 use rusqlite::{OptionalExtension, Transaction, TransactionBehavior, params};
@@ -209,6 +209,99 @@ impl EventStore for SqliteEventStore {
         stored
             .map(|(digest, bytes)| decode_command_result(&digest, &bytes))
             .transpose()
+    }
+}
+
+impl EventImportStore for SqliteEventStore {
+    fn append_imported_events(
+        &mut self,
+        project_ref: &ProjectId,
+        expected_version: u64,
+        events: &[EventEnvelope],
+    ) -> Result<(), StoreError> {
+        if events.is_empty() {
+            return Ok(());
+        }
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(persistence)?;
+        let (current_version, mut previous_digest) =
+            stream_head(&transaction, project_ref)?.unwrap_or((0, None));
+        if current_version != expected_version {
+            return Err(StoreError::StreamVersionConflict {
+                expected: expected_version,
+                actual: current_version,
+            });
+        }
+        if current_version == 0 && !matches!(events[0].event, Event::ProjectCreated(_)) {
+            return invalid_sequence("a portable new stream requires PROJECT_CREATED genesis");
+        }
+        for (index, event) in events.iter().enumerate() {
+            validate_event_integrity(event)?;
+            let expected_event_version = current_version + index as u64 + 1;
+            if event.project_ref != *project_ref
+                || event.stream_id != *project_ref
+                || event.stream_version != expected_event_version
+                || event.previous_event_digest != previous_digest
+            {
+                return invalid_sequence(
+                    "portable event project, version, stream, or previous digest is inconsistent",
+                );
+            }
+            previous_digest = Some(event.event_digest);
+        }
+
+        transaction
+            .execute(
+                "INSERT INTO event_streams(project_ref, current_version, head_event_digest)
+                 VALUES (?1, 0, NULL) ON CONFLICT(project_ref) DO NOTHING",
+                [project_ref.as_str()],
+            )
+            .map_err(persistence)?;
+        for event in events {
+            let stream_version = sqlite_integer(event.stream_version, "event stream version")?;
+            transaction
+                .execute(
+                    "INSERT INTO events(
+                        event_id, project_ref, stream_version, event_type, command_ref,
+                        previous_event_digest, payload_digest, event_digest, event_json, recorded_at
+                     ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                    params![
+                        event.event_id.as_str(),
+                        event.project_ref.as_str(),
+                        stream_version,
+                        contract_name(&event.event_type())?,
+                        event.causation.command_ref.as_str(),
+                        event.previous_event_digest.map(|digest| digest.to_string()),
+                        event.payload_digest.to_string(),
+                        event.event_digest.to_string(),
+                        to_canonical_vec(event).map_err(|error| StoreError::Persistence {
+                            message: error.to_string(),
+                        })?,
+                        event.recorded_at.as_str(),
+                    ],
+                )
+                .map_err(persistence)?;
+        }
+        let last = events
+            .last()
+            .ok_or_else(|| StoreError::InvalidEventSequence {
+                message: "portable suffix unexpectedly became empty".to_owned(),
+            })?;
+        transaction
+            .execute(
+                "UPDATE event_streams SET current_version = ?2, head_event_digest = ?3
+                 WHERE project_ref = ?1",
+                params![
+                    project_ref.as_str(),
+                    sqlite_integer(last.stream_version, "stream head version")?,
+                    last.event_digest.to_string(),
+                ],
+            )
+            .map_err(persistence)?;
+        transaction.commit().map_err(persistence)?;
+        Ok(())
     }
 }
 
