@@ -69,6 +69,54 @@ pub const VENDORED_READ_CONTRACTS: &[VendoredReadContract] = &[
     ),
 ];
 
+/// Complete exact G-Skills profile surface vendored through S10.
+pub const VENDORED_GSKILLS_CONTRACTS: &[VendoredReadContract] = &[
+    contract!(
+        "provider-manifest",
+        "981fc45ee4742f5140a1703aadc1f2dc9c164e59eb5f000924449abfdc03afd7"
+    ),
+    contract!(
+        "provider-health-report",
+        "8ff88bbdb9945a756c1eb99b1a59bba1d2b7a1505a2ca2aec0f2e1f164d719d5"
+    ),
+    contract!(
+        "context-projection-request",
+        "722f26ebce88d0757258869ea44e01809d9fd73b8dab55d95892424a0486af23"
+    ),
+    contract!(
+        "context-projection-envelope",
+        "b72000ccd0738d2ff945762b86371cf6302918134ad92527cab4926578e2b122"
+    ),
+    contract!(
+        "provider-freshness-record",
+        "8737ebf687c8a798c24c8c3e3d0021ecd3d2d1a5980e3ee9bd69fcce11ec8929"
+    ),
+    contract!(
+        "project-continuity-projection",
+        "99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1"
+    ),
+    contract!(
+        "external-record-command",
+        "8b6319d8c1b9bb9b99ec3a7450b3ec6456f308ea66ce70e00821d95a82a57dd3"
+    ),
+    contract!(
+        "external-record-result",
+        "54daeed672b1b6abeec19746ceb0ac4639c9ee092ca2ca43d3992a2b0dfd3da3"
+    ),
+    contract!(
+        "external-submission-record",
+        "48f8a00cbd0e93ef7ed01f1326e7a3cfd2e7a578319aacbacdeba99716f3a584"
+    ),
+    contract!(
+        "gate-revalidation-signal",
+        "c8d80e7d14f1008ace8f82152a9484aa707c1b6fa41a474e5a7fed6985a4695c"
+    ),
+    contract!(
+        "cross-system-reference",
+        "6054bd16e82a7471dc899a36e7fe2a451cf31980d752007500d2e768f7705667"
+    ),
+];
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub struct ContractVerificationReport {
     pub schema_count: usize,
@@ -120,7 +168,7 @@ pub enum ContractError {
 ///
 /// Returns [`ContractError`] when the contract name is unknown, the embedded
 /// schema cannot compile, or the value violates that schema.
-pub fn validate_read_contract(contract: &str, value: &Value) -> Result<(), ContractError> {
+pub fn validate_gskills_contract(contract: &str, value: &Value) -> Result<(), ContractError> {
     let (name, source) =
         embedded_schema(contract).ok_or_else(|| ContractError::UnknownContract {
             contract: contract.to_owned(),
@@ -142,6 +190,16 @@ pub fn validate_read_contract(contract: &str, value: &Value) -> Result<(), Contr
     Ok(())
 }
 
+/// Compatibility entry point for existing S9 provider callers.
+///
+/// # Errors
+///
+/// Returns [`ContractError`] under the same conditions as
+/// [`validate_gskills_contract`].
+pub fn validate_read_contract(contract: &str, value: &Value) -> Result<(), ContractError> {
+    validate_gskills_contract(contract, value)
+}
+
 /// Verifies the exact schemas and paired fixtures vendored for the S9 read profile.
 ///
 /// # Errors
@@ -152,7 +210,7 @@ pub fn verify_vendored_contracts(
     repository_root: &Path,
 ) -> Result<ContractVerificationReport, ContractError> {
     let root = repository_root.join("integrations/gskills/contracts/v0.3");
-    for contract in VENDORED_READ_CONTRACTS {
+    for contract in VENDORED_GSKILLS_CONTRACTS {
         let schema = read_json(&root.join(contract.schema))?;
         if schema.get("$id").and_then(Value::as_str) != Some(contract.schema_id) {
             return Err(ContractError::LockMismatch {
@@ -186,9 +244,9 @@ pub fn verify_vendored_contracts(
         }
     }
     Ok(ContractVerificationReport {
-        schema_count: VENDORED_READ_CONTRACTS.len(),
-        positive_fixture_count: VENDORED_READ_CONTRACTS.len(),
-        negative_fixture_count: VENDORED_READ_CONTRACTS.len(),
+        schema_count: VENDORED_GSKILLS_CONTRACTS.len(),
+        positive_fixture_count: VENDORED_GSKILLS_CONTRACTS.len(),
+        negative_fixture_count: VENDORED_GSKILLS_CONTRACTS.len(),
     })
 }
 
@@ -239,6 +297,36 @@ fn embedded_schema(contract: &str) -> Option<(&'static str, &'static str)> {
             "project-continuity-projection",
             include_str!(
                 "../../../integrations/gskills/contracts/v0.3/project-continuity-projection.schema.json"
+            ),
+        )),
+        "external-record-command" => Some((
+            "external-record-command",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/external-record-command.schema.json"
+            ),
+        )),
+        "external-record-result" => Some((
+            "external-record-result",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/external-record-result.schema.json"
+            ),
+        )),
+        "external-submission-record" => Some((
+            "external-submission-record",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/external-submission-record.schema.json"
+            ),
+        )),
+        "gate-revalidation-signal" => Some((
+            "gate-revalidation-signal",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/gate-revalidation-signal.schema.json"
+            ),
+        )),
+        "cross-system-reference" => Some((
+            "cross-system-reference",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/cross-system-reference.schema.json"
             ),
         )),
         _ => None,

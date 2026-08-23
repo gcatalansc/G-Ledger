@@ -1,0 +1,3 @@
+{
+  "approval_binding": {}, "approved_at": "FIXTURE_VALUE", "attempt_count": 0, "command_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "command_ref": "FIXTURE_VALUE", "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "external_operation_ref": null, "external_submission_record_id": "external-submission-record:fixture", "idempotency_key": "FIXTURE_VALUE", "idempotency_scope": {}, "known_result_ref": null, "last_transport_error": "FIXTURE_VALUE", "prepared_at": "FIXTURE_VALUE", "provenance_ref": "FIXTURE_VALUE", "reconciled_at": null, "schema_version": "0.3.0", "sink_ref": "FIXTURE_VALUE", "state": "FIXTURE_VALUE", "submitted_at": "FIXTURE_VALUE", "unexpected_s1_property": true
+}

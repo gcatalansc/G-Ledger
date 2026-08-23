@@ -5,7 +5,7 @@ use project_ledger_canonical_json::sha256_bytes;
 use project_ledger_interop_gskills::{
     GSKILLS_FIXTURE_MANIFEST_SHA256, GSKILLS_PROFILE, GSKILLS_REGISTRY_SHA256,
     GSKILLS_SPEC_REVISION, GSKILLS_SPEC_SHA256, LEDGER_SPEC_SHA256, RECIPROCAL_LOCK_SHA256,
-    VENDORED_READ_CONTRACTS, verify_vendored_contracts,
+    VENDORED_GSKILLS_CONTRACTS, VENDORED_READ_CONTRACTS, verify_vendored_contracts,
 };
 use serde_json::Value;
 
@@ -76,18 +76,51 @@ fn ac_042_exact_v0_3_0_profile_validates_against_upstream_lock() {
         );
     }
 
+    let expected_s10 = [
+        (
+            "external-record-command",
+            "sha256:8b6319d8c1b9bb9b99ec3a7450b3ec6456f308ea66ce70e00821d95a82a57dd3",
+        ),
+        (
+            "external-record-result",
+            "sha256:54daeed672b1b6abeec19746ceb0ac4639c9ee092ca2ca43d3992a2b0dfd3da3",
+        ),
+        (
+            "external-submission-record",
+            "sha256:48f8a00cbd0e93ef7ed01f1326e7a3cfd2e7a578319aacbacdeba99716f3a584",
+        ),
+        (
+            "gate-revalidation-signal",
+            "sha256:c8d80e7d14f1008ace8f82152a9484aa707c1b6fa41a474e5a7fed6985a4695c",
+        ),
+        (
+            "cross-system-reference",
+            "sha256:6054bd16e82a7471dc899a36e7fe2a451cf31980d752007500d2e768f7705667",
+        ),
+    ];
+    for (name, digest) in expected_s10 {
+        assert_eq!(
+            VENDORED_GSKILLS_CONTRACTS
+                .iter()
+                .find(|contract| contract.name == name)
+                .unwrap()
+                .schema_digest,
+            digest
+        );
+    }
+
     let report = verify_vendored_contracts(&root).unwrap();
-    assert_eq!(report.schema_count, 6);
-    assert_eq!(report.positive_fixture_count, 6);
-    assert_eq!(report.negative_fixture_count, 6);
-    assert_eq!(report.schema_count, VENDORED_READ_CONTRACTS.len());
+    assert_eq!(report.schema_count, 11);
+    assert_eq!(report.positive_fixture_count, 11);
+    assert_eq!(report.negative_fixture_count, 11);
+    assert_eq!(report.schema_count, VENDORED_GSKILLS_CONTRACTS.len());
 }
 
 #[test]
 fn exact_upstream_positive_and_negative_fixtures_are_executable() {
     let root = repository_root().join("integrations/gskills/contracts/v0.3");
 
-    for contract in VENDORED_READ_CONTRACTS {
+    for contract in VENDORED_GSKILLS_CONTRACTS {
         let schema: Value =
             serde_json::from_slice(&fs::read(root.join(contract.schema)).unwrap()).unwrap();
         assert_eq!(schema["$id"], contract.schema_id);

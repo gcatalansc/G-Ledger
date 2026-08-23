@@ -841,3 +841,117 @@ Integrar los comandos CLI exactos de verificación/servicio, documentar el perfi
 **Siguiente paso según la especificación**
 
 Iniciar Fase 7 / S10: implementar el `RecordSink` G-Skills con prepare/submit/reconcile, write trust explícito, mapping de comandos/resultados, revalidación de gates y persistencia de outcome desconocido; su gate exige cero efectos duplicados y cero reintentos ciegos, manteniendo fail-closed ante ambigüedad.
+
+### 2026-08-23 — Inicio de Fase 7 / S10: G-Skills RecordSink
+
+**Estado al inicio**
+
+- HEAD limpio: `2b09a85 feat: add exact G-Skills continuity provider`.
+- Avance conservado hasta superar el gate: 7/12 macrofases y 10/15 slices.
+- Plan ejecutable: `docs/superpowers/plans/2026-08-23-project-ledger-phase-7-s10.md`.
+- La ejecución continúa inline por autorización expresa del usuario y sin delegación.
+
+**Autoridad y contratos reconciliados**
+
+- Project Ledger §16, §32–34, §40–41 y Fase 7 exigen escritura externa explícita, expected version, idempotencia, write trust separado, mapping cerrado, resultado de dominio separado de incertidumbre de transporte y cero blind retry/double effect.
+- G-Skills `PL-UPSTREAM-REFRESH-1` define cinco contratos adicionales relevantes: `ExternalRecordCommand`, `ExternalRecordResult`, `ExternalSubmissionRecord`, `GateRevalidationSignal` y `CrossSystemReference`, junto con cinco capabilities allowlisted.
+- Los cinco schemas/fixtures, registry y manifest están sin cambios en el commit G-Skills `6d63b60`. El worktree hermano contiene cambios ajenos de otra etapa; se leerán únicamente bytes rastreados desde `HEAD` y no se modificará ese repositorio.
+- El registry upstream conserva SHA-256 de archivo `a6c3a12c...` y el fixture manifest `316c0564...`; los digests canónicos S10 medidos son command `8b6319d8...`, result `54daeed6...`, submission `48f8a00c...`, revalidation `c8d80e7d...` y cross-system `6054bd16...`.
+
+**Frontera de implementación**
+
+- `interop-gskills` validará/mapeará mediante un puerto storage-independent; sólo la CLI abrirá SQLite y ejecutará el `CommandProcessor` real.
+- Projection trust no habilitará submit. Una policy explícita y digest-bound deberá conceder `TRUSTED_FOR_RECORDING` y allowlist de command kinds.
+- `ledger.command_validate` y un `GateRevalidationSignal` aislado tendrán cero side effects. `status/reconcile` sólo consultarán el resultado durable y nunca reintentarán.
+- `ExternalRecordResult` no podrá contener timeout, unavailable ni `OUTCOME_UNKNOWN`; esa incertidumbre pertenece al registro de submission del cliente.
+- La etapa puede cerrar su gate local de Fase 7, pero `certified_compatibility=false` y E2E bilateral seguirán pendientes porque el counterpart G-Skills `crates/record-sink` aún es una frontera reservada.
+
+**Siguiente acción**
+
+Escribir el RED del lock ampliado de once contratos y comprobar que los cinco schemas/fixtures S10 aún no existen en Ledger; después vendorizar exactamente los bytes rastreados de G-Skills `6d63b60` y verificar sus IDs/digests sin relajar contratos.
+
+**Hito S10.1 — Contratos write exactos GREEN**
+
+- RED confirmado: el test no compiló porque `VENDORED_GSKILLS_CONTRACTS` y los cinco contratos S10 no existían.
+- Se añadieron `ExternalRecordCommand`, `ExternalRecordResult`, `ExternalSubmissionRecord`, `GateRevalidationSignal` y `CrossSystemReference` con sus fixtures positivos/negativos emparejados.
+- El lock de perfil reúne ahora once contratos S9+S10 y conserva el mismo spec/registry/fixture-manifest/counterpart lock; no se cambió el repositorio hermano G-Skills.
+- GREEN focalizado: 3/3 pruebas. Los once `$id`, digests canónicos, positivos y negativos coinciden con el registry upstream.
+- La validación de schema externo no habilita submit por sí sola: la semántica de trust, allowlist, identidad, expected state, idempotencia y payload cerrado se implementará en Task 2.
+
+**Siguiente acción**
+
+Escribir el RED de `RecordSinkPolicy` y del mapping de las cinco capabilities, demostrando que projection-only trust, lifecycle directo, schema refs pendientes, identidad/scope/digests divergentes y señales aisladas no pueden ejecutar el host.
+
+**Hito S10.2 — Política y mapping semántico GREEN**
+
+- RED confirmado: `GSkillsRecordSink`, `RecordSinkPolicy`, el puerto `RecordSinkHost` y los modelos preparados no existían.
+- La policy cerrada, suministrada explícitamente, fija identidad cross-system, actor nativo, allowlist, trust domain y los digests de manifest, ejecutable, compatibility lock e identity map. `TRUSTED_FOR_PROJECTION` no se eleva: sólo `TRUSTED_FOR_RECORDING` permite construir el sink.
+- `ledger.command_validate` valida schema y digest externos, expected project/material versions y state digest, scope de idempotencia, privacidad, schema ref `EXACT` y binding de aprobación; no llama a `execute`.
+- Los IDs `external-command:<UUIDv7>` se normalizan a `command:<mismo UUIDv7>`; el envelope nativo se materializa canónicamente sólo en la frontera de submit y conserva un timestamp estable para replay determinista.
+- Se mapearon únicamente `RECORD_WORK_PROGRESS`, `RECORD_VERIFICATION_RESULT`, `REQUEST_GATE_EVALUATION`, `REQUEST_GATE_REVALIDATION` y `CREATE_CONTINUITY_CHECKPOINT` a payloads Ledger cerrados. Las capabilities legacy `*_REFERENCE`, lifecycle directo y analogías de schema se rechazan.
+- `GateRevalidationSignal` se valida completo contra schema y digest, identidad, gate, recomendación y referencias; produce sólo una solicitud nativa explícita y la señal aislada nunca ejecuta el host.
+- Los reportes `record-sink-field-mapping.json` y `record-sink-loss-report.json` documentan mapping exacto, contexto externo preservado y cero pérdida material dentro del subconjunto aceptado, sin reclamar submit, E2E bilateral ni certificación.
+- GREEN focalizado: 4/4 pruebas; Clippy estricto del crate, formato y `git diff --check` PASS. La depuración del gate corrigió sólo deuda de lint en documentación/nombres contractuales, sin cambiar semántica.
+
+**Siguiente acción**
+
+Escribir el RED de submit/result/status/reconcile y del handler stdio mutable, demostrando replay con un único efecto, version conflict sin overwrite, resultado durable idéntico tras reconcile, `NOT_FOUND` sin retry y separación estricta de `OUTCOME_UNKNOWN`.
+
+**Hito S10.3 — Submit, reconciliación y stdio GREEN**
+
+- RED confirmado en tres fronteras: faltaban `submit/status/reconcile`, el handler JSON-RPC mutable y el harness de conformance S10.
+- El test host ejecuta realmente `CommandProcessor<SqliteEventStore, FixedClock>` con `CoreCommandHandler`; `interop-gskills` conserva SQLite sólo como dependencia de desarrollo y la librería sigue storage-independent.
+- Submit materializa el `CommandEnvelope` canónico sólo después de validación. Una repetición explícita atraviesa una vez la idempotencia nativa y devuelve `DUPLICATE_REPLAY`; dos submits producen un único evento material.
+- Same scope/key con digest distinto devuelve `IDEMPOTENCY_CONFLICT` sin evento. Una carrera entre revalidación y commit devuelve `VERSION_CONFLICT` sin overwrite.
+- Una respuesta perdida después del commit queda como error de host, no como `ExternalRecordResult`; `reconcile` recupera el `CommandResult` durable sin segunda ejecución. `NOT_FOUND`, `status` y `reconcile` no llaman a submit.
+- `ExternalRecordResult` preserva status, versiones, event refs, checkpoint, rejection, replay bit, timestamp y digest nativos. La referencia de proyección se obtiene mediante lectura confirmada posterior y `post_submit_projection_refs` permanece vacío.
+- El handler framed registra sólo manifest, validate, submit, status y reconcile; frames truncados, métodos desconocidos y params inválidos quedan aislados y una llamada posterior válida se recupera.
+- El harness local prueba nueve invariantes, incluidos cero duplicate effects, cero blind retries y cero estados de transporte dentro de resultados de dominio. El corpus protocolo/stdio/conformance pasó dos veces consecutivas: 8/8 + 8/8; Clippy estricto, formato y diff check PASS.
+- `record-sink-conformance.json` fija esta evidencia local, manteniendo `certified_compatibility=false`; quedan la CLI SQLite real y el E2E bilateral G-Skills.
+
+**Siguiente acción**
+
+Escribir el RED de la composition root CLI `serve sink`, cargar una policy explícita digest-valid, ejecutar validate/submit/replay/status/reconcile sobre SQLite real y comprobar que la CLI no descubre ni concede write trust implícitamente.
+
+### 2026-08-23 — Cierre de Fase 7 / S10: G-Skills RecordSink exacto
+
+**Implementación cerrada**
+
+- La CLI incorpora `serve sink --stdio --profile gskills-context-provider/0.3.0` con base SQLite real, identidades explícitas, policy obligatoria y reloj operativo declarado. La ausencia de policy o cualquier divergencia de identidad falla antes de exponer escritura.
+- La frontera `interop-gskills` continúa independiente del storage: valida once contratos exactos S9+S10 y mapea únicamente las cinco capabilities autorizadas a comandos nativos cerrados.
+- Write trust queda separado de projection trust. `TRUSTED_FOR_RECORDING`, allowlist, digests vinculados, identidad, material version, expected state, privacidad, idempotency scope y ventana vigente de aprobación son requisitos fail-closed en validate y submit.
+- Submit usa el `CommandProcessor` canónico. Replay idéntico produce un solo efecto durable; conflicto de digest o versión no sobrescribe; status/reconcile sólo consultan y jamás reenvían.
+- `ExternalRecordResult` contiene sólo el resultado nativo. Timeout, indisponibilidad y outcome desconocido permanecen como estado de transporte del cliente; una respuesta perdida tras commit se resuelve por reconciliación durable.
+- Los reportes de mapping, pérdida y conformance quedan fijados por SHA-256 en `upstream-lock.json`. La evidencia local pasa, mientras E2E bilateral y certificación permanecen pendientes del counterpart G-Skills S24.
+
+**Corrección durante el gate**
+
+- La revisión adversarial detectó que `approval_expires_at` estaba comparado con `prepared_at`, pero no con el instante operativo actual. Se añadió `RecordSinkHost::observed_at()` y se exige `prepared_at <= observed_at <= approval_expires_at` tanto en validate como inmediatamente antes de submit.
+- Status y reconcile conservan disponibilidad read-only después del vencimiento, pues no crean efectos. El reporte de mapping declara ahora explícitamente `APPROVAL_WINDOW_CURRENT_AT_VALIDATE_AND_SUBMIT` y el lock fue actualizado con su nuevo digest.
+
+**Gate integral definitivo**
+
+| Verificación | Resultado |
+|---|---|
+| Ciclos RED→GREEN focalizados | PASS — contratos, política/mapping, protocolo/conformance/stdio y CLI fallaron por fronteras ausentes antes de su implementación mínima |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo clippy --workspace --all-targets --all-features -- -D warnings` | PASS |
+| `cargo test --workspace --all-targets --all-features` | PASS — 176 pruebas, 0 fallos |
+| `cargo xtask schema check` | PASS — árbol generado sincronizado |
+| `project-ledger specs verify` | PASS — v0.1.0 `772ea517`, v0.2.0 `31cb7cd4` |
+| `project-ledger contracts verify` | PASS — 46 schemas, 92 fixtures, 53 filas |
+| `project-ledger integration gskills verify-contracts` | PASS — 11 schemas, 22 fixtures, profile exacto v0.3.0 |
+| `project-ledger integration compatibility` | PASS — G-Skills `COMPLETE`; GSP/Radar `PENDING`; global no certificado |
+| `cargo-deny 0.20.2 --offline check` | PASS — advisories/bans/licenses/sources; sólo duplicados transitivos permitidos conocidos |
+| `git diff --check` | PASS |
+
+**Estado de cierre y límites**
+
+- Avance real: 8/12 macrofases y 11/15 slices, según §50/§51.
+- S10 demuestra el RecordSink local exacto, un efecto máximo por replay y cero blind retries. No demuestra que el counterpart G-Skills esté implementado, E2E bilateral, certificación global, operación productiva, rentabilidad ni validez científica.
+- `certified_compatibility=false` y `bilateral_e2e_status=PENDING_COUNTERPART_GSKILLS_S24` se mantienen deliberadamente.
+- El cierre se versiona mediante el commit de fase `feat: add exact G-Skills record sink`.
+
+**Siguiente paso según la especificación**
+
+Iniciar, sólo tras una nueva autorización, Fase 8 / S11: puente GSP exact-contract con corpus minimizado, sidecar de contratos upstream exactos, enlaces explícitos de resultados y aislamiento de autoridad; su gate exige cero degradación semántica y cero elevación de autoridad.

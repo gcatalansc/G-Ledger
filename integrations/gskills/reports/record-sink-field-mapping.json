@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsRecordSinkFieldMappingReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "source": {
+    "product": "G-Skills",
+    "version": "0.3.0",
+    "document_revision": "PL-UPSTREAM-REFRESH-1",
+    "corrective_commit": "6d63b60",
+    "schema_ref": "urn:gskills:schema:external-record-command:0.3.0",
+    "schema_digest": "sha256:8b6319d8c1b9bb9b99ec3a7450b3ec6456f308ea66ce70e00821d95a82a57dd3"
+  },
+  "target": {
+    "product": "Project Ledger",
+    "version": "0.2.0",
+    "schema_ref": "urn:project-ledger:schema:command-envelope:0.2.0",
+    "spec_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9"
+  },
+  "status": "EXACT_FIVE_CAPABILITY_MAPPING_PASS",
+  "executable_evidence": "crates/interop-gskills/tests/sink_mapping.rs::exactly_five_capabilities_map_to_closed_native_payloads",
+  "capabilities": [
+    {"external":"RECORD_WORK_PROGRESS","native":"RECORD_WORK_PROGRESS","payload":"RecordWorkProgressPayload","status":"EXACT"},
+    {"external":"RECORD_VERIFICATION_RESULT","native":"RECORD_VERIFICATION_RESULT","payload":"RecordVerificationResultPayload","status":"EXACT"},
+    {"external":"REQUEST_GATE_EVALUATION","native":"REQUEST_GATE_EVALUATION","payload":"RequestGateEvaluationPayload","status":"EXACT"},
+    {"external":"REQUEST_GATE_REVALIDATION","native":"REQUEST_GATE_REVALIDATION","payload":"RequestGateRevalidationPayload","status":"EXACT_AFTER_SIGNAL_VALIDATION"},
+    {"external":"CREATE_CONTINUITY_CHECKPOINT","native":"CREATE_CONTINUITY_CHECKPOINT","payload":"CreateContinuityCheckpointPayload","status":"EXACT"}
+  ],
+  "rows": [
+    {"source":"external_record_command_id external-command:<UUIDv7>","target":"CommandEnvelope.command_id command:<same UUIDv7>","status":"EXACT_IDENTITY_NORMALIZATION"},
+    {"source":"command_kind + native_command.command_type","target":"CommandEnvelope.command_type","status":"EXACT_ALLOWLIST"},
+    {"source":"native_command.command_schema_ref","target":"CommandEnvelope.command_schema_ref","status":"EXACT_REGISTRY_REF","guard":"null, pending or mismatched refs fail closed"},
+    {"source":"policy.native_project_ref confirmed by external_project_ref identity map","target":"CommandEnvelope.project_ref","status":"EXACT_POLICY_BOUND"},
+    {"source":"native_command.expected_state_version + expected_state","target":"CommandEnvelope.expected_state_version","status":"EXACT_OPTIMISTIC_CONCURRENCY"},
+    {"source":"idempotency_key + five-field idempotency_scope","target":"CommandEnvelope.idempotency_key plus native processor scope","status":"EXACT_SCOPE_VALIDATED"},
+    {"source":"policy.native_actor","target":"CommandEnvelope.actor","status":"EXACT_POLICY_BOUND","guard":"TRUSTED_FOR_RECORDING required; projection trust is rejected"},
+    {"source":"closed payload selected by command kind","target":"CommandEnvelope.command.payload","status":"EXACT_TYPED"},
+    {"source":"preparation.prepared_at","target":"CommandEnvelope.submitted_at on submit materialization","status":"STABLE_WIRE_TIMESTAMP","note":"validation does not materialize or execute the native envelope"},
+    {"source":"canonical native payload","target":"CommandEnvelope.payload_digest","status":"DERIVED_RFC8785_SHA256"},
+    {"source":"canonical native envelope","target":"CommandEnvelope.command_digest","status":"DERIVED_RFC8785_SHA256"},
+    {"source":"full ExternalRecordCommand","target":"PreparedRecordCommand.external_command + external_command_digest","status":"PRESERVED_FOR_RESULT_AND_AUDIT"}
+  ],
+  "guards": [
+    "EXPLICIT_TRUSTED_FOR_RECORDING_POLICY",
+    "EXACT_FIVE_CAPABILITY_ALLOWLIST",
+    "CURRENT_PROJECT_MATERIAL_VERSION_AND_DIGEST",
+    "CROSS_SYSTEM_IDEMPOTENCY_SCOPE",
+    "DIGEST_BOUND_APPROVAL_INPUTS",
+    "APPROVAL_WINDOW_CURRENT_AT_VALIDATE_AND_SUBMIT",
+    "NO_RAW_OUTPUT",
+    "VALIDATE_EXECUTION_CALLS_ZERO",
+    "SIGNAL_ALONE_NEVER_EXECUTES"
+  ],
+  "denied_capabilities": [
+    "RECORD_DECISION_REFERENCE",
+    "RECORD_BLOCKER_REFERENCE",
+    "REQUEST_PHASE_COMPLETION",
+    "DIRECT_GATE_COMPLETION",
+    "DIRECT_PROJECT_STATUS_TRANSITION",
+    "ARBITRARY_APPEND"
+  ],
+  "certified_compatibility": false
+}

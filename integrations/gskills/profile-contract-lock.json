@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "artifact_kind": "GSkillsReadProfileContractLock",
+  "artifact_kind": "GSkillsProfileContractLock",
   "profile": "gskills-context-provider/0.3.0",
   "document_revision": "PL-UPSTREAM-REFRESH-1",
   "source_spec_sha256": "957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e",
@@ -16,7 +16,12 @@
     {"name":"context-projection-request","schema_id":"urn:gskills:schema:context-projection-request:0.3.0","schema_digest":"sha256:722f26ebce88d0757258869ea44e01809d9fd73b8dab55d95892424a0486af23","positive_fixture":"fixtures/positive/context-projection-request.json","negative_fixture":"fixtures/negative/context-projection-request.additional-property.json"},
     {"name":"context-projection-envelope","schema_id":"urn:gskills:schema:context-projection-envelope:0.3.0","schema_digest":"sha256:b72000ccd0738d2ff945762b86371cf6302918134ad92527cab4926578e2b122","positive_fixture":"fixtures/positive/context-projection-envelope.json","negative_fixture":"fixtures/negative/context-projection-envelope.additional-property.json"},
     {"name":"provider-freshness-record","schema_id":"urn:gskills:schema:provider-freshness-record:0.3.0","schema_digest":"sha256:8737ebf687c8a798c24c8c3e3d0021ecd3d2d1a5980e3ee9bd69fcce11ec8929","positive_fixture":"fixtures/positive/provider-freshness-record.json","negative_fixture":"fixtures/negative/provider-freshness-record.additional-property.json"},
-    {"name":"project-continuity-projection","schema_id":"urn:gskills:schema:project-continuity-projection:0.3.0","schema_digest":"sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1","positive_fixture":"fixtures/positive/project-continuity-projection.json","negative_fixture":"fixtures/negative/project-continuity-projection.additional-property.json"}
+    {"name":"project-continuity-projection","schema_id":"urn:gskills:schema:project-continuity-projection:0.3.0","schema_digest":"sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1","positive_fixture":"fixtures/positive/project-continuity-projection.json","negative_fixture":"fixtures/negative/project-continuity-projection.additional-property.json"},
+    {"name":"external-record-command","schema_id":"urn:gskills:schema:external-record-command:0.3.0","schema_digest":"sha256:8b6319d8c1b9bb9b99ec3a7450b3ec6456f308ea66ce70e00821d95a82a57dd3","positive_fixture":"fixtures/positive/external-record-command.json","negative_fixture":"fixtures/negative/external-record-command.additional-property.json"},
+    {"name":"external-record-result","schema_id":"urn:gskills:schema:external-record-result:0.3.0","schema_digest":"sha256:54daeed672b1b6abeec19746ceb0ac4639c9ee092ca2ca43d3992a2b0dfd3da3","positive_fixture":"fixtures/positive/external-record-result.json","negative_fixture":"fixtures/negative/external-record-result.additional-property.json"},
+    {"name":"external-submission-record","schema_id":"urn:gskills:schema:external-submission-record:0.3.0","schema_digest":"sha256:48f8a00cbd0e93ef7ed01f1326e7a3cfd2e7a578319aacbacdeba99716f3a584","positive_fixture":"fixtures/positive/external-submission-record.json","negative_fixture":"fixtures/negative/external-submission-record.additional-property.json"},
+    {"name":"gate-revalidation-signal","schema_id":"urn:gskills:schema:gate-revalidation-signal:0.3.0","schema_digest":"sha256:c8d80e7d14f1008ace8f82152a9484aa707c1b6fa41a474e5a7fed6985a4695c","positive_fixture":"fixtures/positive/gate-revalidation-signal.json","negative_fixture":"fixtures/negative/gate-revalidation-signal.additional-property.json"},
+    {"name":"cross-system-reference","schema_id":"urn:gskills:schema:cross-system-reference:0.3.0","schema_digest":"sha256:6054bd16e82a7471dc899a36e7fe2a451cf31980d752007500d2e768f7705667","positive_fixture":"fixtures/positive/cross-system-reference.json","negative_fixture":"fixtures/negative/cross-system-reference.additional-property.json"}
   ],
-  "status": "EXACT_S9_READ_CONTRACTS"
+  "status": "EXACT_S10_READ_WRITE_CONTRACTS"
 }

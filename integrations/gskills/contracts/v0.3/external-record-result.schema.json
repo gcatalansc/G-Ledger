@@ -1,0 +1,29 @@
+{
+  "$id": "urn:gskills:schema:external-record-result:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "command_digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "command_ref": { "type": "string" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "extensions": { "additionalProperties": true, "propertyNames": { "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$" }, "type": "object" },
+    "external_record_result_id": { "minLength": 1, "type": "string" },
+    "idempotency": { "additionalProperties": true, "type": "object" },
+    "native_result_digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "native_result_ref": { "type": "string" },
+    "post_submit_projection_refs": { "items": true, "type": "array" },
+    "processed_at": { "type": "string" },
+    "provenance_ref": { "type": "string" },
+    "rejection": true,
+    "resulting_checkpoint_ref": true,
+    "resulting_projection_ref": { "type": "string" },
+    "schema_version": { "const": "0.3.0" },
+    "sink": { "additionalProperties": true, "type": "object" },
+    "state_transition": { "additionalProperties": true, "type": "object" },
+    "status": { "type": "string" }
+  },
+  "required": ["command_digest", "command_ref", "digest", "external_record_result_id", "idempotency", "native_result_digest", "native_result_ref", "post_submit_projection_refs", "processed_at", "provenance_ref", "rejection", "resulting_checkpoint_ref", "resulting_projection_ref", "schema_version", "sink", "state_transition", "status"],
+  "title": "ExternalRecordResult",
+  "type": "object"
+}

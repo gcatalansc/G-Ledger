@@ -1,0 +1,26 @@
+{
+  "$id": "urn:gskills:schema:cross-system-reference:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "basis": { "additionalProperties": true, "type": "object" },
+    "confidence_status": { "type": "string" },
+    "created_by": { "type": "string" },
+    "cross_system_reference_id": { "minLength": 1, "type": "string" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "extensions": { "additionalProperties": true, "propertyNames": { "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$" }, "type": "object" },
+    "object": { "additionalProperties": true, "type": "object" },
+    "provenance_ref": { "type": "string" },
+    "relation": { "type": "string" },
+    "schema_version": { "const": "0.3.0" },
+    "scope": { "additionalProperties": true, "type": "object" },
+    "subject": { "additionalProperties": true, "type": "object" },
+    "supersedes_ref": true,
+    "valid_from": { "type": "string" },
+    "valid_until": true
+  },
+  "required": ["basis", "confidence_status", "created_by", "cross_system_reference_id", "digest", "object", "provenance_ref", "relation", "schema_version", "scope", "subject", "supersedes_ref", "valid_from", "valid_until"],
+  "title": "CrossSystemReference",
+  "type": "object"
+}

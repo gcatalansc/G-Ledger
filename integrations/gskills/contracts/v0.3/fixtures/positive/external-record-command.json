@@ -1,0 +1,3 @@
+{
+  "actor": {}, "command_kind": "FIXTURE_VALUE", "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "expected_state": {}, "external_project_ref": "FIXTURE_VALUE", "external_record_command_id": "external-record-command:fixture", "idempotency_key": "FIXTURE_VALUE", "idempotency_scope": {}, "native_command": {}, "payload": {}, "preparation": {}, "privacy": {}, "profile": "FIXTURE_VALUE", "project_ref": "FIXTURE_VALUE", "provenance_ref": "FIXTURE_VALUE", "schema_version": "0.3.0", "session_ref": "FIXTURE_VALUE", "sink_id": "FIXTURE_VALUE"
+}

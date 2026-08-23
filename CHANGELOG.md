@@ -45,4 +45,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Crate `interop-gskills` con lock/read schemas exactos v0.3.0, mapping completo state/material/fases/gates/acciones/checkpoint/repositorio, freshness, budgets y privacidad sin acceso a SQLite ni métodos mutables.
 - Harness G-Skills S9 con 100 lecturas current, stale, nueve requests hostiles, detección de mutación, cero pérdida material, recuperación post-fallo y equivalencia directa/stdio.
 - CLI `integration gskills verify-contracts` y `serve provider --stdio --profile gskills-context-provider/0.3.0` sobre stream SQLite verificado y catálogo explícito de fases.
-- Gate local reproducible con formato, Clippy estricto, 162 pruebas, contratos exactos y política de dependencias.
+- Cinco contratos write G-Skills exactos, policy explícita con write trust separado y mapping cerrado a `RECORD_WORK_PROGRESS`, `RECORD_VERIFICATION_RESULT`, `REQUEST_GATE_EVALUATION`, `REQUEST_GATE_REVALIDATION` y `CREATE_CONTINUITY_CHECKPOINT`.
+- RecordSink storage-independent con validate sin efectos, submit idempotente, mapping exacto de `CommandResult`, status/reconcile durable sin retry y separación estricta de outcome incierto.
+- Handler stdio mutable de cinco métodos, conformance local de cero duplicate effects/blind retries y CLI `serve sink` sobre `CommandProcessor`/SQLite real con `--policy` obligatorio.
+- Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.

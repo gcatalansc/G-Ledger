@@ -1,0 +1,3 @@
+{
+  "basis": {}, "confidence_status": "FIXTURE_VALUE", "created_by": "FIXTURE_VALUE", "cross_system_reference_id": "cross-system-reference:fixture", "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "object": {}, "provenance_ref": "FIXTURE_VALUE", "relation": "FIXTURE_VALUE", "schema_version": "0.3.0", "scope": {}, "subject": {}, "supersedes_ref": null, "valid_from": "FIXTURE_VALUE", "valid_until": null
+}

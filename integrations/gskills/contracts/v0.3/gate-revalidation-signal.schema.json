@@ -1,0 +1,27 @@
+{
+  "$id": "urn:gskills:schema:gate-revalidation-signal:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "confidence_status": { "type": "string" },
+    "current_repository_snapshot_ref": { "type": "string" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "extensions": { "additionalProperties": true, "propertyNames": { "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$" }, "type": "object" },
+    "gate_ref": { "type": "string" },
+    "gate_revalidation_signal_id": { "minLength": 1, "type": "string" },
+    "matched_dependency_refs": { "items": true, "type": "array" },
+    "previous_repository_snapshot_ref": { "type": "string" },
+    "previous_verification_refs": { "items": true, "type": "array" },
+    "project_ref": { "type": "string" },
+    "provenance_ref": { "type": "string" },
+    "reason_codes": { "items": true, "type": "array" },
+    "recommended_command_kind": { "type": "string" },
+    "schema_version": { "const": "0.3.0" },
+    "severity": { "type": "string" },
+    "structural_impact_ref": { "type": "string" }
+  },
+  "required": ["confidence_status", "current_repository_snapshot_ref", "digest", "gate_ref", "gate_revalidation_signal_id", "matched_dependency_refs", "previous_repository_snapshot_ref", "previous_verification_refs", "project_ref", "provenance_ref", "reason_codes", "recommended_command_kind", "schema_version", "severity", "structural_impact_ref"],
+  "title": "GateRevalidationSignal",
+  "type": "object"
+}

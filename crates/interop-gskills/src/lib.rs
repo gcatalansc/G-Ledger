@@ -6,6 +6,11 @@ mod conformance;
 mod contracts;
 mod mapping;
 mod provider;
+mod sink;
+mod sink_conformance;
+mod sink_mapping;
+mod sink_model;
+mod sink_stdio;
 mod stdio;
 
 pub use conformance::{
@@ -17,11 +22,23 @@ pub use conformance::{
 pub use contracts::{
     ContractError, ContractVerificationReport, GSKILLS_FIXTURE_MANIFEST_SHA256, GSKILLS_PROFILE,
     GSKILLS_REGISTRY_SHA256, GSKILLS_SPEC_REVISION, GSKILLS_SPEC_SHA256, LEDGER_SPEC_SHA256,
-    RECIPROCAL_LOCK_SHA256, VENDORED_READ_CONTRACTS, VendoredReadContract, validate_read_contract,
+    RECIPROCAL_LOCK_SHA256, VENDORED_GSKILLS_CONTRACTS, VENDORED_READ_CONTRACTS,
+    VendoredReadContract, validate_gskills_contract, validate_read_contract,
     verify_vendored_contracts,
 };
 pub use provider::{
     GSkillsObservableState, GSkillsProjectionResult, GSkillsProvider, ProviderContext,
     ProviderError,
 };
+pub use sink::GSkillsRecordSink;
+pub use sink_conformance::{
+    GSkillsRecordSinkConformanceCheck, GSkillsRecordSinkConformanceReport,
+    GSkillsRecordSinkConformanceSuite, RecordSinkConformanceError,
+    run_gskills_record_sink_conformance,
+};
+pub use sink_model::{
+    PreparedRecordCommand, RecordCommandKind, RecordSinkError, RecordSinkHost, RecordSinkHostError,
+    RecordSinkPolicy, RecordSinkStateIdentity,
+};
+pub use sink_stdio::GSkillsRecordSinkJsonRpcHandler;
 pub use stdio::GSkillsJsonRpcHandler;

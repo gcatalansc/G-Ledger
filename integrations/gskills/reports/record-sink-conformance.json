@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsRecordSinkConformanceReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "provider": "project-ledger/0.2.0",
+  "status": "S10_LOCAL_RECORD_SINK_PASS",
+  "checks": [
+    {"code":"EXACT_ELEVEN_CONTRACTS","passed":true},
+    {"code":"EXPLICIT_WRITE_TRUST","passed":true},
+    {"code":"FIVE_CAPABILITY_ALLOWLIST","passed":true},
+    {"code":"VALIDATE_SIDE_EFFECTS_ZERO","passed":true},
+    {"code":"NATIVE_COMMAND_RESULT_MAPPING","passed":true},
+    {"code":"DUPLICATE_EFFECTS_ZERO","passed":true},
+    {"code":"VERSION_AND_IDEMPOTENCY_GUARDS","passed":true},
+    {"code":"STATUS_RECONCILE_READ_ONLY","passed":true},
+    {"code":"TRANSPORT_RESULT_SEPARATION","passed":true},
+    {"code":"STDIO_FAILURE_ISOLATION","passed":true}
+  ],
+  "native_test_host": "CommandProcessor<SqliteEventStore, FixedClock> + CoreCommandHandler",
+  "submissions_per_conformance_run": 2,
+  "durable_lookups_per_conformance_run": 3,
+  "duplicate_effects": 0,
+  "blind_retries": 0,
+  "transport_outcomes_in_domain_results": 0,
+  "version_conflict_overwrites": 0,
+  "idempotency_conflict_effects": 0,
+  "reconciliations_after_lost_response": 1,
+  "repeated_runs": 2,
+  "transport": "gskills-stdio-jsonrpc-content-length/1.0.0",
+  "methods": [
+    "ledger.manifest",
+    "ledger.command_validate",
+    "ledger.command_submit",
+    "ledger.command_status",
+    "ledger.command_reconcile"
+  ],
+  "evidence": [
+    "crates/interop-gskills/tests/sink_mapping.rs",
+    "crates/interop-gskills/tests/sink_protocol.rs",
+    "crates/interop-gskills/tests/sink_stdio_e2e.rs",
+    "crates/interop-gskills/tests/sink_conformance.rs"
+  ],
+  "result_contract_excludes": ["OUTCOME_UNKNOWN", "SINK_UNAVAILABLE", "TIMEOUT"],
+  "certified_compatibility": false,
+  "remaining_gates": ["S10_REAL_SQLITE_CLI_E2E", "BILATERAL_GSKILLS_E2E"]
+}

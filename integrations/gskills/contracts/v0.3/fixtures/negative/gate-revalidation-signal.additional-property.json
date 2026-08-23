@@ -1,0 +1,3 @@
+{
+  "confidence_status": "FIXTURE_VALUE", "current_repository_snapshot_ref": "FIXTURE_VALUE", "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "gate_ref": "FIXTURE_VALUE", "gate_revalidation_signal_id": "gate-revalidation-signal:fixture", "matched_dependency_refs": [], "previous_repository_snapshot_ref": "FIXTURE_VALUE", "previous_verification_refs": [], "project_ref": "FIXTURE_VALUE", "provenance_ref": "FIXTURE_VALUE", "reason_codes": [], "recommended_command_kind": "FIXTURE_VALUE", "schema_version": "0.3.0", "severity": "FIXTURE_VALUE", "structural_impact_ref": "FIXTURE_VALUE", "unexpected_s1_property": true
+}

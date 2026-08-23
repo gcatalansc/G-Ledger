@@ -63,7 +63,7 @@ fn cli_verifies_exact_gskills_contracts_and_rejects_profile_aliases() {
         .assert()
         .success()
         .stdout(predicates::str::contains(
-            "gskills contracts MATCH schemas=6 fixtures=12",
+            "gskills contracts MATCH schemas=11 fixtures=22",
         ));
 
     Command::cargo_bin("project-ledger")

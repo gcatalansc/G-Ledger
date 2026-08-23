@@ -1047,14 +1047,17 @@ name = "project-ledger-interop-gskills"
 version = "0.2.0"
 dependencies = [
  "jsonschema",
+ "project-ledger-application",
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
  "project-ledger-projection-engine",
+ "project-ledger-storage-sqlite",
  "project-ledger-transport-stdio",
  "serde",
  "serde_json",
  "sha2",
+ "tempfile",
  "thiserror",
 ]
 

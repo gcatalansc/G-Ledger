@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsRecordSinkLossReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "source_schema_ref": "urn:gskills:schema:external-record-command:0.3.0",
+  "source_schema_digest": "sha256:8b6319d8c1b9bb9b99ec3a7450b3ec6456f308ea66ce70e00821d95a82a57dd3",
+  "target_schema_ref": "urn:project-ledger:schema:command-envelope:0.2.0",
+  "scope": "FIVE_ALLOWLISTED_RECORD_CAPABILITIES",
+  "status": "ZERO_MATERIAL_LOSS_IN_PREPARED_MAPPING",
+  "items": [
+    {
+      "fields": ["project_ref", "session_ref", "actor.on_behalf_of", "preparation", "privacy", "provenance_ref", "extensions"],
+      "native_target": null,
+      "classification": "PRESERVED_EXTERNAL_CONTEXT_NOT_COLLAPSED_INTO_NATIVE_DOMAIN",
+      "preservation": "PreparedRecordCommand.external_command and external_command_digest",
+      "material_loss": false
+    },
+    {
+      "fields": ["expected_state.material_state_version", "expected_state.project_state_digest", "expected_state.checkpoint_ref", "expected_state.checkpoint_digest"],
+      "native_target": "pre-submit validation guard",
+      "classification": "VALIDATED_NOT_REENCODED",
+      "preservation": "ExternalRecordCommand",
+      "material_loss": false
+    },
+    {
+      "fields": ["GateRevalidationSignal"],
+      "native_target": "RequestGateRevalidationPayload.gate_ref + signal_ref",
+      "classification": "FULL_SIGNAL_VALIDATED_AND_REFERENCED",
+      "preservation": "ExternalRecordCommand payload plus signal digest",
+      "material_loss": false
+    }
+  ],
+  "material_loss_count": 0,
+  "guards": [
+    "UNMAPPED_CAPABILITY_FAILS_CLOSED",
+    "UNKNOWN_NESTED_SEMANTICS_FAIL_CLOSED",
+    "PENDING_SCHEMA_REFERENCE_FAILS_CLOSED",
+    "APPROVAL_BINDING_DRIFT_FAILS_CLOSED",
+    "WRITE_TRUST_NEVER_DERIVED_FROM_PROJECTION_TRUST"
+  ],
+  "pending_evidence": [
+    "S10_SUBMIT_RESULT_STATUS_RECONCILE",
+    "S10_STDIO_CONFORMANCE",
+    "S10_REAL_SQLITE_CLI_E2E",
+    "BILATERAL_GSKILLS_E2E"
+  ],
+  "certification_boundary": "Local Task 2 mapping evidence only; it does not prove a submitted effect, transport handling, bilateral E2E or certified compatibility.",
+  "certified_compatibility": false
+}

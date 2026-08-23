@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6, portable/legacy import de S7, protocolo/SDK genérico de S8 y provider G-Skills exacto de S9. La relación individual y canónica de los 46 schemas con sus 92 fixtures Ledger está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte. Los seis schemas/12 fixtures externos seleccionados por S9 viven bajo `integrations/gskills/contracts/v0.3` y se fijan por digests upstream separados.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6, portable/legacy import de S7, protocolo/SDK genérico de S8, provider G-Skills exacto de S9 y RecordSink G-Skills de S10. La relación individual y canónica de los 46 schemas con sus 92 fixtures Ledger está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte. Los once schemas/22 fixtures externos seleccionados por S9–S10 viven bajo `integrations/gskills/contracts/v0.3` y se fijan por digests upstream separados.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -111,4 +111,14 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | AC-003, §33.5, Fase 6 | `interop-gskills/tests/stdio_e2e.rs`, `cli/tests/gskills_provider.rs` | Manifest/health/projection directos y framed equivalentes; SQLite sólo en composition root; profile alias y métodos mutables rechazados |
 | §34.9, Fase 6/Fase 7 | `provider-conformance.json`, `specs/compatibility/gskills-v0.3.0.md` | S9 read profile PASS permanece distinto de RecordSink S10, E2E bilateral y `certified_compatibility=false` |
 
-El gate integral S9 ejecuta 162 pruebas, todas en verde. La evidencia local demuestra el provider read-only exacto; no certifica RecordSink, implementación counterpart, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.
+## Cobertura ejecutable S10
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| REQ-SNK-001/009, AC-042, §34.3/34.6 | `interop-gskills/tests/upstream_contracts.rs`, `sink_mapping.rs` | Once schemas/22 fixtures exactos; sólo cinco capabilities con variante/payload/schema canónicos; legacy `*_REFERENCE` y lifecycle directo fallan cerrados |
+| REQ-SNK-003/004/012/013, §40–41 | `sink_mapping.rs`, `record-sink-field-mapping.json` | Policy explícita, write trust separado, expected state, scope cross-system, privacidad y ocho digests de aprobación; validate produce cero ejecuciones |
+| REQ-SNK-002/008/011, AC-039/040, §34.7–34.8 | `sink_protocol.rs`, `record-sink-conformance.json` | Un efecto ante replay, conflicto de key/digest y versión sin overwrite, signal→command explícito, mapping exacto de `CommandResult` y outcome incierto fuera del resultado |
+| §33.5, AC-003/050, Fase 7 | `sink_stdio_e2e.rs`, `cli/tests/gskills_sink.rs` | Cinco métodos framed, failure isolation, SQLite real sólo en composition root, policy obligatoria y status/reconcile sin submit |
+| §34.9, Fase 7 | `record-sink-loss-report.json`, `specs/compatibility/gskills-v0.3.0.md` | S10 local PASS conserva `certified_compatibility=false` hasta counterpart y E2E bilateral |
+
+El gate integral S10 vuelve a ejecutar el workspace completo. La evidencia local demuestra provider y RecordSink exactos dentro de Ledger; no certifica implementación counterpart, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.

@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     collections::BTreeMap,
     env,
     fmt::Write as _,
@@ -10,25 +11,28 @@ use std::{
 
 use clap::{Args, Parser, Subcommand};
 use project_ledger_application::{
-    CommandDraft, CommandProcessor, CreateProjectHandler, FixedClock, prepare_command,
+    Clock, CommandDraft, CommandProcessor, CoreCommandHandler, CreateProjectHandler, FixedClock,
+    prepare_command,
 };
 use project_ledger_canonical_json::{sha256_bytes, to_canonical_vec};
 use project_ledger_domain::{
-    Actor, ActorKind, AuthorityPolicy, Command, CommandId, CommandResultStatus,
-    CreateProjectPayload, LedgerTimestamp, Phase, Project, ProjectId, ProjectLifecycleStatus,
-    ResourceRef, SchemaVersion, StableId, StorageProfile, TrustLevel,
+    Actor, ActorKind, AuthorityPolicy, Command, CommandEnvelope, CommandId, CommandResult,
+    CommandResultStatus, CreateProjectPayload, LedgerTimestamp, Phase, Project, ProjectId,
+    ProjectLifecycleStatus, ResourceRef, SchemaVersion, StableId, StorageProfile, TrustLevel,
 };
 use project_ledger_event_store::EventStore;
 use project_ledger_integration_protocol::{build_default_manifest, inspect_upstream_lock};
 use project_ledger_interop_gskills::{
-    GSKILLS_PROFILE, GSkillsJsonRpcHandler, GSkillsProvider, ProviderContext,
-    verify_vendored_contracts,
+    GSKILLS_PROFILE, GSkillsJsonRpcHandler, GSkillsProvider, GSkillsRecordSink,
+    GSkillsRecordSinkJsonRpcHandler, ProviderContext, RecordSinkHost, RecordSinkHostError,
+    RecordSinkPolicy, RecordSinkStateIdentity, verify_vendored_contracts,
 };
 use project_ledger_projection_engine::ProjectStateProjection;
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
 use project_ledger_transport_stdio::{FrameLimits, JsonRpcHandler, dispatch_frame};
 use serde::Serialize;
+use serde_json::Value;
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 const V0_1_DIGEST: &str = "sha256:772ea51780a5ed2881a786a198aa90dedb8b4ba619b6652d8f54ef4ca306d865";
@@ -101,6 +105,7 @@ enum GSkillsIntegrationCommand {
 #[derive(Debug, Subcommand)]
 enum ServeCommand {
     Provider(ServeProviderArgs),
+    Sink(ServeSinkArgs),
 }
 
 #[derive(Debug, Args)]
@@ -117,6 +122,24 @@ struct ServeProviderArgs {
     gskills_project_ref: String,
     #[arg(long)]
     phase_catalog: PathBuf,
+    #[arg(long)]
+    observed_at: String,
+}
+
+#[derive(Debug, Args)]
+struct ServeSinkArgs {
+    #[arg(long)]
+    stdio: bool,
+    #[arg(long)]
+    profile: String,
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    gskills_project_ref: String,
+    #[arg(long)]
+    policy: PathBuf,
     #[arg(long)]
     observed_at: String,
 }
@@ -146,6 +169,9 @@ fn main() -> ExitCode {
         TopLevelCommand::Serve {
             command: ServeCommand::Provider(args),
         } => serve_gskills_provider(args),
+        TopLevelCommand::Serve {
+            command: ServeCommand::Sink(args),
+        } => serve_gskills_sink(&args),
     };
     match result {
         Ok(output) => {
@@ -399,6 +425,135 @@ fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, String> {
     let handler = GSkillsJsonRpcHandler::new(&provider);
     serve_stdio(&handler, FrameLimits::default())?;
     Ok(String::new())
+}
+
+fn serve_gskills_sink(args: &ServeSinkArgs) -> Result<String, String> {
+    if !args.stdio {
+        return Err("record sink service requires --stdio".to_owned());
+    }
+    if args.profile != GSKILLS_PROFILE {
+        return Err(format!(
+            "unsupported record sink profile: expected {GSKILLS_PROFILE}, received {}",
+            args.profile
+        ));
+    }
+    if !args.database.is_file() {
+        return Err(format!(
+            "record sink database does not exist: {}",
+            args.database.display()
+        ));
+    }
+    if !args.policy.is_file() {
+        return Err(format!(
+            "explicit record sink policy does not exist: {}",
+            args.policy.display()
+        ));
+    }
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let policy = load_record_sink_policy(&args.policy)?;
+    if policy.native_project_ref != project_ref
+        || policy.gskills_project_ref != args.gskills_project_ref
+    {
+        return Err("record sink CLI identity differs from the explicit policy".to_owned());
+    }
+
+    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let host = SqliteRecordSinkHost {
+        store: RefCell::new(store),
+        project_ref,
+        clock: FixedClock::new(observed_at),
+    };
+    // Only this explicit, digest-valid policy can construct a mutable sink.
+    let sink = GSkillsRecordSink::new(&host, policy).map_err(|error| error.to_string())?;
+    let handler = GSkillsRecordSinkJsonRpcHandler::new(&sink);
+    serve_stdio(&handler, FrameLimits::default())?;
+    Ok(String::new())
+}
+
+fn load_record_sink_policy(path: &Path) -> Result<RecordSinkPolicy, String> {
+    let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    let value: Value =
+        serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))?;
+    RecordSinkPolicy::from_value(&value).map_err(|error| error.to_string())
+}
+
+#[derive(Debug)]
+struct SqliteRecordSinkHost {
+    store: RefCell<SqliteEventStore>,
+    project_ref: ProjectId,
+    clock: FixedClock,
+}
+
+impl SqliteRecordSinkHost {
+    fn projection(&self) -> Result<ProjectStateProjection, RecordSinkHostError> {
+        let store = self.store.borrow();
+        store
+            .verify_event_chain(&self.project_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?;
+        let stream = store
+            .load_stream(&self.project_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?;
+        ProjectStateProjection::rebuild(&stream)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+    }
+}
+
+impl RecordSinkHost for SqliteRecordSinkHost {
+    fn observed_at(&self) -> LedgerTimestamp {
+        self.clock.now()
+    }
+
+    fn state_identity(
+        &self,
+        project_ref: &ProjectId,
+    ) -> Result<RecordSinkStateIdentity, RecordSinkHostError> {
+        if project_ref != &self.project_ref {
+            return Err(RecordSinkHostError::new(
+                "record sink requested an unexpected project",
+            ));
+        }
+        let projection = self.projection()?;
+        Ok(RecordSinkStateIdentity {
+            state_version: projection.state().state_version,
+            material_state_version: projection.state().material_state_version,
+            state_digest: projection.state().state_digest,
+        })
+    }
+
+    fn execute(&self, command: CommandEnvelope) -> Result<CommandResult, RecordSinkHostError> {
+        CommandProcessor::new(&mut *self.store.borrow_mut(), &self.clock)
+            .execute(command, &CoreCommandHandler)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+    }
+
+    fn command_result(
+        &self,
+        command_ref: &CommandId,
+    ) -> Result<Option<CommandResult>, RecordSinkHostError> {
+        EventStore::command_result(&*self.store.borrow(), command_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+    }
+
+    fn confirmed_projection_ref(
+        &self,
+        project_ref: &ProjectId,
+        state_version: u64,
+    ) -> Result<ResourceRef, RecordSinkHostError> {
+        let state = self.state_identity(project_ref)?;
+        if state.state_version != state_version {
+            return Err(RecordSinkHostError::new(format!(
+                "confirmed projection version mismatch: expected {state_version}, actual {}",
+                state.state_version
+            )));
+        }
+        ResourceRef::parse(&format!("continuity:ledger-{state_version}"))
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+    }
 }
 
 fn load_phase_catalog(path: &Path) -> Result<BTreeMap<StableId, Phase>, String> {

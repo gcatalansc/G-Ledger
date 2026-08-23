@@ -1,0 +1,31 @@
+{
+  "$id": "urn:gskills:schema:external-submission-record:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed durable v0.3 contract surface derived from the normative example and section 19.2.",
+  "properties": {
+    "approval_binding": { "additionalProperties": true, "type": "object" },
+    "approved_at": { "type": "string" },
+    "attempt_count": { "type": "integer" },
+    "command_digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "command_ref": { "type": "string" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" },
+    "extensions": { "additionalProperties": true, "propertyNames": { "pattern": "^[a-z][a-z0-9.-]*/[A-Za-z0-9._-]+$" }, "type": "object" },
+    "external_operation_ref": true,
+    "external_submission_record_id": { "minLength": 1, "type": "string" },
+    "idempotency_key": { "type": "string" },
+    "idempotency_scope": { "additionalProperties": true, "type": "object" },
+    "known_result_ref": true,
+    "last_transport_error": { "type": "string" },
+    "prepared_at": { "type": "string" },
+    "provenance_ref": { "type": "string" },
+    "reconciled_at": true,
+    "schema_version": { "const": "0.3.0" },
+    "sink_ref": { "type": "string" },
+    "state": { "type": "string" },
+    "submitted_at": { "type": "string" }
+  },
+  "required": ["approval_binding", "approved_at", "attempt_count", "command_digest", "command_ref", "digest", "external_operation_ref", "external_submission_record_id", "idempotency_key", "idempotency_scope", "known_result_ref", "last_transport_error", "prepared_at", "provenance_ref", "reconciled_at", "schema_version", "sink_ref", "state", "submitted_at"],
+  "title": "ExternalSubmissionRecord",
+  "type": "object"
+}
