@@ -2,18 +2,20 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use project_ledger_canonical_json::{Sha256Digest, sha256_digest};
 use project_ledger_domain::{
-    AuthorityDocumentStatus, Blocker, BlockerStatus, ClaimClassification, ClaimRecord,
-    ConflictKind, ConflictRecord, ConflictStatus, Decision, DecisionStatus, Event, EventEnvelope,
+    AuthorityDocumentStatus, Blocker, BlockerStatus, CheckpointFreshnessRecord,
+    CheckpointFreshnessStatus, ClaimClassification, ClaimRecord, ConflictKind, ConflictRecord,
+    ConflictStatus, ContinuityCheckpoint, Decision, DecisionStatus, Event, EventEnvelope,
     EvidenceRecord, EvidenceStatus, GateCompletionOperator, GateCriticality, GateDefinition,
     GateEvaluation, GateEvaluationResult, GateStatus, GateWaiver, NextAction,
     NextActionClassification, PhaseStatus, ProjectLifecycleStatus, ProjectState, RepositoryBinding,
-    RepositoryBindingStatus, Risk, RiskStatus, Roadmap, SchemaVersion, ScopeKind, Severity,
-    StableId,
+    RepositoryBindingStatus, RepositorySnapshot, Risk, RiskStatus, Roadmap, SchemaVersion,
+    ScopeKind, Severity, StableId, UnknownCriticality, UnknownRecord, UnknownStatus, WorkRecord,
 };
 use serde::Serialize;
 
 use crate::project_state::{
-    ProjectionError, advance_material_state, genesis_state, validate_next_event,
+    ProjectionError, advance_material_state, advance_non_material_state, genesis_state,
+    validate_next_event,
 };
 
 /// Stateful deterministic fold retaining indexes that are intentionally absent
@@ -37,6 +39,12 @@ pub struct ProjectStateProjection {
     external_evidence_refs: BTreeSet<StableId>,
     claims: BTreeMap<StableId, ClaimRecord>,
     repository_bindings: BTreeMap<StableId, RepositoryBinding>,
+    work_records: BTreeMap<StableId, WorkRecord>,
+    latest_work_record_ref: Option<StableId>,
+    unknowns: BTreeMap<StableId, UnknownRecord>,
+    checkpoints: BTreeMap<StableId, ContinuityCheckpoint>,
+    checkpoint_freshness_records: Vec<CheckpointFreshnessRecord>,
+    checkpoint_freshness: BTreeMap<StableId, CheckpointFreshnessStatus>,
 }
 
 impl ProjectStateProjection {
@@ -66,6 +74,12 @@ impl ProjectStateProjection {
             external_evidence_refs: BTreeSet::new(),
             claims: BTreeMap::new(),
             repository_bindings: BTreeMap::new(),
+            work_records: BTreeMap::new(),
+            latest_work_record_ref: None,
+            unknowns: BTreeMap::new(),
+            checkpoints: BTreeMap::new(),
+            checkpoint_freshness_records: Vec::new(),
+            checkpoint_freshness: BTreeMap::new(),
         };
         for event in &events[1..] {
             let expected_head = projection.head_digest;
@@ -97,7 +111,11 @@ impl ProjectStateProjection {
         }
         validate_next_event(&self.state, expected_previous_event_digest, event)?;
         self.reduce(event)?;
-        advance_material_state(&mut self.state, event)?;
+        if is_non_material_continuity_event(&event.event) {
+            advance_non_material_state(&mut self.state, event)?;
+        } else {
+            advance_material_state(&mut self.state, event)?;
+        }
         self.head_digest = event.event_digest;
         Ok(self)
     }
@@ -167,6 +185,62 @@ impl ProjectStateProjection {
     /// Returns the current derived repository binding.
     pub fn repository_binding(&self, binding_ref: &StableId) -> Option<&RepositoryBinding> {
         self.repository_bindings.get(binding_ref)
+    }
+
+    /// Returns repository bindings in stable identifier order.
+    pub fn repository_bindings(&self) -> Vec<&RepositoryBinding> {
+        self.repository_bindings.values().collect()
+    }
+
+    /// Returns an immutable continuity checkpoint.
+    pub fn checkpoint(&self, checkpoint_ref: &StableId) -> Option<&ContinuityCheckpoint> {
+        self.checkpoints.get(checkpoint_ref)
+    }
+
+    /// Returns the latest derived freshness status for a checkpoint.
+    pub fn checkpoint_freshness(
+        &self,
+        checkpoint_ref: &StableId,
+    ) -> Option<CheckpointFreshnessStatus> {
+        self.checkpoint_freshness.get(checkpoint_ref).copied()
+    }
+
+    /// Returns every append-only derived checkpoint freshness record.
+    pub fn checkpoint_freshness_records(&self) -> &[CheckpointFreshnessRecord] {
+        &self.checkpoint_freshness_records
+    }
+
+    /// Returns the most recently recorded material work fact.
+    pub fn latest_work_record(&self) -> Option<&WorkRecord> {
+        self.latest_work_record_ref
+            .as_ref()
+            .and_then(|work_ref| self.work_records.get(work_ref))
+    }
+
+    /// Returns a current derived unknown record.
+    pub fn unknown(&self, unknown_ref: &StableId) -> Option<&UnknownRecord> {
+        self.unknowns.get(unknown_ref)
+    }
+
+    /// Returns open material unknown references in stable order.
+    pub fn critical_unknown_refs(&self) -> Vec<StableId> {
+        self.unknowns
+            .values()
+            .filter(|unknown| {
+                unknown.status == UnknownStatus::Open
+                    && unknown.criticality == UnknownCriticality::Material
+            })
+            .map(|unknown| unknown.unknown_id.clone())
+            .collect()
+    }
+
+    /// Returns every open unknown reference in stable identifier order.
+    pub fn open_unknown_refs(&self) -> Vec<StableId> {
+        self.unknowns
+            .values()
+            .filter(|unknown| unknown.status == UnknownStatus::Open)
+            .map(|unknown| unknown.unknown_id.clone())
+            .collect()
     }
 
     /// Returns current gate definitions for a phase in stable identifier order.
@@ -703,6 +777,77 @@ impl ProjectStateProjection {
                     .insert(required.gate_ref.clone(), GateStatus::RevalidationRequired);
                 self.sync_gate_refs();
             }
+            Event::WorkProgressRecorded(recorded) => {
+                validate_record(&recorded.work_record, recorded.work_record.digest)?;
+                if recorded.work_record.schema_version != SchemaVersion::V0_2_0
+                    || recorded.work_record.summary.trim().is_empty()
+                    || recorded.work_record.actor_ref != event.actor.actor_id
+                    || recorded.work_record.recorded_at != event.recorded_at
+                    || self
+                        .work_records
+                        .contains_key(&recorded.work_record.work_record_id)
+                    || recorded
+                        .work_record
+                        .phase_ref
+                        .as_ref()
+                        .is_some_and(|phase_ref| !self.phase_statuses.contains_key(phase_ref))
+                    || recorded
+                        .work_record
+                        .claim_refs
+                        .iter()
+                        .any(|claim_ref| !self.claims.contains_key(claim_ref))
+                    || recorded
+                        .work_record
+                        .evidence_refs
+                        .iter()
+                        .any(|evidence_ref| !self.evidence.contains_key(evidence_ref))
+                {
+                    return Err(invariant(
+                        "work progress has invalid identity or references",
+                    ));
+                }
+                self.latest_work_record_ref = Some(recorded.work_record.work_record_id.clone());
+                self.work_records.insert(
+                    recorded.work_record.work_record_id.clone(),
+                    recorded.work_record.clone(),
+                );
+            }
+            Event::UnknownRecorded(recorded) => {
+                validate_record(&recorded.unknown, recorded.unknown.digest)?;
+                if recorded.unknown.schema_version != SchemaVersion::V0_2_0
+                    || recorded.unknown.status != UnknownStatus::Open
+                    || recorded.unknown.statement.trim().is_empty()
+                    || recorded.unknown.subject_kind.trim().is_empty()
+                    || recorded.unknown.field_path.trim().is_empty()
+                    || recorded.unknown.resolved_at.is_some()
+                    || recorded.unknown.resolution_ref.is_some()
+                    || self.unknowns.contains_key(&recorded.unknown.unknown_id)
+                    || recorded
+                        .unknown
+                        .evidence_refs
+                        .iter()
+                        .any(|evidence_ref| !self.evidence.contains_key(evidence_ref))
+                {
+                    return Err(invariant("unknown record has invalid initial state"));
+                }
+                self.unknowns.insert(
+                    recorded.unknown.unknown_id.clone(),
+                    recorded.unknown.clone(),
+                );
+            }
+            Event::UnknownResolved(resolved) => {
+                let unknown = self
+                    .unknowns
+                    .get_mut(&resolved.unknown_ref)
+                    .ok_or_else(|| invariant("resolved unknown does not exist"))?;
+                if unknown.status != UnknownStatus::Open {
+                    return Err(invariant("unknown is already terminal"));
+                }
+                unknown.status = UnknownStatus::Resolved;
+                unknown.resolved_at = Some(event.occurred_at.clone());
+                unknown.resolution_ref = Some(resolved.resolution_ref.clone());
+                refresh_record_digest(unknown, |record, digest| record.digest = digest)?;
+            }
             Event::VerificationRecorded(recorded) => {
                 validate_record(&recorded.evidence, recorded.evidence.payload_digest)?;
                 if recorded.evidence.schema_version != SchemaVersion::V0_2_0
@@ -1078,6 +1223,33 @@ impl ProjectStateProjection {
                 refresh_record_digest(action, |record, digest| record.digest = digest)?;
                 self.sync_action_refs();
             }
+            Event::CheckpointCreated(created) => {
+                self.install_checkpoint(&created.checkpoint, event)?;
+            }
+            Event::CheckpointInvalidated(invalidated) => {
+                if !self.checkpoints.contains_key(&invalidated.checkpoint_ref)
+                    || invalidated.reason_codes.is_empty()
+                    || matches!(
+                        invalidated.freshness,
+                        CheckpointFreshnessStatus::Current
+                            | CheckpointFreshnessStatus::CurrentForProjectOnly
+                            | CheckpointFreshnessStatus::SupersededByNewerCheckpoint
+                    )
+                    || self.checkpoint_freshness(&invalidated.checkpoint_ref)
+                        == Some(CheckpointFreshnessStatus::SupersededByNewerCheckpoint)
+                {
+                    return Err(invariant(
+                        "checkpoint invalidation is not a valid freshness transition",
+                    ));
+                }
+                self.append_checkpoint_freshness(
+                    &invalidated.checkpoint_ref,
+                    invalidated.freshness,
+                    invalidated.reason_codes.clone(),
+                    event,
+                    "checkpoint-freshness",
+                )?;
+            }
             Event::ConflictOpened(opened) => {
                 if opened.conflict.schema_version != SchemaVersion::V0_2_0
                     || opened.conflict.status != ConflictStatus::Open
@@ -1106,6 +1278,210 @@ impl ProjectStateProjection {
             }
             _ => return Err(ProjectionError::UnsupportedEvent),
         }
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_lines)] // Exact field-by-field N/N+1 validation remains auditable in one place.
+    fn install_checkpoint(
+        &mut self,
+        checkpoint: &ContinuityCheckpoint,
+        event: &EventEnvelope,
+    ) -> Result<(), ProjectionError> {
+        validate_record(checkpoint, checkpoint.checkpoint_digest)?;
+        checkpoint
+            .validate()
+            .map_err(|_| invariant("checkpoint violates the N/N+1 contract"))?;
+        let repository_binding = self.expected_checkpoint_repository_snapshot()?;
+        let authority_document_refs = self
+            .state
+            .authority_documents
+            .iter()
+            .map(|document| document.document_id.clone())
+            .collect::<Vec<_>>();
+        let verified_completed_phase_refs = self
+            .state
+            .completed_phase_refs
+            .iter()
+            .filter(|phase_ref| {
+                self.gates_for_phase(phase_ref).into_iter().all(|gate| {
+                    gate.criticality != GateCriticality::Required
+                        || self.gate_status(&gate.gate_id) == Some(GateStatus::Verified)
+                })
+            })
+            .cloned()
+            .collect::<Vec<_>>();
+        let unknown_refs = self
+            .unknowns
+            .values()
+            .filter(|unknown| unknown.status == UnknownStatus::Open)
+            .map(|unknown| unknown.unknown_id.clone())
+            .collect::<Vec<_>>();
+        let last_material_event_refs = self
+            .state
+            .last_material_event_ref
+            .iter()
+            .cloned()
+            .collect::<Vec<_>>();
+        if checkpoint.schema_version != SchemaVersion::V0_2_0
+            || checkpoint.project_ref != self.state.project.project_id
+            || checkpoint.captured_state_version != self.state.state_version
+            || checkpoint.captured_material_state_version != self.state.material_state_version
+            || checkpoint.captured_state_digest != self.state.state_digest
+            || checkpoint.checkpoint_event_version != event.stream_version
+            || checkpoint.checkpoint_event_ref != event.event_id
+            || checkpoint.created_by != event.actor.actor_id
+            || checkpoint.created_at != event.occurred_at
+            || checkpoint.authority_document_refs != authority_document_refs
+            || checkpoint.active_phase_refs != self.state.active_phase_refs
+            || checkpoint.primary_active_phase_ref != self.state.primary_active_phase_ref
+            || checkpoint.verified_completed_phase_refs != verified_completed_phase_refs
+            || checkpoint.pending_gate_refs != self.state.pending_gate_refs
+            || checkpoint.current_decision_refs != self.state.current_decision_refs
+            || checkpoint.open_blocker_refs != self.state.open_blocker_refs
+            || checkpoint.open_risk_refs != self.state.open_risk_refs
+            || checkpoint.next_action_refs != self.state.ordered_next_action_refs
+            || checkpoint.last_material_event_refs != last_material_event_refs
+            || checkpoint.repository_binding != repository_binding
+            || checkpoint.unknown_refs != unknown_refs
+            || checkpoint.conflict_refs != self.state.open_conflict_refs
+            || self.checkpoints.contains_key(&checkpoint.checkpoint_id)
+        {
+            return Err(invariant(
+                "checkpoint does not exactly capture the pre-event project state",
+            ));
+        }
+
+        if let Some(prior_ref) = self.state.checkpoint_ref.clone() {
+            self.append_checkpoint_freshness(
+                &prior_ref,
+                CheckpointFreshnessStatus::SupersededByNewerCheckpoint,
+                vec!["NEWER_CHECKPOINT_CREATED".to_owned()],
+                event,
+                "checkpoint-freshness-superseded",
+            )?;
+        }
+        let initial_status = self.initial_checkpoint_freshness()?;
+        let reason_codes = match initial_status {
+            CheckpointFreshnessStatus::Current => vec!["CURRENT_REPOSITORY_SNAPSHOT".to_owned()],
+            CheckpointFreshnessStatus::CurrentForProjectOnly => {
+                vec!["NO_REPOSITORY_SNAPSHOT_ASSERTED".to_owned()]
+            }
+            CheckpointFreshnessStatus::StaleForRepository => {
+                vec!["REPOSITORY_SNAPSHOT_UNAVAILABLE".to_owned()]
+            }
+            CheckpointFreshnessStatus::StaleForAuthority => {
+                vec!["AUTHORITY_NOT_CURRENT".to_owned()]
+            }
+            CheckpointFreshnessStatus::Conflicted => vec!["CRITICAL_CONFLICT_OPEN".to_owned()],
+            _ => {
+                return Err(invariant(
+                    "checkpoint cannot start in a terminal freshness state",
+                ));
+            }
+        };
+        self.checkpoints
+            .insert(checkpoint.checkpoint_id.clone(), checkpoint.clone());
+        self.state.checkpoint_ref = Some(checkpoint.checkpoint_id.clone());
+        self.append_checkpoint_freshness(
+            &checkpoint.checkpoint_id,
+            initial_status,
+            reason_codes,
+            event,
+            "checkpoint-freshness",
+        )?;
+        Ok(())
+    }
+
+    fn expected_checkpoint_repository_snapshot(
+        &self,
+    ) -> Result<Option<RepositorySnapshot>, ProjectionError> {
+        let current = self
+            .repository_bindings
+            .values()
+            .filter(|binding| binding.status == RepositoryBindingStatus::Current)
+            .collect::<Vec<_>>();
+        if current.len() > 1 {
+            return Err(invariant(
+                "checkpoint cannot select implicitly between multiple current repositories",
+            ));
+        }
+        let Some(binding) = current.first() else {
+            return Ok(None);
+        };
+        match (
+            &binding.current_snapshot_ref,
+            binding.current_snapshot_digest,
+        ) {
+            (Some(snapshot_ref), Some(snapshot_digest)) => Ok(Some(RepositorySnapshot {
+                repository_ref: binding.repository_ref.clone(),
+                snapshot_ref: snapshot_ref.clone(),
+                snapshot_digest,
+            })),
+            (None, None) => Ok(None),
+            _ => Err(invariant(
+                "repository binding snapshot reference and digest must agree",
+            )),
+        }
+    }
+
+    fn initial_checkpoint_freshness(&self) -> Result<CheckpointFreshnessStatus, ProjectionError> {
+        if self.conflicts.values().any(|conflict| {
+            conflict.status == ConflictStatus::Open && conflict.severity == Severity::Critical
+        }) {
+            return Ok(CheckpointFreshnessStatus::Conflicted);
+        }
+        if self
+            .state
+            .authority_documents
+            .iter()
+            .any(|document| document.status != AuthorityDocumentStatus::Current)
+        {
+            return Ok(CheckpointFreshnessStatus::StaleForAuthority);
+        }
+        let current = self
+            .repository_bindings
+            .values()
+            .filter(|binding| binding.status == RepositoryBindingStatus::Current)
+            .collect::<Vec<_>>();
+        match current.as_slice() {
+            [] => Ok(CheckpointFreshnessStatus::CurrentForProjectOnly),
+            [binding]
+                if binding.current_snapshot_ref.is_some()
+                    && binding.current_snapshot_digest.is_some() =>
+            {
+                Ok(CheckpointFreshnessStatus::Current)
+            }
+            [_] => Ok(CheckpointFreshnessStatus::StaleForRepository),
+            _ => Err(invariant(
+                "checkpoint freshness cannot choose among current repositories",
+            )),
+        }
+    }
+
+    fn append_checkpoint_freshness(
+        &mut self,
+        checkpoint_ref: &StableId,
+        status: CheckpointFreshnessStatus,
+        reason_codes: Vec<String>,
+        event: &EventEnvelope,
+        id_prefix: &str,
+    ) -> Result<(), ProjectionError> {
+        let freshness_record_id =
+            StableId::parse(&format!("{id_prefix}:{}", event.event_id.uuid()))
+                .map_err(|_| invariant("checkpoint freshness identity is invalid"))?;
+        let mut record = CheckpointFreshnessRecord {
+            schema_version: SchemaVersion::V0_2_0,
+            freshness_record_id,
+            checkpoint_ref: checkpoint_ref.clone(),
+            status,
+            evaluated_at: event.occurred_at.clone(),
+            reason_codes,
+            digest: Sha256Digest::from([0_u8; 32]),
+        };
+        refresh_record_digest(&mut record, |value, digest| value.digest = digest)?;
+        self.checkpoint_freshness
+            .insert(checkpoint_ref.clone(), status);
+        self.checkpoint_freshness_records.push(record);
         Ok(())
     }
 
@@ -1626,6 +2002,16 @@ fn validate_gate_definition(gate: &GateDefinition) -> Result<(), ProjectionError
     Ok(())
 }
 
+const fn is_non_material_continuity_event(event: &Event) -> bool {
+    matches!(
+        event,
+        Event::CheckpointCreated(_)
+            | Event::CheckpointInvalidated(_)
+            | Event::SessionStarted(_)
+            | Event::SessionEnded(_)
+    )
+}
+
 const fn valid_evaluation_status_pair(result: GateEvaluationResult, status: GateStatus) -> bool {
     matches!(
         (result, status),
@@ -1810,6 +2196,7 @@ fn record_digest<T: Serialize>(record: &T) -> Result<Sha256Digest, ProjectionErr
     })?;
     object.remove("digest");
     object.remove("payload_digest");
+    object.remove("checkpoint_digest");
     Ok(sha256_digest(&value)?)
 }
 

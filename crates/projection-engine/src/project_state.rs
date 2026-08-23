@@ -9,7 +9,7 @@ use thiserror::Error;
 use crate::lifecycle::ProjectStateProjection;
 
 /// Version of the deterministic `ProjectState` fold implemented by this crate.
-pub const PROJECTOR_VERSION: u32 = 3;
+pub const PROJECTOR_VERSION: u32 = 4;
 
 /// Failures that prevent a stream or event from becoming trusted derived state.
 #[derive(Debug, Error)]
@@ -203,6 +203,16 @@ pub(crate) fn advance_material_state(
     state.material_state_version = event.stream_version;
     state.last_material_event_ref = Some(event.event_id.clone());
     state.last_material_activity_at = Some(event.occurred_at.clone());
+    state.updated_at.clone_from(&event.recorded_at);
+    state.state_digest = state_digest(state)?;
+    Ok(())
+}
+
+pub(crate) fn advance_non_material_state(
+    state: &mut ProjectState,
+    event: &EventEnvelope,
+) -> Result<(), ProjectionError> {
+    state.state_version = event.stream_version;
     state.updated_at.clone_from(&event.recorded_at);
     state.state_digest = state_digest(state)?;
     Ok(())

@@ -8,6 +8,7 @@ members = [
   "crates/lifecycle",
   "crates/gate-engine",
   "crates/evidence",
+  "crates/continuity",
   "crates/project-catalog",
   "crates/application",
   "crates/storage-sqlite",

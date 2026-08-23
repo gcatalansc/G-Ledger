@@ -29,4 +29,9 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Freshness determinista por `EVIDENCE_INVALIDATED`, `AUTHORITY_DOCUMENT_CHANGED` y `REPOSITORY_DEPENDENCY_CHANGED`, con gate stale/revalidation y reapertura de fase cuando la matriz lo permite.
 - Modelo ejecutable de claims: alta únicamente `ASSERTED`; `VERIFIED` requiere actor humano y referencias a evidencia `VERIFIED_SOURCE`.
 - `CoreCommandHandler` compone owners S2–S5 sobre el mismo stream verificado y conserva una sola transacción SQLite/matriz/idempotencia.
-- Gate local reproducible con formato, Clippy pedantic, 111 pruebas y política de dependencias.
+- `projection-engine` v4 reconstruye work progress, unknowns, checkpoints inmutables y registros append-only de freshness; `CHECKPOINT_CREATED/INVALIDATED` no avanzan `material_state_version`.
+- Crate `continuity` con checkpoint N/N+1 determinista, rechazo de selección ambigua entre repositorios, invalidación matrix-compatible y composición atómica en `CoreCommandHandler`/SQLite.
+- `ResumeProjection` compacto ≤220 y Markdown para agente ≤450 usando bytes UTF-8 como cota conservadora reproducible ante la ausencia de tokenizer contractual.
+- Renderer Markdown puro con warning normativo, trece secciones ordenadas, perfiles `FULL_LOCAL`/`MINIMAL_LOCAL`/`SHAREABLE`, acotación/redacción y `GeneratedArtifactRecord` verificable.
+- Auditoría de stream/origen/digest que detecta `GENERATED_ARTIFACT_MODIFIED`, permite regeneración determinista y mantiene visibles checkpoints stale, unknowns materiales y conflictos críticos.
+- Gate local reproducible con formato, Clippy pedantic, 122 pruebas y política de dependencias.

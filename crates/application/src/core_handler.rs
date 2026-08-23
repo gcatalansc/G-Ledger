@@ -1,3 +1,4 @@
+use project_ledger_continuity::{ContinuityEngine, ContinuityError};
 use project_ledger_domain::{Command, CommandEnvelope, ErrorCode, EventEnvelope};
 use project_ledger_event_store::EventDraft;
 use project_ledger_gate_engine::GateEngine;
@@ -15,7 +16,7 @@ impl CommandHandler for CoreCommandHandler {
         command: &CommandEnvelope,
         verified_stream: &[EventEnvelope],
     ) -> Result<Vec<EventDraft>, CommandHandlerError> {
-        match &command.command {
+        let base = match &command.command {
             Command::CreateProject(_) => CreateProjectHandler.handle(command, verified_stream),
             Command::RegisterAuthorityDocument(_)
             | Command::RefreshAuthorityDocumentDigest(_)
@@ -34,6 +35,13 @@ impl CommandHandler for CoreCommandHandler {
                         subject_refs: error.subject_refs(),
                     },
                 )
+            }
+            Command::RecordWorkProgress(_)
+            | Command::RecordUnknown(_)
+            | Command::ResolveUnknown(_)
+            | Command::CreateContinuityCheckpoint(_) => {
+                ContinuityEngine::handle(command, verified_stream)
+                    .map_err(|error| continuity_error(&error))
             }
             Command::DefineGate(_)
             | Command::BindRepository(_)
@@ -61,6 +69,16 @@ impl CommandHandler for CoreCommandHandler {
                     subject_refs: error.subject_refs(),
                 }
             }),
-        }
+        }?;
+        ContinuityEngine::extend_checkpoint_freshness(command, verified_stream, base)
+            .map_err(|error| continuity_error(&error))
+    }
+}
+
+fn continuity_error(error: &ContinuityError) -> CommandHandlerError {
+    CommandHandlerError {
+        code: ErrorCode::InvalidContract,
+        message: error.to_string(),
+        subject_refs: error.subject_refs(),
     }
 }

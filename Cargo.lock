@@ -904,6 +904,7 @@ name = "project-ledger-application"
 version = "0.2.0"
 dependencies = [
  "project-ledger-canonical-json",
+ "project-ledger-continuity",
  "project-ledger-domain",
  "project-ledger-event-store",
  "project-ledger-gate-engine",
@@ -945,6 +946,21 @@ dependencies = [
  "project-ledger-storage-sqlite",
  "tempfile",
  "time",
+]
+
+[[package]]
+name = "project-ledger-continuity"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-projection-engine",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]

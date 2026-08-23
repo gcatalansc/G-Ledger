@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4 y gates/evidencia/Phase Engine de S5. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5 y continuidad/render/audit de S6. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -67,4 +67,14 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | §21.3–21.4 | `predicate_ast.rs`, `gate_commands.rs` | Los 17 operadores cerrados se evalúan sin scripts; `ALL/ANY` se auditan con la misma semántica en motor y proyección; missing/tipos incompatibles/snapshot conflict nunca se convierten en true |
 | I-02, I-20 | `gates_and_evidence.rs`, `gate_lifecycle_transaction.rs` | Índices privados de gate/evidence/claim/repository reconstruyen el mismo estado; SQLite conserva lotes atómicos y cadena íntegra |
 
-Las 111 pruebas del workspace incluyen 21 pruebas incorporadas en S5. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.
+## Cobertura ejecutable S6
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| REQ-CHK-001, I-22, AC-027, PL-18 | `checkpoints.rs`, `checkpoint_engine.rs` | El checkpoint captura exactamente estado/digest/material N, referencia el evento real N+1, no muta sus bytes y falla ante vectors forjados o múltiples repositorios vigentes |
+| §25.3–25.5, AC-025 | `checkpoint_engine.rs`, `continuity_transaction.rs` | Freshness append-only distingue project-only/current/authority/repository/conflict/invalidated/superseded; unknown+invalidación se persisten en un lote SQLite |
+| §26.1–26.2, AC-024, AC-033 | `resume.rs` | Salida compacta ≤220 y agent Markdown ≤450 según cota UTF-8; stale status y unknown/conflict crítico conservan prioridad |
+| I-03, §28, AC-029–030, PL-14 | `markdown_audit.rs` | Warning y trece secciones exactas, LF/digest deterministas, render read-only, perfiles de privacidad y edición manual sin mutación canónica |
+| §30.1–30.3, AC-031–033 | `markdown_audit.rs` | Rebuild de stream, source version/digest y bytes verificables; modificación produce `GENERATED_ARTIFACT_MODIFIED`, regeneración restaura MATCH y hallazgos críticos permanecen visibles |
+
+Las 122 pruebas del workspace incluyen 11 pruebas incorporadas en S6. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.

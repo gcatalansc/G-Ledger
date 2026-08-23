@@ -2,11 +2,13 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0–S5: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle y gates/evidencia. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+El repositorio ha materializado S0–S6: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia y continuidad. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
 S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
 
-La semántica ejecutable sigue acotada por la especificación: checkpoints/resume, Markdown/audit, portable/legacy import, adapters, stdio, UI, daemon, red y AI permanecen pendientes de S6 y slices posteriores. El runner/importador de evidencia existe como core embebible; la superficie CLI completa de gates/evidencia se conectará junto con las superficies operativas posteriores sin inventar selección implícita de ledger/proyecto.
+S6 incorpora checkpoints inmutables con captura N/evento N+1, freshness append-only, versiones material/no material separadas, `ResumeProjection` compacto y para agente bajo cotas conservadoras, Markdown derivado de trece secciones con perfiles de privacidad y auditoría de divergencia. `CoreCommandHandler` registra progreso/unknowns/checkpoints e invalidaciones compatibles en una sola transacción SQLite; varios repositorios vigentes se rechazan sin selección implícita.
+
+La semántica ejecutable sigue acotada por la especificación: portable bundles, legacy review/import, adapters, stdio, UI, daemon, red y AI permanecen pendientes de S7 y slices posteriores. Los motores de gates/evidencia/continuidad existen como core embebible; sus superficies CLI operativas completas se conectarán junto con las superficies posteriores sin inventar selección implícita de ledger/proyecto. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello.
 
 ## Autoridad
 
