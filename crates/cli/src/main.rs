@@ -10,14 +10,16 @@ use clap::{Args, Parser, Subcommand};
 use project_ledger_application::{
     CommandDraft, CommandProcessor, CreateProjectHandler, FixedClock, prepare_command,
 };
-use project_ledger_canonical_json::sha256_bytes;
+use project_ledger_canonical_json::{sha256_bytes, to_canonical_vec};
 use project_ledger_domain::{
     Actor, ActorKind, AuthorityPolicy, Command, CommandId, CommandResultStatus,
     CreateProjectPayload, LedgerTimestamp, Project, ProjectId, ProjectLifecycleStatus,
     SchemaVersion, StableId, StorageProfile, TrustLevel,
 };
+use project_ledger_integration_protocol::{build_default_manifest, inspect_upstream_lock};
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
+use serde::Serialize;
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 const V0_1_DIGEST: &str = "sha256:772ea51780a5ed2881a786a198aa90dedb8b4ba619b6652d8f54ef4ca306d865";
@@ -45,6 +47,10 @@ enum TopLevelCommand {
         #[command(subcommand)]
         command: VerificationCommand,
     },
+    Integration {
+        #[command(subcommand)]
+        command: IntegrationCommand,
+    },
 }
 
 #[derive(Debug, Args)]
@@ -64,6 +70,12 @@ enum VerificationCommand {
     Verify,
 }
 
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum IntegrationCommand {
+    Manifest,
+    Compatibility,
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
     let result = match cli.command {
@@ -74,6 +86,12 @@ fn main() -> ExitCode {
         TopLevelCommand::Contracts {
             command: VerificationCommand::Verify,
         } => repository_root().and_then(|root| verify_contract_artifacts(&root)),
+        TopLevelCommand::Integration {
+            command: IntegrationCommand::Manifest,
+        } => integration_manifest(),
+        TopLevelCommand::Integration {
+            command: IntegrationCommand::Compatibility,
+        } => repository_root().and_then(|root| integration_compatibility(&root)),
     };
     match result {
         Ok(output) => {
@@ -233,4 +251,45 @@ fn verify_contract_artifacts(root: &Path) -> Result<String, String> {
         report.positive_fixture_count + report.negative_fixture_count,
         report.matrix_row_count
     ))
+}
+
+fn integration_manifest() -> Result<String, String> {
+    let manifest = build_default_manifest(Vec::new()).map_err(|error| error.to_string())?;
+    canonical_stdout(&manifest)
+}
+
+#[derive(Debug, Serialize)]
+struct CompatibilityReport {
+    schema_version: &'static str,
+    certified_compatibility: bool,
+    integrations: Vec<project_ledger_integration_protocol::UpstreamLockInspection>,
+}
+
+fn integration_compatibility(root: &Path) -> Result<String, String> {
+    let mut integrations = Vec::new();
+    for relative in [
+        "integrations/gskills/upstream-lock.json",
+        "integrations/gsp/upstream-lock.json",
+        "integrations/project-radar/upstream-lock.json",
+    ] {
+        let path = root.join(relative);
+        let bytes = fs::read(&path).map_err(|error| format!("{}: {error}", path.display()))?;
+        let value = serde_json::from_slice(&bytes)
+            .map_err(|error| format!("{}: {error}", path.display()))?;
+        integrations.push(inspect_upstream_lock(&value).map_err(|error| error.to_string())?);
+    }
+    canonical_stdout(&CompatibilityReport {
+        schema_version: "1.0.0",
+        certified_compatibility: integrations
+            .iter()
+            .all(|inspection| inspection.certified_compatibility),
+        integrations,
+    })
+}
+
+fn canonical_stdout<T: Serialize>(value: &T) -> Result<String, String> {
+    let bytes = to_canonical_vec(value).map_err(|error| error.to_string())?;
+    let mut output = String::from_utf8(bytes).map_err(|error| error.to_string())?;
+    output.push('\n');
+    Ok(output)
 }

@@ -920,6 +920,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-ledger-artifact-exchange"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
 name = "project-ledger-canonical-json"
 version = "0.2.0"
 dependencies = [
@@ -942,8 +953,12 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-integration-protocol",
  "project-ledger-schemas",
  "project-ledger-storage-sqlite",
+ "project-ledger-transport-stdio",
+ "serde",
+ "serde_json",
  "tempfile",
  "time",
 ]
@@ -1012,6 +1027,17 @@ dependencies = [
  "sha2",
  "thiserror",
  "uuid",
+]
+
+[[package]]
+name = "project-ledger-integration-protocol"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -1105,6 +1131,16 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "project-ledger-transport-stdio"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

@@ -38,4 +38,8 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Política portable verificada para cadena idéntica, proyecto nuevo, fast-forward, destino más nuevo y divergencia fail-closed; `FORK_EXPLICIT` expone nueva identidad y provenance sin inventar una mutación durable ausente del contrato.
 - Puerto `EventImportStore` y append SQLite transaccional de sufijos ya verificados, con revalidación de versión/identity/digest y rollback íntegro ante conflicto.
 - Crate `legacy-import` con extracción conservadora por etiqueta/sección/línea, contradicciones bidireccionales, review individual obligatorio, ausencia de `TRUST_ALL` y propuestas exclusivamente `ASSERTED`.
-- Gate local reproducible con formato, Clippy pedantic, 134 pruebas y política de dependencias.
+- Crate `integration-protocol` con builders/verificadores canónicos de manifest, health, projection envelope y loss report, límites, privacidad fail-closed, exact identity y upstream-lock inspection sin overclaim.
+- Harness read-only con 100 projections deterministas, current/stale, timeout medido, 7 fixtures hostiles, detección de mutación observable, redacción y failure isolation; sin dependencia de SQLite ni promesa de sandbox universal.
+- Crate `transport-stdio` con framing/dispatch JSON-RPC 2.0 `Content-Length` estricto y acotado; crate `artifact-exchange` con JSON RFC 8785, digest, límites y publicación atómica no-clobber.
+- CLI genérica `integration manifest`/`integration compatibility`, semánticamente equivalente al manifest directo/stdio y conservando G-Skills, GSP y Radar como no certificados.
+- Gate local reproducible con formato, Clippy pedantic, 150 pruebas y política de dependencias.

@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6 y portable/legacy import de S7. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6, portable/legacy import de S7 y protocolo/SDK genérico de S8. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -87,4 +87,17 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | REQ-REL-002, §31.5 | `portable-bundle/src/export.rs`, `import.rs` | Sólo v0.2.0 se interpreta; otro schema exige migración explícita y no se reetiqueta silenciosamente |
 | AC-034, §29, ADR-014 | `legacy-import/tests/review.rs` | Preview por línea con conflictos preservados, toda recomendación `REVIEW`, decisión exacta por candidato, `TRUST_ALL` inválido y proposals sólo `ASSERTED` |
 
-Las 134 pruebas del workspace incluyen 12 pruebas incorporadas en S7. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.
+## Cobertura ejecutable S8
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| §32.4–32.5, REQ-INT-002 | `integration-protocol/tests/contracts.rs` | Manifest/health/envelope/loss canónicos, side effects declarados, payload/state/schema/digest ligados, bounds y current/stale sin elevar autoridad |
+| REQ-INT-001, I-28 | `integration-protocol/tests/contracts.rs`, `cli/tests/contract_commands.rs` | Locks completos requieren spec/schema/fixtures/range; null/missing queda `PENDING`; overclaim falla; los tres locks actuales siguen no certificados |
+| AC-045, PL-17 | `integration-protocol/tests/contracts.rs`, `conformance.rs` | Sólo mapping exacto `CONFIRMED`; candidate/nombre no resuelven y múltiples targets producen ambigüedad fail-closed |
+| AC-043, PL-09, §38.5 | `integration-protocol/tests/conformance.rs` | 100 projections current + stale/post-failure conservan exactamente version/event-count/state-digest; mutación, timeout, nondeterminismo o secreto tipado fallan |
+| AC-044/050, §38.5 | `integration-protocol/tests/conformance.rs` | 7 requests maliciosos cubren negotiation, budgets, duplicados, authority, privacidad e identidad; el provider recupera una respuesta válida después de errores |
+| §33.5, AC-003 | `transport-stdio/tests/framing.rs`, `cli/tests/contract_commands.rs` | `Content-Length` estricto, bounded UTF-8 JSON, malformed/trailing fail-closed y manifest CLI/direct/stdio semánticamente equivalente |
+| §32.2, §38.5 | `artifact-exchange/tests/artifacts.rs` | Artifact JSON canónico/digest-bound, filename/root acotado, no traversal, tampering, noncanonical, oversized ni overwrite; publicación atómica no-clobber |
+| REQ-INT-003, AC-051 | manifests Cargo y boundaries públicas de las tres crates | Protocolo/transporte/exchange no dependen de storage-sqlite, WAL, tablas ni migraciones privadas; adapters específicos dependen hacia adentro |
+
+Las 150 pruebas del workspace incluyen 16 pruebas incorporadas en S8. Son evidencia local de ingeniería y conformance genérica; no certifican adapters externos, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.
