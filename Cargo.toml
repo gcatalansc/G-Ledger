@@ -4,6 +4,7 @@ members = [
   "crates/canonical-json",
   "crates/domain",
   "crates/event-store",
+  "crates/projection-engine",
   "crates/application",
   "crates/storage-sqlite",
   "crates/schemas",

@@ -1,9 +1,9 @@
-use rusqlite::{Connection, TransactionBehavior, params};
+use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 
 use crate::SqliteStoreError;
 use project_ledger_canonical_json::sha256_bytes;
 
-const SUPPORTED_VERSION: u32 = 1;
+const SUPPORTED_VERSION: u32 = 2;
 
 pub(crate) fn apply(connection: &mut Connection) -> Result<(), SqliteStoreError> {
     connection.execute_batch(
@@ -24,28 +24,52 @@ pub(crate) fn apply(connection: &mut Connection) -> Result<(), SqliteStoreError>
             supported: SUPPORTED_VERSION,
         });
     }
-    if current >= 1 {
-        let (name, digest): (String, String) = connection.query_row(
-            "SELECT name, migration_digest FROM schema_migrations WHERE version = 1",
-            [],
-            |row| Ok((row.get(0)?, row.get(1)?)),
-        )?;
-        if name != "s2-event-store" || digest != sha256_bytes(MIGRATION_V1.as_bytes()).to_string() {
-            return Err(SqliteStoreError::MigrationIntegrity { version: 1 });
+    for (version, name, sql) in migrations() {
+        if current >= version {
+            verify_applied(connection, version, name, sql)?;
         }
     }
-    if current == 0 {
+    for (version, name, sql) in migrations() {
+        if current >= version {
+            continue;
+        }
         let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
-        transaction.execute_batch(MIGRATION_V1)?;
+        transaction.execute_batch(sql)?;
         transaction.execute(
             "INSERT INTO schema_migrations(version, name, migration_digest) VALUES (?1, ?2, ?3)",
-            params![
-                1_u32,
-                "s2-event-store",
-                sha256_bytes(MIGRATION_V1.as_bytes()).to_string()
-            ],
+            params![version, name, sha256_bytes(sql.as_bytes()).to_string()],
         )?;
         transaction.commit()?;
+    }
+    Ok(())
+}
+
+fn migrations() -> impl Iterator<Item = (u32, &'static str, &'static str)> {
+    [
+        (1, "s2-event-store", MIGRATION_V1),
+        (2, "s3-project-state-cache", MIGRATION_V2),
+    ]
+    .into_iter()
+}
+
+fn verify_applied(
+    connection: &Connection,
+    version: u32,
+    expected_name: &str,
+    sql: &str,
+) -> Result<(), SqliteStoreError> {
+    let applied: Option<(String, String)> = connection
+        .query_row(
+            "SELECT name, migration_digest FROM schema_migrations WHERE version = ?1",
+            [version],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()?;
+    let Some((name, digest)) = applied else {
+        return Err(SqliteStoreError::MigrationIntegrity { version });
+    };
+    if name != expected_name || digest != sha256_bytes(sql.as_bytes()).to_string() {
+        return Err(SqliteStoreError::MigrationIntegrity { version });
     }
     Ok(())
 }
@@ -155,4 +179,16 @@ CREATE TRIGGER submission_transitions_forbid_delete
 BEFORE DELETE ON external_submission_transitions BEGIN
     SELECT RAISE(ABORT, 'submission transitions are append-only');
 END;
+";
+
+const MIGRATION_V2: &str = r"
+CREATE TABLE project_state_snapshots (
+    project_ref TEXT PRIMARY KEY NOT NULL,
+    state_version INTEGER NOT NULL CHECK (state_version >= 1),
+    state_digest TEXT NOT NULL,
+    source_head_event_digest TEXT NOT NULL,
+    projector_version INTEGER NOT NULL CHECK (projector_version >= 1),
+    state_json BLOB NOT NULL,
+    FOREIGN KEY(project_ref) REFERENCES event_streams(project_ref) ON DELETE CASCADE
+) STRICT;
 ";

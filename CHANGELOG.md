@@ -13,9 +13,12 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Contratos durables S1 y uniones cerradas de 53 comandos y 67 eventos.
 - Registro offline de 46 schemas con 92 fixtures, semántica de arrays y matriz comando-evento.
 - CLI read-only para verificar antecedentes y contratos, además de generación determinista mediante `xtask`.
-- Puertos `event-store`/`application` independientes de SQLite y adapter `storage-sqlite` con migración v1, WAL, claves foráneas, bloqueo acotado y `synchronous=FULL`.
+- Puertos `event-store`/`application` independientes de SQLite y adapter `storage-sqlite` con migraciones v1–v2 verificadas, WAL, claves foráneas, bloqueo acotado y `synchronous=FULL`.
 - Append de eventos inmutable, versiones contiguas, cadena SHA-256 obligatoria, lectura verificada y detección fail-closed de corrupción.
 - Procesador de comandos con matriz cerrada, expected version, idempotencia por scope, resultados persistentes y handler real `CREATE_PROJECT`.
 - Historial append-only de `ExternalSubmissionRecord`, compare-and-set y reconciliación sin reintento ciego ni `OUTCOME_UNKNOWN` en resultados servidor.
 - `project-ledger init` offline y reporte de recuperación con `quick_check`, WAL, migración, cadena, conteos y submissions inciertas.
-- Gate local reproducible con formato, Clippy pedantic, 61 pruebas y política de dependencias.
+- `projection-engine` storage-independent con digest canónico de `ProjectState`, rebuild desde génesis, aplicación incremental equivalente y rechazo explícito de reducers aún no implementados.
+- Caché SQLite descartable ligada a versión/head/projector/digest, con reconstrucción y reparación automática ante ausencia, obsolescencia o corrupción.
+- Consulta de estado que verifica primero la cadena canónica y mantiene invariantes de no mutación tras 100 lecturas consecutivas.
+- Gate local reproducible con formato, Clippy pedantic, 74 pruebas y política de dependencias.

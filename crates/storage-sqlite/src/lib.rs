@@ -2,6 +2,7 @@
 
 mod events;
 mod migrations;
+mod projections;
 mod recovery;
 mod submissions;
 

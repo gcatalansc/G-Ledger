@@ -906,8 +906,10 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-projection-engine",
  "project-ledger-schemas",
  "project-ledger-storage-sqlite",
+ "rusqlite",
  "serde",
  "serde_json",
  "tempfile",
@@ -968,6 +970,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-ledger-projection-engine"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "project-ledger-schemas"
 version = "0.2.0"
 dependencies = [
@@ -988,6 +1002,7 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-projection-engine",
  "rusqlite",
  "serde",
  "serde_json",

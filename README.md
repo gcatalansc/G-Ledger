@@ -2,7 +2,9 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0 + S1 + S2: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions e inicialización offline. La semántica ejecutable de S2 se limita deliberadamente a `CREATE_PROJECT`; proyecciones, lifecycle derivado, gates, adapters, UI, daemon y red siguen pendientes.
+El repositorio ha materializado S0 + S1 + S2 + S3: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline y proyección determinista de `ProjectState`. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+
+La semántica ejecutable se mantiene deliberadamente acotada: S2 ejecuta `CREATE_PROJECT` y S3 proyecta `PROJECT_CREATED`/`PROJECT_METADATA_UPDATED`. Lifecycle derivado, autoridad, roadmap, fases, catálogo, gates, adapters, UI, daemon y red siguen pendientes de sus slices normativos.
 
 ## Autoridad
 

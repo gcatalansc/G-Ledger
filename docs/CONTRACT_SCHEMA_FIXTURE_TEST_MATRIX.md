@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1 y la ejecución transaccional incorporada en S2. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional incorporada en S2 y la proyección determinista incorporada en S3. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -32,4 +32,14 @@ Esta matriz resume la cobertura contractual de S1 y la ejecución transaccional 
 | I-26, PL-08, PL-20, AC-040–041 | `submission_reconciliation.rs` | `OUTCOME_UNKNOWN` sólo local; historial CAS; accepted/rejected/not-found sin reintento ciego |
 | AC-001 y §39–40 | `init.rs`, `bootstrap.rs`, `recovery.rs` | Init offline, SQLite/WAL real, migración idempotente, rollback y recovery report |
 
-Las 61 pruebas del workspace incluyen 23 pruebas nuevas de S2. No certifican operación remota ni semántica de projection/lifecycle/gates, que comienza en S3.
+## Cobertura ejecutable S3
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| I-02, I-20, AC-007 | `project_state.rs`, `incremental_equivalence.rs` | Mismo stream produce mismo estado/digest; incremental y rebuild desde cero son equivalentes |
+| I-27 y §13/§45 | `project_state.rs`, `incremental_equivalence.rs` | Eventos y estado se validan antes de aplicar; gaps, cross-project, génesis duplicada y estado corrupto fallan cerrados |
+| I-05, PL-09, AC-009 | `project_state_query.rs`, `projection_cache.rs` | 100 consultas mantienen versión y conteo de eventos; sólo puede cambiar la caché derivada |
+| §39–40, AC-010 | `bootstrap.rs`, `projection_cache.rs`, `project_state_query.rs` | Migración v2 verificable; caché ausente/stale/corrupta se descarta, reconstruye y repara desde el stream |
+| Orden S3/S4 de §51 | `incremental_equivalence.rs` | Un evento lifecycle íntegro se rechaza como no soportado; nunca se ignora ni se interpreta antes de S4 |
+
+Las 74 pruebas del workspace incluyen 23 pruebas de S2 y 13 pruebas nuevas de S3. No certifican operación remota ni la semántica lifecycle/authority/roadmap/gates reservada a S4–S5.

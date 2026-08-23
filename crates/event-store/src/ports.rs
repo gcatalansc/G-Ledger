@@ -1,7 +1,7 @@
 use project_ledger_canonical_json::Sha256Digest;
 use project_ledger_domain::{
     CommandEnvelope, CommandResult, CommandType, EventEnvelope, ExternalSubmissionRecord,
-    ExternalSubmissionState, LedgerTimestamp, ProjectId, StableId,
+    ExternalSubmissionState, LedgerTimestamp, ProjectId, ProjectState, StableId,
 };
 use thiserror::Error;
 
@@ -39,6 +39,23 @@ pub enum IdempotencyLookup {
 pub enum SubmissionDisposition {
     Recorded,
     Replayed,
+}
+
+/// A discardable projection snapshot tied to one exact canonical stream head.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ProjectStateSnapshot {
+    pub state: ProjectState,
+    pub source_head_event_digest: Sha256Digest,
+    pub projector_version: u32,
+}
+
+/// Classification of a derived snapshot read.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ProjectionSnapshotLoad {
+    Missing,
+    Snapshot(Box<ProjectStateSnapshot>),
+    /// Bytes or redundant metadata disagree and the cache must be rebuilt.
+    Corrupt,
 }
 
 /// Durable failures shared by storage adapters and the application boundary.
@@ -130,6 +147,29 @@ pub trait EventStore {
         &self,
         command_ref: &project_ledger_domain::CommandId,
     ) -> Result<Option<CommandResult>, StoreError>;
+}
+
+/// Storage-independent boundary for mutable, discardable projection caches.
+pub trait ProjectionSnapshotStore {
+    /// Loads a snapshot without treating cache corruption as canonical corruption.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StoreError`] only when the storage operation itself fails.
+    fn load_project_state_snapshot(
+        &self,
+        project_ref: &ProjectId,
+    ) -> Result<ProjectionSnapshotLoad, StoreError>;
+
+    /// Replaces the derived snapshot for its project.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StoreError`] when serialization, bounds or persistence fail.
+    fn store_project_state_snapshot(
+        &mut self,
+        snapshot: &ProjectStateSnapshot,
+    ) -> Result<(), StoreError>;
 }
 
 /// Storage-independent local transport-uncertainty boundary.
