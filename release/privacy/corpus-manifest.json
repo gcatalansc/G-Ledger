@@ -1,0 +1,13 @@
+{
+  "profile": "project-ledger-privacy-corpus/0.2.0",
+  "scanner_profile": "project-ledger-supported-secret-patterns/0.1.0",
+  "surfaces": [
+    {"channel":"DB_WAL_SHM","path":"release/privacy/surfaces/sqlite-recovery.json","sha256":"37bbfb246891012f9698deb5e51868473db36dfc677022fc868aa64a51f5e05a"},
+    {"channel":"LOGS","path":"release/privacy/surfaces/structured-log.json","sha256":"441fd0fa6d53ef5e22238711a143a4fabab965387e41182fec74a9666ef4ef91"},
+    {"channel":"EXPORTS","path":"release/privacy/surfaces/portable-export.json","sha256":"95eba583ed5816670d21034f8436454ea1b3bda1a8c45a7159ba1fd3ed40c748"},
+    {"channel":"MARKDOWN","path":"release/privacy/surfaces/generated-markdown.json","sha256":"cb096cf8156b2c5db279f4f1c59bf92235707741d4ef561ca6e899291bb2b3f6"},
+    {"channel":"CRASH_ARTIFACTS","path":"release/privacy/surfaces/crash-artifact.json","sha256":"6b1b2c0c404c9a9fb7a037ca8265ab99ba657c9c06ff021323ff093ed3254a65"},
+    {"channel":"INTEGRATION_PAYLOADS","path":"release/privacy/surfaces/integration-payload.json","sha256":"b5d4bce218e4c2b708d1912c7edab31293116eebfa38590547b6b77d1b7d8258"},
+    {"channel":"RADAR_ARTIFACTS","path":"release/privacy/surfaces/radar-artifact.json","sha256":"e5a2956469282eb28d7845c4ff6085304ffa9b15bf1c88bfe39a5f394474630c"}
+  ]
+}

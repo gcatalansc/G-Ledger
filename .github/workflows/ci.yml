@@ -32,6 +32,9 @@ jobs:
       - run: cargo xtask schema check
       - run: cargo run -p project-ledger-cli -- specs verify
       - run: cargo run -p project-ledger-cli -- contracts verify
+      - run: cargo build --locked --release -p project-ledger-cli
+      - run: cargo xtask release check
+      - run: cargo run -p project-ledger-cli -- release verify
 
   dependency-policy:
     runs-on: ubuntu-latest

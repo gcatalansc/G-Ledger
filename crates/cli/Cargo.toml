@@ -22,6 +22,7 @@ project-ledger-interop-gskills = { path = "../interop-gskills", version = "=0.2.
 project-ledger-interop-gsp = { path = "../interop-gsp", version = "=0.2.0" }
 project-ledger-interop-radar = { path = "../interop-radar", version = "=0.2.0" }
 project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
+project-ledger-release = { path = "../release", version = "=0.2.0" }
 project-ledger-schemas = { path = "../schemas", version = "=0.2.0" }
 project-ledger-storage-sqlite = { path = "../storage-sqlite", version = "=0.2.0" }
 project-ledger-transport-stdio = { path = "../transport-stdio", version = "=0.2.0" }

@@ -43,6 +43,7 @@ use project_ledger_interop_radar::{
     verify_profile_contracts as verify_radar_profile_contracts,
 };
 use project_ledger_projection_engine::ProjectStateProjection;
+use project_ledger_release::verify_release;
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
 use project_ledger_transport_stdio::{FrameLimits, JsonRpcHandler, dispatch_frame};
@@ -80,6 +81,10 @@ enum TopLevelCommand {
         #[command(subcommand)]
         command: VerificationCommand,
     },
+    Release {
+        #[command(subcommand)]
+        command: ReleaseCommand,
+    },
     Integration {
         #[command(subcommand)]
         command: IntegrationCommand,
@@ -109,6 +114,17 @@ struct InitArgs {
 #[derive(Clone, Copy, Debug, Subcommand)]
 enum VerificationCommand {
     Verify,
+}
+
+#[derive(Clone, Debug, Subcommand)]
+enum ReleaseCommand {
+    Verify(ReleaseVerifyArgs),
+}
+
+#[derive(Clone, Debug, Args)]
+struct ReleaseVerifyArgs {
+    #[arg(long, default_value = ".")]
+    root: PathBuf,
 }
 
 #[derive(Clone, Debug, Subcommand)]
@@ -348,6 +364,9 @@ fn main() -> ExitCode {
         TopLevelCommand::Contracts {
             command: VerificationCommand::Verify,
         } => repository_root().and_then(|root| verify_contract_artifacts(&root)),
+        TopLevelCommand::Release {
+            command: ReleaseCommand::Verify(args),
+        } => verify_release_cli(&args),
         TopLevelCommand::Integration {
             command: IntegrationCommand::Manifest,
         } => integration_manifest(),
@@ -432,6 +451,11 @@ fn main() -> ExitCode {
 
 fn repository_root() -> Result<PathBuf, String> {
     env::current_dir().map_err(|error| format!("cannot determine repository root: {error}"))
+}
+
+fn verify_release_cli(args: &ReleaseVerifyArgs) -> Result<String, String> {
+    let report = verify_release(&args.root).map_err(|error| error.to_string())?;
+    canonical_stdout(&report)
 }
 
 fn initialize_project(args: InitArgs) -> Result<String, String> {

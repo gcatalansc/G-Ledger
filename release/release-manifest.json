@@ -1,0 +1,75 @@
+{
+  "acceptance_report": "release/acceptance-report.json",
+  "artifact_inventory": [
+    {
+      "path": "release/acceptance-report.json",
+      "sha256": "07a8d6e47a9313de0d7bbcedb03c815063689d3d042e7af8739a81a6b50b6123"
+    },
+    {
+      "path": "release/chaos-report.json",
+      "sha256": "1a96d1a63f0c4db9298d0d7c67fb5d804589be77ef8191dff62742adce47e16c"
+    },
+    {
+      "path": "release/migrations/v0.1-to-v0.2.json",
+      "sha256": "77529c89932b1866b91aaa023911982cf3108d45f3c0f2f5965c1140dee7618a"
+    },
+    {
+      "path": "release/privacy/corpus-manifest.json",
+      "sha256": "f9aad7ae190ed3ec282fcb7b9de5b5652ca64dbf8da6f4c5fe543e4cf22036d8"
+    },
+    {
+      "path": "release/privacy/surfaces/sqlite-recovery.json",
+      "sha256": "37bbfb246891012f9698deb5e51868473db36dfc677022fc868aa64a51f5e05a"
+    },
+    {
+      "path": "release/privacy/surfaces/structured-log.json",
+      "sha256": "441fd0fa6d53ef5e22238711a143a4fabab965387e41182fec74a9666ef4ef91"
+    },
+    {
+      "path": "release/privacy/surfaces/portable-export.json",
+      "sha256": "95eba583ed5816670d21034f8436454ea1b3bda1a8c45a7159ba1fd3ed40c748"
+    },
+    {
+      "path": "release/privacy/surfaces/generated-markdown.json",
+      "sha256": "cb096cf8156b2c5db279f4f1c59bf92235707741d4ef561ca6e899291bb2b3f6"
+    },
+    {
+      "path": "release/privacy/surfaces/crash-artifact.json",
+      "sha256": "6b1b2c0c404c9a9fb7a037ca8265ab99ba657c9c06ff021323ff093ed3254a65"
+    },
+    {
+      "path": "release/privacy/surfaces/integration-payload.json",
+      "sha256": "b5d4bce218e4c2b708d1912c7edab31293116eebfa38590547b6b77d1b7d8258"
+    },
+    {
+      "path": "release/privacy/surfaces/radar-artifact.json",
+      "sha256": "e5a2956469282eb28d7845c4ff6085304ffa9b15bf1c88bfe39a5f394474630c"
+    },
+    {
+      "path": "release/compatibility-report.json",
+      "sha256": "5a714173f56c0e5d8da3a149395d48e668b2a2c1bd1e83346be7d816fdadd44f"
+    },
+    {
+      "path": "docs/THREAT_MODEL.md",
+      "sha256": "449b362d0246eaa999c95737ad1fee95ddcaa20ec56e4f14e8ada248804d5641"
+    },
+    {
+      "path": "benchmark/project-ledger-v0.2.0-windows-x86_64.json",
+      "sha256": "0d6e3d3410ebd95fc8f1f23df818289623b145f8cd29daec4acd84d186308861"
+    },
+    {
+      "path": "release/package-manifest.json",
+      "sha256": "2005845c583c12fd9ff887f981bfd12d7a45c4b6b19ed3cba7131d9f9c5f28fb"
+    },
+    {
+      "path": "release/sbom.spdx.json",
+      "sha256": "a3f7f88ab0e83b15f6be9cb73216ea6f56ff73ded576b80434acae66107ef943"
+    }
+  ],
+  "compatibility_report": "release/compatibility-report.json",
+  "migration_manifest": "release/migrations/v0.1-to-v0.2.json",
+  "privacy_corpus_manifest": "release/privacy/corpus-manifest.json",
+  "product_version": "0.2.0",
+  "profile": "project-ledger-release/0.2.0",
+  "release_status": "ENGINEERING_RELEASE_CANDIDATE"
+}

@@ -1,0 +1,41 @@
+{
+  "profile": "project-ledger-acceptance-report/0.2.0",
+  "criterion_groups": [
+    {"ids":["AC-001"],"status":"PASS","evidence":[{"path":"crates/cli/tests/init.rs","kind":"TEST","locator":"ac_001_init_is_offline"}]},
+    {"ids":["AC-002"],"status":"PASS","evidence":[{"path":"crates/application/tests/project_state_query.rs","kind":"TEST","locator":"standalone core"}]},
+    {"ids":["AC-003"],"status":"PASS","evidence":[{"path":"crates/cli/tests/contract_commands.rs","kind":"TEST","locator":"CLI JSON stdio equivalence"}]},
+    {"ids":["AC-004"],"status":"PASS","evidence":[{"path":"crates/cli/Cargo.toml","kind":"PACKAGE","locator":"single project-ledger binary"}]},
+    {"ids":["AC-005"],"status":"PASS","evidence":[{"path":"crates/portable-bundle/tests/import.rs","kind":"TEST","locator":"portable roundtrip"}]},
+    {"ids":["AC-006","AC-007","AC-008","AC-009","AC-010","AC-011","AC-012"],"status":"PASS","evidence":[{"path":"crates/storage-sqlite/tests/event_chain.rs","kind":"TEST","locator":"chain and gaps"},{"path":"crates/schemas/tests/registry.rs","kind":"TEST","locator":"offline closed registry"}]},
+    {"ids":["AC-013","AC-014","AC-015","AC-016","AC-017","AC-018","AC-019","AC-020","AC-021"],"status":"PASS","evidence":[{"path":"crates/gate-engine/tests/gate_commands.rs","kind":"TEST","locator":"gate authority"},{"path":"crates/evidence/tests/evidence_runner.rs","kind":"TEST","locator":"bounded redacted execution"}]},
+    {"ids":["AC-022","AC-023","AC-024","AC-025","AC-026","AC-027","AC-028"],"status":"PASS","evidence":[{"path":"crates/projection-engine/tests/continuity_records.rs","kind":"TEST","locator":"continuity state"},{"path":"crates/continuity/tests/resume.rs","kind":"TEST","locator":"resume budget"}]},
+    {"ids":["AC-029","AC-030","AC-031","AC-032","AC-033","AC-034","AC-035"],"status":"PASS","evidence":[{"path":"crates/continuity/tests/markdown_audit.rs","kind":"TEST","locator":"derived Markdown"},{"path":"crates/legacy-import/tests/review.rs","kind":"TEST","locator":"reviewed legacy import"}]},
+    {"ids":["AC-036","AC-037","AC-038","AC-039","AC-040","AC-041"],"status":"PASS","evidence":[{"path":"crates/application/tests/command_transaction.rs","kind":"TEST","locator":"idempotency and version"},{"path":"crates/application/tests/submission_reconciliation.rs","kind":"TEST","locator":"unknown outcome"}]},
+    {"ids":["AC-042","AC-043","AC-044","AC-045","AC-046","AC-047","AC-048","AC-049","AC-050","AC-051"],"status":"PASS","evidence":[{"path":"crates/interop-gskills/tests/conformance.rs","kind":"TEST","locator":"provider conformance"},{"path":"crates/interop-gskills/tests/sink_conformance.rs","kind":"TEST","locator":"RecordSink conformance"}]},
+    {"ids":["AC-052","AC-053","AC-054","AC-055","AC-056","AC-057","AC-058","AC-059","AC-060"],"status":"PASS","evidence":[{"path":"crates/interop-gsp/tests/conformance.rs","kind":"TEST","locator":"exact bridge conformance"}]},
+    {"ids":["AC-061","AC-062","AC-063","AC-064"],"status":"PASS","evidence":[{"path":"crates/agent-skill/tests/conformance.rs","kind":"TEST","locator":"skill behavior and authority"}]},
+    {"ids":["AC-065","AC-066","AC-067","AC-068","AC-069","AC-070","AC-071","AC-072","AC-073","AC-074","AC-075","AC-076","AC-077","AC-078","AC-079","AC-080"],"status":"PASS","evidence":[{"path":"crates/interop-radar/tests/export.rs","kind":"TEST","locator":"private read-only export"},{"path":"crates/interop-radar/tests/reference_importer.rs","kind":"TEST","locator":"reference merge model"}]},
+    {"ids":["AC-081","AC-082","AC-083","AC-085"],"status":"PASS","evidence":[{"path":"crates/release/tests/hardening.rs","kind":"TEST","locator":"trust process privacy"}]},
+    {"ids":["AC-084"],"status":"PASS","evidence":[{"path":"crates/interop-radar/tests/export.rs","kind":"TEST","locator":"minimal export"}]},
+    {"ids":["AC-086"],"status":"WAIVED","evidence":[{"path":".github/workflows/ci.yml","kind":"CI_CONFIG","locator":"Windows Linux macOS matrix"}],"waiver":{"waiver_id":"WAIVER-S14-CROSS-PLATFORM-HOSTED-RUN","scope":"hosted CI run evidence unavailable in local checkout","reason":"the matrix is configured but this local Windows run cannot attest Linux or macOS execution","owner":"release-engineering","review_by":"2026-09-23","non_critical":true,"blocks":["GENERAL_AVAILABILITY"]}},
+    {"ids":["AC-087"],"status":"PASS","evidence":[{"path":"crates/schemas/tests/registry.rs","kind":"TEST","locator":"offline refs"}]},
+    {"ids":["AC-088"],"status":"PASS","evidence":[{"path":"release/acceptance-report.json","kind":"REPORT","locator":"PL-01..PL-32 exact inventory"}]},
+    {"ids":["AC-089"],"status":"WAIVED","evidence":[{"path":"benchmark/project-ledger-v0.2.0-windows-x86_64.json","kind":"BENCHMARK","locator":"eight measured budgets plus explicit peak-RSS gap"}],"waiver":{"waiver_id":"WAIVER-S14-PEAK-RSS","scope":"memory one-shot p95 is not measured by the portable runner","reason":"platform-specific peak-RSS instrumentation would add unsafe or runtime-specific dependencies outside the release candidate","owner":"release-engineering","review_by":"2026-09-23","non_critical":true,"blocks":["GENERAL_AVAILABILITY"]}},
+    {"ids":["AC-090"],"status":"PASS","evidence":[{"path":"release/compatibility-report.json","kind":"REPORT","locator":"all certifications false"}]}
+  ],
+  "scenario_groups": [
+    {"ids":["PL-01","PL-02","PL-03","PL-04","PL-05"],"evidence":[{"path":"crates/application/tests/gate_lifecycle_transaction.rs","kind":"TEST","locator":"contradiction gate blocker supersession revalidation"}]},
+    {"ids":["PL-06","PL-07"],"evidence":[{"path":"crates/application/tests/command_transaction.rs","kind":"TEST","locator":"replay and version"}]},
+    {"ids":["PL-08","PL-20"],"evidence":[{"path":"crates/application/tests/submission_reconciliation.rs","kind":"TEST","locator":"unknown layer"}]},
+    {"ids":["PL-09"],"evidence":[{"path":"crates/application/tests/project_state_query.rs","kind":"TEST","locator":"100 projections"}]},
+    {"ids":["PL-10","PL-11"],"evidence":[{"path":"crates/interop-gskills/tests/provider.rs","kind":"TEST","locator":"mapping and signal"}]},
+    {"ids":["PL-12","PL-13"],"evidence":[{"path":"crates/interop-gsp/tests/conformance.rs","kind":"TEST","locator":"separation and conflict"}]},
+    {"ids":["PL-14"],"evidence":[{"path":"crates/continuity/tests/markdown_audit.rs","kind":"TEST","locator":"generated divergence"}]},
+    {"ids":["PL-15"],"evidence":[{"path":"crates/portable-bundle/tests/export.rs","kind":"TEST","locator":"portable roundtrip"}]},
+    {"ids":["PL-16","PL-17"],"evidence":[{"path":"crates/integration-protocol/tests/conformance.rs","kind":"TEST","locator":"isolation and identity"}]},
+    {"ids":["PL-18"],"evidence":[{"path":"crates/projection-engine/tests/checkpoints.rs","kind":"TEST","locator":"N and N+1"}]},
+    {"ids":["PL-19"],"evidence":[{"path":"crates/domain/tests/closed_unions.rs","kind":"TEST","locator":"closed payload"}]},
+    {"ids":["PL-21","PL-29","PL-30","PL-31"],"evidence":[{"path":"crates/interop-radar/tests/export.rs","kind":"TEST","locator":"export privacy and mapping"}]},
+    {"ids":["PL-22","PL-23","PL-24","PL-25","PL-26","PL-27","PL-28","PL-32"],"evidence":[{"path":"crates/interop-radar/tests/reference_importer.rs","kind":"TEST","locator":"identity merge ownership provenance"}]}
+  ]
+}

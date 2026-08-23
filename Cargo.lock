@@ -984,6 +984,7 @@ dependencies = [
  "project-ledger-interop-gsp",
  "project-ledger-interop-radar",
  "project-ledger-projection-engine",
+ "project-ledger-release",
  "project-ledger-schemas",
  "project-ledger-storage-sqlite",
  "project-ledger-transport-stdio",
@@ -1186,6 +1187,18 @@ dependencies = [
  "project-ledger-event-store",
  "serde",
  "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "project-ledger-release"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-domain",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
  "thiserror",
 ]
 
@@ -1824,8 +1837,23 @@ name = "xtask"
 version = "0.2.0"
 dependencies = [
  "assert_cmd",
+ "predicates",
+ "project-ledger-application",
+ "project-ledger-canonical-json",
+ "project-ledger-continuity",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-gate-engine",
+ "project-ledger-projection-engine",
+ "project-ledger-release",
  "project-ledger-schemas",
+ "project-ledger-storage-sqlite",
+ "serde",
+ "serde_json",
+ "sha2",
  "tempfile",
+ "time",
+ "uuid",
 ]
 
 [[package]]

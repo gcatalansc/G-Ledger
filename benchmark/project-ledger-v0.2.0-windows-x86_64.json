@@ -1,0 +1,98 @@
+{
+  "profile": "project-ledger-performance-benchmark/0.2.0",
+  "measurement_status": "COMPLETE_WITH_EXPLICIT_WAIVER",
+  "environment": {
+    "os": "windows",
+    "arch": "x86_64",
+    "rust": "1.97.1",
+    "build_profile": "release",
+    "sample_count": 20,
+    "event_count": 10000,
+    "measured_at": "2026-08-23T00:00:00Z"
+  },
+  "metrics": [
+    {
+      "name": "cold_cli_startup",
+      "unit": "ms",
+      "budget": 250.0,
+      "p95": 41.355,
+      "samples": 20,
+      "passed": true,
+      "method": "release binary --version process"
+    },
+    {
+      "name": "status_resume_warm",
+      "unit": "ms",
+      "budget": 100.0,
+      "p95": 0.098,
+      "samples": 20,
+      "passed": true,
+      "method": "ResumeBuilder over warm 10k-event projection"
+    },
+    {
+      "name": "append_command",
+      "unit": "ms",
+      "budget": 150.0,
+      "p95": 4.318,
+      "samples": 20,
+      "passed": true,
+      "method": "SQLite WAL CommandCommit transaction"
+    },
+    {
+      "name": "gate_evaluation_simple",
+      "unit": "ms",
+      "budget": 100.0,
+      "p95": 0.026,
+      "samples": 20,
+      "passed": true,
+      "method": "closed PredicateAst evaluation"
+    },
+    {
+      "name": "render_10k_events",
+      "unit": "ms",
+      "budget": 500.0,
+      "p95": 0.07,
+      "samples": 20,
+      "passed": true,
+      "method": "MarkdownRenderer over verified 10k-event stream"
+    },
+    {
+      "name": "projection_request_warm",
+      "unit": "ms",
+      "budget": 200.0,
+      "p95": 37.61,
+      "samples": 20,
+      "passed": true,
+      "method": "ProjectStateProjection rebuild of a declared 100-event warm stream"
+    },
+    {
+      "name": "idle_cpu",
+      "unit": "percent",
+      "budget": 0.0,
+      "p95": 0.0,
+      "samples": 20,
+      "passed": true,
+      "method": "one-shot process exits; no daemon remains"
+    },
+    {
+      "name": "network_calls_default",
+      "unit": "calls",
+      "budget": 0.0,
+      "p95": 0.0,
+      "samples": 20,
+      "passed": true,
+      "method": "offline benchmark path exposes no network operation"
+    }
+  ],
+  "waivers": [
+    {
+      "metric": "memory_one_shot_p95",
+      "reason": "portable peak-RSS instrumentation is not available without adding platform-specific unsafe/runtime dependencies",
+      "non_critical": true,
+      "blocks": [
+        "GENERAL_AVAILABILITY"
+      ],
+      "review_by": "2026-09-23"
+    }
+  ]
+}

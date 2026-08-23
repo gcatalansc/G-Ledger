@@ -56,4 +56,8 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - CLI `integration radar verify-contracts|export|validate-export` y `catalog radar-export --all` sobre ledgers explícitos; cadena/proyección SQLite verificadas, cero eventos, no overwrite y compatibilidad local completa pero `certified_compatibility=false` hasta counterpart/E2E bilateral.
 - Crate `agent-skill` y paquete `project-ledger-agent-skill/0.2.0` con manifest/workflow schemas, raw locks, triggers positivos/negativos y políticas ejecutables para degradación, reconciliación y no-authority.
 - CLI `integration agent-skill verify-contracts`, `resume --format codex|json` read-only y `checkpoint create` gobernado; handoff SQLite real, replay idempotente y conflicto de versión fail-closed sin completion bypass.
+- Crate `release` con policy de trust, exact argv/no-shell, escáner de secretos/transcripts/private reasoning, paths normalizados y gate hash-locked sobre 90 AC, 32 PL y siete superficies declaradas.
+- Threat model, chaos report, migración v0.1→v0.2 revisada/no destructiva/reversible y compatibility report con cuatro perfiles locales completos pero nunca certificados.
+- Package manifest single-binary, SBOM SPDX 2.3 de 200 paquetes, checksums reproducibles y benchmark release p95 de 20 muestras/10.000 eventos con waiver explícito de peak-RSS.
+- CLI `release verify` y `cargo xtask release generate|check`/`benchmark run|check`; CI construye el binario release y ejecuta el gate en Windows, Linux y macOS.
 - Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.

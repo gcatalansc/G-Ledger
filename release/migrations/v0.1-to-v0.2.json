@@ -1,0 +1,16 @@
+{
+  "migration_id": "project-ledger-contracts-v0.1.0-to-v0.2.0",
+  "source_contract_version": "0.1.0",
+  "target_contract_version": "0.2.0",
+  "strategy": "REVIEWED_IMPORT_INTO_NEW_STORE",
+  "in_place": false,
+  "source_preserved": true,
+  "reversible": true,
+  "rollback": "DISCARD_NEW_DESTINATION_AND_REOPEN_PRESERVED_SOURCE",
+  "silent_reinterpretation": false,
+  "evidence": [
+    "crates/legacy-import/tests/review.rs",
+    "crates/portable-bundle/tests/import.rs",
+    "crates/storage-sqlite/tests/bootstrap.rs"
+  ]
+}

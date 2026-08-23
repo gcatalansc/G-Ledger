@@ -2,7 +2,7 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0–S13: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos, bridge GSP exact-contract, perfil de artefacto read-only Project Radar y Agent Skill/Codex gobernada. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+El repositorio ha materializado S0–S14: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos, bridge GSP exact-contract, perfil de artefacto read-only Project Radar, Agent Skill/Codex gobernada y un gate de hardening/release reproducible. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
 S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
 
@@ -22,7 +22,9 @@ S12 añade `project-ledger-radar-artifact/0.1.1`: cinco schemas y diez fixtures 
 
 S13 añade `project-ledger-agent-skill/0.2.0`: `SKILL.md` descubrible, manifest/workflow cerrados, locks de bytes, 7 triggers, 5 políticas y conformance para missing-tool, conflicto de versión, outcome incierto y no-authority. El handoff CLI real expone resume read-only y checkpoint gobernado con expected version/idempotency; la skill no contiene estado vigente ni puede leer DB, editar Markdown generado, verificar gates o completar fases.
 
-La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen pendientes de slices/evidencia posteriores. `certified_compatibility=false` continúa siendo obligatorio; S9–S13 demuestran fronteras locales/procedimentales, no obediencia universal del agente, compatibilidad bilateral/live-sidecar, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
+S14 añade `project-ledger-release`: políticas fail-closed para trust/argv, escáner de privacidad sin eco de valores, evidencia exacta AC-001…090 y PL-01…32, threat model, caos, migración v0.1→v0.2 no destructiva/reversible, paquete single-binary, SBOM SPDX 2.3, checksums y benchmark p95 con entorno declarado. El estado distribuido es `ENGINEERING_RELEASE_CANDIDATE`: AC-086 y AC-089 conservan waivers no críticos por ejecución hosted Linux/macOS y peak-RSS no medido, que bloquean GA.
+
+La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen fuera de la evidencia local. `certified_compatibility=false` continúa siendo obligatorio; S9–S14 demuestran fronteras locales/procedimentales y readiness de ingeniería, no obediencia universal del agente, compatibilidad bilateral/live-sidecar, General Availability, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
 
 ## Autoridad
 
@@ -45,7 +47,21 @@ cargo run -p project-ledger-cli -- integration gskills verify-contracts
 cargo run -p project-ledger-cli -- integration gsp verify-contracts
 cargo run -p project-ledger-cli -- integration radar verify-contracts
 cargo run -p project-ledger-cli -- integration agent-skill verify-contracts
+cargo build --locked --release -p project-ledger-cli
+cargo xtask benchmark check
+cargo xtask release check
+cargo run -p project-ledger-cli -- release verify --root .
 ```
+
+Para regenerar SBOM, package manifest y checksums tras un cambio del grafo final:
+
+```powershell
+cargo run --locked --release -p xtask -- benchmark run --root .
+cargo xtask release generate --root .
+cargo xtask release generate --check --root .
+```
+
+El benchmark versionado usa 20 muestras en Windows x86_64/Rust 1.97.1 y un stream canónico de 10.000 eventos. Los targets medidos pasan; la memoria one-shot p95 permanece waiver explícito y no se infiere de una aproximación.
 
 Inicialización offline contra una ubicación explícita:
 

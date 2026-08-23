@@ -1,0 +1,18 @@
+{
+  "build": "cargo build --locked --release -p project-ledger-cli",
+  "default_profile": {
+    "binary": "project-ledger",
+    "cargo_package": "project-ledger-cli",
+    "daemon": false,
+    "network_default": false,
+    "single_binary": true
+  },
+  "profile": "project-ledger-package/0.2.0",
+  "targets": [
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin"
+  ],
+  "verification": "cargo xtask release check"
+}

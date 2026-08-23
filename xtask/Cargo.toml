@@ -7,11 +7,26 @@ license.workspace = true
 publish = false
 
 [dependencies]
+project-ledger-application = { path = "../crates/application", version = "=0.2.0" }
+project-ledger-canonical-json = { path = "../crates/canonical-json", version = "=0.2.0" }
+project-ledger-continuity = { path = "../crates/continuity", version = "=0.2.0" }
+project-ledger-domain = { path = "../crates/domain", version = "=0.2.0" }
+project-ledger-event-store = { path = "../crates/event-store", version = "=0.2.0" }
+project-ledger-gate-engine = { path = "../crates/gate-engine", version = "=0.2.0" }
+project-ledger-projection-engine = { path = "../crates/projection-engine", version = "=0.2.0" }
+project-ledger-release = { path = "../crates/release", version = "=0.2.0" }
 project-ledger-schemas = { path = "../crates/schemas", version = "=0.2.0" }
+project-ledger-storage-sqlite = { path = "../crates/storage-sqlite", version = "=0.2.0" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tempfile.workspace = true
+time.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
 assert_cmd.workspace = true
-tempfile.workspace = true
+predicates.workspace = true
 
 [lints]
 workspace = true

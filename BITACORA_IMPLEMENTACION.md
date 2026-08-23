@@ -1305,3 +1305,104 @@ Reconciliar README/changelog/matriz/compatibilidad, validar la anatomía de la s
 **Siguiente paso según la especificación**
 
 Iniciar, sólo tras una nueva autorización, Fase 11 / S14 hardening, benchmark y release: seguridad/privacidad, fuzzing, chaos, performance, packaging, SBOM, migraciones y compatibility report. Su gate exige AC-001…090 PASS o waiver no crítico explícito; S14 no se inició en este cierre.
+
+### 2026-08-23 — Apertura de Fase 11 / S14: hardening, benchmark y release
+
+**Autoridad y alcance reconciliados**
+
+- Se releyeron el handoff y las secciones normativas §41–49, §50–51 y §56 antes de editar implementación.
+- S14 agregará un gate de release reproducible, no una nueva autoridad ni una integración adicional. Reutilizará las pruebas reales de fases anteriores y añadirá TDD sólo para conducta de seguridad/release aún no cubierta.
+- El corpus de privacidad será declarado y fijado por hash; el resultado cero se limitará a esas superficies y patrones soportados, tal como exige §42.4.
+- El benchmark publicará mediciones p95 con entorno exacto. Los sistemas/counterparts no ejecutados se representarán como waivers no críticos o condiciones pendientes, nunca como PASS ni certificación implícita.
+- El plan persistente `docs/superpowers/plans/2026-08-23-project-ledger-phase-11-s14.md` divide el trabajo en contrato de hardening, evidencia/migración, SBOM/packaging/benchmark, CLI/CI/documentación y gate final.
+
+**Estado de apertura**
+
+- Base Git limpia confirmada en `66b26fb` (`feat: add governed Agent Skill workflow`).
+- El avance permanece en 11/12 macrofases y 14/15 slices hasta que S14 supere su gate integral y se versione.
+- Primer paso TDD: escribir y observar el RED de AC-081/082/083/085 antes de crear las APIs de release.
+
+**Hito S14.1 — Política y escáner de privacidad RED→GREEN**
+
+- RED confirmado: el nuevo test de hardening no pudo importar ninguna de las APIs requeridas.
+- `ReleasePolicy` deriva capacidades sólo desde trust state explícito. `UNTRUSTED`, `LOCAL_USER`, `TRUSTED_PROJECT` y `REVOKED` no obtienen adapter, write, authority, network, credentials ni hooks; recording/projection tampoco adquieren autoridad, red, credenciales o hooks.
+- `ExactProcessPlan` conserva executable, cwd y argv literal; no existe command line interpolada ni rama de shell.
+- El escáner clasifica secretos, transcripts, private reasoning y raw output sin incluir valores sensibles en el finding. Valores nulos/deshabilitados o `[REDACTED]` permanecen limpios.
+- Los paths del corpus deben ser relativos y normalizados; absolute, parent traversal, `.` y vacío fallan cerrados.
+- GREEN focalizado: 6/6 pruebas PASS.
+
+**Siguiente acción**
+
+Escribir el RED del gate agregado: inventarios AC-001…090/PL-01…32 exactos, evidencia existente, migración reversible explícita, waivers tipados, compatibility sin overclaim y drift de hashes.
+
+**Hito S14.2 — Gate agregado, migración y threat model RED→GREEN**
+
+- RED confirmado: faltaban `verify_release`, el modelo de error y el resultado agregado.
+- El reporte exige exactamente AC-001…090 y PL-01…32 sin duplicados; cada grupo referencia evidencia existente y PASS no puede esconder waiver. Missing evidence y BLOCKED permanecen contables.
+- AC-086 queda `WAIVED`: la matrix Windows/Linux/macOS está configurada, pero este checkout local no contiene evidencia de una ejecución hosted Linux/macOS. El waiver tiene owner, razón, scope, revisión y bloquea GA.
+- La migración v0.1→v0.2 es `REVIEWED_IMPORT_INTO_NEW_STORE`: no in-place, preserva source, no reinterpreta silenciosamente y revierte descartando el destino nuevo.
+- Siete surfaces de privacidad quedan fijados por hash tanto en el corpus como en el release manifest. La mutación de un byte falla por `ArtifactDigestMismatch` antes de aceptar semántica.
+- El compatibility report conserva cuatro perfiles `COMPLETE` locales, todos `certified_compatibility=false` y con evidencia externa pendiente.
+- Se publicó `docs/THREAT_MODEL.md`, el chaos report y la distinción NO-GO/waiver no crítico.
+- GREEN focalizado: 11/11 tests del crate release PASS.
+
+**Hito S14.3 — Benchmark, package, SBOM y checksums**
+
+- RED de comandos confirmado: `xtask` sólo aceptaba `schema`; `benchmark` y `release` fallaron por usage.
+- La primera medición real rechazó el reporte: 7/8 targets pasaron, pero se había medido `projection request warm` como rebuild de 10.000 eventos y el p95 fue 3240,112 ms contra 200 ms.
+- Se corrigió la metodología, no el límite: §44 reserva 10.000 eventos para render. Projection warm declara 100 eventos y midió p95 37,610 ms; render conserva el stream canónico de 10.000 y midió 0,070 ms.
+- Medición final Windows x86_64, Rust 1.97.1, release, 20 muestras: cold CLI 41,355 ms; resume 0,098 ms; append SQLite/WAL 4,318 ms; gate 0,026 ms; render 10k 0,070 ms; projection warm 37,610 ms; idle 0 % sin daemon; network calls default 0. Todos esos targets pasan.
+- Peak-RSS p95 no se inventó: queda waiver no crítico AC-089 por falta de instrumentación portable sin dependencias unsafe/runtime-specific y bloquea GA. El acceptance report contabiliza así dos waivers totales, AC-086 y AC-089.
+- `cargo xtask release generate|check` materializa/verifica package manifest single-binary, SBOM SPDX 2.3 con 200 paquetes, manifest raw-locked y checksums de 13 artefactos, incluido el antecedente v0.1 con `772ea517…`.
+- GREEN focalizado: 2/2 tests de comandos xtask PASS; aggregate release check informa 90 AC, 32 PL y 0 secretos.
+
+**Hito S14.4 — CLI/CI y documentación GREEN previo al gate**
+
+- RED CLI confirmado: `release` era un subcomando desconocido.
+- `project-ledger release verify --root` devuelve JSON canónico read-only con conteos AC/PL, secretos, waivers, migración y certificación global falsa.
+- El primer intento GREEN detectó drift de `Cargo.lock` porque la nueva dependencia CLI se añadió después del SBOM; se regeneró desde el grafo final sin relajar el gate y la prueba pasó.
+- CI ahora construye el binario release y ejecuta los gates xtask/CLI en Windows, Linux y macOS. Esta configuración no se registra como ejecución hosted ya realizada.
+- README, changelog, SECURITY, threat model y matriz contractual documentan entorno, límites, rollback, waivers y condición de engineering release candidate.
+
+**Siguiente acción**
+
+Ejecutar formato y Clippy estricto; corregir cualquier hallazgo; regenerar artefactos sólo si cambian bytes inventariados; después ejecutar el gate integral completo desde cero y cerrar S14 con un único commit si toda la evidencia fresca pasa.
+
+### 2026-08-23 — Cierre de Fase 11 / S14: hardening y engineering release candidate
+
+**Resultado implementado**
+
+- `project-ledger-release` agrega políticas auditables de trust y proceso exacto, escáner de privacidad sin eco de valores sensibles y verificación fail-closed de paths, symlinks, hashes, aceptación, migración, benchmark, package, SBOM, checksums y compatibilidad.
+- El conjunto de release publica 90 AC y 32 PL exactos, siete superficies de privacidad raw-locked con `secret_persistence_count=0`, threat model, chaos report y migración v0.1→v0.2 revisada/no destructiva/reversible.
+- Packaging declara un único binario default sin daemon/red; el SBOM SPDX 2.3 inventaría 200 paquetes y 13 checksums fijan Cargo.lock, benchmark, threat model, reportes, manifest, SBOM, schema registry y antecedente v0.1.
+- El runner p95 usa un binario release, transacción SQLite/WAL, PredicateAST y streams canónicos. Ocho targets medidos pasan; no se fabricó peak-RSS.
+- La CLI `release verify` expone JSON canónico read-only. `xtask benchmark run|check` y `release generate|check` permiten regeneración y drift check reproducibles.
+- CI incorpora build locked release y gate de release/CLI en Windows, Linux y macOS; la configuración no se presenta como una ejecución hosted ya observada.
+
+**Gate integral final fresco**
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS.
+- `cargo test --workspace --all-targets --all-features`: PASS; 221 atributos `#[test]` inventariados, cero fallos.
+- `cargo build --locked --release -p project-ledger-cli`: PASS.
+- `cargo xtask schema check`: PASS.
+- `project-ledger specs verify`: PASS; v0.1 `772ea517`, v0.2 `31cb7cd4`.
+- `project-ledger contracts verify`: PASS; 46 schemas, 92 fixtures y 53 filas de matriz.
+- G-Skills: 11 schemas/22 fixtures PASS; GSP: registry 28, 31 schemas/140 fixtures PASS; Radar: 5 schemas/10 fixtures PASS; Agent Skill: 2 schemas, 7 triggers, 5 policies PASS.
+- `integration compatibility`: PASS local; cuatro perfiles `COMPLETE`, certificación global y por perfil falsa.
+- `cargo xtask benchmark check`: PASS; ocho métricas medidas y un waiver explícito.
+- `cargo xtask release generate --check`, `cargo xtask release check` y `project-ledger release verify`: PASS; 90 AC, 32 PL, 0 secretos, 0 blockers, 0 evidencia ausente, 2 waivers, 0 certificaciones.
+- `cargo deny --offline check`: PASS para advisories, bans, licenses y sources; duplicidades transitivas informativas conocidas de `getrandom`, `r-efi` y `syn`.
+- Replay de los 13 SHA-256: PASS. `git diff --check`: PASS.
+
+**Estado y límites de evidencia**
+
+- Fase 11 / S14 cerrada localmente; avance de implementación: 12/12 macrofases y 15/15 slices, según §50/§51.
+- El artefacto es `ENGINEERING_RELEASE_CANDIDATE`, no General Availability. AC-086 y AC-089 están `WAIVED` de forma no crítica: falta evidencia hosted Linux/macOS y medición peak-RSS; ambos waivers bloquean GA.
+- Los cuatro perfiles permanecen `certified_compatibility=false`; faltan counterpart/bilateral/live-sidecar/external-agent runtime según cada reporte.
+- El cierre no prueba operación productiva, sandbox universal, obediencia universal de agentes, rentabilidad ni validez científica.
+- El cierre se versiona mediante el commit de fase `feat: harden and prepare v0.2.0 release`.
+
+**Siguiente paso según la especificación**
+
+No queda otro slice de implementación. El siguiente paso es la calificación de release: obtener ejecuciones hosted Linux/macOS, incorporar medición portable de peak-RSS y cerrar ambos waivers; después aportar evidencia counterpart/bilateral/live para cualquier perfil que se quiera certificar, sin cambiar `certified_compatibility=false` antes de esa evidencia.
