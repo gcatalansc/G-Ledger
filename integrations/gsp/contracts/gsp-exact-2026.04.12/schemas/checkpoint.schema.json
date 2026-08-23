@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/checkpoint",
+  "title": "Checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "checkpoint_id",
+    "session_id",
+    "created_at",
+    "reason",
+    "state_snapshot",
+    "memory_writes_since_last",
+    "actions_since_last",
+    "sequence_no",
+    "applied_commit_refs"
+  ],
+  "properties": {
+    "checkpoint_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "state_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "working_memory",
+        "pending_goals",
+        "open_questions",
+        "tool_state",
+        "turn_count",
+        "last_user_input",
+        "last_response_summary",
+        "open_loops",
+        "authoritative_state_refs",
+        "high_watermarks"
+      ],
+      "properties": {
+        "working_memory": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "pending_goals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tool_state": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "turn_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_user_input": {
+          "type": "string"
+        },
+        "last_response_summary": {
+          "type": "string"
+        },
+        "open_loops": {
+          "type": "array",
+          "items": {
+            "$ref": "open.loop.schema.json"
+          }
+        },
+        "authoritative_state_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "high_watermarks": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/highWatermark"
+          }
+        }
+      }
+    },
+    "memory_writes_since_last": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "actions_since_last": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sequence_no": {
+      "$ref": "common.schema.json#/$defs/sequenceNo"
+    },
+    "applied_commit_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "restore_event_ref": {
+      "type": "string"
+    }
+  }
+}

@@ -148,7 +148,7 @@ fn upstream_locks_preserve_evidence_state_and_reject_certification_overclaim() {
         ),
         (
             "../../../integrations/gsp/upstream-lock.json",
-            UpstreamLockStatus::Pending,
+            UpstreamLockStatus::Complete,
         ),
         (
             "../../../integrations/project-radar/upstream-lock.json",

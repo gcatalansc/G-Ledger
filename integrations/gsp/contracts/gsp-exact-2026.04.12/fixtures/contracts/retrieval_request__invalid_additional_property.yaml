@@ -1,0 +1,36 @@
+meta:
+  fixture_id: retrieval.request__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - retrieval.request
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-1111-7111-8111-111111111111
+  query: ¿Qué decisiones activas existen sobre Atlas?
+  task_type_hint: audit
+  language: es
+  freshness_requirements:
+    recency_sensitive: true
+  source_constraints:
+    trust_tiers:
+    - high
+    - medium
+    acl_scope:
+    - project:atlas
+  budgets:
+    latency_ms: 1200
+    token_budget_out: 4000
+    max_candidates_per_channel: 40
+    max_rerank_depth: 80
+    max_corrective_rounds: 1
+  retrieval_policy:
+    allow_query_rewrite: true
+    allow_decomposition: true
+    allow_hyde: false
+    allow_external_live_sources: false
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

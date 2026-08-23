@@ -1,0 +1,15 @@
+meta:
+  fixture_id: restore.request__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - restore.request
+  severity_if_fail: p0
+payload:
+  restore_reason: recover_after_timeout
+  rehydrate_to_high_watermark: true
+  skip_action_replay: true
+invalid_reason: 'Falta campo requerido: checkpoint_id'

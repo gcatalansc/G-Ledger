@@ -1,0 +1,17 @@
+meta:
+  fixture_id: compilation.feedback__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - compilation.feedback
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  feedback_type: evidence_gap
+  details:
+    missing_subqueries:
+    - decisiones activas atlas
+  urgency: medium

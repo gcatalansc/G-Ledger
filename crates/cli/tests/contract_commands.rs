@@ -103,7 +103,7 @@ fn ac_003_cli_json_and_stdio_manifest_are_semantically_equivalent() {
 }
 
 #[test]
-fn integration_compatibility_preserves_all_current_locks_as_uncertified() {
+fn integration_compatibility_reports_local_gskills_and_gsp_complete_but_uncertified() {
     let output = Command::cargo_bin("project-ledger")
         .unwrap()
         .current_dir(repository_root())
@@ -118,11 +118,10 @@ fn integration_compatibility_preserves_all_current_locks_as_uncertified() {
     assert_eq!(integrations.len(), 3);
     assert_eq!(integrations[0]["integration"], "gskills");
     assert_eq!(integrations[0]["status"], "COMPLETE");
-    assert!(
-        integrations[1..]
-            .iter()
-            .all(|item| item["status"] == "PENDING")
-    );
+    assert_eq!(integrations[1]["integration"], "gsp");
+    assert_eq!(integrations[1]["status"], "COMPLETE");
+    assert_eq!(integrations[2]["integration"], "project-radar");
+    assert_eq!(integrations[2]["status"], "PENDING");
     assert!(
         integrations
             .iter()

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/semantic-compilation-request",
+  "title": "SemanticCompilationRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "evidence_bundle_ref",
+    "schema_registry",
+    "ontology_snapshot",
+    "policies",
+    "budgets"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "evidence_bundle_ref": {
+      "type": "string"
+    },
+    "schema_registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entity_types",
+        "frame_types",
+        "predicates",
+        "roles",
+        "cardinalities"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "entity_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frame_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "predicates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cardinalities": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "closed_world_properties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ontology_snapshot": {
+      "$ref": "ontology.snapshot.schema.json"
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allow_llm_fallback",
+        "allow_external_kb_linking",
+        "max_relation_candidates_per_doc",
+        "validation_strictness",
+        "merge_policy"
+      ],
+      "properties": {
+        "allow_llm_fallback": {
+          "type": "boolean"
+        },
+        "allow_external_kb_linking": {
+          "type": "boolean"
+        },
+        "max_relation_candidates_per_doc": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "validation_strictness": {
+          "$ref": "common.schema.json#/$defs/validationStrictness"
+        },
+        "merge_policy": {
+          "$ref": "common.schema.json#/$defs/mergePolicy"
+        }
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latency_ms",
+        "max_patch_rounds"
+      ],
+      "properties": {
+        "latency_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "token_budget": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_patch_rounds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

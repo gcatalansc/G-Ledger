@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/tool-spec",
+  "title": "ToolSpec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "side_effect_class",
+    "input_schema_ref",
+    "output_schema_ref",
+    "timeout_ms",
+    "retry_policy",
+    "idempotency_supported",
+    "trace_fields"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "side_effect_class": {
+      "type": "string",
+      "enum": [
+        "read_only",
+        "externally_mutating",
+        "state_mutating",
+        "diagnostic"
+      ]
+    },
+    "input_schema_ref": {
+      "type": "string"
+    },
+    "output_schema_ref": {
+      "type": "string"
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "retry_policy": {
+      "type": "string",
+      "enum": [
+        "never",
+        "idempotent_safe",
+        "transient_only"
+      ]
+    },
+    "idempotency_supported": {
+      "type": "boolean"
+    },
+    "trace_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "approval_required": {
+      "type": "boolean"
+    },
+    "approval_source": {
+      "$ref": "common.schema.json#/$defs/approvalSource"
+    }
+  }
+}

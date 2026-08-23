@@ -1,0 +1,30 @@
+meta:
+  fixture_id: tool.execution__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - tool.execution
+  severity_if_fail: p0
+payload:
+  execution_id: 018f5d0b-3333-7333-8333-333333333333
+  trace_id: 018f5d0a-eeee-7eee-8eee-eeeeeeeeeeee
+  session_id: 018f5d0a-aaaa-7aaa-8aaa-aaaaaaaaaaaa
+  actor: runtime-worker
+  tool_name: create_memory_proposal
+  input:
+    proposal_id: 018f5d0a-4444-7444-8444-444444444444
+  input_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  output:
+    commit_id: 018f5d0a-5555-7555-8555-555555555555
+  status: success
+  result_status: success
+  approval_source: automatic
+  tokens_in_result: 120
+  started_at: '2026-04-12T00:00:00Z'
+  completed_at: '2026-04-12T00:10:00Z'
+  consumed: false
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

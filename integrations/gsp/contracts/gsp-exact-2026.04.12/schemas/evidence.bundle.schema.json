@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/evidence-bundle",
+  "title": "EvidenceBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "normalized_query",
+    "rewritten_queries",
+    "subqueries",
+    "route_taken",
+    "retrieval_confidence",
+    "evidence_sufficiency",
+    "conflicts_present",
+    "evidence_items",
+    "debug"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "normalized_query": {
+      "type": "string"
+    },
+    "rewritten_queries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "subqueries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "route_taken": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "retrieval_confidence": {
+      "$ref": "common.schema.json#/$defs/float01"
+    },
+    "evidence_sufficiency": {
+      "$ref": "common.schema.json#/$defs/evidenceSufficiency"
+    },
+    "conflicts_present": {
+      "type": "boolean"
+    },
+    "evidence_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidence_id",
+          "doc_id",
+          "chunk_id",
+          "source_uri",
+          "modality",
+          "text",
+          "metadata",
+          "scores",
+          "retrieval_path",
+          "flags"
+        ],
+        "properties": {
+          "evidence_id": {
+            "$ref": "common.schema.json#/$defs/uuid"
+          },
+          "doc_id": {
+            "type": "string"
+          },
+          "chunk_id": {
+            "type": "string"
+          },
+          "source_uri": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "section_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "modality": {
+            "$ref": "common.schema.json#/$defs/modality"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "span_start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "span_end": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string"
+          },
+          "local_context": {
+            "type": "string"
+          },
+          "parent_context": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "$ref": "common.schema.json#/$defs/datetime"
+              },
+              "updated_at": {
+                "$ref": "common.schema.json#/$defs/datetime"
+              },
+              "language": {
+                "type": "string"
+              },
+              "trust_tier": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            }
+          },
+          "scores": {
+            "$ref": "common.schema.json#/$defs/scoreMap"
+          },
+          "retrieval_path": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "channels",
+              "matched_subqueries"
+            ],
+            "properties": {
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "matched_subqueries": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "flags": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "low_trust",
+              "likely_injected"
+            ],
+            "properties": {
+              "duplicate_group": {
+                "type": "string"
+              },
+              "conflict_group": {
+                "type": "string"
+              },
+              "low_trust": {
+                "type": "boolean"
+              },
+              "likely_injected": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "debug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "corrective_rounds_used"
+      ],
+      "properties": {
+        "dropped_candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rerank_depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "corrective_rounds_used": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

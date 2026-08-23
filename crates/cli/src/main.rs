@@ -3,7 +3,7 @@ use std::{
     collections::BTreeMap,
     env,
     fmt::Write as _,
-    fs,
+    fs::{self, OpenOptions},
     io::{self, BufRead, Write},
     path::{Path, PathBuf},
     process::ExitCode,
@@ -25,7 +25,12 @@ use project_ledger_integration_protocol::{build_default_manifest, inspect_upstre
 use project_ledger_interop_gskills::{
     GSKILLS_PROFILE, GSkillsJsonRpcHandler, GSkillsProvider, GSkillsRecordSink,
     GSkillsRecordSinkJsonRpcHandler, ProviderContext, RecordSinkHost, RecordSinkHostError,
-    RecordSinkPolicy, RecordSinkStateIdentity, verify_vendored_contracts,
+    RecordSinkPolicy, RecordSinkStateIdentity,
+    verify_vendored_contracts as verify_gskills_vendored_contracts,
+};
+use project_ledger_interop_gsp::{
+    GSP_CONTRACT_TAG, GspBridge, GspCompilationReceipt, GspCorpus, GspCorpusRequest,
+    verify_vendored_contracts as verify_gsp_vendored_contracts,
 };
 use project_ledger_projection_engine::ProjectStateProjection;
 use project_ledger_schemas::{check_generated, validate_contracts};
@@ -95,11 +100,65 @@ enum IntegrationCommand {
         #[command(subcommand)]
         command: GSkillsIntegrationCommand,
     },
+    Gsp {
+        #[command(subcommand)]
+        command: GspIntegrationCommand,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Subcommand)]
 enum GSkillsIntegrationCommand {
     VerifyContracts,
+}
+
+#[derive(Clone, Debug, Subcommand)]
+enum GspIntegrationCommand {
+    VerifyContracts,
+    ExportCorpus(GspExportCorpusArgs),
+    ValidateResult(GspValidateResultArgs),
+    LinkResult(GspLinkResultArgs),
+}
+
+#[derive(Clone, Debug, Args)]
+struct GspExportCorpusArgs {
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    request: PathBuf,
+    #[arg(long)]
+    output: PathBuf,
+}
+
+#[derive(Clone, Debug, Args)]
+struct GspValidateResultArgs {
+    #[arg(long)]
+    evidence_bundle: PathBuf,
+    #[arg(long)]
+    result: PathBuf,
+    #[arg(long)]
+    output: PathBuf,
+}
+
+#[derive(Clone, Debug, Args)]
+struct GspLinkResultArgs {
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    receipt: PathBuf,
+    #[arg(long)]
+    receipt_uri: String,
+    #[arg(long)]
+    expected_state_version: u64,
+    #[arg(long)]
+    idempotency_key: String,
+    #[arg(long)]
+    actor_id: String,
+    #[arg(long)]
+    observed_at: String,
 }
 
 #[derive(Debug, Subcommand)]
@@ -166,6 +225,30 @@ fn main() -> ExitCode {
                     command: GSkillsIntegrationCommand::VerifyContracts,
                 },
         } => repository_root().and_then(|root| verify_gskills_contracts(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gsp {
+                    command: GspIntegrationCommand::VerifyContracts,
+                },
+        } => repository_root().and_then(|root| verify_gsp_contracts(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gsp {
+                    command: GspIntegrationCommand::ExportCorpus(args),
+                },
+        } => export_gsp_corpus(&args),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gsp {
+                    command: GspIntegrationCommand::ValidateResult(args),
+                },
+        } => repository_root().and_then(|root| validate_gsp_result(&root, &args)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gsp {
+                    command: GspIntegrationCommand::LinkResult(args),
+                },
+        } => link_gsp_result(&args),
         TopLevelCommand::Serve {
             command: ServeCommand::Provider(args),
         } => serve_gskills_provider(args),
@@ -368,13 +451,206 @@ fn integration_compatibility(root: &Path) -> Result<String, String> {
 }
 
 fn verify_gskills_contracts(root: &Path) -> Result<String, String> {
-    let report = verify_vendored_contracts(root).map_err(|error| error.to_string())?;
+    let report = verify_gskills_vendored_contracts(root).map_err(|error| error.to_string())?;
     Ok(format!(
         "gskills contracts MATCH schemas={} fixtures={} profile={}\n",
         report.schema_count,
         report.positive_fixture_count + report.negative_fixture_count,
         GSKILLS_PROFILE
     ))
+}
+
+fn verify_gsp_contracts(root: &Path) -> Result<String, String> {
+    let report = verify_gsp_vendored_contracts(root).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "gsp contracts MATCH registry={} schemas={} fixtures={} profile={}\n",
+        report.registry_contract_count,
+        report.schema_artifact_count,
+        report.valid_fixture_count + report.invalid_fixture_count,
+        GSP_CONTRACT_TAG
+    ))
+}
+
+fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, String> {
+    require_file(&args.database, "GSP corpus database")?;
+    require_file(&args.request, "GSP corpus request")?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let request: GspCorpusRequest = read_json_file(&args.request)?;
+    if request.project_ref != project_ref {
+        return Err("GSP corpus CLI project differs from the explicit request".to_owned());
+    }
+    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let stream = store
+        .load_stream(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let corpus = project_ledger_interop_gsp::build_minimized_corpus(&projection, &stream, &request)
+        .map_err(|error| error.to_string())?;
+    write_new_json(&args.output, &corpus)?;
+    Ok(format!(
+        "gsp corpus EXPORTED files={} output={}\n",
+        corpus.manifest.files.len(),
+        args.output.display()
+    ))
+}
+
+fn validate_gsp_result(root: &Path, args: &GspValidateResultArgs) -> Result<String, String> {
+    require_file(&args.evidence_bundle, "GSP EvidenceBundle corpus")?;
+    require_file(&args.result, "GSP CompilationResult")?;
+    let corpus: GspCorpus = read_json_file(&args.evidence_bundle)?;
+    let raw: Value = read_json_file(&args.result)?;
+    let bridge = GspBridge::load(root).map_err(|error| error.to_string())?;
+    let validated = bridge
+        .validate_result(&corpus, raw)
+        .map_err(|error| error.to_string())?;
+    write_new_json(&args.output, &validated)?;
+    Ok(format!(
+        "gsp result VALIDATED contracts={} review={} output={}\n",
+        validated.report.exact_contract_count,
+        validated.report.conflict_visibility.requires_human_review,
+        args.output.display()
+    ))
+}
+
+fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, String> {
+    require_file(&args.database, "GSP link database")?;
+    require_file(&args.receipt, "GSP compilation receipt")?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let value: Value = read_json_file(&args.receipt)?;
+    let receipt_value = value.get("receipt").cloned().unwrap_or(value);
+    let receipt: GspCompilationReceipt =
+        serde_json::from_value(receipt_value).map_err(|error| error.to_string())?;
+    if receipt.project_ref != project_ref {
+        return Err("GSP receipt project differs from the explicit CLI project".to_owned());
+    }
+    if receipt.project_state_version != args.expected_state_version {
+        return Err("GSP receipt state version differs from --expected-state-version".to_owned());
+    }
+    if !receipt.verify_digest().map_err(|error| error.to_string())? {
+        return Err("GSP compilation receipt digest mismatch".to_owned());
+    }
+    let artifact_uri = ResourceRef::parse(&args.receipt_uri).map_err(|error| error.to_string())?;
+    let idempotency_key =
+        StableId::parse(&args.idempotency_key).map_err(|error| error.to_string())?;
+    let actor_id = StableId::parse(&args.actor_id).map_err(|error| error.to_string())?;
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let mut store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let stream = store
+        .load_stream(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let state = projection.state();
+    if state.state_version == receipt.project_state_version
+        && (state.material_state_version != receipt.material_state_version
+            || state.state_digest != receipt.project_state_digest)
+    {
+        return Err(format!(
+            "GSP receipt state binding differs from the current Ledger projection: receipt=({},{},{}) ledger=({},{},{})",
+            receipt.project_state_version,
+            receipt.material_state_version,
+            receipt.project_state_digest,
+            state.state_version,
+            state.material_state_version,
+            state.state_digest
+        ));
+    }
+    let command_id =
+        deterministic_gsp_link_command_id(&project_ref, &idempotency_key, receipt.receipt_digest)?;
+    let command = prepare_command(CommandDraft {
+        schema_version: SchemaVersion::V0_2_0,
+        command_id,
+        project_ref: project_ref.clone(),
+        expected_state_version: args.expected_state_version,
+        idempotency_key,
+        actor: Actor {
+            actor_id,
+            actor_kind: ActorKind::Human,
+            trust_level: TrustLevel::LocalUser,
+            display_name: None,
+        },
+        command: Command::LinkExternalEvidence(receipt.link_payload(artifact_uri)),
+        submitted_at: observed_at.clone(),
+    })
+    .map_err(|error| error.to_string())?;
+    let result = CommandProcessor::new(&mut store, &FixedClock::new(observed_at))
+        .execute(command, &CoreCommandHandler)
+        .map_err(|error| error.to_string())?;
+    if !matches!(
+        result.status,
+        CommandResultStatus::Accepted | CommandResultStatus::DuplicateReplay
+    ) {
+        return Err(format!(
+            "GSP receipt link was not accepted: {:?} {:?}",
+            result.status, result.rejection
+        ));
+    }
+    canonical_stdout(&result)
+}
+
+fn deterministic_gsp_link_command_id(
+    project_ref: &ProjectId,
+    idempotency_key: &StableId,
+    receipt_digest: project_ledger_canonical_json::Sha256Digest,
+) -> Result<CommandId, String> {
+    let seed = format!("gsp-link:{project_ref}:{idempotency_key}:{receipt_digest}");
+    let digest = sha256_bytes(seed.as_bytes());
+    let mut bytes = [0_u8; 16];
+    bytes.copy_from_slice(&digest.as_bytes()[..16]);
+    bytes[6] = (bytes[6] & 0x0f) | 0x70;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    let uuid = format!(
+        "{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+        bytes[0],
+        bytes[1],
+        bytes[2],
+        bytes[3],
+        bytes[4],
+        bytes[5],
+        bytes[6],
+        bytes[7],
+        bytes[8],
+        bytes[9],
+        bytes[10],
+        bytes[11],
+        bytes[12],
+        bytes[13],
+        bytes[14],
+        bytes[15]
+    );
+    CommandId::parse(&format!("command:{uuid}")).map_err(|error| error.to_string())
+}
+
+fn require_file(path: &Path, label: &str) -> Result<(), String> {
+    if path.is_file() {
+        Ok(())
+    } else {
+        Err(format!("{label} does not exist: {}", path.display()))
+    }
+}
+
+fn read_json_file<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, String> {
+    let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))
+}
+
+fn write_new_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
+    let bytes = to_canonical_vec(value).map_err(|error| error.to_string())?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|error| format!("refusing to overwrite {}: {error}", path.display()))?;
+    file.write_all(&bytes)
+        .map_err(|error| format!("{}: {error}", path.display()))?;
+    file.write_all(b"\n")
+        .map_err(|error| format!("{}: {error}", path.display()))
 }
 
 fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, String> {

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/memory-write-proposal",
+  "title": "MemoryWriteProposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal_id",
+    "source",
+    "scope",
+    "memory_kind",
+    "payload",
+    "provenance",
+    "confidence",
+    "requires_human_review",
+    "justification"
+  ],
+  "properties": {
+    "proposal_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "source": {
+      "$ref": "common.schema.json#/$defs/sourceEnum"
+    },
+    "scope": {
+      "$ref": "common.schema.json#/$defs/scopeEnum"
+    },
+    "memory_kind": {
+      "$ref": "common.schema.json#/$defs/memoryKind"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "structured": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "frame_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin_request_id",
+        "actor_id"
+      ],
+      "properties": {
+        "origin_request_id": {
+          "type": "string"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actor_id": {
+          "type": "string"
+        }
+      }
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/float01"
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "requires_human_review": {
+      "type": "boolean"
+    },
+    "justification": {
+      "type": "string"
+    }
+  }
+}

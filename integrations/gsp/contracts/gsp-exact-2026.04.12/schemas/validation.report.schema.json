@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/validation-report",
+  "title": "ValidationReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "compilation_bundle_ref",
+    "generated_at",
+    "status",
+    "shape_violations",
+    "ontology_violations",
+    "contradiction_clusters",
+    "inferred_facts",
+    "unresolved_items"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "compilation_bundle_ref": {
+      "type": "string"
+    },
+    "generated_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "partial",
+        "fail"
+      ]
+    },
+    "shape_violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "ontology_violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "contradiction_clusters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "inferred_facts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unresolved_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "uncertainty_map_ref": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/session-state",
+  "title": "SessionState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "session_id",
+    "user_id",
+    "scope",
+    "pending_goals",
+    "open_questions",
+    "working_memory_ref",
+    "tool_state",
+    "checkpoints",
+    "turn_count",
+    "total_tokens_used",
+    "open_loops",
+    "high_watermarks"
+  ],
+  "properties": {
+    "session_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "common.schema.json#/$defs/scopeEnum"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "active_goal": {
+      "type": "string"
+    },
+    "pending_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "working_memory_ref": {
+      "type": "string"
+    },
+    "authoritative_state_ref": {
+      "type": "string"
+    },
+    "tool_state": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checkpoint_id",
+          "created_at",
+          "state_snapshot_ref",
+          "reason"
+        ],
+        "properties": {
+          "checkpoint_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "$ref": "common.schema.json#/$defs/datetime"
+          },
+          "state_snapshot_ref": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "last_compaction_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "last_memory_injection_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "turn_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_tokens_used": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "open_loops": {
+      "type": "array",
+      "items": {
+        "$ref": "open.loop.schema.json"
+      }
+    },
+    "high_watermarks": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/highWatermark"
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+meta:
+  fixture_id: uncertainty.map__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - uncertainty.map
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  compilation_bundle_ref: bundle://compilation/atlas
+  generated_at: '2026-04-12T00:00:00Z'
+  items:
+  - target_node: fr-001
+    target_kind: frame
+    uncertainty_type: weak_support
+    severity: medium
+    confidence: 0.42
+    evidence_ids:
+    - ev-001
+    notes:
+    - solo una evidencia disponible
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en uncertainty map

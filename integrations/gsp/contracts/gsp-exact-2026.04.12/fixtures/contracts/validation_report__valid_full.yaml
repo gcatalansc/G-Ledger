@@ -1,0 +1,23 @@
+meta:
+  fixture_id: validation.report__valid_full
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload completo valida contra el contrato
+  expected_contracts:
+  - validation.report
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  compilation_bundle_ref: bundle://compilation/atlas
+  generated_at: '2026-04-12T00:00:00Z'
+  status: pass
+  shape_violations: []
+  ontology_violations: []
+  contradiction_clusters: []
+  inferred_facts: []
+  unresolved_items: []
+  notes:
+  - sin observaciones
+  uncertainty_map_ref: bundle://uncertainty/atlas

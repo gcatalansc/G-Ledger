@@ -1,0 +1,19 @@
+meta:
+  fixture_id: memory.commit__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - memory.commit
+  severity_if_fail: p0
+payload:
+  commit_id: 018f5d0a-5555-7555-8555-555555555555
+  proposal_id: 018f5d0a-4444-7444-8444-444444444444
+  memory_id: 018f5d0a-3333-7333-8333-333333333333
+  status: accepted
+  committed_at: '2026-04-12T00:00:00Z'
+  committed_by: memory-worker
+  sequence_no: 1
+  trace_id: 018f5d0a-6666-7666-8666-666666666666

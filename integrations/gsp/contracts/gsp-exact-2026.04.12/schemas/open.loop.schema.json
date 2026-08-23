@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/open-loop",
+  "title": "OpenLoop",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "loop_id",
+    "kind",
+    "description",
+    "opened_at",
+    "opened_by",
+    "priority",
+    "status"
+  ],
+  "properties": {
+    "loop_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "kind": {
+      "$ref": "common.schema.json#/$defs/openLoopKind"
+    },
+    "description": {
+      "type": "string"
+    },
+    "opened_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "opened_by": {
+      "type": "string",
+      "enum": [
+        "user",
+        "system",
+        "tool"
+      ]
+    },
+    "priority": {
+      "$ref": "common.schema.json#/$defs/priorityEnum"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/openLoopStatus"
+    },
+    "blocked_by": {
+      "type": "string"
+    },
+    "completed_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "resolution": {
+      "type": "string"
+    }
+  }
+}

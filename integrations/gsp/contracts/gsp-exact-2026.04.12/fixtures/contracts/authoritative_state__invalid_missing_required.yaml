@@ -1,0 +1,21 @@
+meta:
+  fixture_id: authoritative.state__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - authoritative.state
+  severity_if_fail: p0
+payload:
+  scope: project
+  subject_ref: project:atlas
+  state_kind: decision_state
+  content:
+    merge_policy: conservative
+  source_authority: operator
+  effective_at: '2026-04-12T00:00:00Z'
+  lifecycle:
+    status: active
+invalid_reason: 'Falta campo requerido: state_id'

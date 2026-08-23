@@ -1,0 +1,48 @@
+meta:
+  fixture_id: semantic-compilation.request__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - semantic-compilation.request
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  evidence_bundle_ref: bundle://evidence/atlas
+  schema_registry:
+    schema_version: gsp-core
+    entity_types:
+    - project
+    frame_types:
+    - decision
+    predicates:
+    - decision.adopted
+    roles:
+    - subject
+    cardinalities: {}
+  ontology_snapshot:
+    ontology_version: atlas-onto
+    snapshot_manifest_ref: registry://ontology-snapshots/core-semantic-compilation/current
+    type_hierarchy_ref: ontology://types
+    predicate_registry_ref: ontology://predicates
+    relation_constraints_ref: ontology://relations
+    alias_maps_ref: ontology://aliases
+    kb_snapshot_ref: ontology://kb
+    shacl_shapes_ref: ontology://shacl-shapes
+    shacl_rules_ref: ontology://shacl-rules
+    rdf_projection_ref: ontology://rdf-projection
+    provenance_profile_ref: ontology://prov-profile
+  policies:
+    allow_llm_fallback: false
+    allow_external_kb_linking: false
+    max_relation_candidates_per_doc: 4
+    validation_strictness: strict
+    merge_policy: conservative
+  budgets:
+    latency_ms: 1500
+    max_patch_rounds: 1
+    token_budget: 1800
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

@@ -1,0 +1,26 @@
+[package]
+name = "project-ledger-interop-gsp"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+jsonschema.workspace = true
+project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-domain = { path = "../domain", version = "=0.2.0" }
+project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+project-ledger-application = { path = "../application", version = "=0.2.0" }
+project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
+project-ledger-storage-sqlite = { path = "../storage-sqlite", version = "=0.2.0" }
+tempfile.workspace = true
+
+[lints]
+workspace = true

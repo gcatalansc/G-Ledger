@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GspCorpusLossReport",
+  "profile": "gsp-exact-2026.04.12",
+  "source_artifact": "Project Ledger explicit canonical selections",
+  "target_contract": "EvidenceBundle",
+  "status": "ZERO_UNDECLARED_MATERIAL_LOSS",
+  "items": [
+    {
+      "fields": ["unselected records", "full event timeline", "raw evidence output", "transcripts", "private reasoning"],
+      "classification": "EXCLUDED_BY_SCOPE_AND_PRIVACY_CONTRACT",
+      "preservation": "omitted_classes plus explicit request references",
+      "material_loss": false
+    },
+    {
+      "fields": ["file URI", "workspace URI", "absolute Windows path"],
+      "classification": "INTENTIONAL_PRIVATE_PATH_MINIMIZATION",
+      "preservation": "source_ref_scheme plus SHA-256 of the original reference",
+      "material_loss": false
+    },
+    {
+      "fields": ["selected material event payload"],
+      "classification": "ALLOWLISTED_BOUNDED_SUMMARY",
+      "preservation": "event identity, type, version, timestamps, payload/event digests and type-specific summary",
+      "material_loss": false
+    },
+    {
+      "fields": ["Ledger status", "record digest", "safe provenance", "query digest", "state digest"],
+      "classification": "PRESERVED_IN_CANONICAL_CORPUS_AND_MANIFEST",
+      "preservation": "digest-addressed corpus content",
+      "material_loss": false
+    }
+  ],
+  "undeclared_material_loss_count": 0,
+  "semantic_degradation_count": 0,
+  "authority_elevation_count": 0,
+  "pending_evidence": [
+    "LIVE_EXTERNAL_SIDECAR_E2E"
+  ],
+  "certification_boundary": "Local minimized-corpus, exact EvidenceBundle/result validation, isolated sidecar-port fixture and real SQLite artifact workflow evidence only; no live external GSP execution or certified runtime compatibility is claimed.",
+  "certified_compatibility": false
+}

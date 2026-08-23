@@ -1,0 +1,26 @@
+meta:
+  fixture_id: memory.write.proposal__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - memory.write.proposal
+  severity_if_fail: p0
+payload:
+  proposal_id: 018f5d0a-4444-7444-8444-444444444444
+  source: compiler
+  scope: project
+  memory_kind: decision
+  payload:
+    text: Atlas usa merge conservador como política activa.
+    frame_ref: fr-001
+  provenance:
+    origin_request_id: 018f5d0a-2222-7222-8222-222222222222
+    evidence_ids:
+    - ev-001
+    actor_id: compiler-01
+  confidence: 0.9
+  requires_human_review: false
+  justification: Decision explícita soportada por evidencia.

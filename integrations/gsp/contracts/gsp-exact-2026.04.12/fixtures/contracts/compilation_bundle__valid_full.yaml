@@ -1,0 +1,89 @@
+meta:
+  fixture_id: compilation.bundle__valid_full
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload completo valida contra el contrato
+  expected_contracts:
+  - compilation.bundle
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  schema_version: gsp-core
+  ontology_version: atlas-onto
+  compilation_version: compile-atlas
+  assumptions:
+    world_assumption: hybrid
+    closed_world_properties:
+    - decision_status
+  mentions: []
+  canonical_entities:
+  - entity_id: ent-001
+    canonical_name: Proyecto Atlas
+    type_id: project
+    aliases:
+    - Atlas
+    mention_ids: []
+    resolution_status: local_only
+    confidence:
+      linker: 0.0
+      aggregate: 0.92
+    timestamp: '2026-04-12T00:00:00Z'
+    epistemic_status: observed
+    provenance:
+      support:
+      - evidence_id: ev-001
+        source_id: doc-01
+        span:
+          start: 0
+          end: 58
+  frames:
+  - frame_id: fr-001
+    frame_type: decision
+    predicate_id: decision.adopted
+    arguments:
+      subject: ent-001
+    qualifiers:
+      status: active
+    polarity: positive
+    modality: asserted
+    temporal:
+      asserted_at: '2026-04-12T00:00:00Z'
+    epistemic:
+      status: observed
+      confidence:
+        final: 0.94
+    provenance:
+      support:
+      - evidence_id: ev-001
+        source_id: doc-01
+        span:
+          start: 0
+          end: 58
+    validation_state:
+      structural_valid: true
+      ontology_valid: true
+      support_status: supported
+      contradiction_status: none
+      temporal_consistency: consistent
+      final_status: accepted
+  relations: []
+  validation:
+    status: pass
+    shape_violations: []
+    ontology_violations: []
+    contradiction_clusters: []
+    inferred_facts: []
+    unresolved_items: []
+  patch_log: []
+  extractor_version: uie-compact
+  timestamp: '2026-04-12T00:00:00Z'
+  uncertainty_map:
+    request_id: 018f5d0a-2222-7222-8222-222222222222
+    compilation_bundle_ref: bundle://compilation/atlas
+    generated_at: '2026-04-12T00:00:00Z'
+    items: []
+    summary:
+      high_severity_count: 0
+      partial_validation: false

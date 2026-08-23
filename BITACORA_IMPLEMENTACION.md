@@ -955,3 +955,153 @@ Escribir el RED de la composition root CLI `serve sink`, cargar una policy expl�
 **Siguiente paso según la especificación**
 
 Iniciar, sólo tras una nueva autorización, Fase 8 / S11: puente GSP exact-contract con corpus minimizado, sidecar de contratos upstream exactos, enlaces explícitos de resultados y aislamiento de autoridad; su gate exige cero degradación semántica y cero elevación de autoridad.
+
+### 2026-08-23 — Inicio de Fase 8 / S11: puente GSP exact-contract
+
+**Estado al inicio**
+
+- HEAD limpio: `1f334e3 feat: add exact G-Skills record sink`.
+- Avance conservado hasta superar el gate: 8/12 macrofases y 11/15 slices.
+- Plan ejecutable: `docs/superpowers/plans/2026-08-23-project-ledger-phase-8-s11.md`.
+- La ejecución continúa inline por autorización expresa del usuario, sin delegación y sin abrir S12.
+
+**Autoridad GSP reconciliada**
+
+- Project Ledger §35, AC-052…060 y Fase 8 exigen corpus minimizado, contratos GSP exactos, resultados enlazados por referencia, contradicción/incertidumbre preservadas, failure isolation y cero authority elevation.
+- GSP-Gemma Compiler tag `v0.2.0`, commit `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, fija la especificación técnica SHA-256 `c838bdd8...`, el contrato de no degradación `30d40f79...`, su API `ca5d45e1...` y el lock upstream `c9fb65b3...`.
+- La autoridad canónica es `gsp-spec` tag `gsp-exact-2026.04.12`, commit `004b14d7b64837025671970eac2469f092c49475`. El release declara ZIP `59395d1e...` y `HASH_MANIFEST.csv` `c6ca0f6d...`; ambos se descargaron/verificaron y coinciden con el checkout local limpio.
+- El registry upstream SHA-256 `523faabc...` enumera 28 contratos. La superficie exacta contiene 31 artefactos JSON y 140 fixtures contractuales YAML: 56 válidos y 84 inválidos.
+- No se modificará G-GSP. Los bytes se importarán desde el checkout canónico limpio y cada archivo quedará contrastado con el manifiesto upstream.
+
+**Frontera de implementación**
+
+- `interop-gsp` será Rust y storage-independent. La CLI será la única composition root SQLite; GSP/Python permanecerá sidecar opcional y el golden path seguirá funcionando deshabilitado.
+- El corpus exigirá referencias explícitas y budgets duros. No habrá modo export-all, timeline completo, raw evidence output, paths, transcripts, secretos ni razonamiento privado.
+- `EvidenceBundle` y los seis artifacts del `CompilationResult` se validarán contra los schemas upstream completos; Ledger no publicará modelos reducidos sustitutos.
+- Contradicciones, uncertainty y validación partial/fail se conservarán en un reporte visible. Ningún claim GSP cerrará fases, verificará gates ni cambiará lifecycle.
+- Un resultado sólo podrá enlazarse mediante el comando nativo `LINK_EXTERNAL_EVIDENCE`, separado, explícito, con expected version e idempotency key.
+- El gate local puede cerrar S11 con degradación semántica y elevación de autoridad en cero, pero `certified_compatibility=false` seguirá vigente mientras no exista evidencia separada de un E2E live-sidecar externo.
+
+**Siguiente acción**
+
+Escribir el RED del crate y lock GSP: exigir 28 contratos, 31 artefactos JSON, 56 fixtures válidos y 84 inválidos, además de comprobar cada byte contra `HASH_MANIFEST.csv`; después importar la superficie upstream exacta sin reespecificarla.
+
+**Hito S11.1 — Lock y replay contractual exactos GREEN**
+
+- RED confirmado: `project-ledger-interop-gsp` compiló el test sin encontrar constantes, catálogo, error de drift ni verificador.
+- Se importaron byte-for-byte los 31 artefactos JSON de schemas y los 140 fixtures contractuales YAML desde el checkout limpio `gsp-spec@004b14d`; no se modificó G-GSP.
+- `GspContractCatalog` valida el registry contra su propio schema, exige 28 nombres/IDs/paths exactos, resuelve referencias offline mediante alias físicos y `schema://contracts/*`, y compila todos los contratos con formatos Draft 2020-12 activos.
+- El verificador fija el `HASH_MANIFEST.csv` upstream y contrasta cada schema/fixture raw antes del replay. Los 56 fixtures válidos pasan y los 84 inválidos se rechazan según su contrato declarado.
+- Una prueba adversarial agrega un byte al `EvidenceBundle` schema y obtiene `RawDigestMismatch` antes de validar fixtures.
+- Durante GREEN se corrigió una suposición de envoltura: `NOTICE.md` y `LICENSES/MIT.txt` pertenecen al release público pero no a los 283 paths del manifiesto canónico; se conservan para atribución, fuera del conteo/verificador contractual.
+- Evidencia focalizada: 2/2 pruebas PASS; Clippy estricto, formato y diff check PASS. La comparación independiente de todos los bytes vendorizados contra el checkout upstream también pasó.
+- `upstream-lock.json` contiene ya versión, commits y digests exactos, pero conserva mapping y conformance en `PENDING_S11`; aún no se añadió compatibility range, evitando declarar integración completa antes de tiempo.
+
+**Siguiente acción**
+
+Escribir el RED del corpus minimizado: exigir scope explícito, budgets duros, referencias existentes, summaries de eventos allowlisted, ausencia de raw output/paths y un `EvidenceBundle` completo que valide contra el schema upstream sin degradarlo.
+
+**Hito S11.2 — Corpus minimizado y EvidenceBundle exacto GREEN**
+
+- RED confirmado: el test no compiló porque `GspCorpusRequest`, `GspCorpusBudget`, `GspCorpusError` y `build_minimized_corpus` no existían.
+- El request carece deliberadamente de modo discovery/export-all: exige query, proyecto, referencias explícitas de authority/decision/gate/checkpoint/evento material, instante observado y budgets duros.
+- La construcción valida identidad de proyecto, unicidad, existencia, allowlist del tipo de evento, máximo de 64 items y 1 MiB de JSON canónico. Scope vacío, referencia ausente/duplicada, evento no autorizado y exceso de items/bytes fallan cerrados.
+- El manifest fija las seis clases de directorio, digests de query/estado/corpus, inventario de archivos y exclusiones. Declara falsos timeline completo, raw evidence output y paths de workspace; URIs `file:`/`workspace:` y paths absolutos se reemplazan por scheme y SHA-256.
+- Cada selección se transforma en texto RFC 8785 digest-addressed con UUID determinista, source URI sintética segura, routing explícito y sufficiency conservadora `partial`. El valor resultante valida contra el `EvidenceBundle` upstream completo, sin schema sustituto reducido.
+- Los eventos seleccionados no exportan el envelope/payload crudo: sólo identidad, tipo, versión, tiempos, digests y summary allowlisted por variante. El estado de conflicto abierto se propaga a `conflicts_present`.
+- Se publicaron el schema local del manifest y reportes de mapping/pérdida. Registran cero pérdida material no declarada y cero authority elevation, pero dejan explícitamente pendientes la validación del resultado, aislamiento del sidecar, link explícito, CLI SQLite y E2E live-sidecar.
+- GREEN focalizado: 2/2 pruebas de corpus y 2/2 pruebas contractuales PASS; salida repetida idéntica; validación de manifest y `EvidenceBundle` PASS; Clippy estricto, formato y `git diff --check` PASS.
+
+**Siguiente acción**
+
+Escribir el RED del `CompilationResult`: exigir los seis artefactos upstream completos, coherencia de `request_id`, digests canónicos, contradicción/incertidumbre visibles, error aislado del sidecar sin eventos y un único payload posible de link externo sin autoridad de lifecycle.
+
+**Hito S11.3 — Resultado exacto, aislamiento y link explícito GREEN**
+
+- RED confirmado: no existían `GspBridge`, `GspCompilerSidecar`, errores de sidecar/bridge ni los modelos de resultado, receipt y reporte.
+- `GspCompilationResult` conserva como `Value` los seis artefactos completos y modela sólo la envoltura pública exacta de siete campos de GSP v0.2; campos extra/reducidos fallan por `deny_unknown_fields` o required fields.
+- `GspBridge` valida primero el `EvidenceBundle`, exige que el sidecar lo devuelva idéntico y valida candidate/compilation/validation/uncertainty/task projection contra los seis schemas upstream. También exige `request_id` común, `validation.status=pass`, autoridad no vacía y la lista exacta ordenada de contratos comprobados.
+- Los seis outputs permanecen inalterados y quedan referenciados por digests RFC 8785 en un receipt local. Este preserva proyecto, versiones/digest de estado, query/corpus digests, refs de fuentes, autoridad runtime digestada y semantic status.
+- `partial`/`fail`, contradiction clusters, `conflicts_present`, uncertainty items y uncertainty notes no se normalizan: producen `GspConflictVisibility` y human review visible. El estado contractual `validation.status=pass` no se confunde con semantic validation `pass|partial|fail`.
+- El puerto `GspCompilerSidecar` no posee storage. Un sidecar `Unavailable` contra SQLite real dejó el conteo 0→0 eventos. No se incorporó Python, DB compartida, red ni daemon al crate de producción.
+- El receipt sólo puede producir `LinkExternalEvidencePayload` con schema fijo y digest propio. Ejecutado explícitamente por `CommandProcessor<SqliteEventStore, FixedClock>`, añadió exactamente un `EXTERNAL_EVIDENCE_LINKED`; replay idéntico no agregó otro y lifecycle/fases/gates no cambiaron.
+- Se publicaron el schema del receipt y `gsp-conformance.json`. El reporte fija degradación semántica 0 y elevación de autoridad 0, pero declara que el sidecar usado por pruebas es un fixture in-process y no un runtime Python externo.
+- GREEN focalizado: 9/9 pruebas del crate PASS (5 bridge/conformance, 2 corpus, 2 lock); Clippy estricto, formato y `git diff --check` PASS.
+
+**Siguiente acción**
+
+Escribir el RED de la composition root CLI GSP sobre SQLite real: verificar contratos, exportar corpus sin mutación, validar resultado/emitir receipt sin mutación y enlazarlo sólo con parámetros write explícitos, expected version e idempotencia.
+
+**Hito S11.4 — Workflow CLI SQLite GREEN previo al gate integral**
+
+- RED confirmado: `integration gsp` no existía y las tres pruebas CLI fallaron por subcomando desconocido.
+- `verify-contracts` ejecuta el verificador raw/registry/fixture del crate y reporta 28 contratos, 31 schemas y 140 fixtures para el tag exacto.
+- `export-corpus` exige DB existente, proyecto y request cerrado; verifica cadena/rebuild y publica JSON canónico con `create_new`, sin append. Scope desconocido, identidad divergente y overwrite fallan antes de publicar.
+- `validate-result` carga el corpus completo, valida el resultado exacto y publica result+receipt+report canónicos no-clobber. Resultado reducido o output existente falla sin evento.
+- `link-result` exige DB, proyecto, receipt, URI, expected state version, idempotency key, actor y observed time. Verifica identidad/digest del receipt y deriva un `CommandId` UUIDv7 determinista del scope para que replay CLI idéntico conserve el mismo command digest.
+- En SQLite real, export y validate conservaron 7→7 eventos; link produjo 7→8, replay permaneció en 8 y lifecycle/fases/gates no cambiaron. Expected version stale y argumentos omitidos fallaron cerrados.
+- El lock GSP incorpora range exact-contract, schemas/reportes con SHA-256, mapping/conformance local PASS, degradación 0, authority elevation 0 y CLI real PASS. `live_external_sidecar_e2e_status` permanece pendiente y `certified_compatibility=false`.
+- README, changelog, matriz de cobertura y documento de compatibilidad distinguen conformance local, fixture sidecar, link de evidencia y E2E externo no demostrado.
+- GREEN focalizado: 3/3 pruebas CLI PASS; Clippy estricto del CLI y `git diff --check` PASS.
+
+**Siguiente acción**
+
+Ejecutar el gate integral S11 completo, revisar hashes/lock/diff/estado Git, actualizar el avance real a 9/12 macrofases y 12/15 slices sólo si todo pasa, y crear el commit de fase `feat: add exact GSP bridge`.
+
+**Hito S11.5 — Corrección adversarial de binding del corpus y receipt**
+
+- La revisión previa al cierre detectó que `validate-result` validaba el `EvidenceBundle` upstream, pero no comprobaba todavía que el manifest Ledger persistido siguiera unido al bundle que alimentaba el receipt.
+- RED de regresión confirmado: una alteración de `project_state_version` en el manifest fue aceptada inicialmente por `GspBridge::validate_result`.
+- `GspCorpus::verify_integrity` verifica ahora digests canónicos de cada contenido, query normalizada y corpus completo. El `corpus_digest` cubre manifest más `EvidenceBundle`, con sólo su propio campo puesto a cero durante el hash; cambiar cualquiera de ambos invalida el artefacto.
+- `compile` y `validate_result` ejecutan esa comprobación antes de invocar el sidecar o interpretar resultados.
+- Un segundo RED demostró que un receipt autoconsistente pero con `project_state_digest` falsificado podía llegar al command processor. `link-result` verifica ahora cadena y proyección SQLite y contrasta `material_state_version` y `state_digest` cuando se realiza el primer enlace en la versión capturada.
+- El replay idempotente posterior continúa permitido: cuando el stream ya avanzó, el command processor decide entre `DUPLICATE_REPLAY` y rechazo stale sin producir una segunda mutación.
+- GREEN focalizado: la regresión de corpus alterado y el workflow CLI con receipt falsificado pasaron; el intento adversarial dejó el conteo de eventos intacto.
+
+**Siguiente acción**
+
+Repetir desde cero el gate integral S11 sobre el árbol final corregido y cerrar bitácora/plan/commit únicamente si todas las verificaciones vuelven a pasar.
+
+### 2026-08-23 — Cierre de Fase 8 / S11: puente GSP exact-contract
+
+**Resultado implementado**
+
+- Se fijó la autoridad GSP exacta en `gsp-exact-2026.04.12` / `004b14d7b64837025671970eac2469f092c49475`, con 28 contratos, 31 artefactos JSON y 140 fixtures YAML (56 válidos, 84 inválidos) verificados byte-for-byte y ejecutados offline.
+- `interop-gsp` implementa export de corpus allowlisted/minimizado, `EvidenceBundle` upstream completo, digest que une manifest+contenidos+bundle, validación de seis artefactos exactos, receipts digest-addressed, contradicción/incertidumbre visible y sidecar port sin storage/Python.
+- La CLI implementa `verify-contracts`, `export-corpus`, `validate-result` y `link-result`. Export/validate son read-only y no-clobber; el único write es `LINK_EXTERNAL_EVIDENCE` explícito, con receipt unido a la proyección SQLite vigente, expected version e idempotencia.
+- La compatibilidad local informa G-Skills `COMPLETE`, GSP `COMPLETE` y Project Radar `PENDING`, manteniendo `certified_compatibility=false` global y por integración.
+
+**Correcciones descubiertas durante el gate**
+
+- Dos tests históricos todavía esperaban GSP `PENDING`; se actualizaron para exigir GSP `COMPLETE`, Radar `PENDING` y conservar toda compatibilidad sin certificar.
+- La revisión adversarial añadió y cerró dos RED: alteración corpus↔manifest↔bundle y receipt autoconsistente con state digest falso. Ambos fallan ahora antes de cualquier mutación.
+- Los reportes de loss/conformance aún enumeraban pasos locales ya completados como pendientes; se reconciliaron y sus hashes se actualizaron en el lock. Sólo `LIVE_EXTERNAL_SIDECAR_E2E` permanece pendiente.
+- La auditoría del índice detectó normalización CRLF→LF sobre bytes upstream. `.gitattributes` marca la superficie vendorizada exacta como `-text -diff`; los 175 blobs del índice coinciden byte-for-byte con el working tree y el manifiesto conserva SHA-256 `c6ca0f6d...`.
+
+**Gate integral final**
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS.
+- `cargo test --workspace --all-targets --all-features`: PASS; 189 atributos de prueba inventariados, cero fallos.
+- `cargo xtask schema check`: PASS.
+- `project-ledger specs verify`: PASS; v0.1 `772ea517`, v0.2 `31cb7cd4`.
+- `project-ledger contracts verify`: PASS; 46 schemas, 92 fixtures, 53 filas de matriz.
+- `integration gskills verify-contracts`: PASS; 11 schemas y 22 fixtures.
+- `integration gsp verify-contracts`: PASS; 28 contratos, 31 schemas y 140 fixtures exactos.
+- `integration compatibility`: PASS; locks locales G-Skills/GSP completos, Radar pendiente, certificación falsa.
+- `cargo-deny --offline check`: PASS para advisories, bans, licenses y sources; persisten sólo duplicidades transitivas informativas de `getrandom`, `r-efi` y `syn`.
+- JSON/hash lock de los dos schemas locales y tres reportes GSP: PASS.
+- `git diff --check`: PASS.
+
+**Estado y límites de evidencia**
+
+- Fase 8 / S11 cerrada.
+- Avance real: 9/12 macrofases y 12/15 slices, según §50/§51.
+- Degradación semántica no declarada: 0. Elevación de autoridad: 0.
+- S11 demuestra conformance contractual local, SQLite real y aislamiento del puerto sidecar. No demuestra un proceso GSP/Python externo vivo, compatibilidad runtime certificada, corrección semántica/científica, operación productiva ni rentabilidad.
+- `live_external_sidecar_e2e_status=PENDING_SEPARATE_EVIDENCE` y `certified_compatibility=false` permanecen deliberadamente.
+- El cierre se versiona mediante el commit de fase `feat: add exact GSP bridge`.
+
+**Siguiente paso según la especificación**
+
+Iniciar, sólo tras una nueva autorización, Fase 9 / S12: articulación Project Radar mediante schemas/profile, project link, artifact export, agregación de catálogo, fixtures de reference importer, mapping de status/progress, ownership de campos y provenance transitiva. Su gate exige PL-21…32 y AC-065…080 PASS; S12 no modifica el código de Project Radar desde este repositorio.

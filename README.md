@@ -2,7 +2,7 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0–S10: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración y provider/RecordSink G-Skills exactos. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+El repositorio ha materializado S0–S11: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos y el bridge GSP exact-contract. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
 S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
 
@@ -16,7 +16,9 @@ S9 añade los seis contratos read-only exactos de `gskills-context-provider/0.3.
 
 S10 añade cinco contratos write exactos, policy externa con `TRUSTED_FOR_RECORDING`, mapping cerrado de cinco comandos, expected state, idempotencia cross-system, `ExternalRecordResult`, lookup durable y JSON-RPC mutable separado. Validate, status y reconcile son read-only; timeout/outcome unknown nunca se convierte en resultado de dominio. Replay produce un solo efecto y los conflictos no sobrescriben estado.
 
-La semántica ejecutable sigue acotada por la especificación: GSP, Radar, Agent Skill, UI, daemon, red, AI y el counterpart RecordSink de G-Skills permanecen pendientes de slices posteriores. `certified_compatibility=false` continúa siendo obligatorio hasta E2E bilateral; S9–S10 demuestran las fronteras locales read/write, no compatibilidad bilateral ni operación productiva. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
+S11 fija GSP-Gemma Compiler v0.2 y `gsp-exact-2026.04.12`: 28 contratos, 31 schemas y 140 fixtures byte-locked. `interop-gsp` construye un corpus explícito/acotado, valida el `EvidenceBundle` y los seis artefactos completos del `CompilationResult`, conserva contradicción/incertidumbre en receipts/reports y aísla un sidecar opcional sin storage. Exportar/validar son read-only; sólo `link-result` crea un `LINK_EXTERNAL_EVIDENCE` nativo y explícito.
+
+La semántica ejecutable sigue acotada por la especificación: Radar, Agent Skill, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen pendientes de slices/evidencia posteriores. `certified_compatibility=false` continúa siendo obligatorio; S9–S11 demuestran fronteras locales, no compatibilidad bilateral/live-sidecar, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
 
 ## Autoridad
 
@@ -36,6 +38,7 @@ cargo xtask schema check
 cargo run -p project-ledger-cli -- specs verify
 cargo run -p project-ledger-cli -- contracts verify
 cargo run -p project-ledger-cli -- integration gskills verify-contracts
+cargo run -p project-ledger-cli -- integration gsp verify-contracts
 ```
 
 Inicialización offline contra una ubicación explícita:
@@ -88,5 +91,16 @@ cargo run -p project-ledger-cli -- serve sink `
 ```
 
 La policy es obligatoria, cerrada y digest-valid; fija identidades, actor, `TRUSTED_FOR_RECORDING`, cinco command kinds y los digests de manifest/ejecutable/lock/identity. No se descubre desde metadata del repositorio. El proceso registra sólo `ledger.manifest`, `ledger.command_validate`, `ledger.command_submit`, `ledger.command_status` y `ledger.command_reconcile`.
+
+Bridge GSP por artifact exchange local:
+
+```powershell
+cargo run -p project-ledger-cli -- integration gsp verify-contracts
+cargo run -p project-ledger-cli -- integration gsp export-corpus --database <ledger.db> --project-ref project:<uuid-v7> --request <scope.json> --output <corpus.json>
+cargo run -p project-ledger-cli -- integration gsp validate-result --evidence-bundle <corpus.json> --result <compilation-result.json> --output <validated.json>
+cargo run -p project-ledger-cli -- integration gsp link-result --database <ledger.db> --project-ref project:<uuid-v7> --receipt <receipt.json> --receipt-uri artifact://gsp/receipt.json --expected-state-version <N> --idempotency-key <key> --actor-id <actor> --observed-at <timestamp-rfc3339>
+```
+
+`scope.json` es un `GspCorpusRequest` cerrado, con query, referencias seleccionadas y budgets. El corpus queda unido por digest canónico a su manifest, contenidos y `EvidenceBundle`. Los tres primeros comandos no mutan el stream. `link-result` verifica identidad/digest del receipt y su binding con la proyección SQLite vigente, y exige concurrencia, idempotencia, actor, URI y tiempo explícitos; no puede cerrar fases, verificar gates ni cambiar lifecycle.
 
 La red no forma parte del runtime ni de las pruebas. La descarga inicial de dependencias es una operación de desarrollo de Cargo.

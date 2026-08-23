@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/memory-note",
+  "title": "MemoryNote",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "memory_id",
+    "memory_kind",
+    "scope",
+    "visibility",
+    "content",
+    "source",
+    "provenance",
+    "confidence",
+    "epistemic_status",
+    "temporal",
+    "lifecycle"
+  ],
+  "properties": {
+    "memory_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "memory_kind": {
+      "$ref": "common.schema.json#/$defs/memoryKind"
+    },
+    "scope": {
+      "$ref": "common.schema.json#/$defs/scopeEnum"
+    },
+    "visibility": {
+      "$ref": "common.schema.json#/$defs/visibilityEnum"
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "structured": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "frame_ref": {
+          "type": "string"
+        },
+        "entity_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source": {
+      "$ref": "common.schema.json#/$defs/sourceEnum"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "origin_request_id": {
+          "type": "string"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compilation_version": {
+          "type": "string"
+        }
+      }
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/float01"
+    },
+    "epistemic_status": {
+      "$ref": "common.schema.json#/$defs/epistemicStatus"
+    },
+    "temporal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_at"
+      ],
+      "properties": {
+        "created_at": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        },
+        "valid_from": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        },
+        "valid_to": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        },
+        "expires_at": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "common.schema.json#/$defs/memoryLifecycleStatus"
+        },
+        "superseded_by": {
+          "type": "string"
+        },
+        "retracted_by": {
+          "type": "string"
+        },
+        "retraction_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "lifecycle": {
+            "properties": {
+              "status": {
+                "const": "superseded"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "lifecycle": {
+            "required": [
+              "superseded_by"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle": {
+            "properties": {
+              "status": {
+                "const": "retracted"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "lifecycle": {
+            "required": [
+              "retraction_reason"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

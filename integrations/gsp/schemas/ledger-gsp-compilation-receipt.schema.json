@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:gsp-compilation-receipt:1.0.0",
+  "title": "Project Ledger GSP compilation receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "profile",
+    "project_ref",
+    "project_state_version",
+    "material_state_version",
+    "project_state_digest",
+    "query_digest",
+    "corpus_digest",
+    "source_refs",
+    "request_id",
+    "artifacts",
+    "runtime_validation_status",
+    "runtime_authority_digest",
+    "semantic_validation_status",
+    "conflict_visibility",
+    "authority_elevation",
+    "created_at",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "artifact_kind": {"const": "GSP_COMPILATION_RECEIPT"},
+    "profile": {"const": "gsp-exact-2026.04.12"},
+    "project_ref": {"type": "string", "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "project_state_version": {"type": "integer", "minimum": 1},
+    "material_state_version": {"type": "integer", "minimum": 1},
+    "project_state_digest": {"$ref": "#/$defs/digest"},
+    "query_digest": {"$ref": "#/$defs/digest"},
+    "corpus_digest": {"$ref": "#/$defs/digest"},
+    "source_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "request_id": {"type": "string", "format": "uuid"},
+    "artifacts": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "prefixItems": [
+        {"$ref": "#/$defs/evidence"},
+        {"$ref": "#/$defs/candidate"},
+        {"$ref": "#/$defs/compilation"},
+        {"$ref": "#/$defs/validation"},
+        {"$ref": "#/$defs/uncertainty"},
+        {"$ref": "#/$defs/projection"}
+      ],
+      "items": false
+    },
+    "runtime_validation_status": {"const": "pass"},
+    "runtime_authority_digest": {"$ref": "#/$defs/digest"},
+    "semantic_validation_status": {"enum": ["pass", "partial", "fail"]},
+    "conflict_visibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contradictions_present", "uncertainty_present", "requires_human_review"],
+      "properties": {
+        "contradictions_present": {"type": "boolean"},
+        "uncertainty_present": {"type": "boolean"},
+        "requires_human_review": {"type": "boolean"}
+      }
+    },
+    "authority_elevation": {"const": false},
+    "created_at": {"type": "string", "format": "date-time"},
+    "receipt_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_name", "contract_name", "artifact_digest"],
+      "properties": {
+        "artifact_name": {"type": "string"},
+        "contract_name": {"type": "string"},
+        "artifact_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "evidence": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "evidence_bundle"}, "contract_name": {"const": "evidence.bundle"}}}]},
+    "candidate": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "candidate_bundle"}, "contract_name": {"const": "candidate.bundle"}}}]},
+    "compilation": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "compilation_bundle"}, "contract_name": {"const": "compilation.bundle"}}}]},
+    "validation": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "validation_report"}, "contract_name": {"const": "validation.report"}}}]},
+    "uncertainty": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "uncertainty_map"}, "contract_name": {"const": "uncertainty.map"}}}]},
+    "projection": {"allOf": [{"$ref": "#/$defs/artifact"}, {"properties": {"artifact_name": {"const": "task_projection_bundle"}, "contract_name": {"const": "task.projection.bundle"}}}]}
+  }
+}

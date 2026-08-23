@@ -1,0 +1,18 @@
+meta:
+  fixture_id: open.loop__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - open.loop
+  severity_if_fail: p0
+payload:
+  loop_id: 018f5d0a-cccc-7ccc-8ccc-cccccccccccc
+  kind: goal
+  description: Confirmar conflicto entre fuentes
+  opened_at: '2026-04-12T00:00:00Z'
+  opened_by: system
+  priority: high
+  status: open

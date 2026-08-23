@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/gsp/schemas/schema-registry.schema.json",
+  "title": "GspSchemaRegistry",
+  "type": "object",
+  "required": [
+    "registry_id",
+    "instance_schema",
+    "resolution_base",
+    "schemas"
+  ],
+  "properties": {
+    "registry_id": {
+      "const": "gsp-contract-registry"
+    },
+    "instance_schema": {
+      "const": "core/gsp/schemas/schema-registry.schema.json"
+    },
+    "resolution_base": {
+      "const": "core/gsp"
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "schema_name",
+          "schema_id",
+          "path",
+          "compatibility_class",
+          "effective_at",
+          "supersedes"
+        ],
+        "properties": {
+          "schema_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema_id": {
+            "type": "string",
+            "pattern": "^schema://contracts/[a-z0-9-]+$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^schemas/[A-Za-z0-9_.-]+\\.schema\\.json$"
+          },
+          "compatibility_class": {
+            "type": "string",
+            "enum": [
+              "baseline",
+              "auxiliary",
+              "additive_compatible",
+              "behavioral_compatible",
+              "breaking_contract"
+            ]
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "supersedes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

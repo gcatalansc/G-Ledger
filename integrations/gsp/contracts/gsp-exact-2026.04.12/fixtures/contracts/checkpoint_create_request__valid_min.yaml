@@ -1,0 +1,35 @@
+meta:
+  fixture_id: checkpoint.create.request__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - checkpoint.create.request
+  severity_if_fail: p0
+payload:
+  reason: turn_boundary
+  state_snapshot:
+    working_memory:
+      summary: analizando atlas
+    pending_goals:
+    - auditar decisiones Atlas
+    open_questions: []
+    tool_state: {}
+    turn_count: 3
+    last_user_input: audita atlas
+    last_response_summary: preparando respuesta
+    open_loops: []
+    authoritative_state_refs:
+    - state://atlas/current
+    high_watermarks:
+    - stream: events
+      position: 12
+      updated_at: '2026-04-12T00:00:00Z'
+  memory_writes_since_last:
+  - 018f5d0a-5555-7555-8555-555555555555
+  actions_since_last:
+  - 018f5d0b-2222-7222-8222-222222222222
+  applied_commit_refs:
+  - 018f5d0a-5555-7555-8555-555555555555

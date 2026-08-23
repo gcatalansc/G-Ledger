@@ -1,3 +1,4 @@
 * text=auto eol=lf
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+/integrations/gsp/contracts/gsp-exact-2026.04.12/** -text -diff

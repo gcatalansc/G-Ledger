@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/task-projection-bundle",
+  "title": "TaskProjectionBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "task_type",
+    "objective",
+    "context_plan_ref",
+    "profile",
+    "injected_blocks",
+    "mandatory_citations",
+    "abstention_policy",
+    "uncertainty_notes",
+    "output_contract"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "task_type": {
+      "$ref": "common.schema.json#/$defs/taskType"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "context_plan_ref": {
+      "type": "string"
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "injected_blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "block_id",
+          "role",
+          "tokens",
+          "source_ref"
+        ],
+        "properties": {
+          "block_id": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "common.schema.json#/$defs/blockRole"
+          },
+          "tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source_ref": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mandatory_citations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "abstention_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "threshold",
+        "current_confidence",
+        "should_abstain"
+      ],
+      "properties": {
+        "threshold": {
+          "$ref": "common.schema.json#/$defs/float01"
+        },
+        "current_confidence": {
+          "$ref": "common.schema.json#/$defs/float01"
+        },
+        "should_abstain": {
+          "type": "boolean"
+        },
+        "abstention_scope": {
+          "$ref": "common.schema.json#/$defs/abstentionScope"
+        }
+      }
+    },
+    "uncertainty_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "frame_id",
+          "issue",
+          "description"
+        ],
+        "properties": {
+          "frame_id": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string",
+            "enum": [
+              "conflicted",
+              "flagged",
+              "low_confidence",
+              "insufficient"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "output_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "max_tokens"
+      ],
+      "properties": {
+        "format": {
+          "$ref": "common.schema.json#/$defs/outputFormat"
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "citation_format": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

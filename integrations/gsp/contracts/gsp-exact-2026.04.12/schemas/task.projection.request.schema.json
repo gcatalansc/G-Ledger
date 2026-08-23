@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/task-projection-request",
+  "title": "TaskProjectionRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "task_type",
+    "objective",
+    "context_plan_ref",
+    "compilation_bundle_ref",
+    "user_query"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "task_type": {
+      "$ref": "common.schema.json#/$defs/taskType"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "context_plan_ref": {
+      "type": "string"
+    },
+    "compilation_bundle_ref": {
+      "type": "string"
+    },
+    "user_query": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_preferences": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/supersession-rule",
+  "title": "SupersessionRule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rule_id",
+    "new_memory_id",
+    "supersedes",
+    "reason",
+    "source_authority",
+    "resolution_method",
+    "effective_from"
+  ],
+  "properties": {
+    "rule_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "new_memory_id": {
+      "type": "string"
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "reason": {
+      "type": "string"
+    },
+    "source_authority": {
+      "type": "string"
+    },
+    "resolution_method": {
+      "type": "string",
+      "enum": [
+        "source_authority",
+        "freshness",
+        "human_override",
+        "policy"
+      ]
+    },
+    "effective_from": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "policy_ref": {
+      "type": "string"
+    },
+    "precedence_score": {
+      "type": "number"
+    }
+  }
+}

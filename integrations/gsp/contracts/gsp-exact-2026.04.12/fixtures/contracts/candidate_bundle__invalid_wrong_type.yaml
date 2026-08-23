@@ -1,0 +1,17 @@
+meta:
+  fixture_id: candidate.bundle__invalid_wrong_type
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - candidate.bundle
+  severity_if_fail: p0
+payload:
+  request_id: 12345
+  extractor_version: micro-extractor
+  mentions: []
+  candidate_frames: []
+  candidate_relations: []
+invalid_reason: 'Tipo inválido en campo: request_id'

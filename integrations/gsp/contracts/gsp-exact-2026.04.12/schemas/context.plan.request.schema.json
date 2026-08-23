@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/context-plan-request",
+  "title": "ContextPlanRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "session_id",
+    "task_objective",
+    "compilation_bundle_ref",
+    "task_type"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "session_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "task_objective": {
+      "type": "string"
+    },
+    "compilation_bundle_ref": {
+      "type": "string"
+    },
+    "task_type": {
+      "$ref": "common.schema.json#/$defs/taskType"
+    },
+    "precedence_profile": {
+      "type": "string"
+    },
+    "max_context_tokens": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "allow_compaction": {
+      "type": "boolean"
+    }
+  }
+}

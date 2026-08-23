@@ -1,0 +1,16 @@
+meta:
+  fixture_id: candidate.bundle__valid_full
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload completo valida contra el contrato
+  expected_contracts:
+  - candidate.bundle
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-2222-7222-8222-222222222222
+  extractor_version: micro-extractor
+  mentions: []
+  candidate_frames: []
+  candidate_relations: []

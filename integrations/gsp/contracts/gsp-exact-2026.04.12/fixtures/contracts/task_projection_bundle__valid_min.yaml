@@ -1,0 +1,33 @@
+meta:
+  fixture_id: task.projection.bundle__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - task.projection.bundle
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-ffff-7fff-8fff-ffffffffffff
+  task_type: audit
+  objective: Listar decisiones activas del proyecto Atlas
+  context_plan_ref: ctx-001
+  profile:
+    require_multi_source: true
+  injected_blocks:
+  - block_id: blk-001
+    role: evidence
+    tokens: 320
+    source_ref: state://atlas/current
+  mandatory_citations:
+  - ev-001
+  abstention_policy:
+    threshold: 0.7
+    current_confidence: 0.86
+    should_abstain: false
+  uncertainty_notes: []
+  output_contract:
+    format: verdict_with_evidence
+    max_tokens: 700
+    citation_format: inline

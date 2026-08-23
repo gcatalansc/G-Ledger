@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:gsp-corpus-manifest:1.0.0",
+  "title": "Project Ledger GSP minimized corpus manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "profile",
+    "project_ref",
+    "project_state_version",
+    "material_state_version",
+    "project_state_digest",
+    "query_digest",
+    "observed_at",
+    "directories",
+    "files",
+    "full_timeline_included",
+    "raw_evidence_output_included",
+    "workspace_paths_included",
+    "omitted_classes",
+    "corpus_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "artifact_kind": {"const": "GSP_MINIMIZED_CORPUS_MANIFEST"},
+    "profile": {"const": "GSP_MINIMIZED_CORPUS_V1"},
+    "project_ref": {"type": "string", "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "project_state_version": {"type": "integer", "minimum": 1},
+    "material_state_version": {"type": "integer", "minimum": 1},
+    "project_state_digest": {"$ref": "#/$defs/digest"},
+    "query_digest": {"$ref": "#/$defs/digest"},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "directories": {
+      "const": ["authority", "decisions", "gates", "checkpoints", "selected-material-events", "sidecars"]
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/file"}
+    },
+    "full_timeline_included": {"const": false},
+    "raw_evidence_output_included": {"const": false},
+    "workspace_paths_included": {"const": false},
+    "omitted_classes": {
+      "type": "array",
+      "contains": {"const": "FULL_EVENT_TIMELINE"}
+    },
+    "corpus_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_path", "source_ref", "source_kind", "title", "status", "content", "content_digest"],
+      "properties": {
+        "relative_path": {
+          "type": "string",
+          "pattern": "^(authority|decisions|gates|checkpoints|selected-material-events|sidecars)/[A-Za-z0-9_.-]+\\.json$"
+        },
+        "source_ref": {"type": "string", "minLength": 1},
+        "source_kind": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 1},
+        "content": {},
+        "content_digest": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

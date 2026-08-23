@@ -11,6 +11,7 @@ members = [
   "crates/continuity",
   "crates/integration-protocol",
   "crates/interop-gskills",
+  "crates/interop-gsp",
   "crates/legacy-import",
   "crates/portable-bundle",
   "crates/project-catalog",
@@ -39,6 +40,7 @@ rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"
 schemars = { version = "1.2.2", features = ["uuid1"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
+serde_yaml = "0.9.34"
 serde_json_canonicalizer = "0.3.2"
 sha2 = "0.11.0"
 tempfile = "3.27.0"

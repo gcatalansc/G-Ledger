@@ -1,0 +1,22 @@
+meta:
+  fixture_id: episodic.event__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - episodic.event
+  severity_if_fail: p0
+payload:
+  event_id: 018f5d0b-1111-7111-8111-111111111111
+  sequence_no: 1
+  timestamp: '2026-04-12T00:00:00Z'
+  event_type: restore_event
+  actor: system
+  scope: project:atlas
+  payload:
+    checkpoint_id: 018f5d0a-bbbb-7bbb-8bbb-bbbbbbbbbbbb
+  provenance:
+    request_id: 018f5d0a-dddd-7ddd-8ddd-dddddddddddd
+  related_events: []

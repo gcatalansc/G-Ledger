@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/forgetting-policy",
+  "title": "ForgettingPolicy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_id",
+    "scope",
+    "rules",
+    "decay_function",
+    "exceptions"
+  ],
+  "properties": {
+    "policy_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "scope": {
+      "$ref": "common.schema.json#/$defs/scopeEnum"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "condition",
+          "action",
+          "priority"
+        ],
+        "properties": {
+          "condition": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "exclude_from_injection",
+              "mark_expired",
+              "flag_for_review"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "decay_function": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "factors"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "half_life_days": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "factors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "age",
+              "access_frequency",
+              "scope_distance",
+              "confidence"
+            ]
+          }
+        }
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "memory_kind",
+          "min_retention_days"
+        ],
+        "properties": {
+          "memory_kind": {
+            "type": "string"
+          },
+          "min_retention_days": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

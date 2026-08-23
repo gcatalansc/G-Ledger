@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GspBridgeConformanceReport",
+  "profile": "gsp-exact-2026.04.12",
+  "implementation": {
+    "product": "GSP-Gemma Compiler",
+    "version": "0.2.0",
+    "commit": "7a43559c02417641691dbb5f2a6e79c13d74d1a1"
+  },
+  "contract_authority": {
+    "tag": "gsp-exact-2026.04.12",
+    "commit": "004b14d7b64837025671970eac2469f092c49475",
+    "exact_runtime_contracts": [
+      "evidence.bundle",
+      "candidate.bundle",
+      "compilation.bundle",
+      "validation.report",
+      "uncertainty.map",
+      "task.projection.bundle"
+    ]
+  },
+  "status": "LOCAL_EXACT_BRIDGE_PASS",
+  "checks": {
+    "exact_artifact_validation": "PASS",
+    "cross_artifact_request_identity": "PASS",
+    "exact_input_evidence_preservation": "PASS",
+    "corpus_manifest_evidence_bundle_integrity": "PASS",
+    "canonical_artifact_digests": "PASS",
+    "contradiction_visibility": "PASS",
+    "uncertainty_visibility": "PASS",
+    "partial_semantic_validation_visibility": "PASS",
+    "reduced_result_rejection": "PASS",
+    "runtime_validation_overclaim_rejection": "PASS",
+    "sidecar_failure_event_delta": 0,
+    "forged_receipt_event_delta": 0,
+    "explicit_link_event_delta": 1,
+    "identical_link_replay_additional_event_delta": 0,
+    "receipt_current_state_binding": "PASS",
+    "lifecycle_status_delta": 0,
+    "gate_status_delta": 0,
+    "phase_status_delta": 0
+  },
+  "evidence": [
+    "crates/interop-gsp/tests/bridge.rs",
+    "crates/interop-gsp/tests/conformance.rs",
+    "crates/cli/tests/gsp_bridge.rs"
+  ],
+  "semantic_degradation_count": 0,
+  "authority_elevation_count": 0,
+  "runtime_boundary": "Tests use an in-process fixture implementation of the sidecar port and exact upstream fixtures; no external Python process or live GSP runtime is claimed.",
+  "golden_path": "Project Ledger owns no Python, network, daemon or GSP runtime dependency; sidecar failure returns data-only error and cannot append.",
+  "pending_evidence": [
+    "LIVE_EXTERNAL_SIDECAR_E2E"
+  ],
+  "certified_compatibility": false
+}

@@ -1,0 +1,19 @@
+meta:
+  fixture_id: supersession.rule__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - supersession.rule
+  severity_if_fail: p0
+payload:
+  new_memory_id: 018f5d0a-3333-7333-8333-333333333333
+  supersedes:
+  - legacy-memory-001
+  reason: Mayor autoridad del compilador
+  source_authority: compiler
+  resolution_method: source_authority
+  effective_from: '2026-04-12T00:00:00Z'
+invalid_reason: 'Falta campo requerido: rule_id'

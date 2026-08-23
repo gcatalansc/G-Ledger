@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/authoritative-state",
+  "title": "AuthoritativeState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_id",
+    "scope",
+    "subject_ref",
+    "state_kind",
+    "content",
+    "source_authority",
+    "effective_at",
+    "lifecycle"
+  ],
+  "properties": {
+    "state_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "scope": {
+      "$ref": "common.schema.json#/$defs/scopeEnum"
+    },
+    "subject_ref": {
+      "type": "string"
+    },
+    "state_kind": {
+      "type": "string",
+      "enum": [
+        "entity_state",
+        "decision_state",
+        "policy_state",
+        "session_state",
+        "preference_state",
+        "access_state"
+      ]
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "source_authority": {
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/float01"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_request_id": {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        "memory_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "effective_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "common.schema.json#/$defs/memoryLifecycleStatus"
+        },
+        "superseded_by": {
+          "type": "string"
+        },
+        "retracted_by": {
+          "type": "string"
+        },
+        "retraction_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

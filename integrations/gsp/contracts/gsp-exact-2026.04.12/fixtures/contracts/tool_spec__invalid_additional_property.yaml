@@ -1,0 +1,26 @@
+meta:
+  fixture_id: tool.spec__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - tool.spec
+  severity_if_fail: p0
+payload:
+  name: create_memory_proposal
+  side_effect_class: state_mutating
+  input_schema_ref: schemas/memory.write.proposal.schema.json
+  output_schema_ref: schemas/memory.commit.schema.json
+  timeout_ms: 2000
+  retry_policy: idempotent_safe
+  idempotency_supported: true
+  trace_fields:
+  - trace_id
+  - request_id
+  - session_id
+  approval_required: false
+  approval_source: automatic
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

@@ -1,0 +1,19 @@
+meta:
+  fixture_id: task.projection.request__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - task.projection.request
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-ffff-7fff-8fff-ffffffffffff
+  task_type: audit
+  objective: Listar decisiones activas del proyecto Atlas
+  context_plan_ref: ctx-001
+  compilation_bundle_ref: bundle://compilation/atlas
+  user_query: ¿Qué decisiones activas existen sobre Atlas?
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

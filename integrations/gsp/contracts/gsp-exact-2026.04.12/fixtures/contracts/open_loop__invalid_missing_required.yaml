@@ -1,0 +1,18 @@
+meta:
+  fixture_id: open.loop__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - open.loop
+  severity_if_fail: p0
+payload:
+  kind: goal
+  description: Confirmar conflicto entre fuentes
+  opened_at: '2026-04-12T00:00:00Z'
+  opened_by: system
+  priority: high
+  status: open
+invalid_reason: 'Falta campo requerido: loop_id'

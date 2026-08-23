@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/action-trace",
+  "title": "ActionTrace",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trace_id",
+    "session_id",
+    "turn_number",
+    "sequence_no",
+    "timestamp",
+    "action_type",
+    "input_summary",
+    "output_summary",
+    "tokens_consumed",
+    "latency_ms",
+    "status"
+  ],
+  "properties": {
+    "trace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "turn_number": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "action_type": {
+      "$ref": "common.schema.json#/$defs/actionType"
+    },
+    "input_summary": {
+      "type": "string"
+    },
+    "output_summary": {
+      "type": "string"
+    },
+    "tokens_consumed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "latency_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/actionStatus"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sequence_no": {
+      "$ref": "common.schema.json#/$defs/sequenceNo"
+    }
+  }
+}

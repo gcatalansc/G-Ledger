@@ -1,0 +1,59 @@
+meta:
+  fixture_id: evidence.bundle__valid_min
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload valida contra el contrato
+  expected_contracts:
+  - evidence.bundle
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-1111-7111-8111-111111111111
+  normalized_query: decisiones activas atlas
+  rewritten_queries:
+  - decisiones activas atlas
+  subqueries:
+  - decisiones activas
+  - atlas
+  route_taken:
+  - sparse
+  - dense
+  - rerank
+  retrieval_confidence: 0.88
+  evidence_sufficiency: sufficient
+  conflicts_present: false
+  evidence_items:
+  - evidence_id: 018f5d0b-dddd-7ddd-8ddd-dddddddddddd
+    doc_id: doc-01
+    chunk_id: chunk-01
+    source_uri: file://atlas/decisions.md
+    title: Decisiones Atlas
+    section_path:
+    - Q2
+    - Aprobadas
+    modality: text
+    text: Se aprobó usar compilación canónica con merge conservador.
+    metadata:
+      language: es
+      trust_tier: high
+      version: '1'
+    scores:
+      sparse: 0.74
+      dense: 0.82
+      fusion: 0.79
+      rerank: 0.9
+      trust: 1.0
+    retrieval_path:
+      channels:
+      - sparse
+      - dense
+      - rerank
+      matched_subqueries:
+      - decisiones activas
+      - atlas
+    flags:
+      low_trust: false
+      likely_injected: false
+  debug:
+    corrective_rounds_used: 0

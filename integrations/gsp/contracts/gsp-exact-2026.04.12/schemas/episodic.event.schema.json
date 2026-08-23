@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/episodic-event",
+  "title": "EpisodicEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "sequence_no",
+    "timestamp",
+    "event_type",
+    "actor",
+    "scope",
+    "payload",
+    "provenance"
+  ],
+  "properties": {
+    "event_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "timestamp": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "event_type": {
+      "$ref": "common.schema.json#/$defs/eventType"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/eventActor"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "memory_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "related_events": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sequence_no": {
+      "$ref": "common.schema.json#/$defs/sequenceNo"
+    }
+  }
+}

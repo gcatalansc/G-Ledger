@@ -1,0 +1,567 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/common",
+  "title": "GSP Common Types",
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "float01": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "nonNegativeInt": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "modality": {
+      "type": "string",
+      "enum": [
+        "text",
+        "table",
+        "image",
+        "code"
+      ]
+    },
+    "taskType": {
+      "type": "string",
+      "enum": [
+        "qa",
+        "planning",
+        "audit",
+        "compare",
+        "summarize",
+        "extract",
+        "verify"
+      ]
+    },
+    "trustTier": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "memoryKind": {
+      "type": "string",
+      "enum": [
+        "fact",
+        "preference",
+        "constraint",
+        "goal",
+        "plan",
+        "decision",
+        "note",
+        "profile",
+        "entity_state"
+      ]
+    },
+    "scopeEnum": {
+      "type": "string",
+      "enum": [
+        "session",
+        "user",
+        "project",
+        "task",
+        "org",
+        "workspace"
+      ]
+    },
+    "visibilityEnum": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private",
+        "confidential"
+      ]
+    },
+    "epistemicStatus": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "reported",
+        "user_stated",
+        "hypothesis",
+        "negated",
+        "conflicted",
+        "retracted"
+      ]
+    },
+    "memoryLifecycleStatus": {
+      "type": "string",
+      "enum": [
+        "active",
+        "superseded",
+        "retracted",
+        "expired",
+        "pending_review"
+      ]
+    },
+    "sourceEnum": {
+      "type": "string",
+      "enum": [
+        "user",
+        "tool",
+        "compiler",
+        "llm",
+        "operator"
+      ]
+    },
+    "frameType": {
+      "type": "string",
+      "enum": [
+        "event",
+        "state",
+        "claim",
+        "measurement",
+        "requirement",
+        "decision",
+        "relation"
+      ]
+    },
+    "polarity": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "negative"
+      ]
+    },
+    "frameModality": {
+      "type": "string",
+      "enum": [
+        "asserted",
+        "reported",
+        "desired",
+        "possible",
+        "conditional"
+      ]
+    },
+    "validationStrictness": {
+      "type": "string",
+      "enum": [
+        "relaxed",
+        "standard",
+        "strict"
+      ]
+    },
+    "mergePolicy": {
+      "type": "string",
+      "enum": [
+        "conservative",
+        "balanced",
+        "aggressive"
+      ]
+    },
+    "evidenceSufficiency": {
+      "type": "string",
+      "enum": [
+        "sufficient",
+        "partial",
+        "insufficient"
+      ]
+    },
+    "supportStatus": {
+      "type": "string",
+      "enum": [
+        "supported",
+        "weakly_supported",
+        "unsupported"
+      ]
+    },
+    "contradictionStatus": {
+      "type": "string",
+      "enum": [
+        "none",
+        "local_conflict",
+        "corpus_conflict"
+      ]
+    },
+    "temporalConsistency": {
+      "type": "string",
+      "enum": [
+        "consistent",
+        "unknown",
+        "inconsistent"
+      ]
+    },
+    "finalValidationStatus": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "flagged",
+        "rejected"
+      ]
+    },
+    "eventActor": {
+      "type": "string",
+      "enum": [
+        "user",
+        "system",
+        "tool",
+        "operator"
+      ]
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "preference_change",
+        "decision_approved",
+        "plan_modified",
+        "conflict_resolved",
+        "tool_executed",
+        "evidence_invalidated",
+        "memory_superseded",
+        "error_corrected",
+        "goal_completed",
+        "session_started",
+        "session_ended",
+        "compaction_performed",
+        "restore_event"
+      ]
+    },
+    "memoryCommitStatus": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "rejected",
+        "pending_review"
+      ]
+    },
+    "actionType": {
+      "type": "string",
+      "enum": [
+        "llm_call",
+        "tool_call",
+        "memory_write",
+        "memory_read",
+        "context_assembly",
+        "checkpoint_create",
+        "response"
+      ]
+    },
+    "actionStatus": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "timeout"
+      ]
+    },
+    "toolExecutionStatus": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "timeout",
+        "pending"
+      ]
+    },
+    "openLoopKind": {
+      "type": "string",
+      "enum": [
+        "goal",
+        "question",
+        "action",
+        "plan_step",
+        "verification"
+      ]
+    },
+    "openLoopStatus": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "blocked",
+        "completed",
+        "abandoned"
+      ]
+    },
+    "priorityEnum": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "blockSource": {
+      "type": "string",
+      "enum": [
+        "policy",
+        "acl",
+        "auth_state",
+        "memory",
+        "compilation",
+        "conversation",
+        "tool_result",
+        "working_memory",
+        "episode"
+      ]
+    },
+    "blockRole": {
+      "type": "string",
+      "enum": [
+        "instruction",
+        "evidence",
+        "memory",
+        "constraint",
+        "example"
+      ]
+    },
+    "abstentionScope": {
+      "type": "string",
+      "enum": [
+        "total",
+        "partial"
+      ]
+    },
+    "outputFormat": {
+      "type": "string",
+      "enum": [
+        "prose",
+        "structured",
+        "json",
+        "verdict_with_evidence"
+      ]
+    },
+    "resolutionStatus": {
+      "type": "string",
+      "enum": [
+        "linked",
+        "local_only",
+        "ambiguous"
+      ]
+    },
+    "relationType": {
+      "type": "string",
+      "enum": [
+        "supports",
+        "contradicts",
+        "depends_on",
+        "causes",
+        "blocks",
+        "precedes",
+        "corefers_with",
+        "same_as"
+      ]
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "scoreMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "objectMap": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "errorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trace_id",
+        "error_code",
+        "error_type",
+        "message",
+        "retryable"
+      ],
+      "properties": {
+        "trace_id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "request_id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "error_type": {
+          "type": "string",
+          "enum": [
+            "validation_error",
+            "conflict_error",
+            "auth_error",
+            "rate_limit",
+            "transient_error",
+            "internal_error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "details": {
+          "$ref": "#/$defs/objectMap"
+        }
+      }
+    },
+    "sequenceNo": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "approvalSource": {
+      "type": "string",
+      "enum": [
+        "automatic",
+        "human_review",
+        "user_request",
+        "policy",
+        "none"
+      ]
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8
+    },
+    "highWatermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stream",
+        "position"
+      ],
+      "properties": {
+        "stream": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "updated_at": {
+          "$ref": "#/$defs/datetime"
+        }
+      }
+    },
+    "toolResultStatus": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "timeout",
+        "pending"
+      ]
+    },
+    "ontologyAssetRef": {
+      "type": "string",
+      "pattern": "^(ontology://|registry://ontology-snapshots/|file://|path://).+"
+    },
+    "supportLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "source_id",
+        "span"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "span": {
+          "$ref": "#/$defs/span"
+        },
+        "mention_id": {
+          "type": "string"
+        },
+        "rule_ref": {
+          "type": "string"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/datetime"
+        }
+      }
+    },
+    "provenanceEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "support"
+      ],
+      "properties": {
+        "support": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/supportLocator"
+          }
+        }
+      }
+    },
+    "targetNodeKind": {
+      "type": "string",
+      "enum": [
+        "mention",
+        "entity",
+        "frame",
+        "relation",
+        "bundle"
+      ]
+    },
+    "uncertaintyType": {
+      "type": "string",
+      "enum": [
+        "identity_ambiguity",
+        "evidence_gap",
+        "weak_support",
+        "ontology_misalignment",
+        "conflict",
+        "temporal_unknown",
+        "validation_partial"
+      ]
+    },
+    "uncertaintySeverity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  }
+}

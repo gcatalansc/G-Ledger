@@ -17,6 +17,7 @@ project-ledger-domain = { path = "../domain", version = "=0.2.0" }
 project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
 project-ledger-integration-protocol = { path = "../integration-protocol", version = "=0.2.0" }
 project-ledger-interop-gskills = { path = "../interop-gskills", version = "=0.2.0" }
+project-ledger-interop-gsp = { path = "../interop-gsp", version = "=0.2.0" }
 project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
 project-ledger-schemas = { path = "../schemas", version = "=0.2.0" }
 project-ledger-storage-sqlite = { path = "../storage-sqlite", version = "=0.2.0" }
@@ -28,6 +29,7 @@ time.workspace = true
 [dev-dependencies]
 assert_cmd.workspace = true
 predicates.workspace = true
+serde_yaml.workspace = true
 tempfile.workspace = true
 
 [lints]

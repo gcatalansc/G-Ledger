@@ -1,0 +1,23 @@
+meta:
+  fixture_id: action.trace__invalid_wrong_type
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - action.trace
+  severity_if_fail: p0
+payload:
+  trace_id: 12345
+  session_id: 018f5d0a-aaaa-7aaa-8aaa-aaaaaaaaaaaa
+  turn_number: 3
+  sequence_no: 3
+  timestamp: '2026-04-12T00:10:00Z'
+  action_type: context_assembly
+  input_summary: assemble context
+  output_summary: context plan built
+  tokens_consumed: 320
+  latency_ms: 85
+  status: success
+invalid_reason: 'Tipo inválido en campo: trace_id'

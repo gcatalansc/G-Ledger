@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/compilation-feedback",
+  "title": "CompilationFeedback",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "feedback_type",
+    "details",
+    "urgency"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "feedback_type": {
+      "type": "string",
+      "enum": [
+        "evidence_gap",
+        "low_extraction_confidence",
+        "conflict_escalation"
+      ]
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "missing_subqueries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_entity_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ambiguous_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflict_groups_needing_resolution": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "urgency": {
+      "$ref": "common.schema.json#/$defs/priorityEnum"
+    }
+  }
+}

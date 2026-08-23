@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/candidate-bundle",
+  "title": "CandidateBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "extractor_version",
+    "mentions",
+    "candidate_frames",
+    "candidate_relations"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "extractor_version": {
+      "type": "string"
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mention_id",
+          "evidence_id",
+          "text",
+          "span",
+          "type_candidates",
+          "extractor_score"
+        ],
+        "properties": {
+          "mention_id": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "span": {
+            "$ref": "common.schema.json#/$defs/span"
+          },
+          "type_candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type_id",
+                "score"
+              ],
+              "properties": {
+                "type_id": {
+                  "type": "string"
+                },
+                "score": {
+                  "$ref": "common.schema.json#/$defs/float01"
+                }
+              }
+            }
+          },
+          "cluster_id": {
+            "type": "string"
+          },
+          "extractor_score": {
+            "$ref": "common.schema.json#/$defs/float01"
+          }
+        }
+      }
+    },
+    "candidate_frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_frame_id",
+          "frame_type",
+          "predicate_candidate",
+          "arguments",
+          "qualifiers",
+          "temporal",
+          "support",
+          "scores"
+        ],
+        "properties": {
+          "candidate_frame_id": {
+            "type": "string"
+          },
+          "frame_type": {
+            "type": "string"
+          },
+          "predicate_candidate": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "qualifiers": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "polarity": {
+            "type": "string"
+          },
+          "modality": {
+            "type": "string"
+          },
+          "temporal": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "support": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_id",
+                "span"
+              ],
+              "properties": {
+                "evidence_id": {
+                  "type": "string"
+                },
+                "span": {
+                  "$ref": "common.schema.json#/$defs/span"
+                }
+              }
+            }
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "extraction"
+            ],
+            "properties": {
+              "extraction": {
+                "$ref": "common.schema.json#/$defs/float01"
+              }
+            }
+          }
+        }
+      }
+    },
+    "candidate_relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relation_candidate_id",
+          "relation_type_candidate",
+          "source_candidate",
+          "target_candidate",
+          "score"
+        ],
+        "properties": {
+          "relation_candidate_id": {
+            "type": "string"
+          },
+          "relation_type_candidate": {
+            "type": "string"
+          },
+          "source_candidate": {
+            "type": "string"
+          },
+          "target_candidate": {
+            "type": "string"
+          },
+          "score": {
+            "$ref": "common.schema.json#/$defs/float01"
+          }
+        }
+      }
+    }
+  }
+}

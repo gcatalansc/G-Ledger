@@ -1,0 +1,231 @@
+{
+  "registry_id": "gsp-contract-registry",
+  "instance_schema": "core/gsp/schemas/schema-registry.schema.json",
+  "resolution_base": "core/gsp",
+  "schemas": [
+    {
+      "schema_name": "retrieval.request",
+      "schema_id": "schema://contracts/retrieval-request",
+      "path": "schemas/retrieval.request.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "evidence.bundle",
+      "schema_id": "schema://contracts/evidence-bundle",
+      "path": "schemas/evidence.bundle.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "semantic-compilation.request",
+      "schema_id": "schema://contracts/semantic-compilation-request",
+      "path": "schemas/semantic-compilation.request.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "ontology.snapshot",
+      "schema_id": "schema://contracts/ontology-snapshot",
+      "path": "schemas/ontology.snapshot.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "candidate.bundle",
+      "schema_id": "schema://contracts/candidate-bundle",
+      "path": "schemas/candidate.bundle.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "compilation.bundle",
+      "schema_id": "schema://contracts/compilation-bundle",
+      "path": "schemas/compilation.bundle.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "validation.report",
+      "schema_id": "schema://contracts/validation-report",
+      "path": "schemas/validation.report.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "uncertainty.map",
+      "schema_id": "schema://contracts/uncertainty-map",
+      "path": "schemas/uncertainty.map.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "compilation.feedback",
+      "schema_id": "schema://contracts/compilation-feedback",
+      "path": "schemas/compilation.feedback.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "memory.note",
+      "schema_id": "schema://contracts/memory-note",
+      "path": "schemas/memory.note.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "memory.write.proposal",
+      "schema_id": "schema://contracts/memory-write-proposal",
+      "path": "schemas/memory.write.proposal.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "memory.commit",
+      "schema_id": "schema://contracts/memory-commit",
+      "path": "schemas/memory.commit.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "supersession.rule",
+      "schema_id": "schema://contracts/supersession-rule",
+      "path": "schemas/supersession.rule.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "forgetting.policy",
+      "schema_id": "schema://contracts/forgetting-policy",
+      "path": "schemas/forgetting.policy.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "authoritative.state",
+      "schema_id": "schema://contracts/authoritative-state",
+      "path": "schemas/authoritative.state.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "session.state",
+      "schema_id": "schema://contracts/session-state",
+      "path": "schemas/session.state.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "open.loop",
+      "schema_id": "schema://contracts/open-loop",
+      "path": "schemas/open.loop.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "context.plan.request",
+      "schema_id": "schema://contracts/context-plan-request",
+      "path": "schemas/context.plan.request.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "context.plan",
+      "schema_id": "schema://contracts/context-plan",
+      "path": "schemas/context.plan.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "task.projection.request",
+      "schema_id": "schema://contracts/task-projection-request",
+      "path": "schemas/task.projection.request.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "task.projection.bundle",
+      "schema_id": "schema://contracts/task-projection-bundle",
+      "path": "schemas/task.projection.bundle.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "episodic.event",
+      "schema_id": "schema://contracts/episodic-event",
+      "path": "schemas/episodic.event.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "checkpoint.create.request",
+      "schema_id": "schema://contracts/checkpoint-create-request",
+      "path": "schemas/checkpoint.create.request.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "checkpoint",
+      "schema_id": "schema://contracts/checkpoint",
+      "path": "schemas/checkpoint.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "restore.request",
+      "schema_id": "schema://contracts/restore-request",
+      "path": "schemas/restore.request.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "tool.spec",
+      "schema_id": "schema://contracts/tool-spec",
+      "path": "schemas/tool.spec.schema.json",
+      "compatibility_class": "auxiliary",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "tool.execution",
+      "schema_id": "schema://contracts/tool-execution",
+      "path": "schemas/tool.execution.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    },
+    {
+      "schema_name": "action.trace",
+      "schema_id": "schema://contracts/action-trace",
+      "path": "schemas/action.trace.schema.json",
+      "compatibility_class": "baseline",
+      "effective_at": "2026-04-12T00:00:00Z",
+      "supersedes": []
+    }
+  ]
+}

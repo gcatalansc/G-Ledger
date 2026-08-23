@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/uncertainty-map",
+  "title": "UncertaintyMap",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "compilation_bundle_ref",
+    "generated_at",
+    "items"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "compilation_bundle_ref": {
+      "type": "string"
+    },
+    "generated_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_node",
+          "target_kind",
+          "uncertainty_type",
+          "severity",
+          "confidence",
+          "evidence_ids",
+          "notes"
+        ],
+        "properties": {
+          "target_node": {
+            "type": "string"
+          },
+          "target_kind": {
+            "$ref": "common.schema.json#/$defs/targetNodeKind"
+          },
+          "uncertainty_type": {
+            "$ref": "common.schema.json#/$defs/uncertaintyType"
+          },
+          "severity": {
+            "$ref": "common.schema.json#/$defs/uncertaintySeverity"
+          },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/float01"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "related_relations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "high_severity_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partial_validation": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

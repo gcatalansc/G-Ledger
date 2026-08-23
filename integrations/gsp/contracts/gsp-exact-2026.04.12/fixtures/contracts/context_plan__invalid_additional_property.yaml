@@ -1,0 +1,55 @@
+meta:
+  fixture_id: context.plan__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - context.plan
+  severity_if_fail: p0
+payload:
+  request_id: 018f5d0a-dddd-7ddd-8ddd-dddddddddddd
+  session_id: 018f5d0a-aaaa-7aaa-8aaa-aaaaaaaaaaaa
+  task_objective: Responder con decisiones activas del proyecto Atlas
+  precedence_order:
+  - policies
+  - permissions
+  - authoritative_state
+  - durable_memory_notes
+  - compilation_bundle
+  - recent_turns
+  - tool_results
+  - working_memory
+  - episodes
+  token_budget:
+    total: 4000
+    reserved: 400
+    available: 3600
+    per_block:
+      authoritative_state: 500
+      compilation_bundle: 1400
+    actual_used: 2380
+  blocks:
+  - block_id: blk-001
+    source: auth_state
+    content_ref: state://atlas/current
+    tokens: 320
+    priority: 1
+    was_compressed: false
+    injection_reason: estado autoritativo activo
+  exclusions: []
+  compressions: []
+  unresolved_conflicts: []
+  injection_trace:
+  - trace_id: 018f5d0a-eeee-7eee-8eee-eeeeeeeeeeee
+    block_id: blk-001
+    source_type: auth_state
+    source_id: state://atlas/current
+    tokens: 320
+    reason: precedence rule
+    priority: 1
+    was_compressed: false
+    timestamp: '2026-04-12T00:00:00Z'
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

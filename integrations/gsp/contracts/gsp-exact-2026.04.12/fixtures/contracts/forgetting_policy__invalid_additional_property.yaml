@@ -1,0 +1,28 @@
+meta:
+  fixture_id: forgetting.policy__invalid_additional_property
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - forgetting.policy
+  severity_if_fail: p0
+payload:
+  policy_id: 018f5d0a-8888-7888-8888-888888888888
+  scope: project
+  rules:
+  - condition: age > 90d AND access_count = 0
+    action: exclude_from_injection
+    priority: 1
+  decay_function:
+    enabled: true
+    half_life_days: 30
+    factors:
+    - age
+    - confidence
+  exceptions:
+  - memory_kind: decision
+    min_retention_days: 365
+  __unexpected: true
+invalid_reason: Propiedad adicional no permitida en la raíz

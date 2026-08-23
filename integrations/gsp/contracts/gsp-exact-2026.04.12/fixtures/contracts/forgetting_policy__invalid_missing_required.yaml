@@ -1,0 +1,26 @@
+meta:
+  fixture_id: forgetting.policy__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - forgetting.policy
+  severity_if_fail: p0
+payload:
+  scope: project
+  rules:
+  - condition: age > 90d AND access_count = 0
+    action: exclude_from_injection
+    priority: 1
+  decay_function:
+    enabled: true
+    half_life_days: 30
+    factors:
+    - age
+    - confidence
+  exceptions:
+  - memory_kind: decision
+    min_retention_days: 365
+invalid_reason: 'Falta campo requerido: policy_id'

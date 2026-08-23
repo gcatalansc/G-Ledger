@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/retrieval-request",
+  "title": "RetrievalRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "query",
+    "freshness_requirements",
+    "source_constraints",
+    "budgets",
+    "retrieval_policy"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1
+    },
+    "conversation_context": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "task_type_hint": {
+      "$ref": "common.schema.json#/$defs/taskType"
+    },
+    "domain_hint": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "modality_requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/modality"
+      },
+      "uniqueItems": true
+    },
+    "freshness_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recency_sensitive"
+      ],
+      "properties": {
+        "recency_sensitive": {
+          "type": "boolean"
+        },
+        "valid_from": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        },
+        "valid_to": {
+          "$ref": "common.schema.json#/$defs/datetime"
+        }
+      }
+    },
+    "source_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_allowlist": {
+          "$ref": "common.schema.json#/$defs/stringList"
+        },
+        "source_denylist": {
+          "$ref": "common.schema.json#/$defs/stringList"
+        },
+        "trust_tiers": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/trustTier"
+          },
+          "uniqueItems": true
+        },
+        "acl_scope": {
+          "$ref": "common.schema.json#/$defs/stringList"
+        }
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latency_ms",
+        "token_budget_out",
+        "max_candidates_per_channel",
+        "max_rerank_depth",
+        "max_corrective_rounds"
+      ],
+      "properties": {
+        "latency_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "token_budget_out": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_candidates_per_channel": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_rerank_depth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_corrective_rounds": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "retrieval_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allow_query_rewrite",
+        "allow_decomposition",
+        "allow_hyde",
+        "allow_external_live_sources"
+      ],
+      "properties": {
+        "allow_query_rewrite": {
+          "type": "boolean"
+        },
+        "allow_decomposition": {
+          "type": "boolean"
+        },
+        "allow_hyde": {
+          "type": "boolean"
+        },
+        "allow_external_live_sources": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

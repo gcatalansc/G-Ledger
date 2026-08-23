@@ -1,0 +1,36 @@
+meta:
+  fixture_id: session.state__valid_full
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload completo valida contra el contrato
+  expected_contracts:
+  - session.state
+  severity_if_fail: p0
+payload:
+  session_id: 018f5d0a-aaaa-7aaa-8aaa-aaaaaaaaaaaa
+  user_id: user-001
+  scope: project
+  pending_goals:
+  - auditar decisiones Atlas
+  open_questions: []
+  working_memory_ref: wm://sess-001
+  tool_state: {}
+  checkpoints:
+  - checkpoint_id: 018f5d0a-bbbb-7bbb-8bbb-bbbbbbbbbbbb
+    created_at: '2026-04-12T00:00:00Z'
+    state_snapshot_ref: checkpoint://sess-001/1
+    reason: turn_boundary
+  turn_count: 3
+  total_tokens_used: 1200
+  open_loops:
+  - loop_id: 018f5d0a-cccc-7ccc-8ccc-cccccccccccc
+    kind: goal
+    description: Confirmar conflicto entre fuentes
+    opened_at: '2026-04-12T00:00:00Z'
+    opened_by: system
+    priority: high
+    status: open
+  high_watermarks: []
+  authoritative_state_ref: state://atlas/current

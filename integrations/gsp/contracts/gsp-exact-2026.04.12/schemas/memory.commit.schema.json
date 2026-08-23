@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/memory-commit",
+  "title": "MemoryCommit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "commit_id",
+    "proposal_id",
+    "memory_id",
+    "status",
+    "committed_at",
+    "committed_by",
+    "sequence_no",
+    "trace_id"
+  ],
+  "properties": {
+    "commit_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "memory_id": {
+      "type": "string"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/memoryCommitStatus"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "superseded_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "committed_at": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    },
+    "committed_by": {
+      "type": "string"
+    },
+    "sequence_no": {
+      "$ref": "common.schema.json#/$defs/sequenceNo"
+    },
+    "trace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    }
+  }
+}

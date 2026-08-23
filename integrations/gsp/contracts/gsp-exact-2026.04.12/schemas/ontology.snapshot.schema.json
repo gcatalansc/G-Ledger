@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/ontology-snapshot",
+  "title": "OntologySnapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ontology_version",
+    "snapshot_manifest_ref",
+    "type_hierarchy_ref",
+    "predicate_registry_ref",
+    "relation_constraints_ref",
+    "alias_maps_ref",
+    "kb_snapshot_ref",
+    "shacl_shapes_ref",
+    "shacl_rules_ref",
+    "rdf_projection_ref",
+    "provenance_profile_ref"
+  ],
+  "properties": {
+    "ontology_version": {
+      "type": "string"
+    },
+    "snapshot_manifest_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "type_hierarchy_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "predicate_registry_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "relation_constraints_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "alias_maps_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "kb_snapshot_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "shacl_shapes_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "shacl_rules_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "rdf_projection_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    },
+    "provenance_profile_ref": {
+      "$ref": "common.schema.json#/$defs/ontologyAssetRef"
+    }
+  }
+}

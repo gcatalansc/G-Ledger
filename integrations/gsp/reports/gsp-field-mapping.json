@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GspEvidenceBundleFieldMappingReport",
+  "profile": "gsp-exact-2026.04.12",
+  "source": {
+    "product": "Project Ledger",
+    "version": "0.2.0",
+    "artifact": "GSP_MINIMIZED_CORPUS_V1",
+    "schema_ref": "urn:project-ledger:schema:gsp-corpus-manifest:1.0.0"
+  },
+  "target": {
+    "product": "GSP-Gemma Compiler",
+    "version": "0.2.0",
+    "contract": "EvidenceBundle",
+    "schema_id": "schema://contracts/evidence-bundle",
+    "contract_tag": "gsp-exact-2026.04.12",
+    "contract_commit": "004b14d7b64837025671970eac2469f092c49475"
+  },
+  "status": "EXACT_EVIDENCE_BUNDLE_MAPPING_PASS",
+  "executable_evidence": "crates/interop-gsp/tests/corpus.rs::explicit_bounded_scope_builds_exact_evidence_bundle_without_private_paths",
+  "rows": [
+    {"source":"query.trim + project/state/query digests","target":"request_id","status":"DETERMINISTIC_UUID"},
+    {"source":"query.trim","target":"normalized_query, rewritten_queries, subqueries","status":"EXACT_TEXT"},
+    {"source":"explicit Ledger selection","target":"route_taken, retrieval_path","status":"EXPLICIT_SCOPE"},
+    {"source":"selected record stable reference","target":"doc_id","status":"EXACT"},
+    {"source":"corpus relative path","target":"chunk_id, source_uri","status":"SYNTHETIC_PATH_SAFE"},
+    {"source":"canonical minimized record JSON","target":"evidence_items[].text","status":"RFC8785_CANONICAL"},
+    {"source":"Ledger state version and observation time","target":"metadata.version, metadata.updated_at","status":"EXACT"},
+    {"source":"open Ledger conflict presence","target":"conflicts_present","status":"CONSERVATIVE_VISIBLE"},
+    {"source":"bounded explicit corpus","target":"evidence_sufficiency","status":"CONSERVATIVE_PARTIAL"}
+  ],
+  "guards": [
+    "EXPLICIT_REFERENCE_SCOPE",
+    "MAX_64_ITEMS",
+    "MAX_1048576_CANONICAL_TEXT_BYTES",
+    "SELECTED_EVENT_ALLOWLIST",
+    "NO_FULL_TIMELINE",
+    "NO_RAW_EVIDENCE_OUTPUT",
+    "NO_PRIVATE_WORKSPACE_PATHS",
+    "CORPUS_MANIFEST_EVIDENCE_BUNDLE_DIGEST_BINDING",
+    "READ_ONLY_PROJECTION"
+  ],
+  "authority_boundary": "EvidenceBundle content is compiler input only and cannot change Project Ledger lifecycle, gates, phases, decisions or policy.",
+  "certified_compatibility": false
+}

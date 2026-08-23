@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/context-plan",
+  "title": "ContextPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "session_id",
+    "task_objective",
+    "precedence_order",
+    "token_budget",
+    "blocks",
+    "exclusions",
+    "compressions",
+    "unresolved_conflicts",
+    "injection_trace"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "task_objective": {
+      "type": "string"
+    },
+    "precedence_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "token_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "reserved",
+        "available",
+        "per_block",
+        "actual_used"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reserved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "available": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "per_block": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "actual_used": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "block_id",
+          "source",
+          "content_ref",
+          "tokens",
+          "priority",
+          "was_compressed",
+          "injection_reason"
+        ],
+        "properties": {
+          "block_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "common.schema.json#/$defs/blockSource"
+          },
+          "content_ref": {
+            "type": "string"
+          },
+          "content_summary": {
+            "type": "string"
+          },
+          "tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "was_compressed": {
+            "type": "boolean"
+          },
+          "compression_ratio": {
+            "type": "number",
+            "minimum": 0
+          },
+          "injection_reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "reason",
+          "original_tokens"
+        ],
+        "properties": {
+          "source_ref": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "original_tokens": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "compressions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "original_tokens",
+          "compressed_tokens",
+          "method"
+        ],
+        "properties": {
+          "source_ref": {
+            "type": "string"
+          },
+          "original_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "compressed_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "summary",
+              "truncation",
+              "clearing",
+              "merge"
+            ]
+          }
+        }
+      }
+    },
+    "unresolved_conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conflict_id",
+          "source_a",
+          "source_b",
+          "nature",
+          "resolution"
+        ],
+        "properties": {
+          "conflict_id": {
+            "type": "string"
+          },
+          "source_a": {
+            "type": "string"
+          },
+          "source_b": {
+            "type": "string"
+          },
+          "nature": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "precedence",
+              "deferred",
+              "surfaced_to_llm"
+            ]
+          }
+        }
+      }
+    },
+    "injection_trace": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "trace_id",
+          "block_id",
+          "source_type",
+          "source_id",
+          "tokens",
+          "reason",
+          "priority",
+          "was_compressed",
+          "timestamp"
+        ],
+        "properties": {
+          "trace_id": {
+            "type": "string"
+          },
+          "block_id": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "memory_id": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "was_compressed": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "$ref": "common.schema.json#/$defs/datetime"
+          }
+        }
+      }
+    }
+  }
+}

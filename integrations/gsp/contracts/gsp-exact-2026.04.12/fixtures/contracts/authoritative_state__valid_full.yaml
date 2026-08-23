@@ -1,0 +1,21 @@
+meta:
+  fixture_id: authoritative.state__valid_full
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload completo valida contra el contrato
+  expected_contracts:
+  - authoritative.state
+  severity_if_fail: p0
+payload:
+  state_id: 018f5d0a-9999-7999-8999-999999999999
+  scope: project
+  subject_ref: project:atlas
+  state_kind: decision_state
+  content:
+    merge_policy: conservative
+  source_authority: operator
+  effective_at: '2026-04-12T00:00:00Z'
+  lifecycle:
+    status: active

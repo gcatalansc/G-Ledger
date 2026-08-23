@@ -122,3 +122,15 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | §34.9, Fase 7 | `record-sink-loss-report.json`, `specs/compatibility/gskills-v0.3.0.md` | S10 local PASS conserva `certified_compatibility=false` hasta counterpart y E2E bilateral |
 
 El gate integral S10 vuelve a ejecutar el workspace completo. La evidencia local demuestra provider y RecordSink exactos dentro de Ledger; no certifica implementación counterpart, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.
+
+## Cobertura ejecutable S11
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| AC-052/053, REQ-INT-001, §35.2 | `interop-gsp/tests/upstream_contracts.rs`, `integration gsp verify-contracts` | Tag/commit/digests exactos; 28 contratos, 31 schemas y 140 fixtures raw verificados/replay offline; un byte divergente falla antes del replay |
+| AC-057, §35.3–35.4 | `interop-gsp/tests/corpus.rs`, `conformance.rs`, `gsp-field-mapping.json`, `gsp-loss-report.json` | Scope por refs, budgets, allowlist, seis directorios, no timeline/raw output/paths; EvidenceBundle upstream completo y determinista, unido al manifest por digest canónico |
+| AC-054/055/060, PL-12/13 | `interop-gsp/tests/bridge.rs`, `conformance.rs` | Seis outputs exactos, request identity y digests; partial/fail, contradicciones e incertidumbre visibles; claims GSP no adquieren lifecycle authority |
+| AC-056/058/059, REQ-INT-003 | `bridge.rs`, `cli/tests/gsp_bridge.rs` | Sidecar sin storage/Python/shared DB; error o receipt con state binding falso producen 0 eventos; export/validate read-only; link explícito produce un evento y replay cero adicionales |
+| Fase 8 gate | `gsp-conformance.json`, `upstream-lock.json`, `specs/compatibility/gsp-v0.2.md` | Degradación semántica 0 y elevación de autoridad 0; lock local COMPLETE con `certified_compatibility=false` hasta E2E live-sidecar |
+
+El gate integral S11 vuelve a ejecutar el workspace completo. La evidencia demuestra exactitud contractual y aislamiento local; no certifica un proceso GSP Python externo vivo, validez semántica/científica, operación productiva, rentabilidad ni compatibilidad runtime certificada.

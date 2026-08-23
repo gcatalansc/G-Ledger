@@ -1,0 +1,451 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema://contracts/compilation-bundle",
+  "title": "CompilationBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "extractor_version",
+    "schema_version",
+    "ontology_version",
+    "timestamp",
+    "compilation_version",
+    "assumptions",
+    "mentions",
+    "canonical_entities",
+    "frames",
+    "relations",
+    "validation",
+    "uncertainty_map",
+    "patch_log"
+  ],
+  "properties": {
+    "request_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "ontology_version": {
+      "type": "string"
+    },
+    "compilation_version": {
+      "type": "string"
+    },
+    "assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "world_assumption",
+        "closed_world_properties"
+      ],
+      "properties": {
+        "world_assumption": {
+          "type": "string",
+          "enum": [
+            "open",
+            "hybrid"
+          ]
+        },
+        "closed_world_properties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mention_id",
+          "evidence_id",
+          "text",
+          "span",
+          "type_candidates",
+          "extractor_score"
+        ],
+        "properties": {
+          "mention_id": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "span": {
+            "$ref": "common.schema.json#/$defs/span"
+          },
+          "type_candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type_id",
+                "score"
+              ],
+              "properties": {
+                "type_id": {
+                  "type": "string"
+                },
+                "score": {
+                  "$ref": "common.schema.json#/$defs/float01"
+                }
+              }
+            }
+          },
+          "cluster_id": {
+            "type": "string"
+          },
+          "extractor_score": {
+            "$ref": "common.schema.json#/$defs/float01"
+          }
+        }
+      }
+    },
+    "canonical_entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity_id",
+          "canonical_name",
+          "type_id",
+          "aliases",
+          "mention_ids",
+          "resolution_status",
+          "confidence",
+          "provenance",
+          "timestamp",
+          "epistemic_status"
+        ],
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "type_id": {
+            "type": "string"
+          },
+          "kb_id": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mention_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resolution_status": {
+            "$ref": "common.schema.json#/$defs/resolutionStatus"
+          },
+          "confidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "linker",
+              "aggregate"
+            ],
+            "properties": {
+              "linker": {
+                "$ref": "common.schema.json#/$defs/float01"
+              },
+              "aggregate": {
+                "$ref": "common.schema.json#/$defs/float01"
+              }
+            }
+          },
+          "timestamp": {
+            "$ref": "common.schema.json#/$defs/datetime"
+          },
+          "epistemic_status": {
+            "$ref": "common.schema.json#/$defs/epistemicStatus"
+          },
+          "provenance": {
+            "$ref": "common.schema.json#/$defs/provenanceEnvelope"
+          }
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "frame_id",
+          "frame_type",
+          "predicate_id",
+          "arguments",
+          "qualifiers",
+          "polarity",
+          "modality",
+          "temporal",
+          "epistemic",
+          "provenance",
+          "validation_state"
+        ],
+        "properties": {
+          "frame_id": {
+            "type": "string"
+          },
+          "frame_type": {
+            "$ref": "common.schema.json#/$defs/frameType"
+          },
+          "predicate_id": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "qualifiers": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "polarity": {
+            "$ref": "common.schema.json#/$defs/polarity"
+          },
+          "modality": {
+            "$ref": "common.schema.json#/$defs/frameModality"
+          },
+          "temporal": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_time": {
+                "type": "string"
+              },
+              "valid_from": {
+                "type": "string"
+              },
+              "valid_to": {
+                "type": "string"
+              },
+              "asserted_at": {
+                "type": "string"
+              }
+            }
+          },
+          "epistemic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "confidence"
+            ],
+            "properties": {
+              "status": {
+                "$ref": "common.schema.json#/$defs/epistemicStatus"
+              },
+              "confidence": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "final"
+                ],
+                "properties": {
+                  "extractor": {
+                    "$ref": "common.schema.json#/$defs/float01"
+                  },
+                  "compiler": {
+                    "$ref": "common.schema.json#/$defs/float01"
+                  },
+                  "validator": {
+                    "$ref": "common.schema.json#/$defs/float01"
+                  },
+                  "final": {
+                    "$ref": "common.schema.json#/$defs/float01"
+                  }
+                }
+              }
+            }
+          },
+          "provenance": {
+            "$ref": "common.schema.json#/$defs/provenanceEnvelope"
+          },
+          "validation_state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "structural_valid",
+              "ontology_valid",
+              "support_status",
+              "contradiction_status",
+              "temporal_consistency",
+              "final_status"
+            ],
+            "properties": {
+              "structural_valid": {
+                "type": "boolean"
+              },
+              "ontology_valid": {
+                "type": "boolean"
+              },
+              "support_status": {
+                "$ref": "common.schema.json#/$defs/supportStatus"
+              },
+              "contradiction_status": {
+                "$ref": "common.schema.json#/$defs/contradictionStatus"
+              },
+              "temporal_consistency": {
+                "$ref": "common.schema.json#/$defs/temporalConsistency"
+              },
+              "final_status": {
+                "$ref": "common.schema.json#/$defs/finalValidationStatus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relation_id",
+          "relation_type",
+          "source_node",
+          "target_node",
+          "confidence",
+          "provenance"
+        ],
+        "properties": {
+          "relation_id": {
+            "type": "string"
+          },
+          "relation_type": {
+            "$ref": "common.schema.json#/$defs/relationType"
+          },
+          "source_node": {
+            "type": "string"
+          },
+          "target_node": {
+            "type": "string"
+          },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/float01"
+          },
+          "provenance": {
+            "$ref": "common.schema.json#/$defs/provenanceEnvelope"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "shape_violations",
+        "ontology_violations",
+        "contradiction_clusters",
+        "inferred_facts",
+        "unresolved_items"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "partial",
+            "fail"
+          ]
+        },
+        "shape_violations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "ontology_violations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "contradiction_clusters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "inferred_facts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolved_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "uncertainty_map": {
+      "$ref": "uncertainty.map.schema.json"
+    },
+    "patch_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "patch_id",
+          "format",
+          "author",
+          "reason"
+        ],
+        "properties": {
+          "patch_id": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "json_patch",
+              "internal_op"
+            ]
+          },
+          "author": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extractor_version": {
+      "type": "string"
+    },
+    "timestamp": {
+      "$ref": "common.schema.json#/$defs/datetime"
+    }
+  }
+}

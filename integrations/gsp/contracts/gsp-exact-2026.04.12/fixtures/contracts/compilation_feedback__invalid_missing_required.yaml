@@ -1,0 +1,17 @@
+meta:
+  fixture_id: compilation.feedback__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - compilation.feedback
+  severity_if_fail: p0
+payload:
+  feedback_type: evidence_gap
+  details:
+    missing_subqueries:
+    - decisiones activas atlas
+  urgency: medium
+invalid_reason: 'Falta campo requerido: request_id'

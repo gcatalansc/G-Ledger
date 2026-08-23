@@ -1,0 +1,18 @@
+meta:
+  fixture_id: context.plan.request__invalid_missing_required
+  category: contract
+  task_type: schema_conformance
+  source_docs:
+  - spec/16-EXECUTABLE-CONTRACTS.md
+  expected_behavior: El payload debe ser rechazado por el validador
+  expected_contracts:
+  - context.plan.request
+  severity_if_fail: p0
+payload:
+  session_id: 018f5d0a-aaaa-7aaa-8aaa-aaaaaaaaaaaa
+  task_objective: Responder con decisiones activas del proyecto Atlas
+  compilation_bundle_ref: bundle://compilation/atlas
+  task_type: audit
+  allow_compaction: true
+  max_context_tokens: 3600
+invalid_reason: 'Falta campo requerido: request_id'
