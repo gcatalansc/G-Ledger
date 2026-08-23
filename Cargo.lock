@@ -906,6 +906,7 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-lifecycle",
  "project-ledger-projection-engine",
  "project-ledger-schemas",
  "project-ledger-storage-sqlite",
@@ -966,6 +967,32 @@ dependencies = [
  "project-ledger-domain",
  "serde",
  "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "project-ledger-lifecycle"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-projection-engine",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "project-ledger-project-catalog"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-projection-engine",
  "thiserror",
 ]
 

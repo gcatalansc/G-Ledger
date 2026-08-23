@@ -143,7 +143,11 @@ fn ac_040_transport_unknown_is_not_a_server_command_result_status() {
 struct ForbiddenCreateHandler;
 
 impl CommandHandler for ForbiddenCreateHandler {
-    fn handle(&self, command: &CommandEnvelope) -> Result<Vec<EventDraft>, CommandHandlerError> {
+    fn handle(
+        &self,
+        command: &CommandEnvelope,
+        _verified_stream: &[project_ledger_domain::EventEnvelope],
+    ) -> Result<Vec<EventDraft>, CommandHandlerError> {
         Ok(vec![EventDraft {
             event_id: EventId::new(),
             event: Event::ProjectPaused(ProjectPausedEvent {

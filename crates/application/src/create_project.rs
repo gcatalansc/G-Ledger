@@ -10,7 +10,11 @@ use crate::{CommandHandler, CommandHandlerError};
 pub struct CreateProjectHandler;
 
 impl CommandHandler for CreateProjectHandler {
-    fn handle(&self, command: &CommandEnvelope) -> Result<Vec<EventDraft>, CommandHandlerError> {
+    fn handle(
+        &self,
+        command: &CommandEnvelope,
+        verified_stream: &[project_ledger_domain::EventEnvelope],
+    ) -> Result<Vec<EventDraft>, CommandHandlerError> {
         let Command::CreateProject(payload) = &command.command else {
             return Err(CommandHandlerError::new(
                 ErrorCode::InvalidContract,
@@ -21,6 +25,12 @@ impl CommandHandler for CreateProjectHandler {
             return Err(CommandHandlerError::new(
                 ErrorCode::InvalidContract,
                 "project payload identity differs from the command project reference",
+            ));
+        }
+        if !verified_stream.is_empty() {
+            return Err(CommandHandlerError::new(
+                ErrorCode::InvalidContract,
+                "CREATE_PROJECT requires an empty verified stream",
             ));
         }
         let suffix = command.command_id.uuid();

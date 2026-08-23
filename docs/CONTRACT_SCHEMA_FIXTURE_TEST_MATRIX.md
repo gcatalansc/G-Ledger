@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional incorporada en S2 y la proyección determinista incorporada en S3. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional incorporada en S2, la proyección determinista de S3 y el lifecycle/catálogo de S4. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -40,6 +40,18 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional i
 | I-27 y §13/§45 | `project_state.rs`, `incremental_equivalence.rs` | Eventos y estado se validan antes de aplicar; gaps, cross-project, génesis duplicada y estado corrupto fallan cerrados |
 | I-05, PL-09, AC-009 | `project_state_query.rs`, `projection_cache.rs` | 100 consultas mantienen versión y conteo de eventos; sólo puede cambiar la caché derivada |
 | §39–40, AC-010 | `bootstrap.rs`, `projection_cache.rs`, `project_state_query.rs` | Migración v2 verificable; caché ausente/stale/corrupta se descarta, reconstruye y repara desde el stream |
-| Orden S3/S4 de §51 | `incremental_equivalence.rs` | Un evento lifecycle íntegro se rechaza como no soportado; nunca se ignora ni se interpreta antes de S4 |
+| Orden S3/S4 de §51 | `incremental_equivalence.rs` | El entry point stateless de S3 rechaza un evento lifecycle; el cursor S4 es la única ruta que conserva sus índices privados |
 
-Las 74 pruebas del workspace incluyen 23 pruebas de S2 y 13 pruebas nuevas de S3. No certifican operación remota ni la semántica lifecycle/authority/roadmap/gates reservada a S4–S5.
+## Cobertura ejecutable S4
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| I-09, I-13, I-14, §17, AC-028 | `lifecycle_projection.rs`, `lifecycle_commands.rs` | Roadmap secuencial, una fase activa, reapertura explícita, precedencia de status y rechazo de streams con derivación obsoleta |
+| §10 y §17.1 | `lifecycle_projection.rs`, `lifecycle_commands.rs` | Autoridad ordenada, mismatch sin reemplazar digest, conflicto crítico y bloqueo de inicio de fase |
+| AC-022, AC-023 | `continuity_records.rs`, `lifecycle_rebuild.rs` | Decisión superseded deja de ser vigente; blocker/risk conservan historia en eventos y actualizan refs derivados |
+| §24, AC-026 | `continuity_records.rs`, `lifecycle_rebuild.rs` | Riesgo no bloquea; acciones `AUTHORIZED/ELIGIBLE/RECOMMENDED/PROPOSED` se ordenan por policy y autoridad verificable |
+| I-02, I-05, I-20, I-23 | `lifecycle_rebuild.rs`, `lifecycle_transaction.rs` | Comandos S4 consumen el stream verificado, append atómico, rebuild exacto y reparación de caché sin mutar verdad canónica |
+| §9.2, §14.18, §39.6 | `project-catalog/tests/rebuild.rs` | Catálogo puro, ordenado, reconstruible, sin duplicados ni discovery implícito |
+| Regresión de identidad | `lifecycle_commands.rs` | Eventos derivados de comandos UUIDv7 adyacentes mantienen IDs distintos y deterministas |
+
+Las 90 pruebas del workspace incluyen 16 pruebas incorporadas en S4. No certifican operación remota ni gates/evidence/Phase Engine, que permanecen reservados a S5.

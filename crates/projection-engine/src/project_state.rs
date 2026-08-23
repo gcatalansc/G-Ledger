@@ -1,11 +1,15 @@
 use project_ledger_canonical_json::{CanonicalJsonError, Sha256Digest, sha256_digest};
-use project_ledger_domain::{Event, EventEnvelope, ProjectState, SchemaVersion, StableId};
+use project_ledger_domain::{
+    Event, EventEnvelope, ProjectLifecycleStatus, ProjectState, SchemaVersion, StableId,
+};
 use project_ledger_event_store::validate_event_integrity;
 use serde::Serialize;
 use thiserror::Error;
 
+use crate::lifecycle::ProjectStateProjection;
+
 /// Version of the deterministic `ProjectState` fold implemented by this crate.
-pub const PROJECTOR_VERSION: u32 = 1;
+pub const PROJECTOR_VERSION: u32 = 2;
 
 /// Failures that prevent a stream or event from becoming trusted derived state.
 #[derive(Debug, Error)]
@@ -30,6 +34,8 @@ pub enum ProjectionError {
     InvalidSequence { message: String },
     #[error("PROJECT_CREATED may appear only as stream genesis")]
     DuplicateGenesis,
+    #[error("lifecycle invariant violated: {message}")]
+    LifecycleInvariant { message: String },
     #[error("project-state serialization failed: {0}")]
     StateSerialization(String),
     #[error("canonical project-state hashing failed: {0}")]
@@ -51,67 +57,14 @@ impl ProjectStateProjector {
     ///
     /// Returns [`ProjectionError`] for empty, invalid, inconsistent or unsupported input.
     pub fn rebuild(events: &[EventEnvelope]) -> Result<ProjectState, ProjectionError> {
-        let Some(genesis) = events.first() else {
-            return Err(ProjectionError::EmptyStream);
-        };
-        validate_event_integrity(genesis)
-            .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
-        if genesis.schema_version != SchemaVersion::V0_2_0 {
-            return Err(ProjectionError::UnsupportedSchemaVersion);
-        }
-        if genesis.stream_version != 1
-            || genesis.previous_event_digest.is_some()
-            || genesis.project_ref != genesis.stream_id
-        {
-            return Err(ProjectionError::InvalidGenesis);
-        }
-        let Event::ProjectCreated(created) = &genesis.event else {
-            return Err(ProjectionError::InvalidGenesis);
-        };
-        if created.project.project_id != genesis.project_ref {
-            return Err(ProjectionError::InvalidGenesis);
-        }
-        let state_id = state_id(&genesis.project_ref)?;
-        let mut state = ProjectState {
-            schema_version: SchemaVersion::V0_2_0,
-            project_state_id: state_id,
-            project: created.project.clone(),
-            state_version: 1,
-            material_state_version: 1,
-            authority_documents: Vec::new(),
-            roadmap: None,
-            active_phase_refs: Vec::new(),
-            primary_active_phase_ref: None,
-            completed_phase_refs: Vec::new(),
-            pending_gate_refs: Vec::new(),
-            verified_gate_refs: Vec::new(),
-            revalidation_required_gate_refs: Vec::new(),
-            current_decision_refs: Vec::new(),
-            open_blocker_refs: Vec::new(),
-            open_risk_refs: Vec::new(),
-            ordered_next_action_refs: Vec::new(),
-            preferred_next_action_ref: None,
-            checkpoint_ref: None,
-            last_material_event_ref: Some(genesis.event_id.clone()),
-            last_material_activity_at: Some(genesis.occurred_at.clone()),
-            open_conflict_refs: Vec::new(),
-            updated_at: genesis.recorded_at.clone(),
-            state_digest: Sha256Digest::from([0_u8; 32]),
-        };
-        state.state_digest = state_digest(&state)?;
-
-        let mut head_digest = genesis.event_digest;
-        for event in &events[1..] {
-            state = Self::apply(&state, head_digest, event)?;
-            head_digest = event.event_digest;
-        }
-        Ok(state)
+        Ok(ProjectStateProjection::rebuild(events)?.into_state())
     }
 
     /// Applies the exact next event to integrity-valid projected state.
     ///
-    /// The caller supplies the verified canonical stream head because
-    /// `ProjectState` intentionally does not duplicate that event-store field.
+    /// This stateless compatibility entry point is intentionally limited to
+    /// reducers that need no private lifecycle indexes. Use
+    /// [`ProjectStateProjection`] for S4 lifecycle streams.
     ///
     /// # Errors
     ///
@@ -122,35 +75,7 @@ impl ProjectStateProjector {
         expected_previous_event_digest: Sha256Digest,
         event: &EventEnvelope,
     ) -> Result<ProjectState, ProjectionError> {
-        validate_state_integrity(state)?;
-        validate_event_integrity(event)
-            .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
-        if event.schema_version != SchemaVersion::V0_2_0 {
-            return Err(ProjectionError::UnsupportedSchemaVersion);
-        }
-        if event.project_ref != state.project.project_id
-            || event.stream_id != state.project.project_id
-            || state.project_state_id != state_id(&state.project.project_id)?
-        {
-            return Err(ProjectionError::ProjectMismatch);
-        }
-        let expected_version =
-            state
-                .state_version
-                .checked_add(1)
-                .ok_or_else(|| ProjectionError::InvalidSequence {
-                    message: "state version cannot advance beyond u64::MAX".to_owned(),
-                })?;
-        if event.stream_version != expected_version
-            || event.previous_event_digest != Some(expected_previous_event_digest)
-        {
-            return Err(ProjectionError::InvalidSequence {
-                message: format!(
-                    "expected version {expected_version} chained to {expected_previous_event_digest}, found version {} chained to {:?}",
-                    event.stream_version, event.previous_event_digest
-                ),
-            });
-        }
+        validate_next_event(state, expected_previous_event_digest, event)?;
 
         let mut next = state.clone();
         match &event.event {
@@ -165,14 +90,122 @@ impl ProjectStateProjector {
             }
             _ => return Err(ProjectionError::UnsupportedEvent),
         }
-        next.state_version = event.stream_version;
-        next.material_state_version = event.stream_version;
-        next.last_material_event_ref = Some(event.event_id.clone());
-        next.last_material_activity_at = Some(event.occurred_at.clone());
-        next.updated_at.clone_from(&event.recorded_at);
-        next.state_digest = state_digest(&next)?;
+        advance_material_state(&mut next, event)?;
         Ok(next)
     }
+}
+
+pub(crate) fn genesis_state(
+    events: &[EventEnvelope],
+) -> Result<(ProjectState, Sha256Digest), ProjectionError> {
+    let Some(genesis) = events.first() else {
+        return Err(ProjectionError::EmptyStream);
+    };
+    validate_event_integrity(genesis)
+        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
+    if genesis.schema_version != SchemaVersion::V0_2_0 {
+        return Err(ProjectionError::UnsupportedSchemaVersion);
+    }
+    if genesis.stream_version != 1
+        || genesis.previous_event_digest.is_some()
+        || genesis.project_ref != genesis.stream_id
+    {
+        return Err(ProjectionError::InvalidGenesis);
+    }
+    let Event::ProjectCreated(created) = &genesis.event else {
+        return Err(ProjectionError::InvalidGenesis);
+    };
+    if created.project.project_id != genesis.project_ref {
+        return Err(ProjectionError::InvalidGenesis);
+    }
+    if created.project.lifecycle_status != ProjectLifecycleStatus::Initializing
+        || created.project.paused_reason.is_some()
+        || created.project.archived_at.is_some()
+    {
+        return Err(ProjectionError::LifecycleInvariant {
+            message: "project genesis must begin in INITIALIZING without pause or archive metadata"
+                .to_owned(),
+        });
+    }
+    let state_id = state_id(&genesis.project_ref)?;
+    let mut state = ProjectState {
+        schema_version: SchemaVersion::V0_2_0,
+        project_state_id: state_id,
+        project: created.project.clone(),
+        state_version: 1,
+        material_state_version: 1,
+        authority_documents: Vec::new(),
+        roadmap: None,
+        active_phase_refs: Vec::new(),
+        primary_active_phase_ref: None,
+        completed_phase_refs: Vec::new(),
+        pending_gate_refs: Vec::new(),
+        verified_gate_refs: Vec::new(),
+        revalidation_required_gate_refs: Vec::new(),
+        current_decision_refs: Vec::new(),
+        open_blocker_refs: Vec::new(),
+        open_risk_refs: Vec::new(),
+        ordered_next_action_refs: Vec::new(),
+        preferred_next_action_ref: None,
+        checkpoint_ref: None,
+        last_material_event_ref: Some(genesis.event_id.clone()),
+        last_material_activity_at: Some(genesis.occurred_at.clone()),
+        open_conflict_refs: Vec::new(),
+        updated_at: genesis.recorded_at.clone(),
+        state_digest: Sha256Digest::from([0_u8; 32]),
+    };
+    state.state_digest = state_digest(&state)?;
+    Ok((state, genesis.event_digest))
+}
+
+pub(crate) fn validate_next_event(
+    state: &ProjectState,
+    expected_previous_event_digest: Sha256Digest,
+    event: &EventEnvelope,
+) -> Result<(), ProjectionError> {
+    validate_state_integrity(state)?;
+    validate_event_integrity(event)
+        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
+    if event.schema_version != SchemaVersion::V0_2_0 {
+        return Err(ProjectionError::UnsupportedSchemaVersion);
+    }
+    if event.project_ref != state.project.project_id
+        || event.stream_id != state.project.project_id
+        || state.project_state_id != state_id(&state.project.project_id)?
+    {
+        return Err(ProjectionError::ProjectMismatch);
+    }
+    let expected_version =
+        state
+            .state_version
+            .checked_add(1)
+            .ok_or_else(|| ProjectionError::InvalidSequence {
+                message: "state version cannot advance beyond u64::MAX".to_owned(),
+            })?;
+    if event.stream_version != expected_version
+        || event.previous_event_digest != Some(expected_previous_event_digest)
+    {
+        return Err(ProjectionError::InvalidSequence {
+            message: format!(
+                "expected version {expected_version} chained to {expected_previous_event_digest}, found version {} chained to {:?}",
+                event.stream_version, event.previous_event_digest
+            ),
+        });
+    }
+    Ok(())
+}
+
+pub(crate) fn advance_material_state(
+    state: &mut ProjectState,
+    event: &EventEnvelope,
+) -> Result<(), ProjectionError> {
+    state.state_version = event.stream_version;
+    state.material_state_version = event.stream_version;
+    state.last_material_event_ref = Some(event.event_id.clone());
+    state.last_material_activity_at = Some(event.occurred_at.clone());
+    state.updated_at.clone_from(&event.recorded_at);
+    state.state_digest = state_digest(state)?;
+    Ok(())
 }
 
 fn state_id(project_ref: &project_ledger_domain::ProjectId) -> Result<StableId, ProjectionError> {

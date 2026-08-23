@@ -21,4 +21,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - `projection-engine` storage-independent con digest canónico de `ProjectState`, rebuild desde génesis, aplicación incremental equivalente y rechazo explícito de reducers aún no implementados.
 - Caché SQLite descartable ligada a versión/head/projector/digest, con reconstrucción y reparación automática ante ausencia, obsolescencia o corrupción.
 - Consulta de estado que verifica primero la cadena canónica y mantiene invariantes de no mutación tras 100 lecturas consecutivas.
-- Gate local reproducible con formato, Clippy pedantic, 74 pruebas y política de dependencias.
+- Cursor lifecycle con reducers fail-closed para autoridad, roadmap secuencial, fases, decisiones, blockers, riesgos, próximas acciones y conflictos; `ProjectStateProjector` v2 exige estado derivado vigente al final del stream.
+- Motor puro de comandos S4 conectado al stream verificado por `CommandProcessor`, con transiciones humanas explícitas, estado derivado determinista e IDs UUIDv7 separados criptográficamente por comando/ordinal.
+- Catálogo local derivado y reconstruible exclusivamente desde proyectos conocidos explícitos, sin adquirir autoridad ni escanear filesystem.
+- Gate local reproducible con formato, Clippy pedantic, 90 pruebas y política de dependencias.

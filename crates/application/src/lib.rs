@@ -1,6 +1,7 @@
 //! Storage-independent application services for Project Ledger.
 
 mod create_project;
+mod lifecycle_handler;
 mod processor;
 mod project_state_query;
 mod submission;

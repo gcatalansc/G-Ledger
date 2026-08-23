@@ -1,6 +1,6 @@
 use project_ledger_domain::{
     CommandEnvelope, CommandRejection, CommandResult, CommandResultStatus, ErrorCode,
-    LedgerTimestamp, StableId,
+    EventEnvelope, LedgerTimestamp, StableId,
 };
 use project_ledger_event_store::{
     CommandCommit, CommandResultDraft, CommitDisposition, EventDraft, EventStore,
@@ -40,7 +40,11 @@ pub trait CommandHandler {
     /// # Errors
     ///
     /// Returns [`CommandHandlerError`] when domain validation rejects the command.
-    fn handle(&self, command: &CommandEnvelope) -> Result<Vec<EventDraft>, CommandHandlerError>;
+    fn handle(
+        &self,
+        command: &CommandEnvelope,
+        verified_stream: &[EventEnvelope],
+    ) -> Result<Vec<EventDraft>, CommandHandlerError>;
 }
 
 /// A typed domain-validation failure returned by a pure handler.
@@ -159,7 +163,7 @@ where
             );
         }
 
-        let drafts = match handler.handle(&command) {
+        let drafts = match handler.handle(&command, &stream) {
             Ok(drafts) => drafts,
             Err(error) => {
                 return self.persist_rejected(
