@@ -140,18 +140,30 @@ fn exact_confirmed_identity_never_falls_back_to_name_and_ambiguity_fails_closed(
 }
 
 #[test]
-fn upstream_locks_preserve_pending_evidence_and_reject_certification_overclaim() {
-    for relative in [
-        "../../../integrations/gskills/upstream-lock.json",
-        "../../../integrations/gsp/upstream-lock.json",
-        "../../../integrations/project-radar/upstream-lock.json",
+fn upstream_locks_preserve_evidence_state_and_reject_certification_overclaim() {
+    for (relative, expected_status) in [
+        (
+            "../../../integrations/gskills/upstream-lock.json",
+            UpstreamLockStatus::Complete,
+        ),
+        (
+            "../../../integrations/gsp/upstream-lock.json",
+            UpstreamLockStatus::Pending,
+        ),
+        (
+            "../../../integrations/project-radar/upstream-lock.json",
+            UpstreamLockStatus::Pending,
+        ),
     ] {
         let value: Value =
             serde_json::from_str(&std::fs::read_to_string(workspace_file(relative)).unwrap())
                 .unwrap();
         let inspection = inspect_upstream_lock(&value).unwrap();
-        assert_eq!(inspection.status, UpstreamLockStatus::Pending);
-        assert!(!inspection.missing_evidence.is_empty());
+        assert_eq!(inspection.status, expected_status);
+        assert_eq!(
+            inspection.missing_evidence.is_empty(),
+            expected_status == UpstreamLockStatus::Complete
+        );
         assert!(!inspection.certified_compatibility);
     }
 

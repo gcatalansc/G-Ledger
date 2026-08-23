@@ -1,5 +1,14 @@
 {
-  "active_phases": [],
+  "active_phases": [
+    {
+      "kind": "IMPLEMENTATION",
+      "ref": "phase:2",
+      "started_at": "2026-08-15T20:10:00-04:00",
+      "status": "ACTIVE",
+      "title": "Persistence",
+      "unexpected_s1_property": true
+    }
+  ],
   "authority_documents": [],
   "checkpoint": {},
   "conflict_refs": [],
@@ -8,7 +17,17 @@
   "gates": {},
   "last_material_activity_at": "FIXTURE_VALUE",
   "next_actions": {
-    "ordered": []
+    "ordered": [
+      {
+        "authority_ref": "roadmap:phase-2",
+        "classification": "ELIGIBLE",
+        "gskills_derivation": null,
+        "ref": "action:implement-sqlite-repository",
+        "status": "ELIGIBLE",
+        "title": "Implement SQLite repository through RED-GREEN"
+      }
+    ],
+    "preferred_ref": "action:implement-sqlite-repository"
   },
   "open_blockers": [],
   "open_risks": [],
@@ -20,7 +39,6 @@
   "repository_binding": {},
   "schema_version": "0.3.0",
   "source_profile": "FIXTURE_VALUE",
-  "unexpected_s1_property": true,
   "unknowns": [],
   "verified_completed_phases": []
 }

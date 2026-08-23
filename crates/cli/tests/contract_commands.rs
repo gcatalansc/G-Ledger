@@ -116,7 +116,13 @@ fn integration_compatibility_preserves_all_current_locks_as_uncertified() {
     assert_eq!(value["certified_compatibility"], false);
     let integrations = value["integrations"].as_array().unwrap();
     assert_eq!(integrations.len(), 3);
-    assert!(integrations.iter().all(|item| item["status"] == "PENDING"));
+    assert_eq!(integrations[0]["integration"], "gskills");
+    assert_eq!(integrations[0]["status"], "COMPLETE");
+    assert!(
+        integrations[1..]
+            .iter()
+            .all(|item| item["status"] == "PENDING")
+    );
     assert!(
         integrations
             .iter()

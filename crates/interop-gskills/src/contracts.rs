@@ -11,7 +11,7 @@ pub const GSKILLS_SPEC_REVISION: &str = "PL-UPSTREAM-REFRESH-1";
 pub const GSKILLS_SPEC_SHA256: &str =
     "957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e";
 pub const GSKILLS_REGISTRY_SHA256: &str =
-    "de9131a8e9940ccfae4cbb505edc91980e14db106b3773dc84845cc0068028aa";
+    "a6c3a12c01258878a924e915cd8053b0ae05cf1da9b871e4a0efd86b8628c4e9";
 pub const GSKILLS_FIXTURE_MANIFEST_SHA256: &str =
     "316c056480f3ab613f937426946da08276e9673ec6781d86f5a8b1e1e5e614ee";
 pub const RECIPROCAL_LOCK_SHA256: &str =
@@ -65,7 +65,7 @@ pub const VENDORED_READ_CONTRACTS: &[VendoredReadContract] = &[
     ),
     contract!(
         "project-continuity-projection",
-        "13d8f22140113f13b1063a73a8c64f6cec279232e0d05f3a3a8525f856f0bcb1"
+        "99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1"
     ),
 ];
 
@@ -105,6 +105,41 @@ pub enum ContractError {
         contract: &'static str,
         fixture: &'static str,
     },
+    #[error("unknown vendored G-Skills read contract: {contract}")]
+    UnknownContract { contract: String },
+    #[error("G-Skills value does not satisfy {contract}: {message}")]
+    InvalidValue {
+        contract: &'static str,
+        message: String,
+    },
+}
+
+/// Validates a JSON value against one exact embedded S9 read contract.
+///
+/// # Errors
+///
+/// Returns [`ContractError`] when the contract name is unknown, the embedded
+/// schema cannot compile, or the value violates that schema.
+pub fn validate_read_contract(contract: &str, value: &Value) -> Result<(), ContractError> {
+    let (name, source) =
+        embedded_schema(contract).ok_or_else(|| ContractError::UnknownContract {
+            contract: contract.to_owned(),
+        })?;
+    let schema: Value = serde_json::from_str(source).map_err(|source| ContractError::Json {
+        path: format!("embedded:{name}"),
+        source,
+    })?;
+    let validator = Validator::new(&schema).map_err(|error| ContractError::InvalidSchema {
+        contract: name,
+        message: error.to_string(),
+    })?;
+    if let Err(error) = validator.validate(value) {
+        return Err(ContractError::InvalidValue {
+            contract: name,
+            message: error.to_string(),
+        });
+    }
+    Ok(())
 }
 
 /// Verifies the exact schemas and paired fixtures vendored for the S9 read profile.
@@ -166,4 +201,46 @@ fn read_json(path: &Path) -> Result<Value, ContractError> {
         path: path.display().to_string(),
         source,
     })
+}
+
+fn embedded_schema(contract: &str) -> Option<(&'static str, &'static str)> {
+    match contract {
+        "provider-manifest" => Some((
+            "provider-manifest",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/provider-manifest.schema.json"
+            ),
+        )),
+        "provider-health-report" => Some((
+            "provider-health-report",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/provider-health-report.schema.json"
+            ),
+        )),
+        "context-projection-request" => Some((
+            "context-projection-request",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/context-projection-request.schema.json"
+            ),
+        )),
+        "context-projection-envelope" => Some((
+            "context-projection-envelope",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/context-projection-envelope.schema.json"
+            ),
+        )),
+        "provider-freshness-record" => Some((
+            "provider-freshness-record",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/provider-freshness-record.schema.json"
+            ),
+        )),
+        "project-continuity-projection" => Some((
+            "project-continuity-projection",
+            include_str!(
+                "../../../integrations/gskills/contracts/v0.3/project-continuity-projection.schema.json"
+            ),
+        )),
+        _ => None,
+    }
 }

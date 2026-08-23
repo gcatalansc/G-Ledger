@@ -1,7 +1,9 @@
 use std::{
+    collections::BTreeMap,
     env,
     fmt::Write as _,
     fs,
+    io::{self, BufRead, Write},
     path::{Path, PathBuf},
     process::ExitCode,
 };
@@ -13,12 +15,19 @@ use project_ledger_application::{
 use project_ledger_canonical_json::{sha256_bytes, to_canonical_vec};
 use project_ledger_domain::{
     Actor, ActorKind, AuthorityPolicy, Command, CommandId, CommandResultStatus,
-    CreateProjectPayload, LedgerTimestamp, Project, ProjectId, ProjectLifecycleStatus,
-    SchemaVersion, StableId, StorageProfile, TrustLevel,
+    CreateProjectPayload, LedgerTimestamp, Phase, Project, ProjectId, ProjectLifecycleStatus,
+    ResourceRef, SchemaVersion, StableId, StorageProfile, TrustLevel,
 };
+use project_ledger_event_store::EventStore;
 use project_ledger_integration_protocol::{build_default_manifest, inspect_upstream_lock};
+use project_ledger_interop_gskills::{
+    GSKILLS_PROFILE, GSkillsJsonRpcHandler, GSkillsProvider, ProviderContext,
+    verify_vendored_contracts,
+};
+use project_ledger_projection_engine::ProjectStateProjection;
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
+use project_ledger_transport_stdio::{FrameLimits, JsonRpcHandler, dispatch_frame};
 use serde::Serialize;
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
@@ -51,6 +60,10 @@ enum TopLevelCommand {
         #[command(subcommand)]
         command: IntegrationCommand,
     },
+    Serve {
+        #[command(subcommand)]
+        command: ServeCommand,
+    },
 }
 
 #[derive(Debug, Args)]
@@ -70,10 +83,42 @@ enum VerificationCommand {
     Verify,
 }
 
-#[derive(Clone, Copy, Debug, Subcommand)]
+#[derive(Clone, Debug, Subcommand)]
 enum IntegrationCommand {
     Manifest,
     Compatibility,
+    Gskills {
+        #[command(subcommand)]
+        command: GSkillsIntegrationCommand,
+    },
+}
+
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum GSkillsIntegrationCommand {
+    VerifyContracts,
+}
+
+#[derive(Debug, Subcommand)]
+enum ServeCommand {
+    Provider(ServeProviderArgs),
+}
+
+#[derive(Debug, Args)]
+struct ServeProviderArgs {
+    #[arg(long)]
+    stdio: bool,
+    #[arg(long)]
+    profile: String,
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    gskills_project_ref: String,
+    #[arg(long)]
+    phase_catalog: PathBuf,
+    #[arg(long)]
+    observed_at: String,
 }
 
 fn main() -> ExitCode {
@@ -92,6 +137,15 @@ fn main() -> ExitCode {
         TopLevelCommand::Integration {
             command: IntegrationCommand::Compatibility,
         } => repository_root().and_then(|root| integration_compatibility(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gskills {
+                    command: GSkillsIntegrationCommand::VerifyContracts,
+                },
+        } => repository_root().and_then(|root| verify_gskills_contracts(&root)),
+        TopLevelCommand::Serve {
+            command: ServeCommand::Provider(args),
+        } => serve_gskills_provider(args),
     };
     match result {
         Ok(output) => {
@@ -285,6 +339,139 @@ fn integration_compatibility(root: &Path) -> Result<String, String> {
             .all(|inspection| inspection.certified_compatibility),
         integrations,
     })
+}
+
+fn verify_gskills_contracts(root: &Path) -> Result<String, String> {
+    let report = verify_vendored_contracts(root).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "gskills contracts MATCH schemas={} fixtures={} profile={}\n",
+        report.schema_count,
+        report.positive_fixture_count + report.negative_fixture_count,
+        GSKILLS_PROFILE
+    ))
+}
+
+fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, String> {
+    if !args.stdio {
+        return Err("provider service requires --stdio".to_owned());
+    }
+    if args.profile != GSKILLS_PROFILE {
+        return Err(format!(
+            "unsupported provider profile: expected {GSKILLS_PROFILE}, received {}",
+            args.profile
+        ));
+    }
+    if !args.database.is_file() {
+        return Err(format!(
+            "provider database does not exist: {}",
+            args.database.display()
+        ));
+    }
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let phase_catalog = load_phase_catalog(&args.phase_catalog)?;
+    let external_project_ref =
+        ResourceRef::parse(&format!("project-ledger://projects/{}", project_ref.uuid()))
+            .map_err(|error| error.to_string())?;
+    let process_instance_id =
+        StableId::parse("provider-process:cli").map_err(|error| error.to_string())?;
+
+    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let stream = store
+        .load_stream(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let provider = GSkillsProvider::new(
+        projection,
+        ProviderContext {
+            gskills_project_ref: args.gskills_project_ref,
+            external_project_ref,
+            phase_catalog,
+            process_instance_id,
+            observed_at,
+        },
+    )
+    .map_err(|error| error.to_string())?;
+    let handler = GSkillsJsonRpcHandler::new(&provider);
+    serve_stdio(&handler, FrameLimits::default())?;
+    Ok(String::new())
+}
+
+fn load_phase_catalog(path: &Path) -> Result<BTreeMap<StableId, Phase>, String> {
+    let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    let phases: Vec<Phase> =
+        serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))?;
+    let mut catalog = BTreeMap::new();
+    for phase in phases {
+        if catalog.insert(phase.phase_id.clone(), phase).is_some() {
+            return Err("phase catalog contains a duplicate phase identifier".to_owned());
+        }
+    }
+    Ok(catalog)
+}
+
+fn serve_stdio<H: JsonRpcHandler>(handler: &H, limits: FrameLimits) -> Result<(), String> {
+    let stdin = io::stdin();
+    let stdout = io::stdout();
+    let mut reader = stdin.lock();
+    let mut writer = stdout.lock();
+    while let Some(frame) = read_frame(&mut reader, limits)? {
+        let response =
+            dispatch_frame(&frame, limits, handler).map_err(|error| error.to_string())?;
+        writer
+            .write_all(&response)
+            .map_err(|error| format!("cannot write stdio response: {error}"))?;
+        writer
+            .flush()
+            .map_err(|error| format!("cannot flush stdio response: {error}"))?;
+    }
+    Ok(())
+}
+
+fn read_frame<R: BufRead>(reader: &mut R, limits: FrameLimits) -> Result<Option<Vec<u8>>, String> {
+    let mut header = Vec::new();
+    if reader
+        .read_until(b'\n', &mut header)
+        .map_err(|error| format!("cannot read stdio header: {error}"))?
+        == 0
+    {
+        return Ok(None);
+    }
+    if header.len() > limits.max_header_bytes || !header.ends_with(b"\r\n") {
+        return Err("invalid or oversized stdio Content-Length header".to_owned());
+    }
+    let mut terminator = Vec::new();
+    reader
+        .read_until(b'\n', &mut terminator)
+        .map_err(|error| format!("cannot read stdio header terminator: {error}"))?;
+    if terminator != b"\r\n" || header.len() + terminator.len() > limits.max_header_bytes {
+        return Err("stdio framing requires one Content-Length header".to_owned());
+    }
+    let header_text = std::str::from_utf8(&header)
+        .map_err(|_| "stdio Content-Length header is not UTF-8".to_owned())?;
+    let content_length = header_text
+        .strip_prefix("Content-Length: ")
+        .and_then(|value| value.strip_suffix("\r\n"))
+        .ok_or_else(|| "invalid stdio Content-Length header".to_owned())?
+        .parse::<usize>()
+        .map_err(|_| "invalid stdio Content-Length value".to_owned())?;
+    if content_length > limits.max_content_bytes {
+        return Err(format!(
+            "stdio content exceeds {} bytes",
+            limits.max_content_bytes
+        ));
+    }
+    let mut body = vec![0_u8; content_length];
+    reader
+        .read_exact(&mut body)
+        .map_err(|error| format!("cannot read complete stdio body: {error}"))?;
+    header.extend_from_slice(&terminator);
+    header.extend_from_slice(&body);
+    Ok(Some(header))
 }
 
 fn canonical_stdout<T: Serialize>(value: &T) -> Result<String, String> {

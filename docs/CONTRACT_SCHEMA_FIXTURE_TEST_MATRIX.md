@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6, portable/legacy import de S7 y protocolo/SDK genérico de S8. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4, gates/evidencia/Phase Engine de S5, continuidad/render/audit de S6, portable/legacy import de S7, protocolo/SDK genérico de S8 y provider G-Skills exacto de S9. La relación individual y canónica de los 46 schemas con sus 92 fixtures Ledger está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte. Los seis schemas/12 fixtures externos seleccionados por S9 viven bajo `integrations/gskills/contracts/v0.3` y se fijan por digests upstream separados.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -100,4 +100,15 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | §32.2, §38.5 | `artifact-exchange/tests/artifacts.rs` | Artifact JSON canónico/digest-bound, filename/root acotado, no traversal, tampering, noncanonical, oversized ni overwrite; publicación atómica no-clobber |
 | REQ-INT-003, AC-051 | manifests Cargo y boundaries públicas de las tres crates | Protocolo/transporte/exchange no dependen de storage-sqlite, WAL, tablas ni migraciones privadas; adapters específicos dependen hacia adentro |
 
-Las 150 pruebas del workspace incluyen 16 pruebas incorporadas en S8. Son evidencia local de ingeniería y conformance genérica; no certifican adapters externos, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.
+## Cobertura ejecutable S9
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| REQ-INT-001/003, AC-042, §34.2–34.3 | `interop-gskills/tests/upstream_contracts.rs`, `integration gskills verify-contracts` | Seis schemas/12 fixtures exactos, IDs/digests/registry/manifest/lock recíproco fijados; el adapter no depende de storage-sqlite |
+| REQ-CNT-005, PL-10, §34.4 | `interop-gskills/tests/provider.rs`, `provider-field-mapping.json` | State/material/digest, fases, gates separados, acciones, checkpoint N/N+1, repository snapshot, unknowns/conflicts y progreso se preservan sin reescritura taxonómica |
+| REQ-PVD-008, AC-045, PL-17 | `interop-gskills/tests/provider.rs`, `provider-loss-report.json` | Metadata de fase faltante/contradictoria y múltiples bindings current fallan cerrados; la solicitud completa tiene cero pérdida material |
+| AC-043–045, AC-050, §34.5/34.8 | `interop-gskills/tests/conformance.rs` | 100 current + stale/post-failure, nueve requests hostiles, bounds/privacy/identity/authority y cero mutaciones observables |
+| AC-003, §33.5, Fase 6 | `interop-gskills/tests/stdio_e2e.rs`, `cli/tests/gskills_provider.rs` | Manifest/health/projection directos y framed equivalentes; SQLite sólo en composition root; profile alias y métodos mutables rechazados |
+| §34.9, Fase 6/Fase 7 | `provider-conformance.json`, `specs/compatibility/gskills-v0.3.0.md` | S9 read profile PASS permanece distinto de RecordSink S10, E2E bilateral y `certified_compatibility=false` |
+
+El gate integral S9 ejecuta 162 pruebas, todas en verde. La evidencia local demuestra el provider read-only exacto; no certifica RecordSink, implementación counterpart, integración bilateral, sandbox universal, operación productiva, rentabilidad ni validez científica.

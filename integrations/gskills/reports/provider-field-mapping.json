@@ -12,41 +12,38 @@
     "product": "G-Skills",
     "version": "0.3.0",
     "document_revision": "PL-UPSTREAM-REFRESH-1",
+    "corrective_commit": "6d63b60",
     "schema_ref": "urn:gskills:schema:project-continuity-projection:0.3.0",
-    "schema_digest": "sha256:13d8f22140113f13b1063a73a8c64f6cec279232e0d05f3a3a8525f856f0bcb1"
+    "schema_digest": "sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1"
   },
-  "status": "BLOCKED_UPSTREAM_SCHEMA_CONFLICT",
-  "executable_reproduction": "crates/interop-gskills/tests/upstream_contracts.rs::pl_10_upstream_schema_currently_rejects_normative_phase_and_action_fields",
-  "compatible_rows": [
-    {"source":"ProjectState.state_version","target":"project.state_version"},
-    {"source":"ProjectState.material_state_version","target":"project.material_state_version"},
-    {"source":"ProjectState.state_digest","target":"project.state_digest"},
-    {"source":"active_phase_refs[]","target":"active_phases[].ref"},
-    {"source":"primary_active_phase_ref","target":"primary_active_phase_ref"},
-    {"source":"completed_phase_refs[]","target":"verified_completed_phases[].ref"},
-    {"source":"gate statuses","target":"gates.pending/revalidation_required/stale/verified"},
-    {"source":"ContinuityCheckpoint N/N+1 fields","target":"checkpoint N/N+1 fields"},
-    {"source":"RepositoryBinding status/snapshot","target":"repository_binding status/snapshot"}
+  "status": "EXACT_FULL_REQUEST_MAPPING_PASS",
+  "executable_evidence": "crates/interop-gskills/tests/provider.rs::pl_10_exact_mapping_preserves_every_normative_continuity_field",
+  "rows": [
+    {"source":"ProjectState.state_version","target":"project.state_version","status":"EXACT"},
+    {"source":"ProjectState.material_state_version","target":"project.material_state_version","status":"EXACT"},
+    {"source":"ProjectState.state_digest","target":"project.state_digest","status":"EXACT"},
+    {"source":"ProjectState.authority_documents[]","target":"authority_documents[]","status":"EXACT_MINIMIZED"},
+    {"source":"active_phase_refs[] + ProviderContext.phase_catalog[]","target":"active_phases[]","status":"EXACT_RECONCILED","guard":"missing or status-mismatched phase metadata fails closed"},
+    {"source":"ProjectState.primary_active_phase_ref","target":"primary_active_phase_ref","status":"EXACT"},
+    {"source":"completed_phase_refs[] + selected gate evidence","target":"verified_completed_phases[]","status":"EXACT"},
+    {"source":"current_decision_refs[] + decision index","target":"current_decisions[]","status":"EXACT_MINIMIZED"},
+    {"source":"open_blocker_refs[] + blocker index","target":"open_blockers[]","status":"EXACT_MINIMIZED"},
+    {"source":"open_risk_refs[] + risk index","target":"open_risks[]","status":"EXACT_MINIMIZED"},
+    {"source":"GateStatus::Pending/Evaluating/Rejected","target":"gates.pending[]","status":"EXACT_BUCKETED"},
+    {"source":"GateStatus::RevalidationRequired","target":"gates.revalidation_required[]","status":"EXACT_BUCKETED"},
+    {"source":"GateStatus::Stale","target":"gates.stale[]","status":"EXACT_BUCKETED"},
+    {"source":"GateStatus::Verified","target":"gates.verified[]","status":"EXACT_BUCKETED"},
+    {"source":"ordered_next_action_refs[] + NextAction.classification","target":"next_actions.ordered[].classification","status":"EXACT"},
+    {"source":"NextAction.classification lifecycle value","target":"next_actions.ordered[].status","status":"PRESENTATION_MIRROR","note":"Ledger v0.2.0 has no independent NextAction.status; no second source field is collapsed"},
+    {"source":"ContinuityCheckpoint N/N+1 fields","target":"checkpoint N/N+1 fields","status":"EXACT"},
+    {"source":"single CURRENT RepositoryBinding","target":"repository_binding","status":"EXACT","guard":"multiple CURRENT bindings fail closed"},
+    {"source":"latest WorkRecord + last_material_event_ref","target":"recent_material_events[]","status":"BOUNDED_SUMMARY"},
+    {"source":"last_material_activity_at/open unknowns/open conflicts","target":"last_material_activity_at/unknowns/conflict_refs","status":"EXACT_MINIMIZED"}
   ],
-  "blocked_rows": [
-    {
-      "source":"active phase title/kind/status/started_at",
-      "normative_target":"active_phases[].title/kind/status/started_at",
-      "schema_conflict":"active_phases[].additionalProperties=false; only ref and extensions are admitted",
-      "severity":"MATERIAL"
-    },
-    {
-      "source":"NextAction title/classification/status/authority_ref and gskills_derivation",
-      "normative_target":"next_actions.ordered[].title/classification/status/authority_ref/gskills_derivation",
-      "schema_conflict":"next_actions.ordered[].additionalProperties=false; only ref and extensions are admitted",
-      "severity":"MATERIAL"
-    }
-  ],
-  "forbidden_workarounds": [
-    "DROP_FIELDS",
-    "MOVE_CANONICAL_FIELDS_TO_UNVERSIONED_EXTENSION",
-    "RELAX_OR_REWRITE_VENDORED_UPSTREAM_SCHEMA",
-    "DECLARE_ZERO_LOSS",
-    "CERTIFY_PROFILE"
-  ]
+  "request_policy": {
+    "supported_shape": "EXACT_ORDERED_20_FIELD_FULL_REQUEST",
+    "privacy": "MINIMIZED_NO_SOURCE_BODIES_NO_RAW_EVENTS",
+    "authority": "ADVISORY_EFFECTIVE_AUTHORITY_EMPTY",
+    "budget_dimensions": ["items", "tokens", "output_bytes", "timeout_ms"]
+  }
 }

@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "GSkillsProviderConformanceReport",
+  "profile": "gskills-context-provider/0.3.0",
+  "provider": "project-ledger/0.2.0",
+  "status": "S9_READ_PROFILE_PASS",
+  "checks": [
+    {"code":"EXACT_CONTRACTS","passed":true},
+    {"code":"MANIFEST_HEALTH_BINDING","passed":true},
+    {"code":"OBSERVABLE_SIDE_EFFECTS_ZERO","passed":true},
+    {"code":"BOUNDS_AND_TIMEOUT","passed":true},
+    {"code":"IDENTITY_AND_FRESHNESS","passed":true},
+    {"code":"NO_AUTHORITY_ESCALATION","passed":true},
+    {"code":"ZERO_MATERIAL_LOSS","passed":true},
+    {"code":"DETERMINISM_AND_FAILURE_ISOLATION","passed":true},
+    {"code":"STDIO_DIRECT_EQUIVALENCE","passed":true},
+    {"code":"MUTABLE_METHODS_ABSENT","passed":true}
+  ],
+  "projection_calls": 102,
+  "current_projection_repetitions": 100,
+  "rejected_malicious_requests": 9,
+  "observable_mutations": 0,
+  "material_losses": 0,
+  "repeated_runs": 2,
+  "transport": "gskills-stdio-jsonrpc-content-length/1.0.0",
+  "methods": ["ledger.manifest", "ledger.health", "ledger.project_continuity"],
+  "write_methods": [],
+  "evidence": [
+    "crates/interop-gskills/tests/conformance.rs",
+    "crates/interop-gskills/tests/stdio_e2e.rs"
+  ],
+  "certified_compatibility": false,
+  "remaining_gates": ["S10_RECORD_SINK", "BILATERAL_E2E"]
+}

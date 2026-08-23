@@ -42,4 +42,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Harness read-only con 100 projections deterministas, current/stale, timeout medido, 7 fixtures hostiles, detección de mutación observable, redacción y failure isolation; sin dependencia de SQLite ni promesa de sandbox universal.
 - Crate `transport-stdio` con framing/dispatch JSON-RPC 2.0 `Content-Length` estricto y acotado; crate `artifact-exchange` con JSON RFC 8785, digest, límites y publicación atómica no-clobber.
 - CLI genérica `integration manifest`/`integration compatibility`, semánticamente equivalente al manifest directo/stdio y conservando G-Skills, GSP y Radar como no certificados.
-- Gate local reproducible con formato, Clippy pedantic, 150 pruebas y política de dependencias.
+- Crate `interop-gskills` con lock/read schemas exactos v0.3.0, mapping completo state/material/fases/gates/acciones/checkpoint/repositorio, freshness, budgets y privacidad sin acceso a SQLite ni métodos mutables.
+- Harness G-Skills S9 con 100 lecturas current, stale, nueve requests hostiles, detección de mutación, cero pérdida material, recuperación post-fallo y equivalencia directa/stdio.
+- CLI `integration gskills verify-contracts` y `serve provider --stdio --profile gskills-context-provider/0.3.0` sobre stream SQLite verificado y catálogo explícito de fases.
+- Gate local reproducible con formato, Clippy estricto, 162 pruebas, contratos exactos y política de dependencias.

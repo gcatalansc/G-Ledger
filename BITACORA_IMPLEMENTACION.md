@@ -7,15 +7,15 @@
 | Campo | Valor |
 |---|---|
 | Fecha de actualización | 2026-08-23 |
-| Estado | FASE 6 EN CURSO — S9 INICIADO |
-| Macrofases completadas (§50) | 6/12 |
-| Slices completados (§51) | 9/15 |
-| Última macrofase completada | Fase 5 — Generic integration protocol |
-| Macrofase actual | Fase 6 — G-Skills provider (en curso) |
-| Último slice completado | S8 — generic integration protocol + SDK |
-| Slice actual | S9 — G-Skills provider (en curso) |
+| Estado | FASE 6 COMPLETADA — S9 CERRADO |
+| Macrofases completadas (§50) | 7/12 |
+| Slices completados (§51) | 10/15 |
+| Última macrofase completada | Fase 6 — G-Skills provider |
+| Macrofase actual | Fase 7 — G-Skills RecordSink (pendiente) |
+| Último slice completado | S9 — G-Skills provider exacto read-only |
+| Slice actual | S10 — G-Skills RecordSink (pendiente) |
 | Último commit de baseline | `6584c04227356cb156ff2614f8564f2ce2e1a68a` |
-| Commit de cierre más reciente | Este commit: `feat: add generic integration protocol and conformance` |
+| Commit de cierre más reciente | Este commit: `feat: add exact G-Skills continuity provider` |
 
 ## Autoridad y preservación
 
@@ -23,7 +23,7 @@
 - Spec v0.2.0 verificada: SHA-256 `31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9`.
 - Antecedente v0.1.0 localizado en el archivo externo preservado de G-Ledger Docs.
 - Antecedente v0.1.0 verificado antes de copiar: SHA-256 `772ea51780a5ed2881a786a198aa90dedb8b4ba619b6652d8f54ef4ca306d865`.
-- Los locks G-Skills, GSP y Radar permanecen `PENDING`/`LOCK_GATED`; S0+S1 no declara compatibilidad runtime.
+- El lock read-only de G-Skills está `COMPLETE` y sigue sin certificación bilateral; GSP y Radar permanecen `PENDING`/`LOCK_GATED`.
 
 ## Historial
 
@@ -746,3 +746,98 @@ Este checkpoint se versionará como `chore: pin exact G-Skills read contracts an
 **Siguiente paso según la especificación**
 
 Publicar bajo autoridad de G-Skills una revisión corregida y coherente de `ProjectContinuityProjection`, sus fixtures positivo/negativo y registry/manifest; después refrescar sus digests exactos en Ledger y reanudar Tasks 2-4 del plan S9 sin omitir ni relegar campos materiales.
+
+### 2026-08-23 — Reanudación de S9 tras corrección contractual upstream
+
+**Resolución autorizada del bloqueo**
+
+- El repositorio G-Skills publicó el commit correctivo `6d63b60 fix(contracts): reconcile continuity projection schema` con worktree limpio y gate integral verde: formato, Clippy, 101 pruebas, build, generación sincronizada, cargo-deny, handoff 10/10 y diff check.
+- La corrección incorpora en las rutas normativas de `ProjectContinuityProjection` los campos completos de fases y acciones; conserva `additionalProperties=false`, enums cerrados y exige `authority_ref` no vacío cuando la clasificación es `AUTHORIZED`.
+- Ledger actualizó exclusivamente el schema de continuidad, sus fixtures emparejados, el lock de perfil y el hash del registry. No se relajó ni redefinió ningún contrato público.
+- Identidades nuevas verificadas: registry de archivo `a6c3a12c01258878a924e915cd8053b0ae05cf1da9b871e4a0efd86b8628c4e9`, registry canónico `sha256:c1451596f2d40ffebdb308c76c4b7ae8cfd4468f2a6a2f60b2a33d3b688776f1` y continuity schema canónico `sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1`.
+- El ciclo RED→GREEN de Ledger reprodujo primero los hashes obsoletos y el rechazo de campos normativos; tras el refresh, `upstream_contracts` quedó 3/3 PASS, incluyendo rechazo de propiedad anidada desconocida, taxonomía reescrita y `AUTHORIZED` sin autoridad.
+
+**Estado y frontera**
+
+- El bloqueo upstream queda resuelto y Tasks 2-4 de S9 pueden continuar.
+- Avance conservado: 6/12 macrofases y 9/15 slices hasta que mapping, budgets, freshness, conformance, stdio/CLI y gate integral terminen en verde.
+- `certified_compatibility` continúa false; esta reconciliación contractual no prueba provider operativo, RecordSink, E2E bilateral ni uso productivo.
+
+**Siguiente acción**
+
+Escribir las pruebas RED de mapping literal sobre una `ProjectStateProjection` construida desde eventos reales, incluyendo catálogo de fases explícito, versiones, gates, acciones, checkpoint, repository binding, unknowns/conflicts, progreso y provenance; implementar después el mínimo provider determinista sin SQLite.
+
+**Hito S9.2 — Mapping, budgets y freshness GREEN**
+
+- RED confirmado: `GSkillsProvider`, `ProviderContext`, `ProviderError` y la validación embebida de contratos no existían.
+- Se implementó un provider storage-independent que recibe `ProjectStateProjection` inmutable; el crate no incorpora SQLite ni una superficie mutable.
+- `ProviderContext.phase_catalog` aporta los campos de `Phase` que el estado compacto no conserva. La construcción falla cerrada si falta metadata activa, si el status contradice la proyección o si existen dos bindings `CURRENT`.
+- El mapping literal preserva state/material versions y digest, authority docs, fases, decisiones, blockers/risks, buckets pending/revalidation/stale/verified, classification, checkpoint N/N+1, snapshot, unknowns/conflicts y el último progreso material resumido.
+- `NextAction.status` se renderiza como espejo de presentación de su `classification`, porque Ledger v0.2.0 no posee un segundo campo de status; `gskills_derivation` permanece null y no se inventa una taxonomía externa.
+- Request parsing valida schema y digest exactos, identidad proyecto/repositorio, write capability `NONE`, privacidad minimizada y bounds positivos para items/tokens/bytes/timeout. Una expected state anterior se conserva como freshness `SUPERSEDED_BY_NEWER_CHECKPOINT` sin alterar delivery.
+- Manifest, health, projection, freshness y envelope se digieren canónicamente y se validan contra los schemas G-Skills vendorizados; `effective_authority_domains` queda vacío.
+- `provider-field-mapping.json` registra el alcance ejecutable de 20 campos y `provider-loss-report.json` declara cero pérdida material dentro de ese alcance, sin elevar compatibilidad certificada.
+- GREEN focalizado: 3/3 pruebas provider + 3/3 contratos upstream; formato, Clippy estricto y diff check PASS.
+- La depuración de fixtures confirmó tres invariantes del aggregate: decisión inicial versión 1, `WorkRecord.recorded_at` igual al evento y checkpoint incapaz de elegir implícitamente entre dos repositorios actuales. Se corrigieron sólo los datos de prueba.
+
+**Siguiente acción**
+
+Escribir las pruebas RED del harness exacto y del dispatch stdio: repetición determinista current/stale, requests hostiles, cero mutaciones observables, aislamiento tras fallo y equivalencia entre llamada directa y JSON-RPC framed.
+
+**Hito S9.3 — Conformance exacta y stdio GREEN**
+
+- RED confirmado por ausencia de `GSkillsReadProvider`, suite/report de conformance y `GSkillsJsonRpcHandler`.
+- El harness ejecuta manifest/health, 100 proyecciones current, una stale y recuperación post-fallo: 102 llamadas válidas ligadas a la misma tupla observable y bytes canónicos deterministas.
+- Nueve requests hostiles cubren provider drift, budget cero/oversized, fields duplicados, escalamiento de write, raw events, identidad errónea, tampering sin digest y propiedad outer desconocida; todos son rechazados.
+- Un provider de prueba que incrementa el event count observable después de proyectar demuestra que el harness detecta mutación y bloquea el gate.
+- El handler registra únicamente `ledger.manifest`, `ledger.health` y `ledger.project_continuity`. Métodos mutables devuelven JSON-RPC `-32601`; requests inválidos devuelven `-32602` y una llamada válida posterior prueba aislamiento.
+- Manifest, health y bundle de proyección framed son semánticamente idénticos a sus llamadas directas bajo el framing S8 `Content-Length` estricto.
+- Los tests conformance/stdout se ejecutaron dos veces consecutivas: 2/2 + 2/2 PASS en ambos runs. Clippy focalizado estricto y formato PASS.
+- `provider-conformance.json` registra S9 read profile PASS, 102 calls, nueve rechazos, cero mutaciones y cero pérdidas; `certified_compatibility` permanece false por S10 y E2E bilateral pendientes.
+
+**Siguiente acción**
+
+Integrar los comandos CLI exactos de verificación/servicio, documentar el perfil y ejecutar el gate integral de Fase 6 antes de actualizar avance o crear el commit de cierre.
+
+### 2026-08-23 — Cierre de Fase 6 / S9: G-Skills provider exacto
+
+**Implementación cerrada**
+
+- La CLI incorpora `integration gskills verify-contracts` y `serve provider --stdio --profile gskills-context-provider/0.3.0`; cualquier alias de profile se rechaza.
+- La composition root verifica la cadena SQLite, reconstruye la proyección completa e inyecta al adapter una vista inmutable junto con un catálogo explícito de fases. El crate `interop-gskills` sigue sin dependencia de SQLite.
+- El servidor procesa frames `Content-Length` sucesivos y registra exclusivamente `ledger.manifest`, `ledger.health` y `ledger.project_continuity`; no existe método mutable.
+- La prueba CLI E2E usa SQLite real y compara el bundle framed con la llamada directa. El lock G-Skills pasa a `COMPLETE` sólo para evidencia read-only exacta, mientras `certified_compatibility=false`, RecordSink y E2E bilateral continúan pendientes.
+- Los reportes fijados por digest declaran mapping exacto de los 20 campos de la solicitud completa, cero pérdida material y conformance S9 PASS con 102 proyecciones, nueve requests hostiles rechazados, cero mutaciones observables y dos ejecuciones consecutivas.
+
+**Corrección durante el gate**
+
+- El primer gate integral detectó una expectativa histórica que exigía que todos los locks permanecieran `PENDING`. La causa fue semántica de test obsoleta: S9 ya aporta toda la evidencia read-only de G-Skills.
+- Se actualizó la aserción genérica y su prueba CLI para exigir G-Skills `COMPLETE` sin faltantes, GSP/Radar `PENDING`, y `certified_compatibility=false` tanto por integración como globalmente. No se relajó el verificador ni se elevó el alcance certificado.
+
+**Gate integral definitivo**
+
+| Verificación | Resultado |
+|---|---|
+| Ciclos RED→GREEN focalizados | PASS — contratos, mapping/provider, conformance/stdio y CLI fallaron por APIs ausentes antes de cada implementación mínima |
+| `cargo fmt --all -- --check` | PASS |
+| `cargo clippy --workspace --all-targets --all-features -- -D warnings` | PASS |
+| `cargo test --workspace --all-targets --all-features` | PASS — 162 pruebas, 0 fallos |
+| Conteo ejecutable `cargo test ... -- --list` | PASS — `workspace_test_count=162` |
+| `cargo xtask schema check` | PASS — árbol generado sincronizado |
+| `project-ledger specs verify` | PASS — v0.1.0 `772ea517`, v0.2.0 `31cb7cd4` |
+| `project-ledger contracts verify` | PASS — 46 schemas, 92 fixtures, 53 filas |
+| `project-ledger integration gskills verify-contracts` | PASS — 6 schemas, 12 fixtures, profile exacto v0.3.0 |
+| `project-ledger integration compatibility` | PASS — G-Skills `COMPLETE`; GSP/Radar `PENDING`; global no certificado |
+| `cargo-deny 0.20.2 --offline check` | PASS — advisories/bans/licenses/sources; sólo duplicados transitivos permitidos conocidos |
+| `git diff --check` | PASS |
+
+**Estado de cierre y límites**
+
+- Avance real: 7/12 macrofases y 10/15 slices, según §50/§51.
+- S9 prueba el provider read-only local exacto y fail-closed. No prueba un counterpart G-Skills operativo, E2E bilateral, sandbox universal, RecordSink, operación productiva, rentabilidad ni validez científica.
+- `NextAction.status` continúa documentado como espejo de presentación de `classification`, no como un segundo estado durable inventado.
+- Las advertencias permitidas de `cargo-deny` por duplicados transitivos `getrandom`, `r-efi` y `syn` no cambiaron.
+
+**Siguiente paso según la especificación**
+
+Iniciar Fase 7 / S10: implementar el `RecordSink` G-Skills con prepare/submit/reconcile, write trust explícito, mapping de comandos/resultados, revalidación de gates y persistencia de outcome desconocido; su gate exige cero efectos duplicados y cero reintentos ciegos, manteniendo fail-closed ante ambigüedad.

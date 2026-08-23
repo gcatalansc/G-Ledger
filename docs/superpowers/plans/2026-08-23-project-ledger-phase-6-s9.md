@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Project Ledger spec v0.2.0 remains implementation authority; G-Skills is an external contract input and has no Ledger lifecycle authority.
-- Pin G-Skills revision `PL-UPSTREAM-REFRESH-1`, spec SHA-256 `957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e`, registry file SHA-256 `de9131a8e9940ccfae4cbb505edc91980e14db106b3773dc84845cc0068028aa` and fixture-manifest file SHA-256 `316c056480f3ab613f937426946da08276e9673ec6781d86f5a8b1e1e5e614ee`.
+- Pin G-Skills revision `PL-UPSTREAM-REFRESH-1` plus corrective commit `6d63b60`, spec SHA-256 `957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e`, registry file SHA-256 `a6c3a12c01258878a924e915cd8053b0ae05cf1da9b871e4a0efd86b8628c4e9` and fixture-manifest file SHA-256 `316c056480f3ab613f937426946da08276e9673ec6781d86f5a8b1e1e5e614ee`.
 - Pin counterpart lock SHA-256 `49ff8bf60b33deb47cc688f288f7c2e1124d99fb223d0d8d4d2668ea4c60929d`; it fixes Ledger spec SHA-256 `31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9`.
 - S9 implements only `ProviderManifest`, `ProviderHealthReport`, `ContextProjectionRequest`, `ContextProjectionEnvelope`, `ProviderFreshnessRecord` and `ProjectContinuityProjection`.
 - External records, submit/status/reconcile, write trust and gate-revalidation writes remain S10. Record submit eligibility stays `DENY`; certified compatibility stays false.
@@ -75,19 +75,19 @@ Require every positive fixture valid, every negative fixture invalid and all sch
 - Produces `GSkillsProvider::new(ProjectStateProjection, ProviderContext)`, `manifest`, `health`, `project` and `observable_state`.
 - Produces deterministic continuity, freshness and envelope objects bound to the request/state.
 
-- [ ] **Step 1: Write failing mapping tests**
+- [x] **Step 1: Write failing mapping tests**
 
 Use a real event-built projection. Assert literal state/material versions, phases, gate buckets, decision/blocker/risk/action refs and classification, checkpoint N/N+1 fields, repository snapshot, unknowns/conflicts, recent progress and provenance.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Expected: mapping/provider APIs are absent.
 
-- [ ] **Step 3: Implement minimal deterministic mapping**
+- [x] **Step 3: Implement minimal deterministic mapping**
 
 Resolve exact identity and at most one current binding. Enforce requested fields/privacy/budgets, label state mismatch stale, preserve repository freshness separately and emit zero-material-loss evidence for the normative full request.
 
-- [ ] **Step 4: Run GREEN and mutation review**
+- [x] **Step 4: Run GREEN and mutation review**
 
 Verify that collapsing versions, moving a gate bucket, changing classification, simplifying checkpoint fields, accepting ambiguity or hiding an omission breaks a test.
 
@@ -103,19 +103,19 @@ Verify that collapsing versions, moving a gate bucket, changing classification, 
 **Interfaces:**
 - Produces `run_gskills_read_conformance` and `GSkillsJsonRpcHandler` over S8 `dispatch_frame`.
 
-- [ ] **Step 1: Write failing conformance/E2E tests**
+- [x] **Step 1: Write failing conformance/E2E tests**
 
 Cover repeated current, stale state/repository, ambiguous identity, authority escalation, unsupported fields, invalid budgets and forced failure. Assert zero mutation, deterministic canonical output, recovery and exact schema validation. Compare framed results with direct calls.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Expected: exact-profile harness and handler are absent.
 
-- [ ] **Step 3: Implement minimal harness and handler**
+- [x] **Step 3: Implement minimal harness and handler**
 
 Use stable checks, typed JSON-RPC errors, output bounds and failure isolation. Register no mutable method.
 
-- [ ] **Step 4: Run GREEN twice**
+- [x] **Step 4: Run GREEN twice**
 
 Require byte-stable results, no state mutation and recovery after rejected/failed calls.
 
@@ -136,15 +136,15 @@ Require byte-stable results, no state mutation and recovery after rejected/faile
 **Interfaces:**
 - Produces `project-ledger integration gskills verify-contracts` and `serve provider --stdio --profile gskills-context-provider/0.3.0`.
 
-- [ ] **Step 1: Write failing CLI tests**
+- [x] **Step 1: Write failing CLI tests**
 
 Assert contract verification output, rejection of version aliases and one real framed projection with no mutable operation available.
 
-- [ ] **Step 2: Implement minimal composition and docs**
+- [x] **Step 2: Implement minimal composition and docs**
 
 CLI owns Ledger storage lookup and injects an immutable projection; document exact source/digests, provider PASS scope and remaining S10/bilateral blockers.
 
-- [ ] **Step 3: Execute the complete gate**
+- [x] **Step 3: Execute the complete gate**
 
 ```powershell
 cargo fmt --all -- --check
@@ -160,9 +160,11 @@ git diff --check
 
 Expected: every command exits 0; S9 fixtures/conformance/E2E pass, mutations/material losses are zero and certified compatibility remains false.
 
-- [ ] **Step 4: Update persistent evidence and commit**
+- [x] **Step 4: Update persistent evidence and commit**
 
 Set progress to `7/12` macrofases and `10/15` slices only after the gate passes. Commit `feat: add exact G-Skills continuity provider`.
+
+Gate ejecutado en verde: formato, Clippy estricto, 162 pruebas, schema check, specs/contracts, seis schemas y 12 fixtures G-Skills, compatibilidad conservadora, cargo-deny y diff check. El cierre mantiene `certified_compatibility=false` y reserva RecordSink/E2E bilateral para S10.
 
 ## Self-review
 
@@ -173,8 +175,10 @@ Set progress to `7/12` macrofases and `10/15` slices only after the gate passes.
 - Independence: adapter has no storage dependency; the golden path works with G-Skills disabled.
 - Honesty: S9 provider/profile E2E can pass while overall compatibility remains uncertified pending S10 and bilateral E2E.
 
-## Execution finding — upstream schema blocker
+## Execution finding — upstream schema blocker resolved
 
 Task 1 discovered an executable incompatibility before provider production began. The locked `ProjectContinuityProjection` schema closes `active_phases[]` and `next_actions.ordered[]` to `ref` plus `extensions`, while the normative G-Skills §28.11 mapping requires phase `title/kind/status/started_at` and action `title/classification/status/authority_ref/gskills_derivation` at their canonical paths. The characterization test `pl_10_upstream_schema_currently_rejects_normative_phase_and_action_fields` proves both paths are rejected as additional properties.
 
-Under Project Ledger §34.3/34.4, REQ-PVD-008 and PL-10, dropping those fields, moving them into an unversioned extension or rewriting the vendored schema would be a material-loss/contract overclaim. Tasks 2-4 therefore remain unchecked. Resume only after an authorized G-Skills contract revision publishes corrected schema, positive/negative fixtures and refreshed registry/manifest digests.
+Under Project Ledger §34.3/34.4, REQ-PVD-008 and PL-10, dropping those fields, moving them into an unversioned extension or rewriting the vendored schema would have been a material-loss/contract overclaim. Production remained paused until G-Skills corrective commit `6d63b60` published the normative fields at their canonical paths, retained closed nested objects and refreshed the schema registry.
+
+Ledger then refreshed only the exact changed artifacts. The registry file SHA-256 is now `a6c3a12c01258878a924e915cd8053b0ae05cf1da9b871e4a0efd86b8628c4e9`, its canonical digest is `sha256:c1451596f2d40ffebdb308c76c4b7ae8cfd4468f2a6a2f60b2a33d3b688776f1`, and the continuity schema canonical digest is `sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1`. The executable characterization now accepts every normative phase/action field while rejecting a nested unknown property, rewritten action taxonomy and `AUTHORIZED` without authority. Task 1 is again GREEN (3/3); Tasks 2-4 may resume without relaxing the external contract.

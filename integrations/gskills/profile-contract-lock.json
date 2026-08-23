@@ -4,8 +4,8 @@
   "profile": "gskills-context-provider/0.3.0",
   "document_revision": "PL-UPSTREAM-REFRESH-1",
   "source_spec_sha256": "957e62be56d7aa86865da5ce4da7605e7bfd5ee220aac37e031a53b9e0a9950e",
-  "schema_registry_file_sha256": "de9131a8e9940ccfae4cbb505edc91980e14db106b3773dc84845cc0068028aa",
-  "schema_registry_canonical_digest": "sha256:09d65f5eb0115048b1e2fddd65cc7b400629e4c8b9631f2b6d98cf36510f384f",
+  "schema_registry_file_sha256": "a6c3a12c01258878a924e915cd8053b0ae05cf1da9b871e4a0efd86b8628c4e9",
+  "schema_registry_canonical_digest": "sha256:c1451596f2d40ffebdb308c76c4b7ae8cfd4468f2a6a2f60b2a33d3b688776f1",
   "fixture_manifest_file_sha256": "316c056480f3ab613f937426946da08276e9673ec6781d86f5a8b1e1e5e614ee",
   "reciprocal_lock_sha256": "49ff8bf60b33deb47cc688f288f7c2e1124d99fb223d0d8d4d2668ea4c60929d",
   "ledger_spec_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9",
@@ -16,7 +16,7 @@
     {"name":"context-projection-request","schema_id":"urn:gskills:schema:context-projection-request:0.3.0","schema_digest":"sha256:722f26ebce88d0757258869ea44e01809d9fd73b8dab55d95892424a0486af23","positive_fixture":"fixtures/positive/context-projection-request.json","negative_fixture":"fixtures/negative/context-projection-request.additional-property.json"},
     {"name":"context-projection-envelope","schema_id":"urn:gskills:schema:context-projection-envelope:0.3.0","schema_digest":"sha256:b72000ccd0738d2ff945762b86371cf6302918134ad92527cab4926578e2b122","positive_fixture":"fixtures/positive/context-projection-envelope.json","negative_fixture":"fixtures/negative/context-projection-envelope.additional-property.json"},
     {"name":"provider-freshness-record","schema_id":"urn:gskills:schema:provider-freshness-record:0.3.0","schema_digest":"sha256:8737ebf687c8a798c24c8c3e3d0021ecd3d2d1a5980e3ee9bd69fcce11ec8929","positive_fixture":"fixtures/positive/provider-freshness-record.json","negative_fixture":"fixtures/negative/provider-freshness-record.additional-property.json"},
-    {"name":"project-continuity-projection","schema_id":"urn:gskills:schema:project-continuity-projection:0.3.0","schema_digest":"sha256:13d8f22140113f13b1063a73a8c64f6cec279232e0d05f3a3a8525f856f0bcb1","positive_fixture":"fixtures/positive/project-continuity-projection.json","negative_fixture":"fixtures/negative/project-continuity-projection.additional-property.json"}
+    {"name":"project-continuity-projection","schema_id":"urn:gskills:schema:project-continuity-projection:0.3.0","schema_digest":"sha256:99c2651ac831c41b3918639ad53117016e83e8baec06c80699901fde43fe6ee1","positive_fixture":"fixtures/positive/project-continuity-projection.json","negative_fixture":"fixtures/negative/project-continuity-projection.additional-property.json"}
   ],
   "status": "EXACT_S9_READ_CONTRACTS"
 }
