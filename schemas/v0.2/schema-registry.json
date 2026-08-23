@@ -39,7 +39,7 @@
     {
       "schema_id": "urn:project-ledger:schema:command-result:0.2.0",
       "relative_path": "command-result.schema.json",
-      "canonical_digest": "sha256:98d1ba8fb46a001912baf2859487ef91ef4be0759c75cd7e8a33eb4f6d5686e6"
+      "canonical_digest": "sha256:b09738558e9a0abc4ccafc04ca6e5845584d533591484b6b559341e67732a4c5"
     },
     {
       "schema_id": "urn:project-ledger:schema:conflict-record:0.2.0",

@@ -7,13 +7,14 @@
 | Campo | Valor |
 |---|---|
 | Fecha de actualización | 2026-08-23 |
-| Estado | FASE 0 IMPLEMENTADA; GATE LOCAL PASS |
-| Macrofases completadas (§50) | 1/12 |
-| Slices completados (§51) | 2/15 |
-| Última macrofase completada | Fase 0 — Contratos, preservación y esqueleto |
-| Siguiente slice | S2 — event store + commands + submission reconciliation |
+| Estado | FASE 1 COMPLETADA |
+| Macrofases completadas (§50) | 2/12 |
+| Slices completados (§51) | 3/15 |
+| Última macrofase completada | Fase 1 — Event store y comandos |
+| Macrofase siguiente | Fase 2 — Proyección y lifecycle |
+| Slice siguiente | S3 — projection engine |
 | Último commit de baseline | `6584c04227356cb156ff2614f8564f2ce2e1a68a` |
-| Commit de cierre de fase | Este commit: `feat: complete Project Ledger contract foundation` |
+| Commit de cierre de fase | Este commit: `feat: complete transactional event store` |
 
 ## Autoridad y preservación
 
@@ -107,3 +108,71 @@ Materializar el workspace y los guards de preservación; después iniciar TDD de
 **Siguiente paso según la especificación**
 
 Iniciar Fase 1 / S2 con un plan TDD limitado a event store, comandos y submission reconciliation, reutilizando sin alterar los contratos S1 congelados y sin adelantar el projection engine de S3.
+
+### 2026-08-23 — Inicio de Fase 1 (S2)
+
+**Autoridad revisada**
+
+- Se releyeron los invariantes I-01, I-04, I-06, I-07, I-26 e I-27; las secciones §15, §16, §39 y §40; los escenarios PL-06, PL-07, PL-08 y PL-20; y AC-006, AC-008 y AC-036…041.
+- Gate de fase adoptado literalmente: append/rebuild/replay/version/unknown-layer PASS.
+- Plan ejecutable: `docs/superpowers/plans/2026-08-23-project-ledger-phase-1-s2.md`.
+
+**Límites acordados para esta fase**
+
+- Se crean puertos storage-independent, una implementación SQLite/WAL y el orquestador transaccional de comandos.
+- `CREATE_PROJECT` será el handler real mínimo para probar un recorrido completo y habilitar `project-ledger init` sin red.
+- Las uniones de los 53 comandos siguen cerradas y el processor podrá consumir handlers puros, pero las reglas de lifecycle/proyección/gates de los comandos restantes no se inventan en S2: pertenecen a S3–S5.
+- La incertidumbre de transporte vive exclusivamente en `ExternalSubmissionRecord`; nunca se añade `UNKNOWN` a `CommandResult`.
+- No se implementan projection engine, lifecycle derivado, gates, renderer, adapters, stdio, daemon, red ni AI.
+
+**Siguiente acción**
+
+Crear mediante TDD el puerto del event store y demostrar primero que una base SQLite real abre en WAL, migra de forma determinista y rechaza `UPDATE`/`DELETE` de eventos.
+
+### 2026-08-23 — Cierre de Fase 1 (S2)
+
+**Implementación materializada**
+
+- Nuevos crates `event-store`, `application` y `storage-sqlite`, con dominio libre de dependencias de persistencia y application libre de SQLite.
+- SQLite nativo bundled con WAL, `foreign_keys=ON`, `synchronous=FULL`, busy timeout de cinco segundos y migración v1 transaccional bajo `BEGIN IMMEDIATE`.
+- Tablas para streams, eventos, comandos, resultados, scopes de idempotencia y submissions; triggers defensivos impiden `UPDATE`/`DELETE` de eventos y del historial de transiciones.
+- Append atómico gap-free: génesis versión 1, `previous_event_digest=null` sólo en génesis, SHA-256 canónico de payload/envelope, head verificado y lectura fail-closed.
+- `CommandProcessor` storage-independent con handler puro, matriz comando-evento cerrada, expected version, idempotencia por proyecto/tipo/actor/trust-level/key y resultados servidor persistentes.
+- Handler real mínimo `CREATE_PROJECT`; las reglas ejecutables de los otros 52 comandos no se inventaron antes de S3–S5.
+- `ExternalSubmissionRecord` con latest snapshot, historial append-only, compare-and-set, `OUTCOME_UNKNOWN` local y reconciliación accepted/rejected/not-found sin reintento ciego.
+- `project-ledger init` offline escribe una base real en user-data o `--data-root`, ejecuta el camino común y valida recovery antes de informar éxito.
+- `RecoveryReport` read-only cubre `quick_check`, WAL, migración, cadena, versiones/conteos y submissions aún inciertas.
+
+**Evidencia del gate local**
+
+| Verificación | Resultado |
+|---|---|
+| `cargo fmt --all -- --check` | PASS |
+| `cargo clippy --workspace --all-targets --all-features -- -D warnings` | PASS |
+| `cargo test --workspace --all-targets --all-features` | PASS — 61 pruebas, 0 fallos |
+| `cargo xtask schema check` | PASS — 142 artefactos sincronizados |
+| `project-ledger specs verify` | PASS — v0.1.0 `772ea517`, v0.2.0 `31cb7cd4` |
+| `project-ledger contracts verify` | PASS — 46 schemas, 92 fixtures, 53 filas |
+| `cargo-deny 0.20.2 check` | PASS — advisories/bans/licenses/sources |
+| `git diff --check` | PASS |
+
+El primer pase de política rechazó `directories 6.0.0` porque su dependencia transitiva `option-ext` usa MPL-2.0, licencia fuera de la allowlist bloqueada. Se retiró la dependencia y se resolvió user-data mediante convenciones estándar de Windows/macOS/XDG; el segundo pase aprobó sin debilitar `deny.toml`. Permanecen warnings no bloqueantes por duplicidades transitivas publicadas de `getrandom`, `r-efi` y `syn`.
+
+**Pruebas materiales de S2**
+
+- Integridad: mutar payload o metadata invalida el digest correspondiente; génesis se recomputa a mano con JSON canónico.
+- Event store: roundtrip de versiones 1 y 2, rechazo de missing genesis/gap/prior incorrecto/versión duplicada, lecturas no mutantes y corrupción controlada detectada.
+- Transacción: un efecto para replay idéntico, conflicto para digest distinto, stale version sin append y par command/event prohibido rechazado antes de storage.
+- Unknown layer: timeout se registra sin fabricar resultado, reconciliación contra accepted/rejected durable, not-found conserva unknown y replay exacto no duplica historial.
+- Recovery/init: rollback WAL conserva la última verdad, reopen valida digests de migración, metadata indexada y resultados; `init` crea un proyecto sin red con un evento, un comando y un resultado.
+
+**Límites y estado operacional**
+
+- La evidencia es local en Windows. No existe remote Git configurado, por lo que la CI Windows/Linux/macOS está configurada pero no se declara ejecutada ni verde remotamente.
+- S2 demuestra ingeniería del event store; no certifica rentabilidad, operación productiva, integración bilateral ni validez científica.
+- G-Skills, GSP y Project Radar mantienen sus estados `PENDING`/`LOCK_GATED`; no se abrió red ni se ejecutaron adapters.
+- No se implementaron projection engine, lifecycle derivado, gates/evidence engine, checkpoints semánticos, renderer, import/export, stdio, UI, daemon, network ni AI.
+
+**Siguiente paso según la especificación**
+
+Iniciar Fase 2 por S3: construir mediante TDD un projection engine determinista y completamente reconstruible desde el stream canónico, sin introducir todavía las reglas de lifecycle de S4.

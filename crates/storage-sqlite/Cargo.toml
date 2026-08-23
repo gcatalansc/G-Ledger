@@ -1,0 +1,21 @@
+[package]
+name = "project-ledger-storage-sqlite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-domain = { path = "../domain", version = "=0.2.0" }
+project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
+rusqlite.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

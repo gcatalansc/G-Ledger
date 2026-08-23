@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura ejecutable de S1. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1 y la ejecución transaccional incorporada en S2. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -19,3 +19,17 @@ Esta matriz resume la cobertura ejecutable de S1. La relación individual y can�
 - Los positivos validan y los negativos fallan por semántica closed-world.
 - La matriz contiene exactamente una fila por cada uno de los 53 comandos y asigna los 67 eventos a un origen de comando o a un owner derivado.
 - La regeneración produce 142 ficheros idénticos, JSON con LF final y digests canónicos estables.
+
+## Cobertura ejecutable S2
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| I-01, I-27, AC-006, AC-008 | `event_chain.rs`, `recovery.rs` | Génesis, append-only, versiones contiguas, previous digest, roundtrip y corrupción fail-closed |
+| I-04 y §15–16 | `integrity.rs`, `command_transaction.rs` | Toda escritura canónica nace de `CommandEnvelope`; payload/envelope/result usan digest canónico |
+| I-06, AC-038 | `command_transaction.rs` | Expected version stale produce resultado persistente y cero append |
+| I-07, AC-036–037 | `command_transaction.rs` | Mismo scope/key/digest: un efecto; digest distinto: rechazo cerrado |
+| Matriz comando-evento, AC-039 | `command_transaction.rs` | Un handler no puede emitir un evento fuera del outcome/possible set cerrado |
+| I-26, PL-08, PL-20, AC-040–041 | `submission_reconciliation.rs` | `OUTCOME_UNKNOWN` sólo local; historial CAS; accepted/rejected/not-found sin reintento ciego |
+| AC-001 y §39–40 | `init.rs`, `bootstrap.rs`, `recovery.rs` | Init offline, SQLite/WAL real, migración idempotente, rollback y recovery report |
+
+Las 61 pruebas del workspace incluyen 23 pruebas nuevas de S2. No certifican operación remota ni semántica de projection/lifecycle/gates, que comienza en S3.

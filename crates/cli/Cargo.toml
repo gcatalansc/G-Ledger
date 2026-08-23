@@ -11,12 +11,18 @@ path = "src/main.rs"
 
 [dependencies]
 clap.workspace = true
+project-ledger-application = { path = "../application", version = "=0.2.0" }
 project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-domain = { path = "../domain", version = "=0.2.0" }
+project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
 project-ledger-schemas = { path = "../schemas", version = "=0.2.0" }
+project-ledger-storage-sqlite = { path = "../storage-sqlite", version = "=0.2.0" }
+time.workspace = true
 
 [dev-dependencies]
 assert_cmd.workspace = true
 predicates.workspace = true
+tempfile.workspace = true
 
 [lints]
 workspace = true

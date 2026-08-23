@@ -3,6 +3,9 @@ resolver = "2"
 members = [
   "crates/canonical-json",
   "crates/domain",
+  "crates/event-store",
+  "crates/application",
+  "crates/storage-sqlite",
   "crates/schemas",
   "crates/cli",
   "xtask",
@@ -20,6 +23,7 @@ assert_cmd = "2.2.2"
 clap = { version = "4.6.6", features = ["derive"] }
 jsonschema = { version = "0.50.1", default-features = false }
 predicates = "3.1.3"
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled", "libsqlite3-sys"] }
 schemars = { version = "1.2.2", features = ["uuid1"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"

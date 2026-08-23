@@ -2,7 +2,7 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado la primera fase contractual (S0 + S1): preservación, workspace, contratos tipados, JSON canónico, schemas cerrados, fixtures y validación offline. Todavía no incluye event store, ejecución de comandos, proyecciones, gates, adapters, UI, daemon ni red.
+El repositorio ha materializado S0 + S1 + S2: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions e inicialización offline. La semántica ejecutable de S2 se limita deliberadamente a `CREATE_PROJECT`; proyecciones, lifecycle derivado, gates, adapters, UI, daemon y red siguen pendientes.
 
 ## Autoridad
 
@@ -22,5 +22,17 @@ cargo xtask schema check
 cargo run -p project-ledger-cli -- specs verify
 cargo run -p project-ledger-cli -- contracts verify
 ```
+
+Inicialización offline contra una ubicación explícita:
+
+```powershell
+cargo run -p project-ledger-cli -- init `
+  --title "Mi proyecto" `
+  --summary "Continuidad verificable" `
+  --timezone "America/Santiago" `
+  --data-root ".tmp-user-data"
+```
+
+Sin `--data-root`, el CLI usa la convención de user-data del sistema operativo. Cada proyecto se almacena en `project-ledger/projects/<uuid>/ledger.db`; el contrato conserva el identificador canónico `project:<uuid>` y el directorio usa sólo el UUID para ser válido en Windows.
 
 La red no forma parte del runtime ni de las pruebas. La descarga inicial de dependencias es una operación de desarrollo de Cargo.

@@ -14,6 +14,12 @@ pub enum ErrorCode {
     SchemaValidationFailed,
     ChecksumMismatch,
     CommandEventContractViolation,
+    IdempotencyConflict,
+    VersionConflict,
+    IntegrityViolation,
+    StorageFailure,
+    MigrationFailure,
+    SubmissionStateConflict,
 }
 
 /// Validation failures for storage-independent domain primitives.
