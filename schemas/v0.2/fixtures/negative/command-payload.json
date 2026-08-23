@@ -1,0 +1,7 @@
+{
+  "command_type": "START_PHASE",
+  "payload": {
+    "phase_ref": "phase-0"
+  },
+  "unexpected_contract_field": true
+}

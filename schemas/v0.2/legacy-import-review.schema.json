@@ -1,0 +1,190 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "LegacyCandidateAction": {
+      "enum": [
+        "REVIEW",
+        "IMPORT_AS_ASSERTED",
+        "IGNORE",
+        "ARCHIVE_ONLY"
+      ],
+      "type": "string"
+    },
+    "LegacyCandidateSource": {
+      "additionalProperties": false,
+      "properties": {
+        "line_range": {
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "path": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "section",
+        "line_range"
+      ],
+      "type": "object"
+    },
+    "LegacyImportCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "conflicts_with": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "recommended_action": {
+          "$ref": "#/$defs/LegacyCandidateAction"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source": {
+          "$ref": "#/$defs/LegacyCandidateSource"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "candidate_id",
+        "kind",
+        "value",
+        "source",
+        "conflicts_with",
+        "recommended_action"
+      ],
+      "type": "object"
+    },
+    "LegacyImportDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/LegacyCandidateAction"
+        },
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "candidate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "action",
+        "actor_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "LegacyImportMode": {
+      "enum": [
+        "PREVIEW",
+        "REVIEWED_IMPORT",
+        "ARCHIVE_ONLY"
+      ],
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:legacy-import-review:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/LegacyImportCandidate"
+      },
+      "type": "array"
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/LegacyImportDecision"
+      },
+      "type": "array"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "mode": {
+      "$ref": "#/$defs/LegacyImportMode"
+    },
+    "review_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "reviewed_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "source_uri": {
+      "$ref": "#/$defs/ResourceRef"
+    }
+  },
+  "required": [
+    "schema_version",
+    "review_id",
+    "source_uri",
+    "source_digest",
+    "mode",
+    "candidates",
+    "decisions",
+    "reviewed_at",
+    "digest"
+  ],
+  "title": "LegacyImportReview",
+  "type": "object"
+}

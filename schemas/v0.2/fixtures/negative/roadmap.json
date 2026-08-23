@@ -1,0 +1,13 @@
+{
+  "completion_policy": "ALL_REQUIRED_PHASES",
+  "execution_model": "SEQUENTIAL",
+  "phase_order": [
+    "phase-0"
+  ],
+  "roadmap_id": "roadmap:main",
+  "schema_version": "0.2.0",
+  "source_document_ref": "authority:spec",
+  "title": "Implementation roadmap",
+  "unexpected_contract_field": true,
+  "version": 1
+}

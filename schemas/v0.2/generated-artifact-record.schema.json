@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "GeneratedArtifactKind": {
+      "enum": [
+        "MARKDOWN",
+        "PORTABLE_BUNDLE",
+        "RADAR_EXPORT",
+        "REPORT"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:generated-artifact-record:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifact_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "generated_artifact_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "kind": {
+      "$ref": "#/$defs/GeneratedArtifactKind"
+    },
+    "privacy_profile": {
+      "type": "string"
+    },
+    "renderer_version": {
+      "type": "string"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source_state_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "source_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "uri": {
+      "$ref": "#/$defs/ResourceRef"
+    }
+  },
+  "required": [
+    "schema_version",
+    "generated_artifact_id",
+    "kind",
+    "uri",
+    "source_state_version",
+    "source_state_digest",
+    "renderer_version",
+    "privacy_profile",
+    "artifact_digest",
+    "created_at"
+  ],
+  "title": "GeneratedArtifactRecord",
+  "type": "object"
+}

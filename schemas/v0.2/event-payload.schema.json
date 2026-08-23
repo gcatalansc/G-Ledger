@@ -1,0 +1,5070 @@
+{
+  "$defs": {
+    "ArtifactKind": {
+      "enum": [
+        "SPEC",
+        "AUDIT",
+        "BUILD",
+        "REPORT",
+        "PACKAGE",
+        "REPOSITORY",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "ArtifactReference": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "kind": {
+          "$ref": "#/$defs/ArtifactKind"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "sensitivity": {
+          "$ref": "#/$defs/Sensitivity"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uri": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "artifact_ref_id",
+        "name",
+        "kind",
+        "uri",
+        "digest",
+        "sensitivity",
+        "created_at",
+        "provenance_ref"
+      ],
+      "type": "object"
+    },
+    "ArtifactReferenceAddedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/ArtifactReference"
+        }
+      },
+      "required": [
+        "artifact"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocument": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_rank": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "document_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "effective_from": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "status": {
+          "$ref": "#/$defs/AuthorityDocumentStatus"
+        },
+        "supersedes_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uri": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "document_id",
+        "uri",
+        "digest",
+        "version",
+        "status",
+        "authority_rank",
+        "effective_from"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentDigestMismatchEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "expected_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "observed_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        }
+      },
+      "required": [
+        "document_ref",
+        "expected_digest",
+        "observed_digest"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentDigestRefreshedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "observed_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        }
+      },
+      "required": [
+        "document_ref",
+        "observed_digest"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentMarkedUnavailableEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentRegisteredEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "document": {
+          "$ref": "#/$defs/AuthorityDocument"
+        }
+      },
+      "required": [
+        "document"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentStatus": {
+      "enum": [
+        "CURRENT",
+        "DRAFT",
+        "LEGACY",
+        "DEPRECATED",
+        "SUPERSEDED",
+        "UNAVAILABLE",
+        "DIGEST_MISMATCH"
+      ],
+      "type": "string"
+    },
+    "AuthorityDocumentSupersededEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "replacement_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "document_ref",
+        "replacement_ref"
+      ],
+      "type": "object"
+    },
+    "AuthorityPolicy": {
+      "enum": [
+        "SPEC_FIRST"
+      ],
+      "type": "string"
+    },
+    "Blocker": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "description": {
+          "type": "string"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "opened_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "owner_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "resolution_summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resolved_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "scope_kind": {
+          "$ref": "#/$defs/ScopeKind"
+        },
+        "scope_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "source_kind": {
+          "type": "string"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/BlockerStatus"
+        },
+        "title": {
+          "type": "string"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        }
+      },
+      "required": [
+        "schema_version",
+        "blocker_id",
+        "title",
+        "description",
+        "scope_kind",
+        "scope_ref",
+        "severity",
+        "status",
+        "source_kind",
+        "evidence_refs",
+        "opened_at",
+        "updated_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "BlockerOpenedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker": {
+          "$ref": "#/$defs/Blocker"
+        }
+      },
+      "required": [
+        "blocker"
+      ],
+      "type": "object"
+    },
+    "BlockerResolvedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "resolution_summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "blocker_ref",
+        "resolution_summary",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "BlockerStatus": {
+      "enum": [
+        "OPEN",
+        "MITIGATED",
+        "RESOLVED",
+        "ACCEPTED",
+        "CANCELLED"
+      ],
+      "type": "string"
+    },
+    "BlockerUpdatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker": {
+          "$ref": "#/$defs/Blocker"
+        }
+      },
+      "required": [
+        "blocker"
+      ],
+      "type": "object"
+    },
+    "CheckpointCreatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "$ref": "#/$defs/ContinuityCheckpoint"
+        }
+      },
+      "required": [
+        "checkpoint"
+      ],
+      "type": "object"
+    },
+    "CheckpointFreshnessStatus": {
+      "enum": [
+        "CURRENT",
+        "CURRENT_FOR_PROJECT_ONLY",
+        "STALE_FOR_REPOSITORY",
+        "STALE_FOR_AUTHORITY",
+        "SUPERSEDED_BY_NEWER_CHECKPOINT",
+        "CONFLICTED",
+        "INVALIDATED",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "CheckpointInvalidatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "freshness": {
+          "$ref": "#/$defs/CheckpointFreshnessStatus"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "checkpoint_ref",
+        "freshness",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "ClaimClassification": {
+      "enum": [
+        "ASSERTED",
+        "OBSERVED",
+        "VERIFIED",
+        "REJECTED",
+        "STALE",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "ClaimRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "claim_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "classification": {
+          "$ref": "#/$defs/ClaimClassification"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "subject_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "claim_id",
+        "statement",
+        "classification",
+        "subject_refs",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "ClaimRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "$ref": "#/$defs/ClaimRecord"
+        }
+      },
+      "required": [
+        "claim"
+      ],
+      "type": "object"
+    },
+    "ClaimStatusChangedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "new_status": {
+          "$ref": "#/$defs/ClaimClassification"
+        },
+        "prior_status": {
+          "$ref": "#/$defs/ClaimClassification"
+        }
+      },
+      "required": [
+        "claim_ref",
+        "prior_status",
+        "new_status",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "ConflictKind": {
+      "enum": [
+        "AUTHORITY_DOCUMENT_DIVERGENCE",
+        "ACTIVE_PHASE_DIVERGENCE",
+        "GATE_STATE_DIVERGENCE",
+        "DECISION_DIVERGENCE",
+        "CHECKPOINT_STALE",
+        "REPOSITORY_BINDING_STALE",
+        "LEGACY_IMPORT_CONTRADICTION",
+        "EXTERNAL_VERSION_CONFLICT",
+        "SOURCE_DIVERGENCE",
+        "STREAM_DIVERGENCE"
+      ],
+      "type": "string"
+    },
+    "ConflictOpenedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict": {
+          "$ref": "#/$defs/ConflictRecord"
+        }
+      },
+      "required": [
+        "conflict"
+      ],
+      "type": "object"
+    },
+    "ConflictRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ConflictKind"
+        },
+        "opened_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "required_action": {
+          "type": "string"
+        },
+        "resolution_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "source_refs": {
+          "items": {
+            "$ref": "#/$defs/ResourceRef"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/ConflictStatus"
+        },
+        "subject_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "conflict_id",
+        "kind",
+        "severity",
+        "domain",
+        "subject_refs",
+        "source_refs",
+        "status",
+        "required_action",
+        "opened_at"
+      ],
+      "type": "object"
+    },
+    "ConflictResolvedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "resolution_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "conflict_ref",
+        "resolution_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ConflictStatus": {
+      "enum": [
+        "OPEN",
+        "RESOLVED",
+        "ACCEPTED",
+        "SUPERSEDED"
+      ],
+      "type": "string"
+    },
+    "ContinuityCheckpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "active_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "authority_document_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "captured_material_state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "captured_state_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "captured_state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "checkpoint_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "checkpoint_event_ref": {
+          "type": "string"
+        },
+        "checkpoint_event_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "checkpoint_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "conflict_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "created_by": {
+          "$ref": "#/$defs/StableId"
+        },
+        "current_decision_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "last_material_event_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "next_action_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "open_blocker_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "open_risk_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "pending_gate_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "primary_active_phase_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "project_ref": {
+          "type": "string"
+        },
+        "repository_binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RepositorySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "unknown_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "verified_completed_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "checkpoint_id",
+        "project_ref",
+        "captured_state_version",
+        "captured_material_state_version",
+        "captured_state_digest",
+        "checkpoint_event_version",
+        "checkpoint_event_ref",
+        "authority_document_refs",
+        "active_phase_refs",
+        "verified_completed_phase_refs",
+        "pending_gate_refs",
+        "current_decision_refs",
+        "open_blocker_refs",
+        "open_risk_refs",
+        "next_action_refs",
+        "last_material_event_refs",
+        "unknown_refs",
+        "conflict_refs",
+        "created_by",
+        "created_at",
+        "checkpoint_digest"
+      ],
+      "type": "object"
+    },
+    "CorrectionField": {
+      "additionalProperties": false,
+      "properties": {
+        "field_path": {
+          "type": "string"
+        },
+        "replacement": {
+          "$ref": "#/$defs/ScalarValue"
+        }
+      },
+      "required": [
+        "field_path",
+        "replacement"
+      ],
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "authority_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "context": {
+          "type": "string"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "decision_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/DecisionStatus"
+        },
+        "supersedes_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "decision_id",
+        "title",
+        "domain",
+        "scope",
+        "context",
+        "decision",
+        "rationale",
+        "alternatives",
+        "status",
+        "version",
+        "evidence_refs",
+        "created_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "DecisionAcceptedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "decision_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "decision_ref",
+        "authority_ref"
+      ],
+      "type": "object"
+    },
+    "DecisionProposedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        }
+      },
+      "required": [
+        "decision"
+      ],
+      "type": "object"
+    },
+    "DecisionRejectedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "DecisionRevalidationRequiredEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "decision_ref",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "DecisionStatus": {
+      "enum": [
+        "PROPOSED",
+        "ACCEPTED",
+        "SUPERSEDED",
+        "REJECTED",
+        "DEPRECATED",
+        "REVALIDATION_REQUIRED"
+      ],
+      "type": "string"
+    },
+    "DecisionSupersededEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "replacement_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "decision_ref",
+        "replacement_ref"
+      ],
+      "type": "object"
+    },
+    "EngineIdentity": {
+      "additionalProperties": false,
+      "description": "A versioned engine or parser that produced a derived result.",
+      "properties": {
+        "engine": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "engine",
+        "version"
+      ],
+      "type": "object"
+    },
+    "EventCorrectionRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "corrects_event_ref": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "replacement_field_values": {
+          "items": {
+            "$ref": "#/$defs/CorrectionField"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "corrects_event_ref",
+        "reason",
+        "replacement_field_values"
+      ],
+      "type": "object"
+    },
+    "EvidenceArtifactRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "persisted": {
+          "type": "boolean"
+        },
+        "uri": {
+          "$ref": "#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "uri",
+        "digest",
+        "persisted"
+      ],
+      "type": "object"
+    },
+    "EvidenceInvalidatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "EvidenceKind": {
+      "enum": [
+        "TEST_RESULT",
+        "BUILD_RESULT",
+        "LINT_RESULT",
+        "FORMAT_RESULT",
+        "TYPECHECK_RESULT",
+        "SECURITY_SCAN_RESULT",
+        "PRIVACY_SCAN_RESULT",
+        "BENCHMARK_RESULT",
+        "SMOKE_RESULT",
+        "E2E_RESULT",
+        "MANUAL_REVIEW",
+        "ARTIFACT_DIGEST",
+        "FILE_EXISTENCE",
+        "SCHEMA_VALIDATION",
+        "MIGRATION_RESULT",
+        "EXTERNAL_VERIFIED_EVIDENCE",
+        "CUSTOM_DECLARATIVE"
+      ],
+      "type": "string"
+    },
+    "EvidenceMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "errors": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "failed": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "passed": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "skipped": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "EvidencePrivacy": {
+      "additionalProperties": false,
+      "properties": {
+        "raw_output_stored": {
+          "type": "boolean"
+        },
+        "redaction_applied": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "raw_output_stored",
+        "redaction_applied"
+      ],
+      "type": "object"
+    },
+    "EvidenceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "items": {
+            "$ref": "#/$defs/EvidenceArtifactRef"
+          },
+          "type": "array"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "kind": {
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "payload_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "privacy": {
+          "$ref": "#/$defs/EvidencePrivacy"
+        },
+        "project_ref": {
+          "type": "string"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "repository_binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RepositorySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "$ref": "#/$defs/EvidenceResult"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "status": {
+          "$ref": "#/$defs/EvidenceStatus"
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_id",
+        "project_ref",
+        "kind",
+        "status",
+        "source",
+        "result",
+        "artifacts",
+        "privacy",
+        "observed_at",
+        "payload_digest",
+        "provenance_ref"
+      ],
+      "type": "object"
+    },
+    "EvidenceResult": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_ms": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "exit_code": {
+          "format": "int32",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "metrics": {
+          "$ref": "#/$defs/EvidenceMetrics"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "duration_ms",
+        "metrics",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "EvidenceSource": {
+      "additionalProperties": false,
+      "properties": {
+        "command_display": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runner_version": {
+          "type": "string"
+        },
+        "source_type": {
+          "$ref": "#/$defs/EvidenceSourceType"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "working_directory_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source_type",
+        "tool",
+        "runner_version"
+      ],
+      "type": "object"
+    },
+    "EvidenceSourceType": {
+      "enum": [
+        "COMMAND_EXECUTION",
+        "IMPORTED_ARTIFACT",
+        "EXTERNAL_SYSTEM",
+        "MANUAL_REVIEW"
+      ],
+      "type": "string"
+    },
+    "EvidenceStatus": {
+      "enum": [
+        "ASSERTED",
+        "OBSERVED",
+        "VERIFIED_SOURCE",
+        "REJECTED",
+        "STALE",
+        "INVALIDATED",
+        "UNAVAILABLE"
+      ],
+      "type": "string"
+    },
+    "ExternalEvidenceLinkedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "artifact_uri": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "evidence_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "external_system": {
+          "type": "string"
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "external_system",
+        "artifact_uri",
+        "artifact_digest",
+        "schema_ref"
+      ],
+      "type": "object"
+    },
+    "ExternalEvidenceUnlinkedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ExternalMappingConfirmedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "mapping": {
+          "$ref": "#/$defs/IdentityMapping"
+        }
+      },
+      "required": [
+        "mapping"
+      ],
+      "type": "object"
+    },
+    "ExternalMappingRevokedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "mapping_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mapping_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "FreshnessPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_must_match_same_repository_snapshot": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "evidence_must_match_same_repository_snapshot"
+      ],
+      "type": "object"
+    },
+    "GateCompletionOperator": {
+      "enum": [
+        "ALL",
+        "ANY"
+      ],
+      "type": "string"
+    },
+    "GateCriticality": {
+      "enum": [
+        "REQUIRED",
+        "OPTIONAL"
+      ],
+      "type": "string"
+    },
+    "GateDefinedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate": {
+          "$ref": "#/$defs/GateDefinition"
+        }
+      },
+      "required": [
+        "gate"
+      ],
+      "type": "object"
+    },
+    "GateDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_rule": {
+          "$ref": "#/$defs/GateCompletionOperator"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "criticality": {
+          "$ref": "#/$defs/GateCriticality"
+        },
+        "definition_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "freshness_policy": {
+          "$ref": "#/$defs/FreshnessPolicy"
+        },
+        "gate_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "repository_dependencies": {
+          "$ref": "#/$defs/RepositoryDependencies"
+        },
+        "required_evidence_rules": {
+          "items": {
+            "$ref": "#/$defs/RequiredEvidenceRule"
+          },
+          "type": "array"
+        },
+        "revalidate_on": {
+          "items": {
+            "$ref": "#/$defs/RevalidationTrigger"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "title": {
+          "type": "string"
+        },
+        "waiver_policy": {
+          "$ref": "#/$defs/GateWaiverPolicy"
+        }
+      },
+      "required": [
+        "schema_version",
+        "gate_id",
+        "definition_version",
+        "title",
+        "phase_ref",
+        "criticality",
+        "required_evidence_rules",
+        "repository_dependencies",
+        "completion_rule",
+        "waiver_policy",
+        "freshness_policy",
+        "revalidate_on",
+        "created_at",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "GateEvaluatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation": {
+          "$ref": "#/$defs/GateEvaluation"
+        }
+      },
+      "required": [
+        "evaluation"
+      ],
+      "type": "object"
+    },
+    "GateEvaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "evaluated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "evaluated_by": {
+          "$ref": "#/$defs/EngineIdentity"
+        },
+        "explanation_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "gate_definition_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "gate_definition_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gate_evaluation_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "project_state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "proposed_gate_status": {
+          "$ref": "#/$defs/GateStatus"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "rejected_evidence": {
+          "items": {
+            "$ref": "#/$defs/RejectedEvidence"
+          },
+          "type": "array"
+        },
+        "repository_binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RepositorySnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "$ref": "#/$defs/GateEvaluationResult"
+        },
+        "rule_results": {
+          "items": {
+            "$ref": "#/$defs/GateRuleResult"
+          },
+          "type": "array"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "selected_evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "gate_evaluation_id",
+        "gate_ref",
+        "gate_definition_version",
+        "gate_definition_digest",
+        "project_state_version",
+        "selected_evidence_refs",
+        "rejected_evidence",
+        "rule_results",
+        "result",
+        "proposed_gate_status",
+        "explanation_codes",
+        "evaluated_by",
+        "evaluated_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "GateEvaluationRequestedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "gate_ref"
+      ],
+      "type": "object"
+    },
+    "GateEvaluationResult": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCOMPLETE",
+        "STALE",
+        "CONFLICTED",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "GateMarkedStaleEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "GateRejectedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "evaluation_ref"
+      ],
+      "type": "object"
+    },
+    "GateRevalidationRequestedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "signal_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "gate_ref"
+      ],
+      "type": "object"
+    },
+    "GateRevalidationRequiredEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "prior_status": {
+          "$ref": "#/$defs/GateStatus"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "prior_status",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "GateRuleResult": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "$ref": "#/$defs/RuleResult"
+        },
+        "rule_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "rule_id",
+        "result"
+      ],
+      "type": "object"
+    },
+    "GateStatus": {
+      "enum": [
+        "DEFINED",
+        "PENDING",
+        "EVALUATING",
+        "VERIFIED",
+        "REJECTED",
+        "WAIVED",
+        "STALE",
+        "REVALIDATION_REQUIRED"
+      ],
+      "type": "string"
+    },
+    "GateVerifiedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "evaluation_ref"
+      ],
+      "type": "object"
+    },
+    "GateWaivedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "waiver": {
+          "$ref": "#/$defs/GateWaiver"
+        }
+      },
+      "required": [
+        "waiver"
+      ],
+      "type": "object"
+    },
+    "GateWaiver": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "authority_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gate_definition_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "gate_definition_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "review_condition": {
+          "type": "string"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "waiver_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "waiver_id",
+        "gate_ref",
+        "gate_definition_version",
+        "gate_definition_digest",
+        "actor_ref",
+        "reason",
+        "scope",
+        "review_condition",
+        "authority_ref",
+        "created_at",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "GateWaiverPolicy": {
+      "enum": [
+        "FORBIDDEN",
+        "HUMAN_APPROVAL",
+        "AUTHORITY_APPROVAL"
+      ],
+      "type": "string"
+    },
+    "IdentityMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmed_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "external_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "external_system": {
+          "type": "string"
+        },
+        "local_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "mapping_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "method": {
+          "$ref": "#/$defs/IdentityMethod"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "status": {
+          "$ref": "#/$defs/IdentityMappingStatus"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        }
+      },
+      "required": [
+        "schema_version",
+        "mapping_id",
+        "local_ref",
+        "external_system",
+        "external_ref",
+        "method",
+        "status",
+        "created_at",
+        "updated_at",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "IdentityMappingStatus": {
+      "enum": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "REVOKED",
+        "CONFLICTED"
+      ],
+      "type": "string"
+    },
+    "IdentityMethod": {
+      "enum": [
+        "EXPLICIT_ID",
+        "REMOTE_DIGEST",
+        "SIGNED_BINDING",
+        "USER_CONFIRMED",
+        "IMPORTED_MAPPING_REVIEWED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "LegacyCandidateAction": {
+      "enum": [
+        "REVIEW",
+        "IMPORT_AS_ASSERTED",
+        "IGNORE",
+        "ARCHIVE_ONLY"
+      ],
+      "type": "string"
+    },
+    "LegacyCandidateSource": {
+      "additionalProperties": false,
+      "properties": {
+        "line_range": {
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "path": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "section",
+        "line_range"
+      ],
+      "type": "object"
+    },
+    "LegacyImportCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "conflicts_with": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "recommended_action": {
+          "$ref": "#/$defs/LegacyCandidateAction"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source": {
+          "$ref": "#/$defs/LegacyCandidateSource"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "candidate_id",
+        "kind",
+        "value",
+        "source",
+        "conflicts_with",
+        "recommended_action"
+      ],
+      "type": "object"
+    },
+    "LegacyImportDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/LegacyCandidateAction"
+        },
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "candidate_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_ref",
+        "action",
+        "actor_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "LegacyImportMode": {
+      "enum": [
+        "PREVIEW",
+        "REVIEWED_IMPORT",
+        "ARCHIVE_ONLY"
+      ],
+      "type": "string"
+    },
+    "LegacyImportReview": {
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/LegacyImportCandidate"
+          },
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/LegacyImportDecision"
+          },
+          "type": "array"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "mode": {
+          "$ref": "#/$defs/LegacyImportMode"
+        },
+        "review_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reviewed_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "source_uri": {
+          "$ref": "#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "schema_version",
+        "review_id",
+        "source_uri",
+        "source_digest",
+        "mode",
+        "candidates",
+        "decisions",
+        "reviewed_at",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "LegacyImportReviewedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "review": {
+          "$ref": "#/$defs/LegacyImportReview"
+        }
+      },
+      "required": [
+        "review"
+      ],
+      "type": "object"
+    },
+    "LikelihoodClass": {
+      "enum": [
+        "RARE",
+        "POSSIBLE",
+        "LIKELY",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "NextAction": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blocked_by_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "classification": {
+          "$ref": "#/$defs/NextActionClassification"
+        },
+        "completed_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "description": {
+          "type": "string"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "gate_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_action_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "owner_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "phase_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precondition_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "title": {
+          "type": "string"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        }
+      },
+      "required": [
+        "schema_version",
+        "next_action_id",
+        "title",
+        "description",
+        "classification",
+        "precondition_refs",
+        "blocked_by_refs",
+        "created_at",
+        "updated_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "NextActionCancelledEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "action_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "NextActionClassification": {
+      "enum": [
+        "AUTHORIZED",
+        "ELIGIBLE",
+        "RECOMMENDED",
+        "PROPOSED",
+        "BLOCKED",
+        "COMPLETED",
+        "CANCELLED"
+      ],
+      "type": "string"
+    },
+    "NextActionCompletedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "action_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "action_ref",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "NextActionSetEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/NextAction"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "type": "object"
+    },
+    "NoteRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "note_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "scope_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "note_id",
+        "kind",
+        "text"
+      ],
+      "type": "object"
+    },
+    "PhaseBlockedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "blocker_refs"
+      ],
+      "type": "object"
+    },
+    "PhaseCompletedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "gate_evaluation_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "gate_evaluation_refs"
+      ],
+      "type": "object"
+    },
+    "PhaseMarkedReadyToCloseEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "pending_approval": {
+          "type": "boolean"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "pending_approval"
+      ],
+      "type": "object"
+    },
+    "PhaseReopenedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "resulting_status": {
+          "$ref": "#/$defs/PhaseStatus"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "resulting_status",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "PhaseSkippedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "authority_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "PhaseStartedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "phase_ref"
+      ],
+      "type": "object"
+    },
+    "PhaseStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ACTIVE",
+        "BLOCKED",
+        "READY_TO_CLOSE",
+        "COMPLETED",
+        "REVALIDATION_REQUIRED",
+        "SKIPPED"
+      ],
+      "type": "string"
+    },
+    "PredicateAst": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "ALL",
+              "type": "string"
+            },
+            "predicates": {
+              "items": {
+                "$ref": "#/$defs/PredicateAst"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "predicates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "ANY",
+              "type": "string"
+            },
+            "predicates": {
+              "items": {
+                "$ref": "#/$defs/PredicateAst"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "predicates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "NOT",
+              "type": "string"
+            },
+            "predicate": {
+              "$ref": "#/$defs/PredicateAst"
+            }
+          },
+          "required": [
+            "operator",
+            "predicate"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "NOT_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "LESS_THAN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "LESS_OR_EQUAL",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "GREATER_THAN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "GREATER_OR_EQUAL",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "EXISTS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "MISSING",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "CONTAINS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "DIGEST_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/Sha256Digest"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "STATUS_IN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "values"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "COUNT_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "COUNT_AT_LEAST",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "operator": {
+              "const": "SAME_SNAPSHOT_AS",
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "evidence_ref"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "FRESHNESS_IN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "values"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Project": {
+      "additionalProperties": false,
+      "properties": {
+        "archived_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authority_policy": {
+          "$ref": "#/$defs/AuthorityPolicy"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "lifecycle_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "paused_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "project_id": {
+          "type": "string"
+        },
+        "repository_binding_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "storage_profile": {
+          "$ref": "#/$defs/StorageProfile"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "title",
+        "summary",
+        "lifecycle_status",
+        "created_at",
+        "timezone",
+        "authority_policy",
+        "storage_profile",
+        "repository_binding_refs"
+      ],
+      "type": "object"
+    },
+    "ProjectArchivedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ProjectCreatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "project": {
+          "$ref": "#/$defs/Project"
+        }
+      },
+      "required": [
+        "project"
+      ],
+      "type": "object"
+    },
+    "ProjectLifecycleStatus": {
+      "enum": [
+        "INITIALIZING",
+        "ACTIVE",
+        "PAUSED",
+        "BLOCKED",
+        "COMPLETED",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    },
+    "ProjectMetadataUpdatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "ProjectPausedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ProjectResumedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ProjectStatusDerivedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "new_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "previous_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "previous_status",
+        "new_status",
+        "reason_codes"
+      ],
+      "type": "object"
+    },
+    "RejectedEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "RepositoryBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmed_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "current_snapshot_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_snapshot_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "identity_method": {
+          "$ref": "#/$defs/RepositoryIdentityMethod"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "remote_identity_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repository_binding_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "repository_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "status": {
+          "$ref": "#/$defs/RepositoryBindingStatus"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "workspace_root_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        }
+      },
+      "required": [
+        "schema_version",
+        "repository_binding_id",
+        "repository_ref",
+        "workspace_root_ref",
+        "identity_method",
+        "status",
+        "created_at",
+        "updated_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "RepositoryBindingRefreshedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/RepositorySnapshot"
+        }
+      },
+      "required": [
+        "binding_ref",
+        "snapshot"
+      ],
+      "type": "object"
+    },
+    "RepositoryBindingRevokedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "RepositoryBindingStatus": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "UNAVAILABLE",
+        "REVOKED",
+        "CONFLICTED"
+      ],
+      "type": "string"
+    },
+    "RepositoryBoundEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/RepositoryBinding"
+        }
+      },
+      "required": [
+        "binding"
+      ],
+      "type": "object"
+    },
+    "RepositoryDependencies": {
+      "additionalProperties": false,
+      "properties": {
+        "external_refs": {
+          "items": {
+            "$ref": "#/$defs/ResourceRef"
+          },
+          "type": "array"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "paths",
+        "external_refs"
+      ],
+      "type": "object"
+    },
+    "RepositoryIdentityMethod": {
+      "enum": [
+        "EXPLICIT_ID",
+        "REMOTE_DIGEST",
+        "SIGNED_BINDING",
+        "USER_CONFIRMED"
+      ],
+      "type": "string"
+    },
+    "RepositorySnapshot": {
+      "additionalProperties": false,
+      "description": "A reproducible repository snapshot reference.",
+      "properties": {
+        "repository_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "snapshot_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "snapshot_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "repository_ref",
+        "snapshot_ref",
+        "snapshot_digest"
+      ],
+      "type": "object"
+    },
+    "RequiredEvidenceRule": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "predicate": {
+          "$ref": "#/$defs/PredicateAst"
+        },
+        "rule_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "rule_id",
+        "kind",
+        "predicate"
+      ],
+      "type": "object"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "RevalidationTrigger": {
+      "enum": [
+        "EVIDENCE_INVALIDATED",
+        "REPOSITORY_DEPENDENCY_CHANGED",
+        "AUTHORITY_DOCUMENT_CHANGED"
+      ],
+      "type": "string"
+    },
+    "Risk": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "likelihood_class": {
+          "$ref": "#/$defs/LikelihoodClass"
+        },
+        "mitigation_actions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "opened_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "owner_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "risk_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "scope_kind": {
+          "$ref": "#/$defs/ScopeKind"
+        },
+        "scope_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "status": {
+          "$ref": "#/$defs/RiskStatus"
+        },
+        "title": {
+          "type": "string"
+        },
+        "trigger_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        }
+      },
+      "required": [
+        "schema_version",
+        "risk_id",
+        "title",
+        "description",
+        "scope_kind",
+        "scope_ref",
+        "severity",
+        "likelihood_class",
+        "status",
+        "trigger_conditions",
+        "mitigation_actions",
+        "evidence_refs",
+        "opened_at",
+        "updated_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "RiskClosedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "note": {
+          "type": "string"
+        },
+        "risk_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "risk_ref",
+        "note",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "RiskMitigatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "note": {
+          "type": "string"
+        },
+        "risk_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "risk_ref",
+        "note",
+        "evidence_refs"
+      ],
+      "type": "object"
+    },
+    "RiskOpenedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "risk": {
+          "$ref": "#/$defs/Risk"
+        }
+      },
+      "required": [
+        "risk"
+      ],
+      "type": "object"
+    },
+    "RiskStatus": {
+      "enum": [
+        "OPEN",
+        "MONITORED",
+        "MITIGATED",
+        "REALIZED",
+        "CLOSED"
+      ],
+      "type": "string"
+    },
+    "RiskUpdatedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "risk": {
+          "$ref": "#/$defs/Risk"
+        }
+      },
+      "required": [
+        "risk"
+      ],
+      "type": "object"
+    },
+    "Roadmap": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_policy": {
+          "$ref": "#/$defs/RoadmapCompletionPolicy"
+        },
+        "execution_model": {
+          "$ref": "#/$defs/RoadmapExecutionModel"
+        },
+        "phase_order": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "roadmap_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source_document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "roadmap_id",
+        "title",
+        "execution_model",
+        "phase_order",
+        "completion_policy",
+        "version",
+        "source_document_ref"
+      ],
+      "type": "object"
+    },
+    "RoadmapCompletionPolicy": {
+      "enum": [
+        "ALL_REQUIRED_PHASES"
+      ],
+      "type": "string"
+    },
+    "RoadmapDefinedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "roadmap": {
+          "$ref": "#/$defs/Roadmap"
+        }
+      },
+      "required": [
+        "roadmap"
+      ],
+      "type": "object"
+    },
+    "RoadmapExecutionModel": {
+      "enum": [
+        "SEQUENTIAL"
+      ],
+      "type": "string"
+    },
+    "RoadmapRevisedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "roadmap": {
+          "$ref": "#/$defs/Roadmap"
+        }
+      },
+      "required": [
+        "roadmap"
+      ],
+      "type": "object"
+    },
+    "RuleResult": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "MISSING",
+        "STALE",
+        "CONFLICTED",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "ScalarValue": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "format": "int64",
+          "type": "integer"
+        },
+        {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "ScopeKind": {
+      "enum": [
+        "PROJECT",
+        "PHASE",
+        "GATE",
+        "DECISION",
+        "REPOSITORY",
+        "EXTERNAL"
+      ],
+      "type": "string"
+    },
+    "Sensitivity": {
+      "enum": [
+        "PUBLIC",
+        "INTERNAL",
+        "SENSITIVE",
+        "SECRET"
+      ],
+      "type": "string"
+    },
+    "Session": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ending_checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "host": {
+          "type": "string"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "session_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "started_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "starting_checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "session_id",
+        "actor_ref",
+        "host",
+        "started_at"
+      ],
+      "type": "object"
+    },
+    "SessionEndedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "ending_checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "session_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "session_ref"
+      ],
+      "type": "object"
+    },
+    "SessionStartedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "session"
+      ],
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    },
+    "StorageProfile": {
+      "enum": [
+        "USER_DATA",
+        "PORTABLE"
+      ],
+      "type": "string"
+    },
+    "UnknownCriticality": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "MATERIAL"
+      ],
+      "type": "string"
+    },
+    "UnknownRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "criticality": {
+          "$ref": "#/$defs/UnknownCriticality"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "field_path": {
+          "type": "string"
+        },
+        "opened_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "required_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "resolution_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/UnknownStatus"
+        },
+        "subject_kind": {
+          "type": "string"
+        },
+        "subject_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "unknown_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "unknown_id",
+        "subject_kind",
+        "subject_ref",
+        "field_path",
+        "statement",
+        "criticality",
+        "status",
+        "blocks",
+        "required_evidence",
+        "evidence_refs",
+        "opened_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "UnknownRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "unknown": {
+          "$ref": "#/$defs/UnknownRecord"
+        }
+      },
+      "required": [
+        "unknown"
+      ],
+      "type": "object"
+    },
+    "UnknownResolvedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "resolution_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "unknown_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "unknown_ref",
+        "resolution_ref"
+      ],
+      "type": "object"
+    },
+    "UnknownStatus": {
+      "enum": [
+        "OPEN",
+        "RESOLVED",
+        "ACCEPTED_UNKNOWN",
+        "SUPERSEDED"
+      ],
+      "type": "string"
+    },
+    "VerificationRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceRecord"
+        }
+      },
+      "required": [
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "WorkProgressRecordedEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "work_record": {
+          "$ref": "#/$defs/WorkRecord"
+        }
+      },
+      "required": [
+        "work_record"
+      ],
+      "type": "object"
+    },
+    "WorkRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "claim_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "commit_refs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "files_or_artifacts": {
+          "items": {
+            "$ref": "#/$defs/ResourceRef"
+          },
+          "type": "array"
+        },
+        "influence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "phase_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "task_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "work_record_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "schema_version",
+        "work_record_id",
+        "summary",
+        "files_or_artifacts",
+        "commit_refs",
+        "claim_refs",
+        "evidence_refs",
+        "actor_ref",
+        "occurred_at",
+        "recorded_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "urn:project-ledger:schema:event-payload:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_CREATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectCreatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_METADATA_UPDATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectMetadataUpdatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_PAUSED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectPausedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_RESUMED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectResumedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_ARCHIVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectArchivedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PROJECT_STATUS_DERIVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ProjectStatusDerivedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "AUTHORITY_DOCUMENT_REGISTERED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/AuthorityDocumentRegisteredEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "AUTHORITY_DOCUMENT_DIGEST_REFRESHED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/AuthorityDocumentDigestRefreshedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "AUTHORITY_DOCUMENT_SUPERSEDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/AuthorityDocumentSupersededEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "AUTHORITY_DOCUMENT_MARKED_UNAVAILABLE",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/AuthorityDocumentMarkedUnavailableEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "AUTHORITY_DOCUMENT_DIGEST_MISMATCH",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/AuthorityDocumentDigestMismatchEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "REPOSITORY_BOUND",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RepositoryBoundEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "REPOSITORY_BINDING_REFRESHED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RepositoryBindingRefreshedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "REPOSITORY_BINDING_REVOKED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RepositoryBindingRevokedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "ROADMAP_DEFINED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RoadmapDefinedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "ROADMAP_REVISED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RoadmapRevisedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_STARTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseStartedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_BLOCKED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseBlockedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_MARKED_READY_TO_CLOSE",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseMarkedReadyToCloseEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_COMPLETED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseCompletedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_REOPENED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseReopenedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "PHASE_SKIPPED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/PhaseSkippedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_DEFINED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateDefinedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_EVALUATION_REQUESTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateEvaluationRequestedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_EVALUATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateEvaluatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_VERIFIED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateVerifiedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_REJECTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateRejectedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_WAIVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateWaivedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_MARKED_STALE",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateMarkedStaleEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_REVALIDATION_REQUESTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateRevalidationRequestedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "GATE_REVALIDATION_REQUIRED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/GateRevalidationRequiredEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "WORK_PROGRESS_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/WorkProgressRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "NOTE_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/NoteRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "ARTIFACT_REFERENCE_ADDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ArtifactReferenceAddedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CLAIM_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ClaimRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CLAIM_STATUS_CHANGED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ClaimStatusChangedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "UNKNOWN_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/UnknownRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "UNKNOWN_RESOLVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/UnknownResolvedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "VERIFICATION_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/VerificationRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EXTERNAL_EVIDENCE_LINKED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ExternalEvidenceLinkedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EXTERNAL_EVIDENCE_UNLINKED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ExternalEvidenceUnlinkedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EVIDENCE_INVALIDATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/EvidenceInvalidatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "DECISION_PROPOSED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/DecisionProposedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "DECISION_ACCEPTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/DecisionAcceptedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "DECISION_SUPERSEDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/DecisionSupersededEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "DECISION_REJECTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/DecisionRejectedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "DECISION_REVALIDATION_REQUIRED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/DecisionRevalidationRequiredEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "BLOCKER_OPENED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/BlockerOpenedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "BLOCKER_UPDATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/BlockerUpdatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "BLOCKER_RESOLVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/BlockerResolvedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "RISK_OPENED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RiskOpenedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "RISK_UPDATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RiskUpdatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "RISK_MITIGATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RiskMitigatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "RISK_CLOSED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/RiskClosedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "NEXT_ACTION_SET",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/NextActionSetEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "NEXT_ACTION_COMPLETED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/NextActionCompletedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "NEXT_ACTION_CANCELLED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/NextActionCancelledEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CHECKPOINT_CREATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/CheckpointCreatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CHECKPOINT_INVALIDATED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/CheckpointInvalidatedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "SESSION_STARTED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/SessionStartedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "SESSION_ENDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/SessionEndedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "LEGACY_IMPORT_REVIEWED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/LegacyImportReviewedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CONFLICT_OPENED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ConflictOpenedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "CONFLICT_RESOLVED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ConflictResolvedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EXTERNAL_MAPPING_CONFIRMED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ExternalMappingConfirmedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EXTERNAL_MAPPING_REVOKED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/ExternalMappingRevokedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "const": "EVENT_CORRECTION_RECORDED",
+          "type": "string"
+        },
+        "payload": {
+          "$ref": "#/$defs/EventCorrectionRecordedEvent"
+        }
+      },
+      "required": [
+        "event_type",
+        "payload"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "Event"
+}

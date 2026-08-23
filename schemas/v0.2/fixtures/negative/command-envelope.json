@@ -1,0 +1,22 @@
+{
+  "actor": {
+    "actor_id": "agent:codex",
+    "actor_kind": "AGENT",
+    "display_name": "Codex",
+    "trust_level": "LOCAL_USER"
+  },
+  "command_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "command_id": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "command_schema_ref": "urn:project-ledger:command:start-phase:0.2.0",
+  "command_type": "START_PHASE",
+  "expected_state_version": 4,
+  "idempotency_key": "session-01:start-phase:phase-0",
+  "payload": {
+    "phase_ref": "phase-0"
+  },
+  "payload_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "schema_version": "0.2.0",
+  "submitted_at": "2026-08-22T12:00:00-04:00",
+  "unexpected_contract_field": true
+}

@@ -1,0 +1,236 @@
+{
+  "$defs": {
+    "EngineIdentity": {
+      "additionalProperties": false,
+      "description": "A versioned engine or parser that produced a derived result.",
+      "properties": {
+        "engine": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "engine",
+        "version"
+      ],
+      "type": "object"
+    },
+    "GateEvaluationResult": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCOMPLETE",
+        "STALE",
+        "CONFLICTED",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "GateRuleResult": {
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "$ref": "#/$defs/RuleResult"
+        },
+        "rule_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "rule_id",
+        "result"
+      ],
+      "type": "object"
+    },
+    "GateStatus": {
+      "enum": [
+        "DEFINED",
+        "PENDING",
+        "EVALUATING",
+        "VERIFIED",
+        "REJECTED",
+        "WAIVED",
+        "STALE",
+        "REVALIDATION_REQUIRED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "RejectedEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "RepositorySnapshot": {
+      "additionalProperties": false,
+      "description": "A reproducible repository snapshot reference.",
+      "properties": {
+        "repository_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "snapshot_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "snapshot_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "repository_ref",
+        "snapshot_ref",
+        "snapshot_digest"
+      ],
+      "type": "object"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "RuleResult": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "MISSING",
+        "STALE",
+        "CONFLICTED",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:gate-evaluation:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "evaluated_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "evaluated_by": {
+      "$ref": "#/$defs/EngineIdentity"
+    },
+    "explanation_codes": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "gate_definition_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "gate_definition_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "gate_evaluation_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "gate_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "project_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "proposed_gate_status": {
+      "$ref": "#/$defs/GateStatus"
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "rejected_evidence": {
+      "items": {
+        "$ref": "#/$defs/RejectedEvidence"
+      },
+      "type": "array"
+    },
+    "repository_binding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RepositorySnapshot"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result": {
+      "$ref": "#/$defs/GateEvaluationResult"
+    },
+    "rule_results": {
+      "items": {
+        "$ref": "#/$defs/GateRuleResult"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "selected_evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "gate_evaluation_id",
+    "gate_ref",
+    "gate_definition_version",
+    "gate_definition_digest",
+    "project_state_version",
+    "selected_evidence_refs",
+    "rejected_evidence",
+    "rule_results",
+    "result",
+    "proposed_gate_status",
+    "explanation_codes",
+    "evaluated_by",
+    "evaluated_at",
+    "provenance_ref",
+    "digest"
+  ],
+  "title": "GateEvaluation",
+  "type": "object"
+}

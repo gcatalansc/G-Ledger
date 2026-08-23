@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "AuthorityDocumentStatus": {
+      "enum": [
+        "CURRENT",
+        "DRAFT",
+        "LEGACY",
+        "DEPRECATED",
+        "SUPERSEDED",
+        "UNAVAILABLE",
+        "DIGEST_MISMATCH"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:authority-document:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_rank": {
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "document_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "effective_from": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "status": {
+      "$ref": "#/$defs/AuthorityDocumentStatus"
+    },
+    "supersedes_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "uri": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "document_id",
+    "uri",
+    "digest",
+    "version",
+    "status",
+    "authority_rank",
+    "effective_from"
+  ],
+  "title": "AuthorityDocument",
+  "type": "object"
+}

@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "PhaseKind": {
+      "enum": [
+        "DISCOVERY",
+        "FORMALIZATION",
+        "IMPLEMENTATION",
+        "TESTING",
+        "AUDIT",
+        "RELEASE",
+        "MAINTENANCE",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "PhaseStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ACTIVE",
+        "BLOCKED",
+        "READY_TO_CLOSE",
+        "COMPLETED",
+        "REVALIDATION_REQUIRED",
+        "SKIPPED"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:phase:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completed_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kind": {
+      "$ref": "#/$defs/PhaseKind"
+    },
+    "optional_gate_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "ordinal": {
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "phase_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "reopened_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "required_gate_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "$ref": "#/$defs/PhaseStatus"
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "phase_id",
+    "title",
+    "ordinal",
+    "kind",
+    "status",
+    "required_gate_refs",
+    "optional_gate_refs"
+  ],
+  "title": "Phase",
+  "type": "object"
+}

@@ -1,0 +1,28 @@
+{
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "integration_manifest_id": "integration-manifest:project-ledger",
+  "projection_capabilities": [
+    "PROJECT_CONTINUITY"
+  ],
+  "protocols": [
+    {
+      "name": "project-ledger-integration",
+      "version": "0.2.0"
+    }
+  ],
+  "provider_id": "project-ledger",
+  "provider_version": "0.2.0",
+  "record_capabilities": [
+    "RECORD_WORK_PROGRESS"
+  ],
+  "schema_version": "0.2.0",
+  "side_effect_contract": {
+    "health": "NONE",
+    "projection": "NONE",
+    "record_submit": "DECLARED_ONLY"
+  },
+  "storage": {
+    "shared_database_required": false
+  },
+  "upstream_locks": []
+}

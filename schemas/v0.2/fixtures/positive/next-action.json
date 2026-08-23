@@ -1,0 +1,18 @@
+{
+  "authority_ref": "authority:spec",
+  "blocked_by_refs": [],
+  "classification": "AUTHORIZED",
+  "completed_at": null,
+  "created_at": "2026-08-22T12:00:00-04:00",
+  "description": "Materialize registry",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "gate_ref": "gate:contracts",
+  "next_action_id": "action:schemas",
+  "owner_ref": "agent:codex",
+  "phase_ref": "phase-0",
+  "precondition_refs": [],
+  "provenance_ref": "project-ledger://provenance/action-schemas",
+  "schema_version": "0.2.0",
+  "title": "Generate schemas",
+  "updated_at": "2026-08-22T12:00:00-04:00"
+}

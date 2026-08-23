@@ -1,0 +1,18 @@
+{
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "policy_id": "radar-field-policy:01",
+  "rules": [
+    {
+      "field_path": "priority",
+      "omission_clears": false,
+      "owner": "RADAR"
+    },
+    {
+      "field_path": "continuity.phase",
+      "omission_clears": false,
+      "owner": "LEDGER"
+    }
+  ],
+  "schema_version": "0.1.1",
+  "unexpected_contract_field": true
+}

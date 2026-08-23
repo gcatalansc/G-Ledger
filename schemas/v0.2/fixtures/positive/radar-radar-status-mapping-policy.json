@@ -1,0 +1,13 @@
+{
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "policy_id": "radar-status-policy:01",
+  "rules": [
+    {
+      "ledger_status": "ACTIVE",
+      "phase_kind": "FORMALIZATION",
+      "radar_status": "FORMALIZING",
+      "rule_code": "ACTIVE_FORMALIZATION"
+    }
+  ],
+  "schema_version": "0.1.1"
+}

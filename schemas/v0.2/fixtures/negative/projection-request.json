@@ -1,0 +1,21 @@
+{
+  "budget": {
+    "max_bytes": 65536,
+    "max_items": 100
+  },
+  "expected_source_version": 4,
+  "privacy_profile": "MINIMAL_LOCAL",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "protocol": {
+    "name": "project-ledger-integration",
+    "version": "0.2.0"
+  },
+  "repository_identity_digest": null,
+  "request_id": "request:01",
+  "requested_fields": [
+    "continuity"
+  ],
+  "schema_version": "0.2.0",
+  "trace_ref": "trace:01",
+  "unexpected_contract_field": true
+}

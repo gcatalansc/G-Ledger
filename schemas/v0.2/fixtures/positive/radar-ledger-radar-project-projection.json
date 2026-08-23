@@ -1,0 +1,86 @@
+{
+  "attention_signals": [],
+  "continuity": {
+    "active_phases": [],
+    "authority_health": "CURRENT",
+    "blockers": {
+      "critical_count": 0,
+      "open_count": 0
+    },
+    "checkpoint_freshness": "CURRENT",
+    "conflicts": {
+      "critical_open_count": 0
+    },
+    "gates": {
+      "pending_count": 1,
+      "revalidation_required_count": 0
+    },
+    "last_material_activity_at": "2026-08-22T12:00:00-04:00",
+    "next_action_refs": [
+      "action:schemas"
+    ],
+    "preferred_next_action_ref": "action:schemas",
+    "primary_phase": {
+      "kind": "FORMALIZATION",
+      "phase_ref": "phase-0",
+      "status": "ACTIVE",
+      "title": "Contracts"
+    },
+    "progress": {
+      "completed_required_phases": 0,
+      "method": "LINEAR_REQUIRED_PHASES",
+      "percentage": {
+        "available": true,
+        "basis_points": 0,
+        "unavailable_reason": null
+      },
+      "status": "PARTIAL",
+      "total_required_gates": 1,
+      "total_required_phases": 12,
+      "verified_required_gates": 0
+    },
+    "risks": {
+      "critical_count": 0,
+      "open_count": 1
+    }
+  },
+  "created_at": "2026-08-22T12:00:00-04:00",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "freshness": {
+    "evaluated_at": "2026-08-22T12:00:00-04:00",
+    "status": "CURRENT"
+  },
+  "identity": {
+    "ledger_project_ref": "project-ledger://projects/01",
+    "repository_identity_digests": [],
+    "source_aliases": [
+      "Project Ledger"
+    ],
+    "stable_project_id": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d"
+  },
+  "privacy": {
+    "event_log_included": false,
+    "evidence_payloads_included": false,
+    "repository_paths_included": false
+  },
+  "project": {
+    "bounded_summary": "Continuidad verificable",
+    "canonical_title": "Project Ledger",
+    "lifecycle_status": "ACTIVE",
+    "status_mapping_rule": "ACTIVE_FORMALIZATION",
+    "suggested_radar_status": "FORMALIZING"
+  },
+  "projection_id": "radar-projection:01",
+  "projection_kind": "LEDGER_PROJECT_SUMMARY",
+  "provenance_ref": "project-ledger://provenance/radar-export-01",
+  "schema_version": "0.1.1",
+  "source": {
+    "checkpoint_digest": null,
+    "checkpoint_ref": null,
+    "product_version": "0.2.0",
+    "project_ref": "project-ledger://projects/01",
+    "state_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+    "state_version": 4,
+    "system": "project-ledger"
+  }
+}

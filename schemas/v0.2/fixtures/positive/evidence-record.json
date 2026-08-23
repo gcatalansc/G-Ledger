@@ -1,0 +1,44 @@
+{
+  "artifacts": [
+    {
+      "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+      "persisted": false,
+      "uri": "workspace://target/test-result.json"
+    }
+  ],
+  "evidence_id": "evidence:01",
+  "kind": "TEST_RESULT",
+  "observed_at": "2026-08-22T12:00:00-04:00",
+  "payload_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "privacy": {
+    "raw_output_stored": false,
+    "redaction_applied": true
+  },
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "provenance_ref": "project-ledger://provenance/evidence-01",
+  "repository_binding": {
+    "repository_ref": "repo:ledger",
+    "snapshot_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+    "snapshot_ref": "snapshot:01"
+  },
+  "result": {
+    "duration_ms": 10,
+    "exit_code": 0,
+    "metrics": {
+      "errors": null,
+      "failed": 0,
+      "passed": 1,
+      "skipped": 0
+    },
+    "summary": "1 passed"
+  },
+  "schema_version": "0.2.0",
+  "source": {
+    "command_display": "cargo test",
+    "runner_version": "project-ledger/0.2.0",
+    "source_type": "COMMAND_EXECUTION",
+    "tool": "cargo",
+    "working_directory_ref": "workspace://root"
+  },
+  "status": "VERIFIED_SOURCE"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "integration": "gskills",
+  "product_version": "0.3.0",
+  "document_revision": "E2E-CONSOLIDATED-1",
+  "profile": "gskills-context-provider/0.3.0",
+  "source_spec_sha256": "8ddbb2a9c23bf7355a1e577d93a0c541b0986df7416ab64069aea16295376928",
+  "source_provider_lock_sha256": "3e4d5a36cc4e380ced145b2aec51f3138e3af5793ad1997ab192c817db3d4127",
+  "schema_registry_sha256": null,
+  "fixture_manifest_sha256": null,
+  "reciprocal_lock_status": "PENDING_REFRESH",
+  "certified_compatibility": false
+}

@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "AuthorityPolicy": {
+      "enum": [
+        "SPEC_FIRST"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ProjectLifecycleStatus": {
+      "enum": [
+        "INITIALIZING",
+        "ACTIVE",
+        "PAUSED",
+        "BLOCKED",
+        "COMPLETED",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    },
+    "StorageProfile": {
+      "enum": [
+        "USER_DATA",
+        "PORTABLE"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:project:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "archived_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authority_policy": {
+      "$ref": "#/$defs/AuthorityPolicy"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "lifecycle_status": {
+      "$ref": "#/$defs/ProjectLifecycleStatus"
+    },
+    "paused_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "repository_binding_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "storage_profile": {
+      "$ref": "#/$defs/StorageProfile"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "title",
+    "summary",
+    "lifecycle_status",
+    "created_at",
+    "timezone",
+    "authority_policy",
+    "storage_profile",
+    "repository_binding_refs"
+  ],
+  "title": "Project",
+  "type": "object"
+}

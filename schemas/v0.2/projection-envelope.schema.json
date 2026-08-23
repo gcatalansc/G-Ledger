@@ -1,0 +1,1223 @@
+{
+  "$defs": {
+    "AuthorityDocument": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_rank": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "document_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "effective_from": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "status": {
+          "$ref": "#/$defs/AuthorityDocumentStatus"
+        },
+        "supersedes_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uri": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "document_id",
+        "uri",
+        "digest",
+        "version",
+        "status",
+        "authority_rank",
+        "effective_from"
+      ],
+      "type": "object"
+    },
+    "AuthorityDocumentStatus": {
+      "enum": [
+        "CURRENT",
+        "DRAFT",
+        "LEGACY",
+        "DEPRECATED",
+        "SUPERSEDED",
+        "UNAVAILABLE",
+        "DIGEST_MISMATCH"
+      ],
+      "type": "string"
+    },
+    "AuthorityPolicy": {
+      "enum": [
+        "SPEC_FIRST"
+      ],
+      "type": "string"
+    },
+    "CheckpointFreshnessStatus": {
+      "enum": [
+        "CURRENT",
+        "CURRENT_FOR_PROJECT_ONLY",
+        "STALE_FOR_REPOSITORY",
+        "STALE_FOR_AUTHORITY",
+        "SUPERSEDED_BY_NEWER_CHECKPOINT",
+        "CONFLICTED",
+        "INVALIDATED",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "FreshnessStatus": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "UNAVAILABLE",
+        "CONFLICTED",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "LedgerRadarProjectProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "attention_signals": {
+          "items": {
+            "$ref": "#/$defs/RadarAttentionSignal"
+          },
+          "type": "array"
+        },
+        "continuity": {
+          "$ref": "#/$defs/RadarContinuity"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "freshness": {
+          "$ref": "#/$defs/RadarFreshness"
+        },
+        "identity": {
+          "$ref": "#/$defs/RadarIdentity"
+        },
+        "privacy": {
+          "$ref": "#/$defs/RadarPrivacy"
+        },
+        "project": {
+          "$ref": "#/$defs/RadarProjectSummary"
+        },
+        "projection_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "projection_kind": {
+          "type": "string"
+        },
+        "provenance_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source": {
+          "$ref": "#/$defs/RadarSource"
+        }
+      },
+      "required": [
+        "schema_version",
+        "projection_id",
+        "projection_kind",
+        "source",
+        "identity",
+        "project",
+        "continuity",
+        "attention_signals",
+        "freshness",
+        "privacy",
+        "created_at",
+        "provenance_ref",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "PhaseKind": {
+      "enum": [
+        "DISCOVERY",
+        "FORMALIZATION",
+        "IMPLEMENTATION",
+        "TESTING",
+        "AUDIT",
+        "RELEASE",
+        "MAINTENANCE",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "PhaseStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ACTIVE",
+        "BLOCKED",
+        "READY_TO_CLOSE",
+        "COMPLETED",
+        "REVALIDATION_REQUIRED",
+        "SKIPPED"
+      ],
+      "type": "string"
+    },
+    "Project": {
+      "additionalProperties": false,
+      "properties": {
+        "archived_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authority_policy": {
+          "$ref": "#/$defs/AuthorityPolicy"
+        },
+        "created_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "lifecycle_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "paused_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "project_id": {
+          "type": "string"
+        },
+        "repository_binding_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "storage_profile": {
+          "$ref": "#/$defs/StorageProfile"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "title",
+        "summary",
+        "lifecycle_status",
+        "created_at",
+        "timezone",
+        "authority_policy",
+        "storage_profile",
+        "repository_binding_refs"
+      ],
+      "type": "object"
+    },
+    "ProjectLifecycleStatus": {
+      "enum": [
+        "INITIALIZING",
+        "ACTIVE",
+        "PAUSED",
+        "BLOCKED",
+        "COMPLETED",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    },
+    "ProjectState": {
+      "additionalProperties": false,
+      "properties": {
+        "active_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "authority_documents": {
+          "items": {
+            "$ref": "#/$defs/AuthorityDocument"
+          },
+          "type": "array"
+        },
+        "checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completed_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "current_decision_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "last_material_activity_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "last_material_event_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "material_state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_blocker_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "open_conflict_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "open_risk_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "ordered_next_action_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "pending_gate_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "preferred_next_action_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primary_active_phase_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "project": {
+          "$ref": "#/$defs/Project"
+        },
+        "project_state_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "revalidation_required_gate_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "roadmap": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Roadmap"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "state_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "verified_gate_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "project_state_id",
+        "project",
+        "state_version",
+        "material_state_version",
+        "authority_documents",
+        "active_phase_refs",
+        "completed_phase_refs",
+        "pending_gate_refs",
+        "verified_gate_refs",
+        "revalidation_required_gate_refs",
+        "current_decision_refs",
+        "open_blocker_refs",
+        "open_risk_refs",
+        "ordered_next_action_refs",
+        "open_conflict_refs",
+        "updated_at",
+        "state_digest"
+      ],
+      "type": "object"
+    },
+    "ProjectionPayload": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "payload": {
+              "$ref": "#/$defs/ResumeProjection"
+            },
+            "projection_kind": {
+              "const": "PROJECT_CONTINUITY",
+              "type": "string"
+            }
+          },
+          "required": [
+            "projection_kind",
+            "payload"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "payload": {
+              "$ref": "#/$defs/ProjectState"
+            },
+            "projection_kind": {
+              "const": "PROJECT_STATE",
+              "type": "string"
+            }
+          },
+          "required": [
+            "projection_kind",
+            "payload"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "payload": {
+              "$ref": "#/$defs/LedgerRadarProjectProjection"
+            },
+            "projection_kind": {
+              "const": "LEDGER_PROJECT_SUMMARY",
+              "type": "string"
+            }
+          },
+          "required": [
+            "projection_kind",
+            "payload"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "RadarAttentionSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "subject_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "code",
+        "subject_ref",
+        "severity"
+      ],
+      "type": "object"
+    },
+    "RadarConflictCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "critical_open_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "critical_open_count"
+      ],
+      "type": "object"
+    },
+    "RadarContinuity": {
+      "additionalProperties": false,
+      "properties": {
+        "active_phases": {
+          "items": {
+            "$ref": "#/$defs/RadarPhaseSummary"
+          },
+          "type": "array"
+        },
+        "authority_health": {
+          "$ref": "#/$defs/FreshnessStatus"
+        },
+        "blockers": {
+          "$ref": "#/$defs/RadarCounts"
+        },
+        "checkpoint_freshness": {
+          "$ref": "#/$defs/CheckpointFreshnessStatus"
+        },
+        "conflicts": {
+          "$ref": "#/$defs/RadarConflictCounts"
+        },
+        "gates": {
+          "$ref": "#/$defs/RadarGateCounts"
+        },
+        "last_material_activity_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_action_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "preferred_next_action_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primary_phase": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RadarPhaseSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "progress": {
+          "$ref": "#/$defs/RadarProgress"
+        },
+        "risks": {
+          "$ref": "#/$defs/RadarCounts"
+        }
+      },
+      "required": [
+        "active_phases",
+        "progress",
+        "blockers",
+        "risks",
+        "gates",
+        "conflicts",
+        "next_action_refs",
+        "checkpoint_freshness",
+        "authority_health"
+      ],
+      "type": "object"
+    },
+    "RadarCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "critical_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "open_count",
+        "critical_count"
+      ],
+      "type": "object"
+    },
+    "RadarFreshness": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "status": {
+          "$ref": "#/$defs/FreshnessStatus"
+        }
+      },
+      "required": [
+        "status",
+        "evaluated_at"
+      ],
+      "type": "object"
+    },
+    "RadarGateCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "pending_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "revalidation_required_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pending_count",
+        "revalidation_required_count"
+      ],
+      "type": "object"
+    },
+    "RadarIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "ledger_project_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "repository_identity_digests": {
+          "items": {
+            "$ref": "#/$defs/Sha256Digest"
+          },
+          "type": "array"
+        },
+        "source_aliases": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "stable_project_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ledger_project_ref",
+        "stable_project_id",
+        "repository_identity_digests",
+        "source_aliases"
+      ],
+      "type": "object"
+    },
+    "RadarPercentage": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "basis_points": {
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "unavailable_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "available"
+      ],
+      "type": "object"
+    },
+    "RadarPhaseSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/PhaseKind"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "status": {
+          "$ref": "#/$defs/PhaseStatus"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "title",
+        "kind",
+        "status"
+      ],
+      "type": "object"
+    },
+    "RadarPrivacy": {
+      "additionalProperties": false,
+      "properties": {
+        "event_log_included": {
+          "type": "boolean"
+        },
+        "evidence_payloads_included": {
+          "type": "boolean"
+        },
+        "repository_paths_included": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "event_log_included",
+        "evidence_payloads_included",
+        "repository_paths_included"
+      ],
+      "type": "object"
+    },
+    "RadarProgress": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_required_phases": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "method": {
+          "$ref": "#/$defs/RadarProgressMethod"
+        },
+        "percentage": {
+          "$ref": "#/$defs/RadarPercentage"
+        },
+        "status": {
+          "$ref": "#/$defs/RadarProgressStatus"
+        },
+        "total_required_gates": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_required_phases": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "verified_required_gates": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "method",
+        "completed_required_phases",
+        "total_required_phases",
+        "verified_required_gates",
+        "total_required_gates",
+        "percentage",
+        "status"
+      ],
+      "type": "object"
+    },
+    "RadarProgressMethod": {
+      "enum": [
+        "LINEAR_REQUIRED_PHASES"
+      ],
+      "type": "string"
+    },
+    "RadarProgressStatus": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "UNAVAILABLE"
+      ],
+      "type": "string"
+    },
+    "RadarProjectSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "bounded_summary": {
+          "type": "string"
+        },
+        "canonical_title": {
+          "type": "string"
+        },
+        "lifecycle_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "status_mapping_rule": {
+          "type": "string"
+        },
+        "suggested_radar_status": {
+          "$ref": "#/$defs/SuggestedRadarStatus"
+        }
+      },
+      "required": [
+        "canonical_title",
+        "bounded_summary",
+        "lifecycle_status",
+        "suggested_radar_status",
+        "status_mapping_rule"
+      ],
+      "type": "object"
+    },
+    "RadarSource": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "product_version": {
+          "type": "string"
+        },
+        "project_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "state_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "system": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "system",
+        "product_version",
+        "project_ref",
+        "state_version",
+        "state_digest"
+      ],
+      "type": "object"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "ResumeProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "active_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "authority_document_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "checkpoint_freshness": {
+          "$ref": "#/$defs/CheckpointFreshnessStatus"
+        },
+        "checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completed_phase_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "conflict_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "critical_unknown_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "current_decision_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "last_material_progress_summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "open_blocker_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "open_risk_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "pending_gate_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "preferred_next_action_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "project_ref": {
+          "type": "string"
+        },
+        "rendered_token_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "state_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "project_ref",
+        "state_version",
+        "state_digest",
+        "checkpoint_freshness",
+        "authority_document_refs",
+        "active_phase_refs",
+        "completed_phase_refs",
+        "current_decision_refs",
+        "open_blocker_refs",
+        "open_risk_refs",
+        "pending_gate_refs",
+        "critical_unknown_refs",
+        "conflict_refs",
+        "rendered_token_count",
+        "digest"
+      ],
+      "type": "object"
+    },
+    "Roadmap": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_policy": {
+          "$ref": "#/$defs/RoadmapCompletionPolicy"
+        },
+        "execution_model": {
+          "$ref": "#/$defs/RoadmapExecutionModel"
+        },
+        "phase_order": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "roadmap_id": {
+          "$ref": "#/$defs/StableId"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/SchemaVersion"
+        },
+        "source_document_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema_version",
+        "roadmap_id",
+        "title",
+        "execution_model",
+        "phase_order",
+        "completion_policy",
+        "version",
+        "source_document_ref"
+      ],
+      "type": "object"
+    },
+    "RoadmapCompletionPolicy": {
+      "enum": [
+        "ALL_REQUIRED_PHASES"
+      ],
+      "type": "string"
+    },
+    "RoadmapExecutionModel": {
+      "enum": [
+        "SEQUENTIAL"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    },
+    "StorageProfile": {
+      "enum": [
+        "USER_DATA",
+        "PORTABLE"
+      ],
+      "type": "string"
+    },
+    "SuggestedRadarStatus": {
+      "enum": [
+        "FORMALIZING",
+        "SPEC_READY",
+        "IN_DEVELOPMENT",
+        "TESTING",
+        "AUDITING",
+        "BLOCKED",
+        "PAUSED",
+        "DONE",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "coverage": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "freshness": {
+      "$ref": "#/$defs/FreshnessStatus"
+    },
+    "manifest_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "omissions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/ProjectionPayload"
+    },
+    "payload_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "payload_schema_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "privacy_profile": {
+      "type": "string"
+    },
+    "profile": {
+      "type": "string"
+    },
+    "project_ref": {
+      "type": "string"
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source_product": {
+      "type": "string"
+    },
+    "source_version": {
+      "type": "string"
+    },
+    "state_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_ref",
+    "profile",
+    "source_product",
+    "source_version",
+    "manifest_digest",
+    "project_ref",
+    "state_version",
+    "state_digest",
+    "payload_schema_ref",
+    "payload_digest",
+    "freshness",
+    "coverage",
+    "omissions",
+    "privacy_profile",
+    "provenance_ref",
+    "payload"
+  ],
+  "title": "ProjectionEnvelope",
+  "type": "object"
+}

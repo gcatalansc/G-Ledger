@@ -1,0 +1,585 @@
+{
+  "$defs": {
+    "CheckpointFreshnessStatus": {
+      "enum": [
+        "CURRENT",
+        "CURRENT_FOR_PROJECT_ONLY",
+        "STALE_FOR_REPOSITORY",
+        "STALE_FOR_AUTHORITY",
+        "SUPERSEDED_BY_NEWER_CHECKPOINT",
+        "CONFLICTED",
+        "INVALIDATED",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "FreshnessStatus": {
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "UNAVAILABLE",
+        "CONFLICTED",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "PhaseKind": {
+      "enum": [
+        "DISCOVERY",
+        "FORMALIZATION",
+        "IMPLEMENTATION",
+        "TESTING",
+        "AUDIT",
+        "RELEASE",
+        "MAINTENANCE",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "PhaseStatus": {
+      "enum": [
+        "NOT_STARTED",
+        "ACTIVE",
+        "BLOCKED",
+        "READY_TO_CLOSE",
+        "COMPLETED",
+        "REVALIDATION_REQUIRED",
+        "SKIPPED"
+      ],
+      "type": "string"
+    },
+    "ProjectLifecycleStatus": {
+      "enum": [
+        "INITIALIZING",
+        "ACTIVE",
+        "PAUSED",
+        "BLOCKED",
+        "COMPLETED",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    },
+    "RadarAttentionSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "subject_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "code",
+        "subject_ref",
+        "severity"
+      ],
+      "type": "object"
+    },
+    "RadarConflictCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "critical_open_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "critical_open_count"
+      ],
+      "type": "object"
+    },
+    "RadarContinuity": {
+      "additionalProperties": false,
+      "properties": {
+        "active_phases": {
+          "items": {
+            "$ref": "#/$defs/RadarPhaseSummary"
+          },
+          "type": "array"
+        },
+        "authority_health": {
+          "$ref": "#/$defs/FreshnessStatus"
+        },
+        "blockers": {
+          "$ref": "#/$defs/RadarCounts"
+        },
+        "checkpoint_freshness": {
+          "$ref": "#/$defs/CheckpointFreshnessStatus"
+        },
+        "conflicts": {
+          "$ref": "#/$defs/RadarConflictCounts"
+        },
+        "gates": {
+          "$ref": "#/$defs/RadarGateCounts"
+        },
+        "last_material_activity_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LedgerTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_action_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        },
+        "preferred_next_action_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primary_phase": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RadarPhaseSummary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "progress": {
+          "$ref": "#/$defs/RadarProgress"
+        },
+        "risks": {
+          "$ref": "#/$defs/RadarCounts"
+        }
+      },
+      "required": [
+        "active_phases",
+        "progress",
+        "blockers",
+        "risks",
+        "gates",
+        "conflicts",
+        "next_action_refs",
+        "checkpoint_freshness",
+        "authority_health"
+      ],
+      "type": "object"
+    },
+    "RadarCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "critical_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "open_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "open_count",
+        "critical_count"
+      ],
+      "type": "object"
+    },
+    "RadarFreshness": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluated_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "status": {
+          "$ref": "#/$defs/FreshnessStatus"
+        }
+      },
+      "required": [
+        "status",
+        "evaluated_at"
+      ],
+      "type": "object"
+    },
+    "RadarGateCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "pending_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "revalidation_required_count": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pending_count",
+        "revalidation_required_count"
+      ],
+      "type": "object"
+    },
+    "RadarIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "ledger_project_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "repository_identity_digests": {
+          "items": {
+            "$ref": "#/$defs/Sha256Digest"
+          },
+          "type": "array"
+        },
+        "source_aliases": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "stable_project_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ledger_project_ref",
+        "stable_project_id",
+        "repository_identity_digests",
+        "source_aliases"
+      ],
+      "type": "object"
+    },
+    "RadarPercentage": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "basis_points": {
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "unavailable_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "available"
+      ],
+      "type": "object"
+    },
+    "RadarPhaseSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/PhaseKind"
+        },
+        "phase_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "status": {
+          "$ref": "#/$defs/PhaseStatus"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_ref",
+        "title",
+        "kind",
+        "status"
+      ],
+      "type": "object"
+    },
+    "RadarPrivacy": {
+      "additionalProperties": false,
+      "properties": {
+        "event_log_included": {
+          "type": "boolean"
+        },
+        "evidence_payloads_included": {
+          "type": "boolean"
+        },
+        "repository_paths_included": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "event_log_included",
+        "evidence_payloads_included",
+        "repository_paths_included"
+      ],
+      "type": "object"
+    },
+    "RadarProgress": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_required_phases": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "method": {
+          "$ref": "#/$defs/RadarProgressMethod"
+        },
+        "percentage": {
+          "$ref": "#/$defs/RadarPercentage"
+        },
+        "status": {
+          "$ref": "#/$defs/RadarProgressStatus"
+        },
+        "total_required_gates": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total_required_phases": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "verified_required_gates": {
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "method",
+        "completed_required_phases",
+        "total_required_phases",
+        "verified_required_gates",
+        "total_required_gates",
+        "percentage",
+        "status"
+      ],
+      "type": "object"
+    },
+    "RadarProgressMethod": {
+      "enum": [
+        "LINEAR_REQUIRED_PHASES"
+      ],
+      "type": "string"
+    },
+    "RadarProgressStatus": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "UNAVAILABLE"
+      ],
+      "type": "string"
+    },
+    "RadarProjectSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "bounded_summary": {
+          "type": "string"
+        },
+        "canonical_title": {
+          "type": "string"
+        },
+        "lifecycle_status": {
+          "$ref": "#/$defs/ProjectLifecycleStatus"
+        },
+        "status_mapping_rule": {
+          "type": "string"
+        },
+        "suggested_radar_status": {
+          "$ref": "#/$defs/SuggestedRadarStatus"
+        }
+      },
+      "required": [
+        "canonical_title",
+        "bounded_summary",
+        "lifecycle_status",
+        "suggested_radar_status",
+        "status_mapping_rule"
+      ],
+      "type": "object"
+    },
+    "RadarSource": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checkpoint_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResourceRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "product_version": {
+          "type": "string"
+        },
+        "project_ref": {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        "state_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "state_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "system": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "system",
+        "product_version",
+        "project_ref",
+        "state_version",
+        "state_digest"
+      ],
+      "type": "object"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    },
+    "SuggestedRadarStatus": {
+      "enum": [
+        "FORMALIZING",
+        "SPEC_READY",
+        "IN_DEVELOPMENT",
+        "TESTING",
+        "AUDITING",
+        "BLOCKED",
+        "PAUSED",
+        "DONE",
+        "ARCHIVED"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attention_signals": {
+      "items": {
+        "$ref": "#/$defs/RadarAttentionSignal"
+      },
+      "type": "array"
+    },
+    "continuity": {
+      "$ref": "#/$defs/RadarContinuity"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "freshness": {
+      "$ref": "#/$defs/RadarFreshness"
+    },
+    "identity": {
+      "$ref": "#/$defs/RadarIdentity"
+    },
+    "privacy": {
+      "$ref": "#/$defs/RadarPrivacy"
+    },
+    "project": {
+      "$ref": "#/$defs/RadarProjectSummary"
+    },
+    "projection_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "projection_kind": {
+      "type": "string"
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source": {
+      "$ref": "#/$defs/RadarSource"
+    }
+  },
+  "required": [
+    "schema_version",
+    "projection_id",
+    "projection_kind",
+    "source",
+    "identity",
+    "project",
+    "continuity",
+    "attention_signals",
+    "freshness",
+    "privacy",
+    "created_at",
+    "provenance_ref",
+    "digest"
+  ],
+  "title": "LedgerRadarProjectProjection",
+  "type": "object"
+}

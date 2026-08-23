@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "RoadmapCompletionPolicy": {
+      "enum": [
+        "ALL_REQUIRED_PHASES"
+      ],
+      "type": "string"
+    },
+    "RoadmapExecutionModel": {
+      "enum": [
+        "SEQUENTIAL"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:roadmap:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completion_policy": {
+      "$ref": "#/$defs/RoadmapCompletionPolicy"
+    },
+    "execution_model": {
+      "$ref": "#/$defs/RoadmapExecutionModel"
+    },
+    "phase_order": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "roadmap_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source_document_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "roadmap_id",
+    "title",
+    "execution_model",
+    "phase_order",
+    "completion_policy",
+    "version",
+    "source_document_ref"
+  ],
+  "title": "Roadmap",
+  "type": "object"
+}

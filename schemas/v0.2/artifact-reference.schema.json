@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "ArtifactKind": {
+      "enum": [
+        "SPEC",
+        "AUDIT",
+        "BUILD",
+        "REPORT",
+        "PACKAGE",
+        "REPOSITORY",
+        "OTHER"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sensitivity": {
+      "enum": [
+        "PUBLIC",
+        "INTERNAL",
+        "SENSITIVE",
+        "SECRET"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:artifact-reference:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifact_ref_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "kind": {
+      "$ref": "#/$defs/ArtifactKind"
+    },
+    "name": {
+      "type": "string"
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "sensitivity": {
+      "$ref": "#/$defs/Sensitivity"
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "uri": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_ref_id",
+    "name",
+    "kind",
+    "uri",
+    "digest",
+    "sensitivity",
+    "created_at",
+    "provenance_ref"
+  ],
+  "title": "ArtifactReference",
+  "type": "object"
+}

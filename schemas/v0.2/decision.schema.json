@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "DecisionStatus": {
+      "enum": [
+        "PROPOSED",
+        "ACCEPTED",
+        "SUPERSEDED",
+        "REJECTED",
+        "DEPRECATED",
+        "REVALIDATION_REQUIRED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:decision:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "accepted_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "alternatives": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "authority_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "context": {
+      "type": "string"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "decision": {
+      "type": "string"
+    },
+    "decision_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/DecisionStatus"
+    },
+    "supersedes_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "decision_id",
+    "title",
+    "domain",
+    "scope",
+    "context",
+    "decision",
+    "rationale",
+    "alternatives",
+    "status",
+    "version",
+    "evidence_refs",
+    "created_at",
+    "provenance_ref",
+    "digest"
+  ],
+  "title": "Decision",
+  "type": "object"
+}

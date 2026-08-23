@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:gate-waiver:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "authority_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gate_definition_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "gate_definition_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "gate_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "review_condition": {
+      "type": "string"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "waiver_id": {
+      "$ref": "#/$defs/StableId"
+    }
+  },
+  "required": [
+    "schema_version",
+    "waiver_id",
+    "gate_ref",
+    "gate_definition_version",
+    "gate_definition_digest",
+    "actor_ref",
+    "reason",
+    "scope",
+    "review_condition",
+    "authority_ref",
+    "created_at",
+    "digest"
+  ],
+  "title": "GateWaiver",
+  "type": "object"
+}

@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "ExternalSubmissionState": {
+      "enum": [
+        "PREPARED",
+        "APPROVAL_REQUIRED",
+        "APPROVED",
+        "SUBMITTED",
+        "OUTCOME_UNKNOWN",
+        "RECONCILED_ACCEPTED",
+        "RECONCILED_REJECTED",
+        "CANCELLED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:external-submission-record:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attempt_count": {
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "command_ref": {
+      "type": "string"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/StableId"
+    },
+    "known_result_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_transport_error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "prepared_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "reconciled_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "state": {
+      "$ref": "#/$defs/ExternalSubmissionState"
+    },
+    "submission_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "submitted_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "submission_id",
+    "command_ref",
+    "idempotency_key",
+    "state",
+    "attempt_count",
+    "prepared_at",
+    "digest"
+  ],
+  "title": "ExternalSubmissionRecord",
+  "type": "object"
+}

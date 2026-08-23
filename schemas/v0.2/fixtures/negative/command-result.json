@@ -1,0 +1,19 @@
+{
+  "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "command_result_id": "result:01",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "emitted_event_refs": [
+    "event:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d"
+  ],
+  "idempotency": {
+    "replayed": false
+  },
+  "new_state_version": 5,
+  "previous_state_version": 4,
+  "processed_at": "2026-08-22T12:00:00-04:00",
+  "rejection": null,
+  "resulting_checkpoint_ref": null,
+  "schema_version": "0.2.0",
+  "status": "ACCEPTED",
+  "unexpected_contract_field": true
+}

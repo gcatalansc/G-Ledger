@@ -1,0 +1,6 @@
+{
+  "command_type": "START_PHASE",
+  "payload": {
+    "phase_ref": "phase-0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "conflict_id": "conflict:01",
+  "domain": "integration",
+  "kind": "EXTERNAL_VERSION_CONFLICT",
+  "opened_at": "2026-08-22T12:00:00-04:00",
+  "required_action": "Refresh lock",
+  "resolution_ref": null,
+  "resolved_at": null,
+  "schema_version": "0.2.0",
+  "severity": "HIGH",
+  "source_refs": [
+    "urn:project-ledger:integration:gskills"
+  ],
+  "status": "OPEN",
+  "subject_refs": [
+    "gate:integration"
+  ]
+}

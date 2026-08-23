@@ -1,0 +1,24 @@
+{
+  "closed_at": null,
+  "description": "Contracts may diverge",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evidence_refs": [],
+  "likelihood_class": "POSSIBLE",
+  "mitigation_actions": [
+    "offline registry"
+  ],
+  "opened_at": "2026-08-22T12:00:00-04:00",
+  "owner_ref": "human:owner",
+  "provenance_ref": "project-ledger://provenance/risk-01",
+  "risk_id": "risk:01",
+  "schema_version": "0.2.0",
+  "scope_kind": "PROJECT",
+  "scope_ref": "phase-0",
+  "severity": "HIGH",
+  "status": "MONITORED",
+  "title": "Schema drift",
+  "trigger_conditions": [
+    "digest mismatch"
+  ],
+  "updated_at": "2026-08-22T12:00:00-04:00"
+}

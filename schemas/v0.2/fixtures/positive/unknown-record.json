@@ -1,0 +1,22 @@
+{
+  "blocks": [
+    "phase-0"
+  ],
+  "criticality": "MATERIAL",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evidence_refs": [],
+  "field_path": "evidence.complete",
+  "opened_at": "2026-08-22T12:00:00-04:00",
+  "provenance_ref": "project-ledger://provenance/unknown-01",
+  "required_evidence": [
+    "contract test"
+  ],
+  "resolution_ref": null,
+  "resolved_at": null,
+  "schema_version": "0.2.0",
+  "statement": "Coverage not yet known",
+  "status": "OPEN",
+  "subject_kind": "GATE",
+  "subject_ref": "gate:contracts",
+  "unknown_id": "unknown:01"
+}

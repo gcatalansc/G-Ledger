@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "ConflictKind": {
+      "enum": [
+        "AUTHORITY_DOCUMENT_DIVERGENCE",
+        "ACTIVE_PHASE_DIVERGENCE",
+        "GATE_STATE_DIVERGENCE",
+        "DECISION_DIVERGENCE",
+        "CHECKPOINT_STALE",
+        "REPOSITORY_BINDING_STALE",
+        "LEGACY_IMPORT_CONTRADICTION",
+        "EXTERNAL_VERSION_CONFLICT",
+        "SOURCE_DIVERGENCE",
+        "STREAM_DIVERGENCE"
+      ],
+      "type": "string"
+    },
+    "ConflictStatus": {
+      "enum": [
+        "OPEN",
+        "RESOLVED",
+        "ACCEPTED",
+        "SUPERSEDED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:conflict-record:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "conflict_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/ConflictKind"
+    },
+    "opened_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "required_action": {
+      "type": "string"
+    },
+    "resolution_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResourceRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resolved_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "source_refs": {
+      "items": {
+        "$ref": "#/$defs/ResourceRef"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/ConflictStatus"
+    },
+    "subject_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "conflict_id",
+    "kind",
+    "severity",
+    "domain",
+    "subject_refs",
+    "source_refs",
+    "status",
+    "required_action",
+    "opened_at"
+  ],
+  "title": "ConflictRecord",
+  "type": "object"
+}

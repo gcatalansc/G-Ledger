@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "CommandRejection": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "type": "string"
+        },
+        "subject_refs": {
+          "items": {
+            "$ref": "#/$defs/StableId"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "subject_refs"
+      ],
+      "type": "object"
+    },
+    "CommandResultStatus": {
+      "enum": [
+        "ACCEPTED",
+        "REJECTED",
+        "VERSION_CONFLICT",
+        "VALIDATION_FAILED",
+        "POLICY_DENIED",
+        "DUPLICATE_REPLAY",
+        "INCOMPATIBLE_CONTRACT"
+      ],
+      "type": "string"
+    },
+    "ErrorCode": {
+      "description": "Stable machine-readable error codes used by S1 contracts.",
+      "enum": [
+        "INVALID_IDENTIFIER",
+        "INVALID_TIMESTAMP",
+        "INVALID_REFERENCE",
+        "INVALID_DIGEST",
+        "INVALID_CONTRACT",
+        "SCHEMA_VALIDATION_FAILED",
+        "CHECKSUM_MISMATCH",
+        "COMMAND_EVENT_CONTRACT_VIOLATION"
+      ],
+      "type": "string"
+    },
+    "IdempotencyResult": {
+      "additionalProperties": false,
+      "properties": {
+        "replayed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "replayed"
+      ],
+      "type": "object"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:command-result:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "command_ref": {
+      "type": "string"
+    },
+    "command_result_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "emitted_event_refs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "idempotency": {
+      "$ref": "#/$defs/IdempotencyResult"
+    },
+    "new_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "previous_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "processed_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "rejection": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CommandRejection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resulting_checkpoint_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "status": {
+      "$ref": "#/$defs/CommandResultStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "command_result_id",
+    "command_ref",
+    "status",
+    "previous_state_version",
+    "new_state_version",
+    "emitted_event_refs",
+    "idempotency",
+    "processed_at",
+    "digest"
+  ],
+  "title": "CommandResult",
+  "type": "object"
+}

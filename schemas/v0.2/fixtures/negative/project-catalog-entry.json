@@ -1,0 +1,9 @@
+{
+  "canonical_title": "Project Ledger",
+  "last_seen_state_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "last_seen_state_version": 4,
+  "ledger_location_ref": "workspace://.project-ledger",
+  "project_ref": "project-ledger://projects/01",
+  "schema_version": "0.2.0",
+  "unexpected_contract_field": true
+}

@@ -1,0 +1,10 @@
+{
+  "actor_ref": "agent:codex",
+  "ended_at": null,
+  "ending_checkpoint_ref": null,
+  "host": "windows",
+  "schema_version": "0.2.0",
+  "session_id": "session:01",
+  "started_at": "2026-08-22T12:00:00-04:00",
+  "starting_checkpoint_ref": null
+}

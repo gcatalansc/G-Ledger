@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "IdentityMethod": {
+      "enum": [
+        "EXPLICIT_ID",
+        "REMOTE_DIGEST",
+        "SIGNED_BINDING",
+        "USER_CONFIRMED",
+        "IMPORTED_MAPPING_REVIEWED"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "RadarLinkStatus": {
+      "enum": [
+        "CANDIDATE",
+        "CONFIRMED",
+        "REVOKED",
+        "CONFLICTED"
+      ],
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:radar:radar-project-link:0.1.1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "ledger_project_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "link_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "method": {
+      "$ref": "#/$defs/IdentityMethod"
+    },
+    "radar_project_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "status": {
+      "$ref": "#/$defs/RadarLinkStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "link_id",
+    "ledger_project_ref",
+    "radar_project_ref",
+    "status",
+    "method",
+    "actor_ref",
+    "created_at",
+    "digest"
+  ],
+  "title": "RadarProjectLink",
+  "type": "object"
+}

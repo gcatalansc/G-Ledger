@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "integration": "project-radar",
+  "product_version": "0.1.0",
+  "source_spec_sha256": "277f356cd96c276b3dddf5ef64197e9531cb3acffdbca94232c23de8b7d68c6b",
+  "profile": "project-ledger-radar-artifact/0.1.1",
+  "profile_schema_sha256": null,
+  "counterpart_extension_status": "PENDING",
+  "certified_compatibility": false
+}

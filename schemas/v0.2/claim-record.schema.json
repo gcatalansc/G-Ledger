@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "ClaimClassification": {
+      "enum": [
+        "ASSERTED",
+        "OBSERVED",
+        "VERIFIED",
+        "REJECTED",
+        "STALE",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:claim-record:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "claim_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "classification": {
+      "$ref": "#/$defs/ClaimClassification"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "statement": {
+      "type": "string"
+    },
+    "subject_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "claim_id",
+    "statement",
+    "classification",
+    "subject_refs",
+    "evidence_refs"
+  ],
+  "title": "ClaimRecord",
+  "type": "object"
+}

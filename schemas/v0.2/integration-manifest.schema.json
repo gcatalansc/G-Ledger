@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "IntegrationStorage": {
+      "additionalProperties": false,
+      "properties": {
+        "shared_database_required": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "shared_database_required"
+      ],
+      "type": "object"
+    },
+    "ProjectionCapability": {
+      "enum": [
+        "PROJECT_CONTINUITY",
+        "LEDGER_PROJECT_SUMMARY"
+      ],
+      "type": "string"
+    },
+    "ProtocolDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "RecordCapability": {
+      "enum": [
+        "RECORD_WORK_PROGRESS",
+        "RECORD_VERIFICATION_RESULT",
+        "REQUEST_GATE_EVALUATION",
+        "REQUEST_GATE_REVALIDATION",
+        "CREATE_CONTINUITY_CHECKPOINT"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "SideEffectContract": {
+      "additionalProperties": false,
+      "properties": {
+        "health": {
+          "$ref": "#/$defs/SideEffectLevel"
+        },
+        "projection": {
+          "$ref": "#/$defs/SideEffectLevel"
+        },
+        "record_submit": {
+          "$ref": "#/$defs/SideEffectLevel"
+        }
+      },
+      "required": [
+        "projection",
+        "health",
+        "record_submit"
+      ],
+      "type": "object"
+    },
+    "SideEffectLevel": {
+      "enum": [
+        "NONE",
+        "DECLARED_ONLY"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:integration-manifest:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "integration_manifest_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "projection_capabilities": {
+      "items": {
+        "$ref": "#/$defs/ProjectionCapability"
+      },
+      "type": "array"
+    },
+    "protocols": {
+      "items": {
+        "$ref": "#/$defs/ProtocolDescriptor"
+      },
+      "type": "array"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_version": {
+      "type": "string"
+    },
+    "record_capabilities": {
+      "items": {
+        "$ref": "#/$defs/RecordCapability"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "side_effect_contract": {
+      "$ref": "#/$defs/SideEffectContract"
+    },
+    "storage": {
+      "$ref": "#/$defs/IntegrationStorage"
+    },
+    "upstream_locks": {
+      "items": {
+        "$ref": "#/$defs/Sha256Digest"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "integration_manifest_id",
+    "provider_id",
+    "provider_version",
+    "protocols",
+    "projection_capabilities",
+    "record_capabilities",
+    "side_effect_contract",
+    "storage",
+    "upstream_locks",
+    "digest"
+  ],
+  "title": "IntegrationManifest",
+  "type": "object"
+}

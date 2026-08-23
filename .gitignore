@@ -1,0 +1,8 @@
+/target/
+/.tooling/
+/.project-ledger/
+*.db
+*.db-shm
+*.db-wal
+*.tmp
+*.bak

@@ -1,0 +1,21 @@
+{
+  "actor_ref": "agent:codex",
+  "claim_refs": [
+    "claim:01"
+  ],
+  "commit_refs": [],
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evidence_refs": [],
+  "files_or_artifacts": [
+    "workspace://schemas/v0.2"
+  ],
+  "influence": null,
+  "occurred_at": "2026-08-22T12:00:00-04:00",
+  "phase_ref": "phase-0",
+  "provenance_ref": "project-ledger://provenance/work-01",
+  "recorded_at": "2026-08-22T12:00:00-04:00",
+  "schema_version": "0.2.0",
+  "summary": "Implemented contracts",
+  "task_ref": null,
+  "work_record_id": "work:01"
+}

@@ -1,0 +1,12 @@
+{
+  "artifact_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "created_at": "2026-08-22T12:00:00-04:00",
+  "generated_artifact_id": "generated:01",
+  "kind": "MARKDOWN",
+  "privacy_profile": "FULL_LOCAL",
+  "renderer_version": "0.2.0",
+  "schema_version": "0.2.0",
+  "source_state_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "source_state_version": 4,
+  "uri": "workspace://BITACORA_PROYECTO.md"
+}

@@ -1,0 +1,21 @@
+{
+  "blocker_id": "blocker:01",
+  "description": "Upstream lock pending",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evidence_refs": [],
+  "opened_at": "2026-08-22T12:00:00-04:00",
+  "owner_ref": null,
+  "provenance_ref": "project-ledger://provenance/blocker-01",
+  "resolution_summary": null,
+  "resolved_at": null,
+  "schema_version": "0.2.0",
+  "scope_kind": "EXTERNAL",
+  "scope_ref": "gate:integration",
+  "severity": "HIGH",
+  "source_kind": "INTEGRATION",
+  "source_ref": "urn:project-ledger:integration:gskills",
+  "status": "OPEN",
+  "title": "Missing lock",
+  "unexpected_contract_field": true,
+  "updated_at": "2026-08-22T12:00:00-04:00"
+}

@@ -1,0 +1,1931 @@
+{
+  "schema_version": "0.2.0",
+  "entries": [
+    {
+      "schema_id": "urn:project-ledger:schema:blocker:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:checkpoint-freshness-record:0.2.0",
+      "schema_pointer": "#/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:claim-record:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:claim-record:0.2.0",
+      "schema_pointer": "#/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Blocker/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/CloseRiskPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/CompleteNextActionPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/alternatives",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/EvidenceRecord/properties/artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/required_evidence_rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/revalidate_on",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/MitigateRiskPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/blocked_by_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/precondition_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/0/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/1/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/13/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/17/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RecordEventCorrectionPayload/properties/replacement_field_values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/external_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/paths",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResolveBlockerPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/mitigation_actions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/trigger_conditions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/blocks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/required_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UpdateClaimStatusPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/claim_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/commit_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/files_or_artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Blocker/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/CloseRiskPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/CompleteNextActionPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/alternatives",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/EvidenceRecord/properties/artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/required_evidence_rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/revalidate_on",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/MitigateRiskPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/blocked_by_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/precondition_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/0/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/1/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/13/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/17/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/RecordEventCorrectionPayload/properties/replacement_field_values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/external_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/paths",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/ResolveBlockerPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/mitigation_actions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/trigger_conditions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/blocks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/required_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/UpdateClaimStatusPayload/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/claim_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/commit_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/files_or_artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-result:0.2.0",
+      "schema_pointer": "#/$defs/CommandRejection/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-result:0.2.0",
+      "schema_pointer": "#/properties/emitted_event_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:conflict-record:0.2.0",
+      "schema_pointer": "#/properties/source_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:conflict-record:0.2.0",
+      "schema_pointer": "#/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/authority_document_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/last_material_event_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/unknown_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+      "schema_pointer": "#/properties/verified_completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:decision:0.2.0",
+      "schema_pointer": "#/properties/alternatives",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:decision:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Blocker/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/BlockerResolvedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/CheckpointInvalidatedEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ClaimStatusChangedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ConflictRecord/properties/source_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ConflictRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/authority_document_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/last_material_event_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/unknown_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/verified_completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/alternatives",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/DecisionRevalidationRequiredEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/EventCorrectionRecordedEvent/properties/replacement_field_values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/EvidenceRecord/properties/artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/required_evidence_rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/revalidate_on",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/explanation_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/rejected_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/rule_results",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/selected_evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateMarkedStaleEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/GateRevalidationRequiredEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/LegacyCandidateSource/properties/line_range",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportCandidate/properties/conflicts_with",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportReview/properties/candidates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportReview/properties/decisions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/blocked_by_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/precondition_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/NextActionCompletedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PhaseBlockedEvent/properties/blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PhaseCompletedEvent/properties/gate_evaluation_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/0/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/1/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/13/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/17/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectStatusDerivedEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/external_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/paths",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/mitigation_actions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/trigger_conditions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RiskClosedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RiskMitigatedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/blocks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/required_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/claim_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/commit_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/files_or_artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Blocker/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/BlockerResolvedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/CheckpointInvalidatedEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ClaimRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ClaimStatusChangedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ConflictRecord/properties/source_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ConflictRecord/properties/subject_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/authority_document_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/last_material_event_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/unknown_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ContinuityCheckpoint/properties/verified_completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/alternatives",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Decision/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/DecisionRevalidationRequiredEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/EventCorrectionRecordedEvent/properties/replacement_field_values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/EvidenceRecord/properties/artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/required_evidence_rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateDefinition/properties/revalidate_on",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/explanation_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/rejected_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/rule_results",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateEvaluation/properties/selected_evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateMarkedStaleEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/GateRevalidationRequiredEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/LegacyCandidateSource/properties/line_range",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportCandidate/properties/conflicts_with",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportReview/properties/candidates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportReview/properties/decisions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/blocked_by_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/NextAction/properties/precondition_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/NextActionCompletedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PhaseBlockedEvent/properties/blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PhaseCompletedEvent/properties/gate_evaluation_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/0/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/1/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/13/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/17/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/ProjectStatusDerivedEvent/properties/reason_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/external_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/paths",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/mitigation_actions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Risk/properties/trigger_conditions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/RiskClosedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/RiskMitigatedEvent/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/blocks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/UnknownRecord/properties/required_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/claim_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/commit_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.2.0",
+      "schema_pointer": "#/$defs/WorkRecord/properties/files_or_artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:evidence-record:0.2.0",
+      "schema_pointer": "#/properties/artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/0/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/1/properties/predicates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/13/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/PredicateAst/oneOf/17/properties/values",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/external_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/$defs/RepositoryDependencies/properties/paths",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/properties/required_evidence_rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-definition:0.2.0",
+      "schema_pointer": "#/properties/revalidate_on",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-evaluation:0.2.0",
+      "schema_pointer": "#/properties/explanation_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-evaluation:0.2.0",
+      "schema_pointer": "#/properties/rejected_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-evaluation:0.2.0",
+      "schema_pointer": "#/properties/rule_results",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:gate-evaluation:0.2.0",
+      "schema_pointer": "#/properties/selected_evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:integration-manifest:0.2.0",
+      "schema_pointer": "#/properties/projection_capabilities",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:integration-manifest:0.2.0",
+      "schema_pointer": "#/properties/protocols",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:integration-manifest:0.2.0",
+      "schema_pointer": "#/properties/record_capabilities",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:integration-manifest:0.2.0",
+      "schema_pointer": "#/properties/upstream_locks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-candidate:0.2.0",
+      "schema_pointer": "#/$defs/LegacyCandidateSource/properties/line_range",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-candidate:0.2.0",
+      "schema_pointer": "#/properties/conflicts_with",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-review:0.2.0",
+      "schema_pointer": "#/$defs/LegacyCandidateSource/properties/line_range",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-review:0.2.0",
+      "schema_pointer": "#/$defs/LegacyImportCandidate/properties/conflicts_with",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-review:0.2.0",
+      "schema_pointer": "#/properties/candidates",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:legacy-import-review:0.2.0",
+      "schema_pointer": "#/properties/decisions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:loss-report:0.2.0",
+      "schema_pointer": "#/properties/items",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:next-action:0.2.0",
+      "schema_pointer": "#/properties/blocked_by_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:next-action:0.2.0",
+      "schema_pointer": "#/properties/precondition_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:phase:0.2.0",
+      "schema_pointer": "#/properties/optional_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:phase:0.2.0",
+      "schema_pointer": "#/properties/required_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/authority_documents",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/open_conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/ordered_next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/revalidation_required_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project-state:0.2.0",
+      "schema_pointer": "#/properties/verified_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:project:0.2.0",
+      "schema_pointer": "#/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/LedgerRadarProjectProjection/properties/attention_signals",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Project/properties/repository_binding_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/authority_documents",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/open_conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/ordered_next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/revalidation_required_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ProjectState/properties/verified_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/active_phases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/repository_identity_digests",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/source_aliases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/authority_document_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/critical_unknown_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/ResumeProjection/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/$defs/Roadmap/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/properties/coverage",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-envelope:0.2.0",
+      "schema_pointer": "#/properties/omissions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:projection-request:0.2.0",
+      "schema_pointer": "#/properties/requested_fields",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:provider-health:0.2.0",
+      "schema_pointer": "#/properties/explanation_codes",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:provider-health:0.2.0",
+      "schema_pointer": "#/properties/supported_protocols",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/active_phases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/repository_identity_digests",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/source_aliases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:ledger-radar-project-projection:0.1.1",
+      "schema_pointer": "#/properties/attention_signals",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-field-ownership-policy:0.1.1",
+      "schema_pointer": "#/properties/rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-status-mapping-policy:0.1.1",
+      "schema_pointer": "#/properties/rules",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/$defs/LedgerRadarProjectProjection/properties/attention_signals",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/active_phases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/$defs/RadarContinuity/properties/next_action_refs",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/repository_identity_digests",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/$defs/RadarIdentity/properties/source_aliases",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/properties/projects",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:radar:radar-sync-envelope:0.1.1",
+      "schema_pointer": "#/properties/tombstones",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/active_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/authority_document_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/completed_phase_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/conflict_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/critical_unknown_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/current_decision_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/open_blocker_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/open_risk_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:resume-projection:0.2.0",
+      "schema_pointer": "#/properties/pending_gate_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:risk:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:risk:0.2.0",
+      "schema_pointer": "#/properties/mitigation_actions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:risk:0.2.0",
+      "schema_pointer": "#/properties/trigger_conditions",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:roadmap:0.2.0",
+      "schema_pointer": "#/properties/phase_order",
+      "class": "SEQUENCE",
+      "canonical_key": null
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:unknown-record:0.2.0",
+      "schema_pointer": "#/properties/blocks",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:unknown-record:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:unknown-record:0.2.0",
+      "schema_pointer": "#/properties/required_evidence",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:work-record:0.2.0",
+      "schema_pointer": "#/properties/claim_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:work-record:0.2.0",
+      "schema_pointer": "#/properties/commit_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:work-record:0.2.0",
+      "schema_pointer": "#/properties/evidence_refs",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:work-record:0.2.0",
+      "schema_pointer": "#/properties/files_or_artifacts",
+      "class": "STABLE_SET",
+      "canonical_key": "CANONICAL_ELEMENT_DIGEST"
+    }
+  ]
+}

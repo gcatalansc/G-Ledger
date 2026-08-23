@@ -1,0 +1,29 @@
+{
+  "actor": {
+    "actor_id": "agent:codex",
+    "actor_kind": "AGENT",
+    "display_name": "Codex",
+    "trust_level": "LOCAL_USER"
+  },
+  "causation": {
+    "command_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+    "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+    "correlation_ref": "session:01"
+  },
+  "event_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "event_id": "event:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "event_schema_ref": "urn:project-ledger:event:phase-started:0.2.0",
+  "event_type": "PHASE_STARTED",
+  "occurred_at": "2026-08-22T12:00:00-04:00",
+  "payload": {
+    "phase_ref": "phase-0"
+  },
+  "payload_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "previous_event_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "recorded_at": "2026-08-22T12:00:00-04:00",
+  "schema_version": "0.2.0",
+  "stream_id": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "stream_version": 5,
+  "unexpected_contract_field": true
+}

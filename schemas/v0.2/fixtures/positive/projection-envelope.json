@@ -1,0 +1,52 @@
+{
+  "coverage": [
+    "continuity"
+  ],
+  "freshness": "CURRENT",
+  "manifest_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "omissions": [],
+  "payload": {
+    "payload": {
+      "active_phase_refs": [
+        "phase-0"
+      ],
+      "authority_document_refs": [
+        "authority:spec"
+      ],
+      "checkpoint_freshness": "CURRENT",
+      "checkpoint_ref": "checkpoint:01",
+      "completed_phase_refs": [],
+      "conflict_refs": [],
+      "critical_unknown_refs": [],
+      "current_decision_refs": [],
+      "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+      "last_material_progress_summary": "Contracts in progress",
+      "open_blocker_refs": [],
+      "open_risk_refs": [
+        "risk:01"
+      ],
+      "pending_gate_refs": [
+        "gate:contracts"
+      ],
+      "preferred_next_action_ref": "action:schemas",
+      "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+      "rendered_token_count": 120,
+      "schema_version": "0.2.0",
+      "state_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+      "state_version": 4
+    },
+    "projection_kind": "PROJECT_CONTINUITY"
+  },
+  "payload_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "payload_schema_ref": "urn:project-ledger:schema:resume-projection:0.2.0",
+  "privacy_profile": "MINIMAL_LOCAL",
+  "profile": "project-ledger-integration/0.2.0",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "provenance_ref": "project-ledger://provenance/projection-01",
+  "request_ref": "request:01",
+  "schema_version": "0.2.0",
+  "source_product": "project-ledger",
+  "source_version": "0.2.0",
+  "state_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "state_version": 4
+}

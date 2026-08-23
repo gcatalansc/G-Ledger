@@ -1,0 +1,35 @@
+{
+  "$defs": {
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:evidence-artifact-ref:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "persisted": {
+      "type": "boolean"
+    },
+    "uri": {
+      "$ref": "#/$defs/ResourceRef"
+    }
+  },
+  "required": [
+    "uri",
+    "digest",
+    "persisted"
+  ],
+  "title": "EvidenceArtifactRef",
+  "type": "object"
+}

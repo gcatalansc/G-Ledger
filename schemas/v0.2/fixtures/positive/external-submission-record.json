@@ -1,0 +1,14 @@
+{
+  "attempt_count": 1,
+  "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "idempotency_key": "session-01:start-phase:phase-0",
+  "known_result_ref": null,
+  "last_transport_error": "TIMEOUT_AFTER_SEND",
+  "prepared_at": "2026-08-22T12:00:00-04:00",
+  "reconciled_at": null,
+  "schema_version": "0.2.0",
+  "state": "OUTCOME_UNKNOWN",
+  "submission_id": "submission:01",
+  "submitted_at": "2026-08-22T12:00:00-04:00"
+}

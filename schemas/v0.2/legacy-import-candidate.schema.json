@@ -1,0 +1,93 @@
+{
+  "$defs": {
+    "LegacyCandidateAction": {
+      "enum": [
+        "REVIEW",
+        "IMPORT_AS_ASSERTED",
+        "IGNORE",
+        "ARCHIVE_ONLY"
+      ],
+      "type": "string"
+    },
+    "LegacyCandidateSource": {
+      "additionalProperties": false,
+      "properties": {
+        "line_range": {
+          "items": {
+            "format": "uint32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "path": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "section",
+        "line_range"
+      ],
+      "type": "object"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:legacy-import-candidate:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidate_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "conflicts_with": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "recommended_action": {
+      "$ref": "#/$defs/LegacyCandidateAction"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "source": {
+      "$ref": "#/$defs/LegacyCandidateSource"
+    },
+    "value": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "candidate_id",
+    "kind",
+    "value",
+    "source",
+    "conflicts_with",
+    "recommended_action"
+  ],
+  "title": "LegacyImportCandidate",
+  "type": "object"
+}

@@ -1,0 +1,6 @@
+{
+  "event_type": "PHASE_STARTED",
+  "payload": {
+    "phase_ref": "phase-0"
+  }
+}

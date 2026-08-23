@@ -1,0 +1,604 @@
+{
+  "$defs": {
+    "EvidenceKind": {
+      "enum": [
+        "TEST_RESULT",
+        "BUILD_RESULT",
+        "LINT_RESULT",
+        "FORMAT_RESULT",
+        "TYPECHECK_RESULT",
+        "SECURITY_SCAN_RESULT",
+        "PRIVACY_SCAN_RESULT",
+        "BENCHMARK_RESULT",
+        "SMOKE_RESULT",
+        "E2E_RESULT",
+        "MANUAL_REVIEW",
+        "ARTIFACT_DIGEST",
+        "FILE_EXISTENCE",
+        "SCHEMA_VALIDATION",
+        "MIGRATION_RESULT",
+        "EXTERNAL_VERIFIED_EVIDENCE",
+        "CUSTOM_DECLARATIVE"
+      ],
+      "type": "string"
+    },
+    "FreshnessPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_must_match_same_repository_snapshot": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "evidence_must_match_same_repository_snapshot"
+      ],
+      "type": "object"
+    },
+    "GateCompletionOperator": {
+      "enum": [
+        "ALL",
+        "ANY"
+      ],
+      "type": "string"
+    },
+    "GateCriticality": {
+      "enum": [
+        "REQUIRED",
+        "OPTIONAL"
+      ],
+      "type": "string"
+    },
+    "GateWaiverPolicy": {
+      "enum": [
+        "FORBIDDEN",
+        "HUMAN_APPROVAL",
+        "AUTHORITY_APPROVAL"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "PredicateAst": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "ALL",
+              "type": "string"
+            },
+            "predicates": {
+              "items": {
+                "$ref": "#/$defs/PredicateAst"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "predicates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "ANY",
+              "type": "string"
+            },
+            "predicates": {
+              "items": {
+                "$ref": "#/$defs/PredicateAst"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "predicates"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "NOT",
+              "type": "string"
+            },
+            "predicate": {
+              "$ref": "#/$defs/PredicateAst"
+            }
+          },
+          "required": [
+            "operator",
+            "predicate"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "NOT_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "LESS_THAN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "LESS_OR_EQUAL",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "GREATER_THAN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "GREATER_OR_EQUAL",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "EXISTS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "MISSING",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "path"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "CONTAINS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/ScalarValue"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "DIGEST_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/Sha256Digest"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "STATUS_IN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "values"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "COUNT_EQUALS",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "COUNT_AT_LEAST",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "operator": {
+              "const": "SAME_SNAPSHOT_AS",
+              "type": "string"
+            }
+          },
+          "required": [
+            "operator",
+            "evidence_ref"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "operator": {
+              "const": "FRESHNESS_IN",
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator",
+            "path",
+            "values"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "RepositoryDependencies": {
+      "additionalProperties": false,
+      "properties": {
+        "external_refs": {
+          "items": {
+            "$ref": "#/$defs/ResourceRef"
+          },
+          "type": "array"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "paths",
+        "external_refs"
+      ],
+      "type": "object"
+    },
+    "RequiredEvidenceRule": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "predicate": {
+          "$ref": "#/$defs/PredicateAst"
+        },
+        "rule_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "rule_id",
+        "kind",
+        "predicate"
+      ],
+      "type": "object"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "RevalidationTrigger": {
+      "enum": [
+        "EVIDENCE_INVALIDATED",
+        "REPOSITORY_DEPENDENCY_CHANGED",
+        "AUTHORITY_DOCUMENT_CHANGED"
+      ],
+      "type": "string"
+    },
+    "ScalarValue": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "format": "int64",
+          "type": "integer"
+        },
+        {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:gate-definition:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completion_rule": {
+      "$ref": "#/$defs/GateCompletionOperator"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "criticality": {
+      "$ref": "#/$defs/GateCriticality"
+    },
+    "definition_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "freshness_policy": {
+      "$ref": "#/$defs/FreshnessPolicy"
+    },
+    "gate_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "phase_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "repository_dependencies": {
+      "$ref": "#/$defs/RepositoryDependencies"
+    },
+    "required_evidence_rules": {
+      "items": {
+        "$ref": "#/$defs/RequiredEvidenceRule"
+      },
+      "type": "array"
+    },
+    "revalidate_on": {
+      "items": {
+        "$ref": "#/$defs/RevalidationTrigger"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "title": {
+      "type": "string"
+    },
+    "waiver_policy": {
+      "$ref": "#/$defs/GateWaiverPolicy"
+    }
+  },
+  "required": [
+    "schema_version",
+    "gate_id",
+    "definition_version",
+    "title",
+    "phase_ref",
+    "criticality",
+    "required_evidence_rules",
+    "repository_dependencies",
+    "completion_rule",
+    "waiver_policy",
+    "freshness_policy",
+    "revalidate_on",
+    "created_at",
+    "digest"
+  ],
+  "title": "GateDefinition",
+  "type": "object"
+}

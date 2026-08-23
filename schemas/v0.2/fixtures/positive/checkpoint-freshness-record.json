@@ -1,0 +1,9 @@
+{
+  "checkpoint_ref": "checkpoint:01",
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evaluated_at": "2026-08-22T12:00:00-04:00",
+  "freshness_record_id": "freshness:01",
+  "reason_codes": [],
+  "schema_version": "0.2.0",
+  "status": "CURRENT"
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "integration": "gsp",
+  "contract_family": "GSP Internals v0.2 / exact-contract",
+  "source_spec_sha256": null,
+  "schema_registry_sha256": null,
+  "fixture_manifest_sha256": null,
+  "lock_status": "PENDING",
+  "certified_compatibility": false
+}

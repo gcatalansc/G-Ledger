@@ -1,0 +1,1732 @@
+{
+  "schema_version": "0.2.0",
+  "rows": [
+    {
+      "command_type": "CREATE_PROJECT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PROJECT_CREATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:CreateProject"
+    },
+    {
+      "command_type": "UPDATE_PROJECT_METADATA",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PROJECT_METADATA_UPDATED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:UpdateProjectMetadata"
+    },
+    {
+      "command_type": "PAUSE_PROJECT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PROJECT_PAUSED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:PauseProject"
+    },
+    {
+      "command_type": "RESUME_PROJECT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PROJECT_RESUMED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:ResumeProject"
+    },
+    {
+      "command_type": "ARCHIVE_PROJECT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PROJECT_ARCHIVED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:ArchiveProject"
+    },
+    {
+      "command_type": "REGISTER_AUTHORITY_DOCUMENT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "AUTHORITY_DOCUMENT_REGISTERED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "DECISION_REVALIDATION_REQUIRED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RegisterAuthorityDocument"
+    },
+    {
+      "command_type": "REFRESH_AUTHORITY_DOCUMENT_DIGEST",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "AUTHORITY_DOCUMENT_DIGEST_REFRESHED"
+          ]
+        },
+        {
+          "required_events": [
+            "AUTHORITY_DOCUMENT_MARKED_UNAVAILABLE"
+          ]
+        },
+        {
+          "required_events": [
+            "AUTHORITY_DOCUMENT_DIGEST_MISMATCH"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CONFLICT_OPENED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "AUTHORITY_ENGINE",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RefreshAuthorityDocumentDigest"
+    },
+    {
+      "command_type": "SUPERSEDE_AUTHORITY_DOCUMENT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "AUTHORITY_DOCUMENT_SUPERSEDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "DECISION_REVALIDATION_REQUIRED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:SupersedeAuthorityDocument"
+    },
+    {
+      "command_type": "BIND_REPOSITORY",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "REPOSITORY_BOUND"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CONFLICT_OPENED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "REPOSITORY_IDENTITY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:BindRepository"
+    },
+    {
+      "command_type": "REFRESH_REPOSITORY_BINDING",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "REPOSITORY_BINDING_REFRESHED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CONFLICT_OPENED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "REPOSITORY_IDENTITY_ENGINE",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RefreshRepositoryBinding"
+    },
+    {
+      "command_type": "REVOKE_REPOSITORY_BINDING",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "REPOSITORY_BINDING_REVOKED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "REPOSITORY_IDENTITY_ENGINE",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RevokeRepositoryBinding"
+    },
+    {
+      "command_type": "DEFINE_ROADMAP",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "ROADMAP_DEFINED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:DefineRoadmap"
+    },
+    {
+      "command_type": "REVISE_ROADMAP",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "ROADMAP_REVISED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:ReviseRoadmap"
+    },
+    {
+      "command_type": "START_PHASE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PHASE_STARTED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:StartPhase"
+    },
+    {
+      "command_type": "REQUEST_PHASE_COMPLETION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PHASE_MARKED_READY_TO_CLOSE"
+          ]
+        },
+        {
+          "required_events": [
+            "PHASE_COMPLETED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_EVALUATION_REQUESTED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:RequestPhaseCompletion"
+    },
+    {
+      "command_type": "REOPEN_PHASE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PHASE_REOPENED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "PHASE_ENGINE",
+        "FRESHNESS_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:ReopenPhase"
+    },
+    {
+      "command_type": "SKIP_PHASE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "PHASE_SKIPPED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:SkipPhase"
+    },
+    {
+      "command_type": "DEFINE_GATE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "GATE_DEFINED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "GATE_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:DefineGate"
+    },
+    {
+      "command_type": "REQUEST_GATE_EVALUATION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "GATE_EVALUATION_REQUESTED",
+            "GATE_EVALUATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "PHASE_COMPLETED",
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:RequestGateEvaluation"
+    },
+    {
+      "command_type": "REQUEST_GATE_REVALIDATION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "GATE_REVALIDATION_REQUESTED",
+            "GATE_EVALUATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_REVALIDATION_REQUIRED",
+        "PHASE_REOPENED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_MARKED_STALE",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:RequestGateRevalidation"
+    },
+    {
+      "command_type": "WAIVE_GATE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "GATE_WAIVED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_EVALUATION_REQUESTED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "PHASE_COMPLETED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:WaiveGate"
+    },
+    {
+      "command_type": "RECORD_WORK_PROGRESS",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "WORK_PROGRESS_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:RecordWorkProgress"
+    },
+    {
+      "command_type": "RECORD_NOTE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "NOTE_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:RecordNote"
+    },
+    {
+      "command_type": "ADD_ARTIFACT_REFERENCE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "ARTIFACT_REFERENCE_ADDED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:AddArtifactReference"
+    },
+    {
+      "command_type": "RECORD_CLAIM",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "CLAIM_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "CLAIM_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RecordClaim"
+    },
+    {
+      "command_type": "UPDATE_CLAIM_STATUS",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "CLAIM_STATUS_CHANGED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "CLAIM_ENGINE",
+        "GATE_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:UpdateClaimStatus"
+    },
+    {
+      "command_type": "RECORD_UNKNOWN",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "UNKNOWN_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "UNKNOWN_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RecordUnknown"
+    },
+    {
+      "command_type": "RESOLVE_UNKNOWN",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "UNKNOWN_RESOLVED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "UNKNOWN_ENGINE",
+        "PROJECT_STATUS_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:ResolveUnknown"
+    },
+    {
+      "command_type": "RECORD_VERIFICATION_RESULT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "VERIFICATION_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_EVALUATION_REQUESTED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "PHASE_COMPLETED",
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "EVIDENCE_ENGINE",
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:RecordVerificationResult"
+    },
+    {
+      "command_type": "LINK_EXTERNAL_EVIDENCE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EXTERNAL_EVIDENCE_LINKED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_EVALUATION_REQUESTED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "EVIDENCE_ENGINE",
+        "GATE_ENGINE"
+      ],
+      "atomicity_group": "command:LinkExternalEvidence"
+    },
+    {
+      "command_type": "UNLINK_EXTERNAL_EVIDENCE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EXTERNAL_EVIDENCE_UNLINKED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "EVIDENCE_INVALIDATED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "EVIDENCE_ENGINE",
+        "GATE_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:UnlinkExternalEvidence"
+    },
+    {
+      "command_type": "INVALIDATE_EVIDENCE",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EVIDENCE_INVALIDATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "PHASE_REOPENED",
+        "CHECKPOINT_INVALIDATED",
+        "PROJECT_STATUS_DERIVED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "EVIDENCE_ENGINE",
+        "GATE_ENGINE",
+        "PHASE_ENGINE",
+        "FRESHNESS_ENGINE",
+        "PROJECT_STATUS_ENGINE"
+      ],
+      "atomicity_group": "command:InvalidateEvidence"
+    },
+    {
+      "command_type": "PROPOSE_DECISION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "DECISION_PROPOSED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:ProposeDecision"
+    },
+    {
+      "command_type": "ACCEPT_DECISION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "DECISION_ACCEPTED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "DECISION_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:AcceptDecision"
+    },
+    {
+      "command_type": "SUPERSEDE_DECISION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "DECISION_SUPERSEDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "DECISION_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:SupersedeDecision"
+    },
+    {
+      "command_type": "REJECT_DECISION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "DECISION_REJECTED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "DECISION_ENGINE"
+      ],
+      "atomicity_group": "command:RejectDecision"
+    },
+    {
+      "command_type": "OPEN_BLOCKER",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "BLOCKER_OPENED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:OpenBlocker"
+    },
+    {
+      "command_type": "UPDATE_BLOCKER",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "BLOCKER_UPDATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PHASE_BLOCKED",
+        "PROJECT_STATUS_DERIVED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PHASE_ENGINE",
+        "PROJECT_STATUS_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:UpdateBlocker"
+    },
+    {
+      "command_type": "RESOLVE_BLOCKER",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "BLOCKER_RESOLVED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED",
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "PROJECT_STATUS_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:ResolveBlocker"
+    },
+    {
+      "command_type": "OPEN_RISK",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "RISK_OPENED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:OpenRisk"
+    },
+    {
+      "command_type": "UPDATE_RISK",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "RISK_UPDATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:UpdateRisk"
+    },
+    {
+      "command_type": "MITIGATE_RISK",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "RISK_MITIGATED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:MitigateRisk"
+    },
+    {
+      "command_type": "CLOSE_RISK",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "RISK_CLOSED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:CloseRisk"
+    },
+    {
+      "command_type": "SET_NEXT_ACTION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "NEXT_ACTION_SET"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:SetNextAction"
+    },
+    {
+      "command_type": "COMPLETE_NEXT_ACTION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "NEXT_ACTION_COMPLETED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:CompleteNextAction"
+    },
+    {
+      "command_type": "CANCEL_NEXT_ACTION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "NEXT_ACTION_CANCELLED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:CancelNextAction"
+    },
+    {
+      "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "CHECKPOINT_CREATED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "CHECKPOINT_ENGINE"
+      ],
+      "atomicity_group": "command:CreateContinuityCheckpoint"
+    },
+    {
+      "command_type": "START_SESSION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "SESSION_STARTED"
+          ]
+        }
+      ],
+      "possible_events": [],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER"
+      ],
+      "atomicity_group": "command:StartSession"
+    },
+    {
+      "command_type": "END_SESSION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "SESSION_ENDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_CREATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "COMMAND_HANDLER",
+        "CHECKPOINT_ENGINE"
+      ],
+      "atomicity_group": "command:EndSession"
+    },
+    {
+      "command_type": "CONFIRM_EXTERNAL_MAPPING",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EXTERNAL_MAPPING_CONFIRMED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "IDENTITY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:ConfirmExternalMapping"
+    },
+    {
+      "command_type": "REVOKE_EXTERNAL_MAPPING",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EXTERNAL_MAPPING_REVOKED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "IDENTITY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RevokeExternalMapping"
+    },
+    {
+      "command_type": "RESOLVE_CONFLICT",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "CONFLICT_RESOLVED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "CHECKPOINT_INVALIDATED"
+      ],
+      "forbidden_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CONFLICT_OPENED",
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "CONFLICT_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:ResolveConflict"
+    },
+    {
+      "command_type": "RECORD_EVENT_CORRECTION",
+      "accepted_outcomes": [
+        {
+          "required_events": [
+            "EVENT_CORRECTION_RECORDED"
+          ]
+        }
+      ],
+      "possible_events": [
+        "PROJECT_STATUS_DERIVED",
+        "PHASE_BLOCKED",
+        "PHASE_COMPLETED",
+        "GATE_EVALUATED",
+        "GATE_VERIFIED",
+        "GATE_REJECTED",
+        "GATE_MARKED_STALE",
+        "GATE_REVALIDATION_REQUIRED",
+        "DECISION_REVALIDATION_REQUIRED",
+        "CHECKPOINT_INVALIDATED",
+        "CONFLICT_OPENED"
+      ],
+      "forbidden_events": [
+        "LEGACY_IMPORT_REVIEWED"
+      ],
+      "engine_owners": [
+        "PROJECTION_ENGINE",
+        "DEPENDENCY_ENGINE",
+        "FRESHNESS_ENGINE"
+      ],
+      "atomicity_group": "command:RecordEventCorrection"
+    }
+  ],
+  "derived_only_events": [
+    {
+      "event_type": "PROJECT_STATUS_DERIVED",
+      "owner": "PROJECT_STATUS_ENGINE"
+    },
+    {
+      "event_type": "PHASE_BLOCKED",
+      "owner": "PHASE_ENGINE"
+    },
+    {
+      "event_type": "PHASE_COMPLETED",
+      "owner": "PHASE_ENGINE"
+    },
+    {
+      "event_type": "GATE_EVALUATED",
+      "owner": "GATE_ENGINE"
+    },
+    {
+      "event_type": "GATE_VERIFIED",
+      "owner": "GATE_ENGINE"
+    },
+    {
+      "event_type": "GATE_REJECTED",
+      "owner": "GATE_ENGINE"
+    },
+    {
+      "event_type": "GATE_MARKED_STALE",
+      "owner": "FRESHNESS_ENGINE"
+    },
+    {
+      "event_type": "GATE_REVALIDATION_REQUIRED",
+      "owner": "FRESHNESS_ENGINE"
+    },
+    {
+      "event_type": "DECISION_REVALIDATION_REQUIRED",
+      "owner": "FRESHNESS_ENGINE"
+    },
+    {
+      "event_type": "CHECKPOINT_INVALIDATED",
+      "owner": "FRESHNESS_ENGINE"
+    },
+    {
+      "event_type": "CONFLICT_OPENED",
+      "owner": "CONFLICT_ENGINE"
+    },
+    {
+      "event_type": "LEGACY_IMPORT_REVIEWED",
+      "owner": "LEGACY_IMPORT_WORKFLOW"
+    }
+  ]
+}

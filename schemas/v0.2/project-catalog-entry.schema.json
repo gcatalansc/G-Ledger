@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:project-catalog-entry:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "canonical_title": {
+      "type": "string"
+    },
+    "last_seen_state_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "last_seen_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "ledger_location_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "project_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    }
+  },
+  "required": [
+    "schema_version",
+    "project_ref",
+    "canonical_title",
+    "ledger_location_ref",
+    "last_seen_state_version",
+    "last_seen_state_digest"
+  ],
+  "title": "ProjectCatalogEntry",
+  "type": "object"
+}

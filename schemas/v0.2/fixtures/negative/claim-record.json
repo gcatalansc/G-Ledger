@@ -1,0 +1,12 @@
+{
+  "authority_ref": null,
+  "claim_id": "claim:01",
+  "classification": "ASSERTED",
+  "evidence_refs": [],
+  "schema_version": "0.2.0",
+  "statement": "Schemas generated",
+  "subject_refs": [
+    "phase-0"
+  ],
+  "unexpected_contract_field": true
+}

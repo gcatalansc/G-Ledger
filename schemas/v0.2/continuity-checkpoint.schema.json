@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "RepositorySnapshot": {
+      "additionalProperties": false,
+      "description": "A reproducible repository snapshot reference.",
+      "properties": {
+        "repository_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "snapshot_digest": {
+          "$ref": "#/$defs/Sha256Digest"
+        },
+        "snapshot_ref": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "repository_ref",
+        "snapshot_ref",
+        "snapshot_digest"
+      ],
+      "type": "object"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:continuity-checkpoint:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "active_phase_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "authority_document_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "captured_material_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "captured_state_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "captured_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "checkpoint_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "checkpoint_event_ref": {
+      "type": "string"
+    },
+    "checkpoint_event_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "checkpoint_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "conflict_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "created_by": {
+      "$ref": "#/$defs/StableId"
+    },
+    "current_decision_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "last_material_event_refs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "next_action_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "open_blocker_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "open_risk_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "pending_gate_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "primary_active_phase_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project_ref": {
+      "type": "string"
+    },
+    "repository_binding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RepositorySnapshot"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "unknown_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "verified_completed_phase_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "checkpoint_id",
+    "project_ref",
+    "captured_state_version",
+    "captured_material_state_version",
+    "captured_state_digest",
+    "checkpoint_event_version",
+    "checkpoint_event_ref",
+    "authority_document_refs",
+    "active_phase_refs",
+    "verified_completed_phase_refs",
+    "pending_gate_refs",
+    "current_decision_refs",
+    "open_blocker_refs",
+    "open_risk_refs",
+    "next_action_refs",
+    "last_material_event_refs",
+    "unknown_refs",
+    "conflict_refs",
+    "created_by",
+    "created_at",
+    "checkpoint_digest"
+  ],
+  "title": "ContinuityCheckpoint",
+  "type": "object"
+}

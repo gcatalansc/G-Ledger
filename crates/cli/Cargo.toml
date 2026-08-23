@@ -1,0 +1,22 @@
+[package]
+name = "project-ledger-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "project-ledger"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-schemas = { path = "../schemas", version = "=0.2.0" }
+
+[dev-dependencies]
+assert_cmd.workspace = true
+predicates.workspace = true
+
+[lints]
+workspace = true

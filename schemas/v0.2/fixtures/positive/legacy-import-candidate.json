@@ -1,0 +1,16 @@
+{
+  "candidate_id": "legacy:phase-2-active",
+  "conflicts_with": [],
+  "kind": "ACTIVE_PHASE",
+  "recommended_action": "REVIEW",
+  "schema_version": "0.2.0",
+  "source": {
+    "line_range": [
+      8,
+      8
+    ],
+    "path": "BITACORA_PROYECTO.md",
+    "section": "Estado ejecutivo"
+  },
+  "value": "phase-2"
+}

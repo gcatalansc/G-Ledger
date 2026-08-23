@@ -1,0 +1,173 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "LikelihoodClass": {
+      "enum": [
+        "RARE",
+        "POSSIBLE",
+        "LIKELY",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "ResourceRef": {
+      "description": "An absolute, minimized resource reference.",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:.+$",
+      "type": "string"
+    },
+    "RiskStatus": {
+      "enum": [
+        "OPEN",
+        "MONITORED",
+        "MITIGATED",
+        "REALIZED",
+        "CLOSED"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "ScopeKind": {
+      "enum": [
+        "PROJECT",
+        "PHASE",
+        "GATE",
+        "DECISION",
+        "REPOSITORY",
+        "EXTERNAL"
+      ],
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:risk:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "closed_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/StableId"
+      },
+      "type": "array"
+    },
+    "likelihood_class": {
+      "$ref": "#/$defs/LikelihoodClass"
+    },
+    "mitigation_actions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "opened_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "owner_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StableId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance_ref": {
+      "$ref": "#/$defs/ResourceRef"
+    },
+    "risk_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "schema_version": {
+      "$ref": "#/$defs/SchemaVersion"
+    },
+    "scope_kind": {
+      "$ref": "#/$defs/ScopeKind"
+    },
+    "scope_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "status": {
+      "$ref": "#/$defs/RiskStatus"
+    },
+    "title": {
+      "type": "string"
+    },
+    "trigger_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    }
+  },
+  "required": [
+    "schema_version",
+    "risk_id",
+    "title",
+    "description",
+    "scope_kind",
+    "scope_ref",
+    "severity",
+    "likelihood_class",
+    "status",
+    "trigger_conditions",
+    "mitigation_actions",
+    "evidence_refs",
+    "opened_at",
+    "updated_at",
+    "provenance_ref",
+    "digest"
+  ],
+  "title": "Risk",
+  "type": "object"
+}

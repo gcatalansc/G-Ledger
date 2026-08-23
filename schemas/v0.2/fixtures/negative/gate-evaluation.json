@@ -1,0 +1,34 @@
+{
+  "digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "evaluated_at": "2026-08-22T12:00:00-04:00",
+  "evaluated_by": {
+    "engine": "project-ledger-gate-engine",
+    "version": "0.2.0"
+  },
+  "explanation_codes": [],
+  "gate_definition_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+  "gate_definition_version": 1,
+  "gate_evaluation_id": "gate-eval:01",
+  "gate_ref": "gate:contracts",
+  "project_state_version": 4,
+  "proposed_gate_status": "VERIFIED",
+  "provenance_ref": "project-ledger://provenance/gate-eval-01",
+  "rejected_evidence": [],
+  "repository_binding": {
+    "repository_ref": "repo:ledger",
+    "snapshot_digest": "sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862",
+    "snapshot_ref": "snapshot:01"
+  },
+  "result": "PASS",
+  "rule_results": [
+    {
+      "result": "PASS",
+      "rule_id": "rule:tests"
+    }
+  ],
+  "schema_version": "0.2.0",
+  "selected_evidence_refs": [
+    "evidence:01"
+  ],
+  "unexpected_contract_field": true
+}
