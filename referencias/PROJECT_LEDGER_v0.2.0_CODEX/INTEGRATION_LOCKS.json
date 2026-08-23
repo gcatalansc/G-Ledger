@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_kind": "ProjectLedgerIntegrationLockSummary",
+  "project_ledger": {
+    "semantic_version": "0.2.0",
+    "document_revision": "GSKILLS-E2E-CONSOLIDATED-1-ALIGNMENT",
+    "spec_file": "PROJECT_LEDGER_SPEC_v0.2.0.md",
+    "spec_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9",
+    "implementation_status": "CODEX_IMPLEMENTATION_READY",
+    "external_adapters_status": "LOCK_GATED"
+  },
+  "integrations": {
+    "gskills": {
+      "product": "G-Skills",
+      "spec_version": "0.3.0",
+      "document_revision": "E2E-CONSOLIDATED-1",
+      "source_spec_sha256": "8ddbb2a9c23bf7355a1e577d93a0c541b0986df7416ab64069aea16295376928",
+      "source_provider_lock_sha256": "3e4d5a36cc4e380ced145b2aec51f3138e3af5793ad1997ab192c817db3d4127",
+      "source_lock_currently_pins_ledger_sha256": "e7acc4964089824d1a19d32752bc935f805e3632d46d2ef4efa8edcec845954b",
+      "current_ledger_revision_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9",
+      "profile": "gskills-context-provider/0.3.0",
+      "reciprocal_lock_status": "PENDING_REFRESH",
+      "projection_status": "SPEC_LEVEL_DEFINED_LOCK_GATED",
+      "record_sink": {
+        "supported_command_kinds": [
+          "RECORD_WORK_PROGRESS",
+          "RECORD_VERIFICATION_RESULT",
+          "REQUEST_GATE_EVALUATION",
+          "REQUEST_GATE_REVALIDATION",
+          "CREATE_CONTINUITY_CHECKPOINT"
+        ],
+        "not_advertised_in_this_ledger_revision": [
+          "RECORD_DECISION_REFERENCE",
+          "RECORD_BLOCKER_REFERENCE"
+        ],
+        "runtime_submit_eligibility": "DENY_UNTIL_RECIPROCAL_LOCK_SCHEMA_FIXTURE_MAPPING_CONFORMANCE_AND_BILATERAL_E2E_PASS"
+      },
+      "certified_compatibility": false
+    },
+    "gsp": {
+      "product": "GSP-Gemma Compiler",
+      "contract_family": "GSP Internals v0.2 / exact-contract",
+      "public_boundary": [
+        "GSPCompiler.compile_bundle(query, evidence_bundle) -> CompilationResult",
+        "GSPCompiler.run_corpus(query, corpus_dir, output_dir, provider, ...) -> GSPRunResult"
+      ],
+      "mode": "OPTIONAL_READ_ONLY_EVIDENCE",
+      "shared_database": false,
+      "upstream_schema_registry_lock": "PENDING",
+      "upstream_fixture_manifest_lock": "PENDING",
+      "certified_compatibility": false
+    },
+    "project_radar": {
+      "product": "Project Radar",
+      "spec_version": "0.1.0",
+      "source_spec_sha256": "277f356cd96c276b3dddf5ef64197e9531cb3acffdbca94232c23de8b7d68c6b",
+      "ledger_profile": "project-ledger-radar-artifact/0.1.1",
+      "direction": "PROJECT_LEDGER_TO_PROJECT_RADAR",
+      "transport": "LOCAL_ARTIFACT_EXCHANGE",
+      "ledger_write_from_radar_mvp": false,
+      "shared_database": false,
+      "counterpart_extension_required": true,
+      "certified_compatibility": false,
+      "certification_blocker": "BILATERAL_E2E_AND_RADAR_COUNTERPART_IMPLEMENTATION_PENDING"
+    },
+    "codex_agent_skill": {
+      "mode": "PROCEDURAL_ADAPTER",
+      "state_authority": false,
+      "planned_slice": "S13",
+      "core_dependency": false
+    }
+  },
+  "golden_path": {
+    "gskills_required": false,
+    "gsp_required": false,
+    "project_radar_required": false,
+    "ai_required": false,
+    "network_required": false,
+    "daemon_required": false
+  }
+}
