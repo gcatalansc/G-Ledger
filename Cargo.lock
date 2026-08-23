@@ -906,6 +906,7 @@ dependencies = [
  "project-ledger-canonical-json",
  "project-ledger-domain",
  "project-ledger-event-store",
+ "project-ledger-gate-engine",
  "project-ledger-lifecycle",
  "project-ledger-projection-engine",
  "project-ledger-schemas",
@@ -968,6 +969,33 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "project-ledger-evidence"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "project-ledger-gate-engine"
+version = "0.2.0"
+dependencies = [
+ "project-ledger-canonical-json",
+ "project-ledger-domain",
+ "project-ledger-event-store",
+ "project-ledger-projection-engine",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]

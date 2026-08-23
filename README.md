@@ -2,11 +2,11 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
-El repositorio ha materializado S0 + S1 + S2 + S3 + S4: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState` y lifecycle S4. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
+El repositorio ha materializado S0–S5: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle y gates/evidencia. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
-S4 incorpora autoridad versionada, roadmap secuencial por referencias de fase, pausa/reanudación/archivo humanos, decisiones, blockers, riesgos, próximas acciones, conflictos, estado agregado derivado y un catálogo local puro y reconstruible. El `CommandProcessor` entrega a las reglas lifecycle exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
+S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
 
-La semántica ejecutable sigue acotada por la especificación: gates, evidence/Phase Engine de cierre, checkpoints y resume de continuidad, renderer/import/export, adapters, stdio, UI, daemon, red y AI permanecen pendientes de S5 y slices posteriores.
+La semántica ejecutable sigue acotada por la especificación: checkpoints/resume, Markdown/audit, portable/legacy import, adapters, stdio, UI, daemon, red y AI permanecen pendientes de S6 y slices posteriores. El runner/importador de evidencia existe como core embebible; la superficie CLI completa de gates/evidencia se conectará junto con las superficies operativas posteriores sin inventar selección implícita de ledger/proyecto.
 
 ## Autoridad
 

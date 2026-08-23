@@ -1,6 +1,6 @@
 # Matriz contrato → schema → fixture → prueba
 
-Esta matriz resume la cobertura contractual de S1, la ejecución transaccional incorporada en S2, la proyección determinista de S3 y el lifecycle/catálogo de S4. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
+Esta matriz resume la cobertura contractual de S1, la ejecución transaccional de S2, la proyección determinista de S3, lifecycle/catálogo de S4 y gates/evidencia/Phase Engine de S5. La relación individual y canónica de los 46 schemas con sus 92 fixtures está en `schemas/v0.2/schema-registry.json` y `schemas/v0.2/fixtures/manifest.json`; ambos ficheros son generados de forma determinista y se verifican byte a byte.
 
 | Familia contractual | Contratos tipados | Schemas | Fixtures | Pruebas principales |
 |---|---:|---:|---:|---|
@@ -54,4 +54,17 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional i
 | §9.2, §14.18, §39.6 | `project-catalog/tests/rebuild.rs` | Catálogo puro, ordenado, reconstruible, sin duplicados ni discovery implícito |
 | Regresión de identidad | `lifecycle_commands.rs` | Eventos derivados de comandos UUIDv7 adyacentes mantienen IDs distintos y deterministas |
 
-Las 90 pruebas del workspace incluyen 16 pruebas incorporadas en S4. No certifican operación remota ni gates/evidence/Phase Engine, que permanecen reservados a S5.
+## Cobertura ejecutable S5
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| I-08, AC-014, REQ-GAT-001 | `gates_and_evidence.rs`, `gate_commands.rs` | Sólo una evaluación PASS estructural, con definition digest y evidencia `VERIFIED_SOURCE`, puede preceder `GATE_VERIFIED`; evaluaciones forjadas fallan cerradas |
+| I-09, I-10, AC-013, AC-021 | `gate_commands.rs`, `gate_lifecycle_transaction.rs` | Evidencia verde sólo se registra; fase con gate requerido pendiente rechaza cierre; el Phase Engine humano explícito es el único owner de completion |
+| AC-015 | `gate_commands.rs` | Waiver conserva actor/reason/scope/review/authority/version/digest y actor submitter coincidente |
+| I-11, AC-018, AC-019 | `evidence_runner.rs`, `evidence_import.rs` | Programa+argv sin shell, allowlist, exit/duración/digest, resumen redactado/acotado, raw off e import unsigned nunca promovido automáticamente |
+| I-12, I-18, AC-020 | `gate_commands.rs` | Claim de agente nace `ASSERTED`; `VERIFIED` exige humano y evidencia aceptada |
+| I-15, AC-016, AC-017, PL-05 | `gates_and_evidence.rs`, `gate_lifecycle_transaction.rs` | Invalidación, cambio material de autoridad y refresh de snapshot producen stale/revalidation; evidencia invalidada reabre fase completa con provenance en reason |
+| §21.3–21.4 | `predicate_ast.rs`, `gate_commands.rs` | Los 17 operadores cerrados se evalúan sin scripts; `ALL/ANY` se auditan con la misma semántica en motor y proyección; missing/tipos incompatibles/snapshot conflict nunca se convierten en true |
+| I-02, I-20 | `gates_and_evidence.rs`, `gate_lifecycle_transaction.rs` | Índices privados de gate/evidence/claim/repository reconstruyen el mismo estado; SQLite conserva lotes atómicos y cadena íntegra |
+
+Las 111 pruebas del workspace incluyen 21 pruebas incorporadas en S5. Son evidencia local de ingeniería; no certifican ejecución remota, operación productiva, integración bilateral, rentabilidad ni validez científica.

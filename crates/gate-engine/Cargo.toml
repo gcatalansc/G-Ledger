@@ -1,0 +1,20 @@
+[package]
+name = "project-ledger-gate-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-domain = { path = "../domain", version = "=0.2.0" }
+project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
+project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[lints]
+workspace = true

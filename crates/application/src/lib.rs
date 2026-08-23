@@ -1,11 +1,13 @@
 //! Storage-independent application services for Project Ledger.
 
+mod core_handler;
 mod create_project;
 mod lifecycle_handler;
 mod processor;
 mod project_state_query;
 mod submission;
 
+pub use core_handler::CoreCommandHandler;
 pub use create_project::CreateProjectHandler;
 pub use processor::{
     Clock, CommandHandler, CommandHandlerError, CommandProcessor, FixedClock, ProcessorError,

@@ -6,6 +6,8 @@ members = [
   "crates/event-store",
   "crates/projection-engine",
   "crates/lifecycle",
+  "crates/gate-engine",
+  "crates/evidence",
   "crates/project-catalog",
   "crates/application",
   "crates/storage-sqlite",

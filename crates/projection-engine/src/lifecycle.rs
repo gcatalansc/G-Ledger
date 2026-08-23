@@ -2,10 +2,13 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use project_ledger_canonical_json::{Sha256Digest, sha256_digest};
 use project_ledger_domain::{
-    AuthorityDocumentStatus, Blocker, BlockerStatus, ConflictKind, ConflictRecord, ConflictStatus,
-    Decision, DecisionStatus, Event, EventEnvelope, NextAction, NextActionClassification,
-    PhaseStatus, ProjectLifecycleStatus, ProjectState, Risk, RiskStatus, Roadmap, SchemaVersion,
-    ScopeKind, Severity, StableId,
+    AuthorityDocumentStatus, Blocker, BlockerStatus, ClaimClassification, ClaimRecord,
+    ConflictKind, ConflictRecord, ConflictStatus, Decision, DecisionStatus, Event, EventEnvelope,
+    EvidenceRecord, EvidenceStatus, GateCompletionOperator, GateCriticality, GateDefinition,
+    GateEvaluation, GateEvaluationResult, GateStatus, GateWaiver, NextAction,
+    NextActionClassification, PhaseStatus, ProjectLifecycleStatus, ProjectState, RepositoryBinding,
+    RepositoryBindingStatus, Risk, RiskStatus, Roadmap, SchemaVersion, ScopeKind, Severity,
+    StableId,
 };
 use serde::Serialize;
 
@@ -25,6 +28,15 @@ pub struct ProjectStateProjection {
     risks: BTreeMap<StableId, Risk>,
     next_actions: BTreeMap<StableId, NextAction>,
     conflicts: BTreeMap<StableId, ConflictRecord>,
+    gates: BTreeMap<StableId, GateDefinition>,
+    gate_statuses: BTreeMap<StableId, GateStatus>,
+    gate_evaluations: BTreeMap<StableId, GateEvaluation>,
+    current_gate_evaluation_refs: BTreeMap<StableId, StableId>,
+    gate_waivers: BTreeMap<StableId, GateWaiver>,
+    evidence: BTreeMap<StableId, EvidenceRecord>,
+    external_evidence_refs: BTreeSet<StableId>,
+    claims: BTreeMap<StableId, ClaimRecord>,
+    repository_bindings: BTreeMap<StableId, RepositoryBinding>,
 }
 
 impl ProjectStateProjection {
@@ -45,6 +57,15 @@ impl ProjectStateProjection {
             risks: BTreeMap::new(),
             next_actions: BTreeMap::new(),
             conflicts: BTreeMap::new(),
+            gates: BTreeMap::new(),
+            gate_statuses: BTreeMap::new(),
+            gate_evaluations: BTreeMap::new(),
+            current_gate_evaluation_refs: BTreeMap::new(),
+            gate_waivers: BTreeMap::new(),
+            evidence: BTreeMap::new(),
+            external_evidence_refs: BTreeSet::new(),
+            claims: BTreeMap::new(),
+            repository_bindings: BTreeMap::new(),
         };
         for event in &events[1..] {
             let expected_head = projection.head_digest;
@@ -55,6 +76,7 @@ impl ProjectStateProjection {
                 "the complete stream ends without its required project status derivation",
             ));
         }
+        projection.validate_completed_phase_gates()?;
         Ok(projection)
     }
 
@@ -93,6 +115,105 @@ impl ProjectStateProjection {
     /// Returns the exact private lifecycle status of a roadmap phase.
     pub fn phase_status(&self, phase_ref: &StableId) -> Option<PhaseStatus> {
         self.phase_statuses.get(phase_ref).copied()
+    }
+
+    /// Returns a current immutable gate definition.
+    pub fn gate(&self, gate_ref: &StableId) -> Option<&GateDefinition> {
+        self.gates.get(gate_ref)
+    }
+
+    /// Returns all immutable gate definitions in stable identifier order.
+    pub fn gate_definitions(&self) -> Vec<&GateDefinition> {
+        self.gates.values().collect()
+    }
+
+    /// Returns the current derived status of a gate.
+    pub fn gate_status(&self, gate_ref: &StableId) -> Option<GateStatus> {
+        self.gate_statuses.get(gate_ref).copied()
+    }
+
+    /// Returns an immutable gate evaluation by reference.
+    pub fn gate_evaluation(&self, evaluation_ref: &StableId) -> Option<&GateEvaluation> {
+        self.gate_evaluations.get(evaluation_ref)
+    }
+
+    /// Returns the current evaluation selected for a gate, if any.
+    pub fn current_gate_evaluation(&self, gate_ref: &StableId) -> Option<&GateEvaluation> {
+        self.current_gate_evaluation_refs
+            .get(gate_ref)
+            .and_then(|evaluation_ref| self.gate_evaluations.get(evaluation_ref))
+    }
+
+    /// Returns the latest durable waiver for a gate, if any.
+    pub fn gate_waiver(&self, gate_ref: &StableId) -> Option<&GateWaiver> {
+        self.gate_waivers.get(gate_ref)
+    }
+
+    /// Returns the current derived form of an evidence record.
+    pub fn evidence(&self, evidence_ref: &StableId) -> Option<&EvidenceRecord> {
+        self.evidence.get(evidence_ref)
+    }
+
+    /// Returns all current evidence records in stable identifier order.
+    pub fn evidence_records(&self) -> Vec<&EvidenceRecord> {
+        self.evidence.values().collect()
+    }
+
+    /// Returns the current classification and evidence links of a claim.
+    pub fn claim(&self, claim_ref: &StableId) -> Option<&ClaimRecord> {
+        self.claims.get(claim_ref)
+    }
+
+    /// Returns the current derived repository binding.
+    pub fn repository_binding(&self, binding_ref: &StableId) -> Option<&RepositoryBinding> {
+        self.repository_bindings.get(binding_ref)
+    }
+
+    /// Returns current gate definitions for a phase in stable identifier order.
+    pub fn gates_for_phase(&self, phase_ref: &StableId) -> Vec<&GateDefinition> {
+        self.gates
+            .values()
+            .filter(|gate| &gate.phase_ref == phase_ref)
+            .collect()
+    }
+
+    /// Returns gates whose current evaluation selected the evidence reference.
+    pub fn gates_depending_on_evidence(&self, evidence_ref: &StableId) -> Vec<&GateDefinition> {
+        self.gates
+            .values()
+            .filter(|gate| {
+                self.current_gate_evaluation(&gate.gate_id)
+                    .is_some_and(|evaluation| {
+                        evaluation.selected_evidence_refs.contains(evidence_ref)
+                    })
+            })
+            .collect()
+    }
+
+    /// Reports whether every required gate of a phase is currently satisfied.
+    pub fn phase_required_gates_satisfied(&self, phase_ref: &StableId) -> bool {
+        self.gates
+            .values()
+            .filter(|gate| {
+                &gate.phase_ref == phase_ref && gate.criticality == GateCriticality::Required
+            })
+            .all(|gate| {
+                matches!(
+                    self.gate_status(&gate.gate_id),
+                    Some(GateStatus::Verified | GateStatus::Waived)
+                )
+            })
+    }
+
+    /// Reports whether a phase/project blocker or critical open conflict prevents closure.
+    pub fn phase_has_closure_impediment(&self, phase_ref: &StableId) -> bool {
+        self.blockers.values().any(|blocker| {
+            is_open_blocker(blocker)
+                && (blocker.scope_kind == ScopeKind::Project
+                    || (blocker.scope_kind == ScopeKind::Phase && &blocker.scope_ref == phase_ref))
+        }) || self.conflicts.values().any(|conflict| {
+            conflict.status == ConflictStatus::Open && conflict.severity == Severity::Critical
+        })
     }
 
     /// Returns the current projection head used to chain a deterministic preview.
@@ -298,6 +419,67 @@ impl ProjectStateProjection {
                 }
                 document.status = AuthorityDocumentStatus::DigestMismatch;
             }
+            Event::RepositoryBound(bound) => {
+                validate_record(&bound.binding, bound.binding.digest)?;
+                if bound.binding.schema_version != SchemaVersion::V0_2_0
+                    || bound.binding.status != RepositoryBindingStatus::Current
+                    || bound.binding.current_snapshot_ref.is_some()
+                        != bound.binding.current_snapshot_digest.is_some()
+                    || self
+                        .repository_bindings
+                        .contains_key(&bound.binding.repository_binding_id)
+                    || self.repository_bindings.values().any(|binding| {
+                        binding.repository_ref == bound.binding.repository_ref
+                            && binding.status != RepositoryBindingStatus::Revoked
+                    })
+                {
+                    return Err(invariant("repository binding has invalid initial state"));
+                }
+                self.repository_bindings.insert(
+                    bound.binding.repository_binding_id.clone(),
+                    bound.binding.clone(),
+                );
+                self.state
+                    .project
+                    .repository_binding_refs
+                    .push(bound.binding.repository_binding_id.clone());
+                self.state.project.repository_binding_refs.sort();
+                self.state.project.repository_binding_refs.dedup();
+            }
+            Event::RepositoryBindingRefreshed(refreshed) => {
+                let binding = self
+                    .repository_bindings
+                    .get_mut(&refreshed.binding_ref)
+                    .ok_or_else(|| invariant("repository binding does not exist"))?;
+                if binding.status == RepositoryBindingStatus::Revoked
+                    || refreshed.snapshot.repository_ref != binding.repository_ref
+                {
+                    return Err(invariant(
+                        "repository refresh conflicts with binding identity or status",
+                    ));
+                }
+                binding.current_snapshot_ref = Some(refreshed.snapshot.snapshot_ref.clone());
+                binding.current_snapshot_digest = Some(refreshed.snapshot.snapshot_digest);
+                binding.status = RepositoryBindingStatus::Current;
+                binding.updated_at = event.occurred_at.clone();
+                refresh_record_digest(binding, |record, digest| record.digest = digest)?;
+            }
+            Event::RepositoryBindingRevoked(revoked) => {
+                let binding = self
+                    .repository_bindings
+                    .get_mut(&revoked.binding_ref)
+                    .ok_or_else(|| invariant("repository binding does not exist"))?;
+                if binding.status == RepositoryBindingStatus::Revoked
+                    || revoked.reason.trim().is_empty()
+                {
+                    return Err(invariant(
+                        "repository binding is already revoked or lacks a reason",
+                    ));
+                }
+                binding.status = RepositoryBindingStatus::Revoked;
+                binding.updated_at = event.occurred_at.clone();
+                refresh_record_digest(binding, |record, digest| record.digest = digest)?;
+            }
             Event::RoadmapDefined(defined) => {
                 if self.state.roadmap.is_some() {
                     return Err(invariant("ROADMAP_DEFINED may occur only once"));
@@ -316,6 +498,11 @@ impl ProjectStateProjection {
             }
             Event::PhaseMarkedReadyToClose(ready) => {
                 self.require_phase_status(&ready.phase_ref, &[PhaseStatus::Active])?;
+                if !self.phase_required_gates_satisfied(&ready.phase_ref) {
+                    return Err(invariant(
+                        "a phase cannot be ready to close with an unsatisfied required gate",
+                    ));
+                }
                 self.phase_statuses
                     .insert(ready.phase_ref.clone(), PhaseStatus::ReadyToClose);
                 self.sync_phase_refs();
@@ -323,7 +510,15 @@ impl ProjectStateProjection {
             Event::PhaseCompleted(completed) => {
                 self.require_phase_status(
                     &completed.phase_ref,
-                    &[PhaseStatus::Active, PhaseStatus::ReadyToClose],
+                    &[
+                        PhaseStatus::Active,
+                        PhaseStatus::ReadyToClose,
+                        PhaseStatus::RevalidationRequired,
+                    ],
+                )?;
+                self.validate_phase_gate_closure(
+                    &completed.phase_ref,
+                    &completed.gate_evaluation_refs,
                 )?;
                 self.phase_statuses
                     .insert(completed.phase_ref.clone(), PhaseStatus::Completed);
@@ -354,6 +549,263 @@ impl ProjectStateProjection {
                 self.phase_statuses
                     .insert(skipped.phase_ref.clone(), PhaseStatus::Skipped);
                 self.sync_phase_refs();
+            }
+            Event::GateDefined(defined) => {
+                validate_gate_definition(&defined.gate)?;
+                self.require_phase_status(
+                    &defined.gate.phase_ref,
+                    &[
+                        PhaseStatus::NotStarted,
+                        PhaseStatus::Active,
+                        PhaseStatus::Blocked,
+                        PhaseStatus::RevalidationRequired,
+                    ],
+                )?;
+                if self.gates.contains_key(&defined.gate.gate_id) {
+                    return Err(invariant("gate identifiers and definitions are immutable"));
+                }
+                self.gate_statuses
+                    .insert(defined.gate.gate_id.clone(), GateStatus::Pending);
+                self.gates
+                    .insert(defined.gate.gate_id.clone(), defined.gate.clone());
+                self.sync_gate_refs();
+            }
+            Event::GateEvaluationRequested(requested) => {
+                self.require_gate_status(
+                    &requested.gate_ref,
+                    &[
+                        GateStatus::Pending,
+                        GateStatus::Rejected,
+                        GateStatus::Stale,
+                        GateStatus::RevalidationRequired,
+                        GateStatus::Verified,
+                    ],
+                )?;
+                self.gate_statuses
+                    .insert(requested.gate_ref.clone(), GateStatus::Evaluating);
+                self.sync_gate_refs();
+            }
+            Event::GateEvaluated(evaluated) => {
+                self.install_gate_evaluation(&evaluated.evaluation, event.stream_version)?;
+            }
+            Event::GateVerified(verified) => {
+                self.require_gate_status(&verified.gate_ref, &[GateStatus::Evaluating])?;
+                let evaluation = self
+                    .gate_evaluations
+                    .get(&verified.evaluation_ref)
+                    .ok_or_else(|| invariant("verified gate evaluation does not exist"))?;
+                if evaluation.gate_ref != verified.gate_ref
+                    || evaluation.result != GateEvaluationResult::Pass
+                    || evaluation.proposed_gate_status != GateStatus::Verified
+                    || self.current_gate_evaluation_refs.get(&verified.gate_ref)
+                        != Some(&verified.evaluation_ref)
+                    || !self.evaluation_has_accepted_evidence(evaluation)
+                {
+                    return Err(invariant(
+                        "GATE_VERIFIED requires the current valid PASS evaluation and accepted evidence",
+                    ));
+                }
+                self.gate_statuses
+                    .insert(verified.gate_ref.clone(), GateStatus::Verified);
+                self.sync_gate_refs();
+            }
+            Event::GateRejected(rejected) => {
+                self.require_gate_status(&rejected.gate_ref, &[GateStatus::Evaluating])?;
+                let evaluation = self
+                    .gate_evaluations
+                    .get(&rejected.evaluation_ref)
+                    .ok_or_else(|| invariant("rejected gate evaluation does not exist"))?;
+                if evaluation.gate_ref != rejected.gate_ref
+                    || evaluation.result != GateEvaluationResult::Fail
+                    || evaluation.proposed_gate_status != GateStatus::Rejected
+                    || self.current_gate_evaluation_refs.get(&rejected.gate_ref)
+                        != Some(&rejected.evaluation_ref)
+                {
+                    return Err(invariant(
+                        "GATE_REJECTED requires the current valid FAIL evaluation",
+                    ));
+                }
+                self.gate_statuses
+                    .insert(rejected.gate_ref.clone(), GateStatus::Rejected);
+                self.sync_gate_refs();
+            }
+            Event::GateWaived(waived) => {
+                validate_record(&waived.waiver, waived.waiver.digest)?;
+                self.require_gate_status(
+                    &waived.waiver.gate_ref,
+                    &[
+                        GateStatus::Pending,
+                        GateStatus::Rejected,
+                        GateStatus::Stale,
+                        GateStatus::RevalidationRequired,
+                    ],
+                )?;
+                let gate = self
+                    .gates
+                    .get(&waived.waiver.gate_ref)
+                    .ok_or_else(|| invariant("waived gate does not exist"))?;
+                if gate.waiver_policy == project_ledger_domain::GateWaiverPolicy::Forbidden
+                    || waived.waiver.schema_version != SchemaVersion::V0_2_0
+                    || waived.waiver.gate_definition_version != gate.definition_version
+                    || waived.waiver.gate_definition_digest != gate.digest
+                    || waived.waiver.reason.trim().is_empty()
+                    || waived.waiver.scope.trim().is_empty()
+                    || waived.waiver.review_condition.trim().is_empty()
+                    || self.gate_waivers.contains_key(&gate.gate_id)
+                    || authority(
+                        &self.state.authority_documents,
+                        &waived.waiver.authority_ref,
+                    )?
+                    .status
+                        != AuthorityDocumentStatus::Current
+                {
+                    return Err(invariant("gate waiver violates policy or provenance"));
+                }
+                self.gate_waivers
+                    .insert(gate.gate_id.clone(), waived.waiver.clone());
+                self.gate_statuses
+                    .insert(gate.gate_id.clone(), GateStatus::Waived);
+                self.sync_gate_refs();
+            }
+            Event::GateMarkedStale(stale) => {
+                self.require_gate_status(
+                    &stale.gate_ref,
+                    &[GateStatus::Verified, GateStatus::Waived],
+                )?;
+                if stale.reason_codes.is_empty() {
+                    return Err(invariant("a stale gate requires reason codes"));
+                }
+                self.gate_statuses
+                    .insert(stale.gate_ref.clone(), GateStatus::Stale);
+                self.sync_gate_refs();
+            }
+            Event::GateRevalidationRequested(requested) => {
+                self.require_gate_status(
+                    &requested.gate_ref,
+                    &[
+                        GateStatus::Pending,
+                        GateStatus::Rejected,
+                        GateStatus::Verified,
+                        GateStatus::Stale,
+                        GateStatus::RevalidationRequired,
+                    ],
+                )?;
+                self.gate_statuses
+                    .insert(requested.gate_ref.clone(), GateStatus::Evaluating);
+                self.sync_gate_refs();
+            }
+            Event::GateRevalidationRequired(required) => {
+                self.require_gate_status(&required.gate_ref, &[required.prior_status])?;
+                if required.reason_codes.is_empty() {
+                    return Err(invariant("gate revalidation requires reason codes"));
+                }
+                self.gate_statuses
+                    .insert(required.gate_ref.clone(), GateStatus::RevalidationRequired);
+                self.sync_gate_refs();
+            }
+            Event::VerificationRecorded(recorded) => {
+                validate_record(&recorded.evidence, recorded.evidence.payload_digest)?;
+                if recorded.evidence.schema_version != SchemaVersion::V0_2_0
+                    || recorded.evidence.project_ref != self.state.project.project_id
+                    || matches!(
+                        recorded.evidence.status,
+                        EvidenceStatus::Stale | EvidenceStatus::Invalidated
+                    )
+                    || recorded.evidence.source.tool.trim().is_empty()
+                    || recorded.evidence.source.runner_version.trim().is_empty()
+                    || recorded.evidence.result.summary.trim().is_empty()
+                    || self.evidence.contains_key(&recorded.evidence.evidence_id)
+                    || self
+                        .external_evidence_refs
+                        .contains(&recorded.evidence.evidence_id)
+                {
+                    return Err(invariant(
+                        "evidence record has invalid provenance or initial state",
+                    ));
+                }
+                self.evidence.insert(
+                    recorded.evidence.evidence_id.clone(),
+                    recorded.evidence.clone(),
+                );
+            }
+            Event::ExternalEvidenceLinked(linked) => {
+                if self.evidence.contains_key(&linked.evidence_ref)
+                    || !self
+                        .external_evidence_refs
+                        .insert(linked.evidence_ref.clone())
+                {
+                    return Err(invariant("external evidence identifier already exists"));
+                }
+            }
+            Event::ExternalEvidenceUnlinked(unlinked) => {
+                if !self.external_evidence_refs.remove(&unlinked.evidence_ref) {
+                    return Err(invariant("external evidence reference does not exist"));
+                }
+            }
+            Event::EvidenceInvalidated(invalidated) => {
+                let evidence = self
+                    .evidence
+                    .get_mut(&invalidated.evidence_ref)
+                    .ok_or_else(|| invariant("invalidated evidence does not exist"))?;
+                if evidence.status == EvidenceStatus::Invalidated
+                    || invalidated.reason.trim().is_empty()
+                {
+                    return Err(invariant(
+                        "evidence is already invalidated or lacks a reason",
+                    ));
+                }
+                evidence.status = EvidenceStatus::Invalidated;
+                refresh_record_digest(evidence, |record, digest| {
+                    record.payload_digest = digest;
+                })?;
+            }
+            Event::ClaimRecorded(recorded) => {
+                if recorded.claim.schema_version != SchemaVersion::V0_2_0
+                    || recorded.claim.classification != ClaimClassification::Asserted
+                    || recorded.claim.statement.trim().is_empty()
+                    || recorded.claim.subject_refs.is_empty()
+                    || !recorded.claim.evidence_refs.is_empty()
+                    || recorded.claim.authority_ref.is_some()
+                    || self.claims.contains_key(&recorded.claim.claim_id)
+                {
+                    return Err(invariant(
+                        "a newly recorded manual/agent claim must be an unevidenced ASSERTED claim",
+                    ));
+                }
+                self.claims
+                    .insert(recorded.claim.claim_id.clone(), recorded.claim.clone());
+            }
+            Event::ClaimStatusChanged(changed) => {
+                let claim = self
+                    .claims
+                    .get_mut(&changed.claim_ref)
+                    .ok_or_else(|| invariant("claim reference does not exist"))?;
+                if claim.classification != changed.prior_status
+                    || changed.new_status == changed.prior_status
+                    || changed.new_status == ClaimClassification::Asserted
+                {
+                    return Err(invariant("claim classification transition is invalid"));
+                }
+                let evidence_is_accepted = |evidence_ref: &StableId| {
+                    self.evidence
+                        .get(evidence_ref)
+                        .is_some_and(|evidence| evidence.status == EvidenceStatus::VerifiedSource)
+                };
+                if changed.new_status == ClaimClassification::Verified
+                    && (changed.evidence_refs.is_empty()
+                        || !changed.evidence_refs.iter().all(evidence_is_accepted))
+                {
+                    return Err(invariant(
+                        "a VERIFIED claim requires accepted verified-source evidence",
+                    ));
+                }
+                if changed.new_status == ClaimClassification::Observed
+                    && changed.evidence_refs.is_empty()
+                {
+                    return Err(invariant("an OBSERVED claim requires evidence"));
+                }
+                claim.classification = changed.new_status;
+                merge_stable_refs(&mut claim.evidence_refs, &changed.evidence_refs);
             }
             Event::DecisionProposed(proposed) => {
                 validate_record(&proposed.decision, proposed.decision.digest)?;
@@ -780,6 +1232,236 @@ impl ProjectStateProjection {
         Ok(())
     }
 
+    fn require_gate_status(
+        &self,
+        gate_ref: &StableId,
+        expected: &[GateStatus],
+    ) -> Result<(), ProjectionError> {
+        let actual = self
+            .gate_statuses
+            .get(gate_ref)
+            .ok_or_else(|| invariant("gate reference does not exist"))?;
+        if !expected.contains(actual) {
+            return Err(invariant(
+                "gate transition is invalid from its current status",
+            ));
+        }
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_lines)] // Keeping the closed evaluation audit in one validator avoids split invariants.
+    fn install_gate_evaluation(
+        &mut self,
+        evaluation: &GateEvaluation,
+        event_version: u64,
+    ) -> Result<(), ProjectionError> {
+        validate_record(evaluation, evaluation.digest)?;
+        self.require_gate_status(&evaluation.gate_ref, &[GateStatus::Evaluating])?;
+        let gate = self
+            .gates
+            .get(&evaluation.gate_ref)
+            .ok_or_else(|| invariant("evaluated gate does not exist"))?;
+        if evaluation.schema_version != SchemaVersion::V0_2_0
+            || evaluation.gate_definition_version != gate.definition_version
+            || evaluation.gate_definition_digest != gate.digest
+            || evaluation.project_state_version != event_version.saturating_sub(2)
+            || self
+                .gate_evaluations
+                .contains_key(&evaluation.gate_evaluation_id)
+            || evaluation.rule_results.len() != gate.required_evidence_rules.len()
+            || evaluation.evaluated_by.engine != "project-ledger-gate-engine"
+            || evaluation.evaluated_by.version.trim().is_empty()
+        {
+            return Err(invariant(
+                "gate evaluation does not match its definition or evaluated state",
+            ));
+        }
+        let expected_rule_refs = gate
+            .required_evidence_rules
+            .iter()
+            .map(|rule| &rule.rule_id)
+            .collect::<BTreeSet<_>>();
+        let actual_rule_refs = evaluation
+            .rule_results
+            .iter()
+            .map(|rule| &rule.rule_id)
+            .collect::<BTreeSet<_>>();
+        if expected_rule_refs != actual_rule_refs
+            || !evaluation_result_matches_rules(evaluation, gate.completion_rule)
+            || evaluation
+                .selected_evidence_refs
+                .iter()
+                .collect::<BTreeSet<_>>()
+                .len()
+                != evaluation.selected_evidence_refs.len()
+            || evaluation
+                .selected_evidence_refs
+                .iter()
+                .any(|evidence_ref| {
+                    !self
+                        .evidence
+                        .get(evidence_ref)
+                        .is_some_and(|evidence| evidence.status == EvidenceStatus::VerifiedSource)
+                })
+            || !valid_evaluation_status_pair(evaluation.result, evaluation.proposed_gate_status)
+        {
+            return Err(invariant(
+                "gate evaluation rule results, evidence, or proposed status are invalid",
+            ));
+        }
+        if let Some(binding) = &evaluation.repository_binding
+            && evaluation
+                .selected_evidence_refs
+                .iter()
+                .any(|evidence_ref| {
+                    self.evidence
+                        .get(evidence_ref)
+                        .and_then(|evidence| evidence.repository_binding.as_ref())
+                        != Some(binding)
+                })
+        {
+            return Err(invariant(
+                "gate evaluation repository binding must match all selected evidence",
+            ));
+        }
+        if gate
+            .freshness_policy
+            .evidence_must_match_same_repository_snapshot
+        {
+            let mut selected_bindings = Vec::new();
+            let mut selected_without_binding = false;
+            for evidence_ref in &evaluation.selected_evidence_refs {
+                match self
+                    .evidence
+                    .get(evidence_ref)
+                    .and_then(|evidence| evidence.repository_binding.as_ref())
+                {
+                    Some(binding) if !selected_bindings.contains(&binding) => {
+                        selected_bindings.push(binding);
+                    }
+                    Some(_) => {}
+                    None => selected_without_binding = true,
+                }
+            }
+            let reports_snapshot_conflict = evaluation
+                .explanation_codes
+                .iter()
+                .any(|code| code == "REPOSITORY_SNAPSHOT_CONFLICT");
+            let repository_binding_is_exact = match selected_bindings.as_slice() {
+                [] => evaluation.repository_binding.is_none() && !reports_snapshot_conflict,
+                [binding] => {
+                    evaluation.repository_binding.as_ref() == Some(*binding)
+                        && !reports_snapshot_conflict
+                }
+                _ => {
+                    evaluation.repository_binding.is_none()
+                        && evaluation.result == GateEvaluationResult::Conflicted
+                        && reports_snapshot_conflict
+                }
+            };
+            if selected_without_binding || !repository_binding_is_exact {
+                return Err(invariant(
+                    "same-snapshot gate evaluation lacks a consistent repository binding",
+                ));
+            }
+        }
+        self.current_gate_evaluation_refs.insert(
+            evaluation.gate_ref.clone(),
+            evaluation.gate_evaluation_id.clone(),
+        );
+        self.gate_evaluations
+            .insert(evaluation.gate_evaluation_id.clone(), evaluation.clone());
+        match evaluation.result {
+            GateEvaluationResult::Pass | GateEvaluationResult::Fail => {}
+            GateEvaluationResult::Stale => {
+                self.gate_statuses
+                    .insert(evaluation.gate_ref.clone(), GateStatus::Stale);
+            }
+            GateEvaluationResult::Incomplete
+            | GateEvaluationResult::Conflicted
+            | GateEvaluationResult::Error => {
+                self.gate_statuses
+                    .insert(evaluation.gate_ref.clone(), GateStatus::Pending);
+            }
+        }
+        self.sync_gate_refs();
+        Ok(())
+    }
+
+    fn evaluation_has_accepted_evidence(&self, evaluation: &GateEvaluation) -> bool {
+        !evaluation.selected_evidence_refs.is_empty()
+            && evaluation
+                .selected_evidence_refs
+                .iter()
+                .all(|evidence_ref| {
+                    self.evidence
+                        .get(evidence_ref)
+                        .is_some_and(|evidence| evidence.status == EvidenceStatus::VerifiedSource)
+                })
+    }
+
+    fn validate_phase_gate_closure(
+        &self,
+        phase_ref: &StableId,
+        evaluation_refs: &[StableId],
+    ) -> Result<(), ProjectionError> {
+        if !self.phase_required_gates_satisfied(phase_ref) {
+            return Err(invariant(
+                "a phase cannot close with an unsatisfied required gate",
+            ));
+        }
+        let supplied = evaluation_refs.iter().collect::<BTreeSet<_>>();
+        if supplied.len() != evaluation_refs.len() {
+            return Err(invariant("phase gate evaluation references must be unique"));
+        }
+        let required_verified = self
+            .gates
+            .values()
+            .filter(|gate| {
+                &gate.phase_ref == phase_ref
+                    && gate.criticality == GateCriticality::Required
+                    && self.gate_status(&gate.gate_id) == Some(GateStatus::Verified)
+            })
+            .map(|gate| {
+                self.current_gate_evaluation_refs
+                    .get(&gate.gate_id)
+                    .ok_or_else(|| invariant("verified required gate lacks current evaluation"))
+            })
+            .collect::<Result<BTreeSet<_>, _>>()?;
+        if !required_verified.is_subset(&supplied)
+            || evaluation_refs.iter().any(|evaluation_ref| {
+                !self
+                    .gate_evaluations
+                    .get(evaluation_ref)
+                    .is_some_and(|evaluation| {
+                        self.gates.get(&evaluation.gate_ref).is_some_and(|gate| {
+                            &gate.phase_ref == phase_ref
+                                && self.gate_status(&gate.gate_id) == Some(GateStatus::Verified)
+                                && self.current_gate_evaluation_refs.get(&gate.gate_id)
+                                    == Some(evaluation_ref)
+                        })
+                    })
+            })
+        {
+            return Err(invariant(
+                "phase completion must cite every current verified required-gate evaluation",
+            ));
+        }
+        Ok(())
+    }
+
+    fn validate_completed_phase_gates(&self) -> Result<(), ProjectionError> {
+        for (phase_ref, status) in &self.phase_statuses {
+            if *status == PhaseStatus::Completed && !self.phase_required_gates_satisfied(phase_ref)
+            {
+                return Err(invariant(
+                    "a completed phase cannot end with an unsatisfied required gate",
+                ));
+            }
+        }
+        Ok(())
+    }
+
     fn sync_phase_refs(&mut self) {
         let Some(roadmap) = &self.state.roadmap else {
             self.state.active_phase_refs.clear();
@@ -811,6 +1493,27 @@ impl ProjectStateProjection {
                 self.phase_statuses.get(*phase_ref) == Some(&PhaseStatus::Completed)
             })
             .cloned()
+            .collect();
+    }
+
+    fn sync_gate_refs(&mut self) {
+        self.state.pending_gate_refs = self
+            .gate_statuses
+            .iter()
+            .filter(|(_, status)| !matches!(status, GateStatus::Verified | GateStatus::Waived))
+            .map(|(gate_ref, _)| gate_ref.clone())
+            .collect();
+        self.state.verified_gate_refs = self
+            .gate_statuses
+            .iter()
+            .filter(|(_, status)| **status == GateStatus::Verified)
+            .map(|(gate_ref, _)| gate_ref.clone())
+            .collect();
+        self.state.revalidation_required_gate_refs = self
+            .gate_statuses
+            .iter()
+            .filter(|(_, status)| **status == GateStatus::RevalidationRequired)
+            .map(|(gate_ref, _)| gate_ref.clone())
             .collect();
     }
 
@@ -893,6 +1596,103 @@ fn validate_roadmap(roadmap: &Roadmap) -> Result<(), ProjectionError> {
         return Err(invariant("roadmap phase references must be unique"));
     }
     Ok(())
+}
+
+fn validate_gate_definition(gate: &GateDefinition) -> Result<(), ProjectionError> {
+    validate_record(gate, gate.digest)?;
+    if gate.schema_version != SchemaVersion::V0_2_0
+        || gate.definition_version != 1
+        || gate.title.trim().is_empty()
+        || gate.required_evidence_rules.is_empty()
+    {
+        return Err(invariant("gate definition has invalid initial state"));
+    }
+    let rule_ids = gate
+        .required_evidence_rules
+        .iter()
+        .map(|rule| &rule.rule_id)
+        .collect::<BTreeSet<_>>();
+    if rule_ids.len() != gate.required_evidence_rules.len()
+        || gate
+            .repository_dependencies
+            .paths
+            .iter()
+            .any(|path| path.trim().is_empty())
+    {
+        return Err(invariant(
+            "gate evidence rules and repository dependencies must be unique and explicit",
+        ));
+    }
+    Ok(())
+}
+
+const fn valid_evaluation_status_pair(result: GateEvaluationResult, status: GateStatus) -> bool {
+    matches!(
+        (result, status),
+        (GateEvaluationResult::Pass, GateStatus::Verified)
+            | (GateEvaluationResult::Fail, GateStatus::Rejected)
+            | (
+                GateEvaluationResult::Incomplete
+                    | GateEvaluationResult::Conflicted
+                    | GateEvaluationResult::Error,
+                GateStatus::Pending
+            )
+            | (
+                GateEvaluationResult::Stale,
+                GateStatus::RevalidationRequired
+            )
+    )
+}
+
+fn evaluation_result_matches_rules(
+    evaluation: &GateEvaluation,
+    completion_rule: GateCompletionOperator,
+) -> bool {
+    let any = |result| {
+        evaluation
+            .rule_results
+            .iter()
+            .any(|rule| rule.result == result)
+    };
+    let all = |result| {
+        evaluation
+            .rule_results
+            .iter()
+            .all(|rule| rule.result == result)
+    };
+    let reports_snapshot_conflict = evaluation
+        .explanation_codes
+        .iter()
+        .any(|code| code == "REPOSITORY_SNAPSHOT_CONFLICT");
+    let expected = if reports_snapshot_conflict {
+        GateEvaluationResult::Conflicted
+    } else {
+        match completion_rule {
+            GateCompletionOperator::All if all(project_ledger_domain::RuleResult::Pass) => {
+                GateEvaluationResult::Pass
+            }
+            GateCompletionOperator::Any if any(project_ledger_domain::RuleResult::Pass) => {
+                GateEvaluationResult::Pass
+            }
+            _ if any(project_ledger_domain::RuleResult::Error) => GateEvaluationResult::Error,
+            _ if any(project_ledger_domain::RuleResult::Conflicted) => {
+                GateEvaluationResult::Conflicted
+            }
+            _ if any(project_ledger_domain::RuleResult::Stale) => GateEvaluationResult::Stale,
+            GateCompletionOperator::All if any(project_ledger_domain::RuleResult::Fail) => {
+                GateEvaluationResult::Fail
+            }
+            GateCompletionOperator::Any if all(project_ledger_domain::RuleResult::Fail) => {
+                GateEvaluationResult::Fail
+            }
+            GateCompletionOperator::All | GateCompletionOperator::Any => {
+                GateEvaluationResult::Incomplete
+            }
+        }
+    };
+    evaluation.result == expected
+        && (evaluation.result != GateEvaluationResult::Pass
+            || !evaluation.selected_evidence_refs.is_empty())
 }
 
 fn authority<'a>(
@@ -1005,12 +1805,11 @@ where
 fn record_digest<T: Serialize>(record: &T) -> Result<Sha256Digest, ProjectionError> {
     let mut value = serde_json::to_value(record)
         .map_err(|error| ProjectionError::StateSerialization(error.to_string()))?;
-    value
-        .as_object_mut()
-        .ok_or_else(|| {
-            ProjectionError::StateSerialization("domain record must be a JSON object".to_owned())
-        })?
-        .remove("digest");
+    let object = value.as_object_mut().ok_or_else(|| {
+        ProjectionError::StateSerialization("domain record must be a JSON object".to_owned())
+    })?;
+    object.remove("digest");
+    object.remove("payload_digest");
     Ok(sha256_digest(&value)?)
 }
 

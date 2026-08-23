@@ -9,7 +9,7 @@ use thiserror::Error;
 use crate::lifecycle::ProjectStateProjection;
 
 /// Version of the deterministic `ProjectState` fold implemented by this crate.
-pub const PROJECTOR_VERSION: u32 = 2;
+pub const PROJECTOR_VERSION: u32 = 3;
 
 /// Failures that prevent a stream or event from becoming trusted derived state.
 #[derive(Debug, Error)]
