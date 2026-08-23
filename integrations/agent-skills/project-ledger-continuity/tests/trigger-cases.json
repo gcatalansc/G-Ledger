@@ -1,0 +1,9 @@
+[
+  {"case_id":"start-resume","intent":"START_OR_RESUME","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["PROBE_TOOL","RESUME"]},
+  {"case_id":"material-progress","intent":"MATERIAL_PROGRESS","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["RECORD_PROGRESS"]},
+  {"case_id":"evidence-result","intent":"EVIDENCE_RESULT","tool_available":true,"evidence_available":true,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["RECORD_EVIDENCE","REQUEST_GATE_EVALUATION"]},
+  {"case_id":"gate-readiness","intent":"EVALUATE_GATE","tool_available":true,"evidence_available":true,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["REQUEST_GATE_EVALUATION"]},
+  {"case_id":"session-handoff","intent":"HANDOFF","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["CREATE_CHECKPOINT","RESUME"]},
+  {"case_id":"unrelated-translation","intent":"UNRELATED","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"NOT_TRIGGERED","expected_actions":[]},
+  {"case_id":"ordinary-diary","intent":"ORDINARY_DIARY","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"NOT_TRIGGERED","expected_actions":[]}
+]

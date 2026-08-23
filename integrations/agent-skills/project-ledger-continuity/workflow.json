@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "workflow_id": "project-ledger-continuity-v1",
+  "profile": "project-ledger-agent-skill/0.2.0",
+  "ordered_actions": [
+    "PROBE_TOOL",
+    "RESUME",
+    "RECORD_PROGRESS",
+    "RECORD_EVIDENCE",
+    "REQUEST_GATE_EVALUATION",
+    "CREATE_CHECKPOINT",
+    "RECONCILE_SUBMISSION"
+  ],
+  "mutating_actions": [
+    "RECORD_PROGRESS",
+    "RECORD_EVIDENCE",
+    "REQUEST_GATE_EVALUATION",
+    "CREATE_CHECKPOINT"
+  ],
+  "forbidden_actions": [
+    "BLIND_RETRY",
+    "DECLARE_GATE_VERIFIED",
+    "DECLARE_PHASE_COMPLETE",
+    "DIRECT_DATABASE_WRITE",
+    "EDIT_GENERATED_MARKDOWN"
+  ],
+  "failure_policies": {
+    "missing_tool": "DEGRADED_MISSING_TOOL",
+    "unknown_outcome": "RECONCILE_REQUIRED",
+    "version_conflict": "REPLAN_REQUIRED"
+  },
+  "completion_authority": "PROJECT_LEDGER_ENGINE_ONLY",
+  "storage_access": "PROJECT_LEDGER_CLI_ONLY",
+  "digest": "sha256:749c21d09b4e044534d215b4290cd8593b7b373f0ac91ca666e728113c8b8d4f"
+}

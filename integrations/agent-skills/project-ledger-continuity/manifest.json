@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "name": "project-ledger-continuity",
+  "version": "0.2.0",
+  "profile": "project-ledger-agent-skill/0.2.0",
+  "description": "Operate Project Ledger continuity through its governed CLI without acquiring state or completion authority.",
+  "required_tools": [
+    {
+      "name": "project-ledger",
+      "minimum_version": "0.2.0",
+      "maximum_version_exclusive": "0.3.0"
+    }
+  ],
+  "supported_platforms": ["linux", "macos", "windows"],
+  "compatibility_range": {
+    "protocol": "project-ledger",
+    "minimum": "0.2.0",
+    "maximum": "0.2.x"
+  },
+  "state_authority": false,
+  "core_dependency": false,
+  "workflow_ref": "workflow.json",
+  "trigger_cases_ref": "tests/trigger-cases.json",
+  "policy_cases_ref": "tests/policy-cases.json",
+  "digest": "sha256:dbceed62dfdc520572967e8d917f9b1266bb13aba78d0681d9db0b9a8c9698bb"
+}

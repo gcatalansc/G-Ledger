@@ -1,0 +1,55 @@
+{
+  "$id": "urn:project-ledger:agent-skill:manifest:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "name": { "const": "project-ledger-continuity" },
+    "version": { "const": "0.2.0" },
+    "profile": { "const": "project-ledger-agent-skill/0.2.0" },
+    "description": { "minLength": 1, "type": "string" },
+    "required_tools": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "name": { "const": "project-ledger" },
+          "minimum_version": { "const": "0.2.0" },
+          "maximum_version_exclusive": { "const": "0.3.0" }
+        },
+        "required": ["name", "minimum_version", "maximum_version_exclusive"],
+        "type": "object"
+      },
+      "maxItems": 1,
+      "minItems": 1,
+      "type": "array"
+    },
+    "supported_platforms": {
+      "const": ["linux", "macos", "windows"],
+      "type": "array"
+    },
+    "compatibility_range": {
+      "additionalProperties": false,
+      "properties": {
+        "protocol": { "const": "project-ledger" },
+        "minimum": { "const": "0.2.0" },
+        "maximum": { "const": "0.2.x" }
+      },
+      "required": ["protocol", "minimum", "maximum"],
+      "type": "object"
+    },
+    "state_authority": { "const": false },
+    "core_dependency": { "const": false },
+    "workflow_ref": { "const": "workflow.json" },
+    "trigger_cases_ref": { "const": "tests/trigger-cases.json" },
+    "policy_cases_ref": { "const": "tests/policy-cases.json" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" }
+  },
+  "required": [
+    "schema_version", "name", "version", "profile", "description",
+    "required_tools", "supported_platforms", "compatibility_range",
+    "state_authority", "core_dependency", "workflow_ref",
+    "trigger_cases_ref", "policy_cases_ref", "digest"
+  ],
+  "title": "ProjectLedgerAgentSkillManifest",
+  "type": "object"
+}

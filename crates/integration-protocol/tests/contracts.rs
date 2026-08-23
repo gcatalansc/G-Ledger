@@ -154,6 +154,10 @@ fn upstream_locks_preserve_evidence_state_and_reject_certification_overclaim() {
             "../../../integrations/project-radar/upstream-lock.json",
             UpstreamLockStatus::Complete,
         ),
+        (
+            "../../../integrations/agent-skills/profile-lock.json",
+            UpstreamLockStatus::Complete,
+        ),
     ] {
         let value: Value =
             serde_json::from_str(&std::fs::read_to_string(workspace_file(relative)).unwrap())

@@ -115,13 +115,15 @@ fn integration_compatibility_reports_all_local_profiles_complete_but_uncertified
     assert_eq!(value["schema_version"], "1.0.0");
     assert_eq!(value["certified_compatibility"], false);
     let integrations = value["integrations"].as_array().unwrap();
-    assert_eq!(integrations.len(), 3);
+    assert_eq!(integrations.len(), 4);
     assert_eq!(integrations[0]["integration"], "gskills");
     assert_eq!(integrations[0]["status"], "COMPLETE");
     assert_eq!(integrations[1]["integration"], "gsp");
     assert_eq!(integrations[1]["status"], "COMPLETE");
     assert_eq!(integrations[2]["integration"], "project-radar");
     assert_eq!(integrations[2]["status"], "COMPLETE");
+    assert_eq!(integrations[3]["integration"], "agent-skills-codex");
+    assert_eq!(integrations[3]["status"], "COMPLETE");
     assert!(
         integrations
             .iter()

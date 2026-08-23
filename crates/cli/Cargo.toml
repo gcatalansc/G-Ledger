@@ -12,7 +12,9 @@ path = "src/main.rs"
 [dependencies]
 clap.workspace = true
 project-ledger-application = { path = "../application", version = "=0.2.0" }
+project-ledger-agent-skill = { path = "../agent-skill", version = "=0.2.0" }
 project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
+project-ledger-continuity = { path = "../continuity", version = "=0.2.0" }
 project-ledger-domain = { path = "../domain", version = "=0.2.0" }
 project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
 project-ledger-integration-protocol = { path = "../integration-protocol", version = "=0.2.0" }
@@ -26,6 +28,7 @@ project-ledger-transport-stdio = { path = "../transport-stdio", version = "=0.2.
 serde.workspace = true
 serde_json.workspace = true
 time.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
 assert_cmd.workspace = true

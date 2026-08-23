@@ -910,6 +910,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-ledger-agent-skill"
+version = "0.2.0"
+dependencies = [
+ "jsonschema",
+ "project-ledger-canonical-json",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "project-ledger-application"
 version = "0.2.0"
 dependencies = [
@@ -959,8 +973,10 @@ dependencies = [
  "assert_cmd",
  "clap",
  "predicates",
+ "project-ledger-agent-skill",
  "project-ledger-application",
  "project-ledger-canonical-json",
+ "project-ledger-continuity",
  "project-ledger-domain",
  "project-ledger-event-store",
  "project-ledger-integration-protocol",
@@ -976,6 +992,7 @@ dependencies = [
  "serde_yaml",
  "tempfile",
  "time",
+ "uuid",
 ]
 
 [[package]]

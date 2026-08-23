@@ -13,6 +13,7 @@ members = [
   "crates/interop-gskills",
   "crates/interop-gsp",
   "crates/interop-radar",
+  "crates/agent-skill",
   "crates/legacy-import",
   "crates/portable-bundle",
   "crates/project-catalog",

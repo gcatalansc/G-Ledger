@@ -1218,3 +1218,90 @@ Repetir el gate integral completo desde cero después de la corrección y usar s
 **Siguiente paso según la especificación**
 
 Iniciar, sólo tras una nueva autorización, Fase 10 / S13 Agent Skill/Codex: manifest versionado, workflow, ejemplos, casos de trigger positivos/negativos, degradación explícita si falta la herramienta y handoff E2E; el gate exige conformance de la skill y ausencia de bypass de autoridad.
+
+### 2026-08-23 — Apertura de Fase 10 / S13: Agent Skill/Codex
+
+**Autoridad y alcance reconciliados**
+
+- Se releyeron el handoff, `INTEGRATION_LOCKS.json` y las secciones normativas §27, §36, §50, §51, AC-061…064 y el E2E de §58 antes de editar implementación.
+- La skill será un adaptador procedimental versionado: no contiene estado canónico, no es dependencia del core, no lee SQLite ni edita Markdown generado y no puede completar fases o gates.
+- La revisión de la CLI detectó que `resume` y `checkpoint create`, aunque normativos y respaldados por motores S6 existentes, todavía no estaban expuestos. S13 añadirá sólo ese puente mínimo para demostrar el handoff E2E real.
+- El plan persistente `docs/superpowers/plans/2026-08-23-project-ledger-phase-10-s13.md` fija TDD, schemas/profile, casos de trigger, degradación explícita, no-authority y gate completo.
+
+**Estado de apertura**
+
+- Base Git limpia confirmada en `d78a454` (`feat: add Project Radar artifact profile`).
+- Avance se mantiene en 10/12 macrofases y 13/15 slices hasta que S13 supere su gate integral y sea versionada.
+- Primer paso: escribir y observar el RED del contrato exacto del paquete antes de crear la skill.
+
+**Hito S13.1 — Contrato del paquete RED→GREEN**
+
+- RED confirmado con `cargo test -p project-ledger-agent-skill --test package_contract`: el crate todavía no exponía perfil, error ni verificador.
+- El paquete sigue la anatomía Agent Skills (`SKILL.md` con frontmatter) y añade el manifest normativo de Ledger, workflow, dos schemas cerrados, dos ejemplos, siete casos de trigger y cinco casos de política.
+- El profile lock fija spec `31cb7cd4…`, versión `0.2.0`, rango de herramienta `[0.2.0,0.3.0)`, Windows/Linux/macOS, `state_authority=false`, `core_dependency=false` y certificación falsa.
+- El verificador valida primero bytes crudos de registry/fixture manifest y cada artefacto, luego schemas, self-digests, identidad del perfil y ausencia de `project:<uuid>`/`checkpoint:<uuid>` concretos en contenido ejecutable.
+- GREEN focalizado: 2/2 tests PASS, incluido drift adversarial de un byte antes del replay semántico.
+
+**Siguiente acción**
+
+Escribir el RED conductual para triggers, missing-tool, version conflict, unknown outcome y no-authority; después implementar el planner puro y la conformance suite.
+
+**Hito S13.2 — Conformance conductual RED→GREEN**
+
+- RED confirmado: faltaban intent/actions/status, runtime conditions, planner, inspección de contenido y conformance runner.
+- El planner puro separa `NOT_TRIGGERED`, `READY`, `DEGRADED_MISSING_TOOL`, `REPLAN_REQUIRED` y `RECONCILE_REQUIRED`; toda salida fija `completion_claim_allowed=false`.
+- Cinco triggers positivos y dos negativos se ejecutan desde fixtures. Las cinco políticas cubren herramienta ausente, conflicto de versión, resultado incierto, evaluación sin evidencia y handoff gobernado.
+- La mutación adversarial `DECLARE_PHASE_COMPLETE` en `ordered_actions` se rechaza como `AuthorityBypass`; current state concreto se rechaza, mientras placeholders no canónicos permanecen válidos.
+- GREEN focalizado: 4/4 tests conductuales y 6/6 tests totales del crate PASS.
+
+**Siguiente acción**
+
+Escribir el RED de CLI para `integration agent-skill verify-contracts`, resume read-only y checkpoint→resume real sobre SQLite.
+
+**Hito S13.3 — Handoff CLI SQLite RED→GREEN**
+
+- El primer intento RED se corrigió porque el test local ocultaba la función `checkpoint` con una variable del mismo nombre; tras reparar el test, el RED válido mostró `agent-skill` no reconocido y ausencia de `resume`.
+- La CLI añade `integration agent-skill verify-contracts`, `resume --database --project-ref --format codex|json` y `checkpoint create` con version/idempotency/actor/timestamp explícitos.
+- Resume verifica cadena, reconstruye el stream y usa el `ResumeBuilder` S6 existente sin añadir eventos. Checkpoint entra por `CommandProcessor` + `CoreCommandHandler`; la skill no abre SQLite directamente.
+- El E2E real ejecuta init→resume(1 evento)→checkpoint(2 eventos)→duplicate replay(2)→resume con `CURRENT_FOR_PROJECT_ONLY`; una idempotency nueva con expected version stale devuelve `VERSION_CONFLICT` y conserva 2 eventos.
+- GREEN focalizado: 2/2 tests CLI PASS. La compatibilidad incorpora `agent-skills-codex` como perfil local `COMPLETE`, siempre `certified_compatibility=false`.
+
+**Siguiente acción**
+
+Reconciliar README/changelog/matriz/compatibilidad, validar la anatomía de la skill con el validador oficial local y ejecutar el gate integral.
+
+### 2026-08-23 — Cierre de Fase 10 / S13: Agent Skill/Codex
+
+**Resultado implementado**
+
+- Se publicó `project-ledger-continuity` v0.2.0 con frontmatter Agent Skills válido, manifest/profile, workflow cerrado, dos schemas, registry/fixture manifest, dos ejemplos, siete triggers y cinco políticas raw-locked.
+- `project-ledger-agent-skill` valida offline bytes, schema, self-digests, ausencia estructural de current state concreto y ejecuta la conformance conductual. Tool ausente, version conflict y unknown outcome fallan cerrados.
+- El workflow prohíbe DB directa, edición de Markdown generado, blind retry, `DECLARE_GATE_VERIFIED` y `DECLARE_PHASE_COMPLETE`; toda planificación mantiene `completion_claim_allowed=false`.
+- La CLI incorpora verificación del paquete, resume canónico read-only y checkpoint gobernado. El E2E SQLite demuestra checkpoint N/N+1, replay idempotente, freshness vigente y conflicto de versión sin evento adicional.
+- `integration compatibility` incluye los cuatro perfiles locales como `COMPLETE`, todos con `certified_compatibility=false`.
+
+**Gate integral final**
+
+- Validador oficial local de `skill-creator`: PASS (`Skill is valid!`).
+- `cargo fmt --all -- --check`: PASS.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS.
+- `cargo test --workspace --all-targets --all-features`: PASS; 207 atributos `#[test]` inventariados, cero fallos.
+- `cargo xtask schema check`: PASS.
+- `project-ledger specs verify`: PASS; v0.1 `772ea517`, v0.2 `31cb7cd4`.
+- `project-ledger contracts verify`: PASS; 46 schemas, 92 fixtures y 53 filas de matriz.
+- Contratos G-Skills, GSP, Radar y Agent Skill: PASS; la skill verificó 2 schemas, 7 triggers y 5 políticas.
+- `integration compatibility`: PASS; cuatro perfiles locales completos, certificación global y por perfil falsa.
+- `cargo deny --offline check`: PASS para advisories, bans, licenses y sources; sólo permanecen duplicidades transitivas informativas de `getrandom`, `r-efi` y `syn`.
+- `git diff --check`: PASS.
+- Los hashes finales coinciden con el lock: registry `8b543f80…`; fixture manifest `af685beb…`.
+
+**Estado y límites de evidencia**
+
+- Fase 10 / S13 cerrada; avance real: 11/12 macrofases y 14/15 slices, según §50/§51.
+- La skill permanece procedimental: `state_authority=false`, `core_dependency=false`, `certified_compatibility=false`.
+- S13 no demuestra obediencia universal de agentes/modelos, enforcement fuera del CLI, sandbox universal, integración remota, operación productiva ni readiness de release.
+- El cierre se versiona mediante el commit de fase `feat: add governed Agent Skill workflow`.
+
+**Siguiente paso según la especificación**
+
+Iniciar, sólo tras una nueva autorización, Fase 11 / S14 hardening, benchmark y release: seguridad/privacidad, fuzzing, chaos, performance, packaging, SBOM, migraciones y compatibility report. Su gate exige AC-001…090 PASS o waiver no crítico explícito; S14 no se inició en este cierre.

@@ -1,0 +1,7 @@
+[
+  {"case_id":"missing-tool","intent":"START_OR_RESUME","tool_available":false,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"DEGRADED_MISSING_TOOL","expected_actions":[]},
+  {"case_id":"version-conflict","intent":"MATERIAL_PROGRESS","tool_available":true,"evidence_available":false,"version_conflict":true,"unknown_outcome":false,"expected_status":"REPLAN_REQUIRED","expected_actions":["RESUME"]},
+  {"case_id":"unknown-outcome","intent":"MATERIAL_PROGRESS","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":true,"expected_status":"RECONCILE_REQUIRED","expected_actions":["RECONCILE_SUBMISSION"]},
+  {"case_id":"completion-without-evidence","intent":"EVALUATE_GATE","tool_available":true,"evidence_available":false,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["REQUEST_GATE_EVALUATION"]},
+  {"case_id":"governed-handoff","intent":"HANDOFF","tool_available":true,"evidence_available":true,"version_conflict":false,"unknown_outcome":false,"expected_status":"READY","expected_actions":["CREATE_CHECKPOINT","RESUME"]}
+]

@@ -1,0 +1,11 @@
+{
+  "request": "Create a governed handoff after authorized work.",
+  "inputs": {
+    "database": "${DATABASE_PATH}",
+    "project_ref": "${PROJECT_REF}",
+    "expected_version": "${STATE_VERSION}",
+    "idempotency_key": "${IDEMPOTENCY_KEY}"
+  },
+  "expected_actions": ["CREATE_CHECKPOINT", "RESUME"],
+  "authority_note": "The skill reports checkpoint freshness and never declares phase or gate completion."
+}

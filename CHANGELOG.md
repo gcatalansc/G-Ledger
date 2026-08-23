@@ -54,4 +54,6 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Crate `interop-radar` con profile `project-ledger-radar-artifact/0.1.1`, cinco schemas/diez fixtures raw-locked, export canónico, mapping status/progress conservador, diez attention signals y privacidad mínima.
 - Importador Project Radar de referencia storage-independent: link confirmado fuerte, nombres sólo candidatos, duplicate/stale/update/divergence separados, omission no destructiva, campos Radar-owned preservados y provenance Ledger transitiva.
 - CLI `integration radar verify-contracts|export|validate-export` y `catalog radar-export --all` sobre ledgers explícitos; cadena/proyección SQLite verificadas, cero eventos, no overwrite y compatibilidad local completa pero `certified_compatibility=false` hasta counterpart/E2E bilateral.
+- Crate `agent-skill` y paquete `project-ledger-agent-skill/0.2.0` con manifest/workflow schemas, raw locks, triggers positivos/negativos y políticas ejecutables para degradación, reconciliación y no-authority.
+- CLI `integration agent-skill verify-contracts`, `resume --format codex|json` read-only y `checkpoint create` gobernado; handoff SQLite real, replay idempotente y conflicto de versión fail-closed sin completion bypass.
 - Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.

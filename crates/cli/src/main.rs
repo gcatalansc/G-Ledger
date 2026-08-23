@@ -9,16 +9,21 @@ use std::{
     process::ExitCode,
 };
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
+use project_ledger_agent_skill::{
+    AGENT_SKILL_PROFILE, run_agent_skill_conformance, verify_agent_skill_package,
+};
 use project_ledger_application::{
     Clock, CommandDraft, CommandProcessor, CoreCommandHandler, CreateProjectHandler, FixedClock,
     prepare_command,
 };
 use project_ledger_canonical_json::{sha256_bytes, to_canonical_vec};
+use project_ledger_continuity::{ResumeBudget, ResumeBuilder, render_agent_markdown};
 use project_ledger_domain::{
     Actor, ActorKind, AuthorityPolicy, Command, CommandEnvelope, CommandId, CommandResult,
-    CommandResultStatus, CreateProjectPayload, LedgerTimestamp, Phase, Project, ProjectId,
-    ProjectLifecycleStatus, ResourceRef, SchemaVersion, StableId, StorageProfile, TrustLevel,
+    CommandResultStatus, CreateContinuityCheckpointPayload, CreateProjectPayload, LedgerTimestamp,
+    Phase, Project, ProjectId, ProjectLifecycleStatus, ResourceRef, SchemaVersion, StableId,
+    StorageProfile, TrustLevel,
 };
 use project_ledger_event_store::EventStore;
 use project_ledger_integration_protocol::{build_default_manifest, inspect_upstream_lock};
@@ -62,6 +67,11 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum TopLevelCommand {
     Init(InitArgs),
+    Resume(ResumeArgs),
+    Checkpoint {
+        #[command(subcommand)]
+        command: CheckpointCommand,
+    },
     Specs {
         #[command(subcommand)]
         command: VerificationCommand,
@@ -105,6 +115,10 @@ enum VerificationCommand {
 enum IntegrationCommand {
     Manifest,
     Compatibility,
+    AgentSkill {
+        #[command(subcommand)]
+        command: AgentSkillIntegrationCommand,
+    },
     Gskills {
         #[command(subcommand)]
         command: GSkillsIntegrationCommand,
@@ -137,6 +151,50 @@ enum RadarIntegrationCommand {
     VerifyContracts,
     Export(RadarExportArgs),
     ValidateExport(RadarValidateExportArgs),
+}
+
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum AgentSkillIntegrationCommand {
+    VerifyContracts,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+enum ResumeFormat {
+    Codex,
+    Json,
+}
+
+#[derive(Clone, Debug, Args)]
+struct ResumeArgs {
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long, value_enum, default_value = "codex")]
+    format: ResumeFormat,
+}
+
+#[derive(Clone, Debug, Subcommand)]
+enum CheckpointCommand {
+    Create(CheckpointCreateArgs),
+}
+
+#[derive(Clone, Debug, Args)]
+struct CheckpointCreateArgs {
+    #[arg(long)]
+    database: PathBuf,
+    #[arg(long)]
+    project_ref: String,
+    #[arg(long)]
+    reason: String,
+    #[arg(long)]
+    expected_version: u64,
+    #[arg(long)]
+    idempotency_key: String,
+    #[arg(long)]
+    actor_id: String,
+    #[arg(long)]
+    observed_at: String,
 }
 
 #[derive(Clone, Debug, Subcommand)]
@@ -280,6 +338,10 @@ fn main() -> ExitCode {
     let cli = Cli::parse();
     let result = match cli.command {
         TopLevelCommand::Init(args) => initialize_project(args),
+        TopLevelCommand::Resume(args) => resume_project(&args),
+        TopLevelCommand::Checkpoint {
+            command: CheckpointCommand::Create(args),
+        } => create_checkpoint(&args),
         TopLevelCommand::Specs {
             command: VerificationCommand::Verify,
         } => repository_root().and_then(|root| verify_specs(&root)),
@@ -292,6 +354,12 @@ fn main() -> ExitCode {
         TopLevelCommand::Integration {
             command: IntegrationCommand::Compatibility,
         } => repository_root().and_then(|root| integration_compatibility(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::AgentSkill {
+                    command: AgentSkillIntegrationCommand::VerifyContracts,
+                },
+        } => repository_root().and_then(|root| verify_agent_skill_contracts(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gskills {
@@ -433,6 +501,93 @@ fn initialize_project(args: InitArgs) -> Result<String, String> {
     ))
 }
 
+fn resume_project(args: &ResumeArgs) -> Result<String, String> {
+    require_file(&args.database, "Project Ledger database")?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    store
+        .verify_event_chain(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let stream = store
+        .load_stream(&project_ref)
+        .map_err(|error| error.to_string())?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let budget = match args.format {
+        ResumeFormat::Codex => ResumeBudget::AgentMarkdown,
+        ResumeFormat::Json => ResumeBudget::Compact,
+    };
+    let resume = ResumeBuilder::build(&projection, budget).map_err(|error| error.to_string())?;
+    match args.format {
+        ResumeFormat::Codex => Ok(render_agent_markdown(&resume)),
+        ResumeFormat::Json => canonical_stdout(&resume),
+    }
+}
+
+fn create_checkpoint(args: &CheckpointCreateArgs) -> Result<String, String> {
+    require_file(&args.database, "Project Ledger database")?;
+    if args.reason.trim().is_empty() {
+        return Err("checkpoint reason cannot be empty".to_owned());
+    }
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let idempotency_key =
+        StableId::parse(&args.idempotency_key).map_err(|error| error.to_string())?;
+    let actor_id = StableId::parse(&args.actor_id).map_err(|error| error.to_string())?;
+    let observed_at =
+        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let command_id = deterministic_cli_command_id("checkpoint", &project_ref, &idempotency_key)?;
+    let command = prepare_command(CommandDraft {
+        schema_version: SchemaVersion::V0_2_0,
+        command_id,
+        project_ref: project_ref.clone(),
+        expected_state_version: args.expected_version,
+        idempotency_key,
+        actor: Actor {
+            actor_id,
+            actor_kind: ActorKind::Agent,
+            trust_level: TrustLevel::LocalUser,
+            display_name: Some("Project Ledger Agent Skill".to_owned()),
+        },
+        command: Command::CreateContinuityCheckpoint(CreateContinuityCheckpointPayload {
+            reason: args.reason.clone(),
+        }),
+        submitted_at: observed_at.clone(),
+    })
+    .map_err(|error| error.to_string())?;
+    let mut store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    let result = CommandProcessor::new(&mut store, &FixedClock::new(observed_at))
+        .execute(command, &CoreCommandHandler)
+        .map_err(|error| error.to_string())?;
+    if !matches!(
+        result.status,
+        CommandResultStatus::Accepted | CommandResultStatus::DuplicateReplay
+    ) {
+        let status = serde_json::to_value(result.status)
+            .ok()
+            .and_then(|value| value.as_str().map(ToOwned::to_owned))
+            .unwrap_or_else(|| format!("{:?}", result.status));
+        return Err(format!(
+            "checkpoint was not accepted: {status} {:?}",
+            result.rejection
+        ));
+    }
+    canonical_stdout(&result)
+}
+
+fn deterministic_cli_command_id(
+    operation: &str,
+    project_ref: &ProjectId,
+    idempotency_key: &StableId,
+) -> Result<CommandId, String> {
+    let seed = format!("cli:{operation}:{project_ref}:{idempotency_key}");
+    let digest = sha256_bytes(seed.as_bytes());
+    let mut bytes = [0_u8; 16];
+    bytes.copy_from_slice(&digest.as_bytes()[..16]);
+    bytes[6] = (bytes[6] & 0x0f) | 0x70;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    let uuid = uuid::Uuid::from_bytes(bytes);
+    CommandId::parse(&format!("command:{uuid}")).map_err(|error| error.to_string())
+}
+
 fn current_timestamp() -> Result<LedgerTimestamp, String> {
     let encoded = OffsetDateTime::now_utc()
         .format(&Rfc3339)
@@ -528,6 +683,7 @@ fn integration_compatibility(root: &Path) -> Result<String, String> {
         "integrations/gskills/upstream-lock.json",
         "integrations/gsp/upstream-lock.json",
         "integrations/project-radar/upstream-lock.json",
+        "integrations/agent-skills/profile-lock.json",
     ] {
         let path = root.join(relative);
         let bytes = fs::read(&path).map_err(|error| format!("{}: {error}", path.display()))?;
@@ -572,6 +728,18 @@ fn verify_radar_contracts(root: &Path) -> Result<String, String> {
         report.schema_count,
         report.valid_fixture_count + report.invalid_fixture_count,
         RADAR_PROFILE
+    ))
+}
+
+fn verify_agent_skill_contracts(root: &Path) -> Result<String, String> {
+    let package = verify_agent_skill_package(root).map_err(|error| error.to_string())?;
+    let conformance = run_agent_skill_conformance(root).map_err(|error| error.to_string())?;
+    Ok(format!(
+        "agent skill MATCH schemas={} triggers={} policies={} profile={}\n",
+        package.schema_count,
+        package.trigger_case_count,
+        conformance.policy_case_count,
+        AGENT_SKILL_PROFILE
     ))
 }
 

@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "project-ledger-agent-skill/0.2.0",
+  "entries": [
+    {"name":"manifest","schema_id":"urn:project-ledger:agent-skill:manifest:0.2.0","path":"schemas/manifest.schema.json","raw_sha256":"abf4252dcd4829cbf7424245bf31d00de48b9daf6c448bd583f1a71efbcb880a"},
+    {"name":"workflow","schema_id":"urn:project-ledger:agent-skill:workflow:0.2.0","path":"schemas/workflow.schema.json","raw_sha256":"5374a0e07c661fbb355d36f5c7bb1d886ddbb61858f86549a570b376d8198011"}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "project-ledger-agent-skill/0.2.0",
+  "trigger_cases": {"path":"tests/trigger-cases.json","raw_sha256":"dd473c14f5d09600440d246b86e93e5a74915cf5306bacf25daf458ab1483f02","count":7},
+  "policy_cases": {"path":"tests/policy-cases.json","raw_sha256":"b4f5553845a4266d605be2794130dba043fa1f6c7c90ce6b0c1c43aca38fc045","count":5},
+  "instructions": {"path":"SKILL.md","raw_sha256":"8d3a5e76b89a026a9229d08ba6bb30ac41dcd130e63a03e29029dc9168594717"},
+  "manifest": {"path":"manifest.json","raw_sha256":"2c64d81d9e25992a61e764d6bbd4f9da280e60d99ad504a90ddc02f3bff2b14a"},
+  "workflow": {"path":"workflow.json","raw_sha256":"bd9172babe0091aa96ed84fef2e9cf8a3331bfb921bc59a5562e04c79eb58e4e"},
+  "examples": [
+    {"path":"examples/resume-start.json","raw_sha256":"cc2d01f81e37ff06ecd7a5b67df6e1546a0efc6275edde2f89183188968d988d"},
+    {"path":"examples/session-handoff.json","raw_sha256":"262c1210f53c7180bf68c94b1e9fa52e7fcc72a51e72ff0cfea5b68dca4ab07f"}
+  ]
+}

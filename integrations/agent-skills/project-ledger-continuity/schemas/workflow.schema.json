@@ -1,0 +1,57 @@
+{
+  "$id": "urn:project-ledger:agent-skill:workflow:0.2.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "action": {
+      "enum": [
+        "PROBE_TOOL", "RESUME", "RECORD_PROGRESS", "RECORD_EVIDENCE",
+        "REQUEST_GATE_EVALUATION", "CREATE_CHECKPOINT", "RECONCILE_SUBMISSION"
+      ],
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "workflow_id": { "const": "project-ledger-continuity-v1" },
+    "profile": { "const": "project-ledger-agent-skill/0.2.0" },
+    "ordered_actions": {
+      "items": { "$ref": "#/$defs/action" },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "mutating_actions": {
+      "items": { "$ref": "#/$defs/action" },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "forbidden_actions": {
+      "const": [
+        "BLIND_RETRY", "DECLARE_GATE_VERIFIED", "DECLARE_PHASE_COMPLETE",
+        "DIRECT_DATABASE_WRITE", "EDIT_GENERATED_MARKDOWN"
+      ],
+      "type": "array"
+    },
+    "failure_policies": {
+      "additionalProperties": false,
+      "properties": {
+        "missing_tool": { "const": "DEGRADED_MISSING_TOOL" },
+        "unknown_outcome": { "const": "RECONCILE_REQUIRED" },
+        "version_conflict": { "const": "REPLAN_REQUIRED" }
+      },
+      "required": ["missing_tool", "unknown_outcome", "version_conflict"],
+      "type": "object"
+    },
+    "completion_authority": { "const": "PROJECT_LEDGER_ENGINE_ONLY" },
+    "storage_access": { "const": "PROJECT_LEDGER_CLI_ONLY" },
+    "digest": { "pattern": "^sha256:[0-9a-f]{64}$", "type": "string" }
+  },
+  "required": [
+    "schema_version", "workflow_id", "profile", "ordered_actions",
+    "mutating_actions", "forbidden_actions", "failure_policies",
+    "completion_authority", "storage_access", "digest"
+  ],
+  "title": "ProjectLedgerAgentSkillWorkflow",
+  "type": "object"
+}

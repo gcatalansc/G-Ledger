@@ -1,0 +1,6 @@
+{
+  "request": "Continue the Project Ledger implementation from its canonical checkpoint.",
+  "inputs": {"database": "${DATABASE_PATH}", "project_ref": "${PROJECT_REF}"},
+  "expected_actions": ["PROBE_TOOL", "RESUME"],
+  "authority_note": "The returned projection is derived context; the engine remains authoritative."
+}

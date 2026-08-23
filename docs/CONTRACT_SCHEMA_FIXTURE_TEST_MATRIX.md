@@ -92,7 +92,7 @@ Esta matriz resume la cobertura contractual de S1, la ejecución transaccional d
 | Requisito | Evidencia principal | Frontera demostrada |
 |---|---|---|
 | §32.4–32.5, REQ-INT-002 | `integration-protocol/tests/contracts.rs` | Manifest/health/envelope/loss canónicos, side effects declarados, payload/state/schema/digest ligados, bounds y current/stale sin elevar autoridad |
-| REQ-INT-001, I-28 | `integration-protocol/tests/contracts.rs`, `cli/tests/contract_commands.rs` | Locks completos requieren spec/schema/fixtures/range; null/missing queda `PENDING`; overclaim falla; los tres locks actuales siguen no certificados |
+| REQ-INT-001, I-28 | `integration-protocol/tests/contracts.rs`, `cli/tests/contract_commands.rs` | Locks completos requieren spec/schema/fixtures/range; null/missing queda `PENDING`; overclaim falla; los cuatro locks actuales siguen no certificados |
 | AC-045, PL-17 | `integration-protocol/tests/contracts.rs`, `conformance.rs` | Sólo mapping exacto `CONFIRMED`; candidate/nombre no resuelven y múltiples targets producen ambigüedad fail-closed |
 | AC-043, PL-09, §38.5 | `integration-protocol/tests/conformance.rs` | 100 projections current + stale/post-failure conservan exactamente version/event-count/state-digest; mutación, timeout, nondeterminismo o secreto tipado fallan |
 | AC-044/050, §38.5 | `integration-protocol/tests/conformance.rs` | 7 requests maliciosos cubren negotiation, budgets, duplicados, authority, privacidad e identidad; el provider recupera una respuesta válida después de errores |
@@ -148,3 +148,15 @@ El gate integral S11 vuelve a ejecutar el workspace completo. La evidencia demue
 | Fase 9, AC-080 | `cli/tests/radar_workflow.rs`, `upstream-lock.json`, `specs/compatibility/project-radar-v0.1.md` | Export/validate/catalog sobre SQLite real añaden cero eventos y rechazan overwrite/tampering; lock local COMPLETE pero counterpart/E2E/certificación siguen pendientes |
 
 El gate integral S12 vuelve a ejecutar el workspace completo. La evidencia demuestra el lado Ledger y un evaluador de referencia sin persistencia; no certifica código Project Radar, IndexedDB, migración/backup counterpart, integración bilateral, operación productiva, rentabilidad ni validez científica.
+
+## Cobertura ejecutable S13
+
+| Requisito | Evidencia principal | Frontera demostrada |
+|---|---|---|
+| AC-061, §36.1/36.4 | `agent-skill/tests/package_contract.rs`, `conformance.rs`, `integration agent-skill verify-contracts` | Manifest/profile, dos schemas, 7 triggers, 5 políticas, examples y raw locks validan offline; un byte divergente falla antes de semántica |
+| AC-062, §36.3 | `conformance.rs`, `SKILL.md`, `manifest.json` | Placeholders son válidos; `project:<uuid>`/`checkpoint:<uuid>` concretos en instrucciones se rechazan y el manifest fija `state_authority=false` |
+| AC-063, §36.2/36.4 | `conformance.rs`, `trigger-cases.json`, `policy-cases.json` | Tool ausente no genera writes; version conflict exige resume/replan y outcome unknown exige reconcile sin blind retry |
+| AC-064, ADR-012 | `conformance.rs`, `workflow.json` | Completion pertenece al engine; direct DB, Markdown generado, gate verified y phase complete están prohibidos; mutación adversarial se rechaza |
+| Fase 10 handoff E2E | `cli/tests/agent_skill_workflow.rs` | Init→resume→checkpoint→replay→resume usa SQLite real; resume añade cero eventos, replay cero adicionales y stale expected version no altera el stream |
+
+El gate integral S13 vuelve a ejecutar el workspace completo. Esta evidencia demuestra conformance estructural/conductual local del procedimiento y el handoff CLI; no prueba obediencia de todos los agentes, certificación externa, sandbox universal ni readiness de release S14.
