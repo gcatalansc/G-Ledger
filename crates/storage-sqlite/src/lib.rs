@@ -6,6 +6,12 @@ mod projections;
 mod recovery;
 mod submissions;
 
+#[cfg(test)]
+mod disk_full_tests;
+#[cfg(test)]
+#[path = "../tests/support/mod.rs"]
+mod test_support;
+
 use std::{fs, path::Path, time::Duration};
 
 use rusqlite::Connection;

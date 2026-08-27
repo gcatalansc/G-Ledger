@@ -16,6 +16,9 @@ pub struct ReleaseVerification {
     pub missing_evidence_count: usize,
     pub blocked_count: usize,
     pub waived_count: usize,
+    pub chaos_waived_count: usize,
+    pub general_availability_blocker_count: usize,
+    pub gsp_runtime_certification_blocker_count: usize,
     pub migration_source: String,
     pub migration_target: String,
     pub migration_source_preserved: bool,
@@ -128,6 +131,34 @@ struct Waiver {
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
+struct ChaosReport {
+    profile: String,
+    status: String,
+    covered: Vec<CoveredChaosScenario>,
+    waived: Vec<ChaosWaiver>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CoveredChaosScenario {
+    scenario: String,
+    evidence: String,
+    locator: Option<String>,
+    observed_fault: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ChaosWaiver {
+    scenario: String,
+    reason: String,
+    non_critical: bool,
+    blocks: Vec<String>,
+    review_by: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[allow(clippy::struct_excessive_bools)] // Migration safety properties are independent contract assertions.
 struct MigrationManifest {
     migration_id: String,
@@ -197,6 +228,16 @@ pub fn verify_release(root: &Path) -> Result<ReleaseVerification, ReleaseError> 
         }
         verify_raw_artifact(root, &artifact.path, &artifact.sha256)?;
     }
+    if !inventory_paths.contains("release/chaos-report.json") {
+        return invalid("chaos report must be hash-locked in the release inventory");
+    }
+
+    let chaos: ChaosReport = read_json(root, "release/chaos-report.json")?;
+    let (
+        chaos_waived_count,
+        general_availability_blocker_count,
+        gsp_runtime_certification_blocker_count,
+    ) = verify_chaos(root, &chaos)?;
 
     let acceptance: AcceptanceReport = read_json(root, &manifest.acceptance_report)?;
     if acceptance.profile != "project-ledger-acceptance-report/0.2.0" {
@@ -225,6 +266,9 @@ pub fn verify_release(root: &Path) -> Result<ReleaseVerification, ReleaseError> 
         missing_evidence_count,
         blocked_count,
         waived_count,
+        chaos_waived_count,
+        general_availability_blocker_count,
+        gsp_runtime_certification_blocker_count,
         migration_source: migration.source_contract_version,
         migration_target: migration.target_contract_version,
         migration_source_preserved: migration.source_preserved,
@@ -236,6 +280,97 @@ pub fn verify_release(root: &Path) -> Result<ReleaseVerification, ReleaseError> 
         certified_compatibility_count,
         overall_certified_compatibility: compatibility.overall_certified_compatibility,
     })
+}
+
+fn verify_chaos(root: &Path, report: &ChaosReport) -> Result<(usize, usize, usize), ReleaseError> {
+    if report.profile != "project-ledger-chaos-report/0.2.0"
+        || (report.waived.is_empty() && report.status != "PASS")
+        || (!report.waived.is_empty() && report.status != "PASS_WITH_DECLARED_SCOPE")
+    {
+        return invalid("chaos report identity or status is inconsistent with its waivers");
+    }
+
+    let expected = [
+        "adapter-version-change",
+        "authority-change",
+        "concurrent-writers",
+        "corrupted-projection-rebuild",
+        "crash-append-rollback",
+        "duplicate-and-stale-artifact",
+        "live-sidecar-process-crash",
+        "malformed-event-and-corrupt-stream",
+        "markdown-edit",
+        "physical-disk-full",
+        "timeout-after-accept",
+        "truncated-radar-file",
+    ]
+    .into_iter()
+    .collect::<BTreeSet<_>>();
+    let mut observed = BTreeSet::new();
+
+    for covered in &report.covered {
+        if !observed.insert(covered.scenario.as_str()) {
+            return invalid("chaos scenario inventory contains a duplicate");
+        }
+        checked_relative_path(&covered.evidence)?;
+        let metadata = fs::symlink_metadata(root.join(&covered.evidence)).map_err(|_| {
+            ReleaseError::Invalid {
+                message: format!(
+                    "covered chaos evidence does not exist: {}",
+                    covered.evidence
+                ),
+            }
+        })?;
+        if !metadata.is_file() || metadata.file_type().is_symlink() {
+            return invalid("covered chaos evidence must be a regular non-symlink file");
+        }
+        if covered.scenario == "physical-disk-full"
+            && (covered.observed_fault.as_deref() != Some("ENOSPC(28)")
+                || covered.locator.as_deref().is_none_or(|locator| {
+                    !locator.starts_with("https://github.com/")
+                        || !locator.contains("/actions/runs/")
+                }))
+        {
+            return invalid("physical disk-full coverage requires hosted ENOSPC(28) evidence");
+        }
+    }
+
+    let mut general_availability_blocker_count = 0;
+    let mut gsp_runtime_certification_blocker_count = 0;
+    for waiver in &report.waived {
+        if !observed.insert(waiver.scenario.as_str()) {
+            return invalid("chaos scenario inventory contains a duplicate");
+        }
+        if !waiver.non_critical
+            || waiver.reason.trim().is_empty()
+            || waiver.review_by.trim().is_empty()
+            || waiver.blocks.is_empty()
+        {
+            return invalid("chaos waiver must be explicit, non-critical, reviewed and blocking");
+        }
+        let expected_block = if waiver.scenario == "live-sidecar-process-crash" {
+            "GSP_RUNTIME_CERTIFICATION"
+        } else {
+            "GENERAL_AVAILABILITY"
+        };
+        if waiver.blocks.len() != 1 || waiver.blocks[0] != expected_block {
+            return invalid("chaos waiver blocking scope is invalid for its scenario");
+        }
+        match expected_block {
+            "GENERAL_AVAILABILITY" => general_availability_blocker_count += 1,
+            "GSP_RUNTIME_CERTIFICATION" => gsp_runtime_certification_blocker_count += 1,
+            _ => unreachable!("expected chaos blocking scopes are exhaustive"),
+        }
+    }
+
+    if observed != expected {
+        return invalid("chaos scenario inventory is incomplete or contains an unknown scenario");
+    }
+    Ok((
+        report.waived.len(),
+        general_availability_blocker_count,
+        gsp_runtime_certification_blocker_count,
+    ))
 }
 
 fn verify_benchmark(root: &Path) -> Result<(), ReleaseError> {

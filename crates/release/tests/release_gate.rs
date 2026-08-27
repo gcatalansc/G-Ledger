@@ -1,6 +1,7 @@
-use std::{fs, path::Path};
+use std::{fmt::Write as _, fs, path::Path};
 
 use project_ledger_release::{ReleaseError, verify_release};
+use sha2::{Digest, Sha256};
 use tempfile::tempdir;
 
 #[test]
@@ -12,6 +13,75 @@ fn ac_086_ac_088_release_gate_covers_all_ids_with_zero_waivers() {
     assert_eq!(report.missing_evidence_count, 0);
     assert_eq!(report.blocked_count, 0);
     assert_eq!(report.waived_count, 0);
+}
+
+#[test]
+fn phase_11_chaos_gate_reports_each_blocking_scope_without_conflation() {
+    let report = verify_release(workspace_root()).unwrap();
+
+    assert_eq!(report.chaos_waived_count, 2);
+    assert_eq!(report.general_availability_blocker_count, 1);
+    assert_eq!(report.gsp_runtime_certification_blocker_count, 1);
+}
+
+#[test]
+fn phase_11_chaos_gate_rejects_an_unknown_hash_locked_scenario() {
+    let directory = chaos_fixture();
+    let path = directory.path().join("release/chaos-report.json");
+    let mut report: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    report["covered"][0]["scenario"] = serde_json::json!("unknown-chaos-scenario");
+    write_pretty_json(&path, &report);
+    lock_chaos_digest(directory.path());
+
+    let result = verify_release(directory.path());
+    assert!(
+        matches!(
+            &result,
+            Err(ReleaseError::Invalid { message })
+                if message.contains("chaos scenario inventory")
+        ),
+        "unexpected chaos result: {result:?}"
+    );
+}
+
+#[test]
+fn phase_11_chaos_gate_rejects_missing_covered_evidence() {
+    let directory = chaos_fixture();
+    let path = directory.path().join("release/chaos-report.json");
+    let mut report: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    report["covered"][0]["evidence"] =
+        serde_json::json!("crates/storage-sqlite/tests/missing-chaos-evidence.rs");
+    write_pretty_json(&path, &report);
+    lock_chaos_digest(directory.path());
+
+    let result = verify_release(directory.path());
+    assert!(
+        matches!(
+            &result,
+            Err(ReleaseError::Invalid { message })
+                if message.contains("covered chaos evidence")
+        ),
+        "unexpected chaos result: {result:?}"
+    );
+}
+
+#[test]
+fn phase_11_chaos_report_cannot_be_removed_from_the_hash_locked_inventory() {
+    let directory = chaos_fixture();
+    let path = directory.path().join("release/release-manifest.json");
+    let mut manifest: serde_json::Value =
+        serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    manifest["artifact_inventory"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|entry| entry["path"] != "release/chaos-report.json");
+    write_pretty_json(&path, &manifest);
+
+    let result = verify_release(directory.path());
+    assert!(
+        matches!(&result, Err(ReleaseError::Invalid { message }) if message.contains("chaos report must be hash-locked")),
+        "unexpected unlocked chaos result: {result:?}"
+    );
 }
 
 #[test]
@@ -79,4 +149,59 @@ fn copy_tree(source: &Path, destination: &Path) {
             fs::copy(entry.path(), target).unwrap();
         }
     }
+}
+
+fn chaos_fixture() -> tempfile::TempDir {
+    let directory = tempdir().unwrap();
+    copy_tree(
+        &workspace_root().join("release"),
+        &directory.path().join("release"),
+    );
+    copy_file_into_fixture(
+        directory.path(),
+        "benchmark/project-ledger-v0.2.0-windows-x86_64.json",
+    );
+    copy_file_into_fixture(directory.path(), "docs/THREAT_MODEL.md");
+    let chaos: serde_json::Value = serde_json::from_slice(
+        &fs::read(workspace_root().join("release/chaos-report.json")).unwrap(),
+    )
+    .unwrap();
+    for covered in chaos["covered"].as_array().unwrap() {
+        copy_file_into_fixture(directory.path(), covered["evidence"].as_str().unwrap());
+    }
+    directory
+}
+
+fn copy_file_into_fixture(root: &Path, relative: &str) {
+    let destination = root.join(relative);
+    fs::create_dir_all(destination.parent().unwrap()).unwrap();
+    fs::copy(workspace_root().join(relative), destination).unwrap();
+}
+
+fn lock_chaos_digest(root: &Path) {
+    let chaos = fs::read(root.join("release/chaos-report.json")).unwrap();
+    let digest =
+        Sha256::digest(chaos)
+            .iter()
+            .fold(String::with_capacity(64), |mut output, byte| {
+                write!(output, "{byte:02x}").unwrap();
+                output
+            });
+    let path = root.join("release/release-manifest.json");
+    let mut manifest: serde_json::Value =
+        serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+    let entry = manifest["artifact_inventory"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|entry| entry["path"] == "release/chaos-report.json")
+        .unwrap();
+    entry["sha256"] = serde_json::Value::String(digest);
+    write_pretty_json(&path, &manifest);
+}
+
+fn write_pretty_json(path: &Path, value: &serde_json::Value) {
+    let mut bytes = serde_json::to_vec_pretty(value).unwrap();
+    bytes.push(b'\n');
+    fs::write(path, bytes).unwrap();
 }

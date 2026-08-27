@@ -1603,3 +1603,67 @@ Regenerar manifest/checksums, demostrar GREEN de las pruebas de cero waivers y e
 **Siguiente paso según la especificación**
 
 Diseñar y ejecutar una prueba destructiva controlada de `physical-disk-full` en un entorno efímero, verificando fallo cerrado, rollback/recovery SQLite y preservación de la cadena antes de retirar ese waiver. Después, aportar evidencia counterpart/bilateral/live para cualquier perfil que se pretenda certificar, sin modificar `certified_compatibility=false` antes de ello.
+
+### 2026-08-26 — Apertura de calificación RQ3 / Bloqueo GA de caos: physical disk-full
+
+**Autoridad y estado reconciliados**
+
+- Git inicia limpio en `9cea832ca7f68032c6bb18c25f800e578fe6d6ac`; `HEAD` y `origin/main` coinciden, y el run hosted `33033255000` terminó `success` sobre ese SHA.
+- La especificación normativa §45.7 exige el escenario `disk full`; Fase 11/S14 exige hardening de caos con PASS o waiver no crítico explícito.
+- `release/chaos-report.json` conserva dos waivers: `physical-disk-full` bloquea `GENERAL_AVAILABILITY` y `live-sidecar-process-crash` bloquea sólo `GSP_RUNTIME_CERTIFICATION`.
+- El verifier de release fija el digest del chaos report, pero todavía no interpreta su inventario ni sus scopes de bloqueo; ese vacío debe fallar cerrado antes de retirar evidencia.
+- Docker no está disponible localmente. La prueba física se ejecutará en un `tmpfs` Linux efímero de GitHub Actions; el equipo local nunca será llenado.
+
+**Plan persistente y límites**
+
+- Plan: `docs/superpowers/plans/2026-08-26-project-ledger-physical-disk-full-qualification.md`.
+- TDD separa la prueba determinista multiplataforma mediante `PRAGMA max_page_count` de la evidencia física hosted mediante kernel `ENOSPC`/OS error 28.
+- El harness físico exigirá marker explícito, rechazará roots inseguros/symlinks, escribirá sólo en un hijo fijo y tendrá un límite absoluto de 64 MiB.
+- No se modificará `certified_compatibility=false`, ni se presentará el fault de cuota local como evidencia física, ni se promoverá el `release_status` sin un procedimiento separado y autorizado.
+
+**Estado de apertura**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices.
+- Avance de calificación AC-086/AC-089: 2/2.
+- Avance de calificación del bloqueo GA `physical-disk-full`: 0/1.
+- Estado de release: `ENGINEERING_RELEASE_CANDIDATE`; cuatro perfiles sin certificación.
+
+**Siguiente acción**
+
+Escribir expectativas RED que obliguen al verifier y al CLI a exponer dos waivers de caos, un bloqueo GA y un bloqueo GSP runtime antes de implementar el parser semántico fail-closed.
+
+**Hito RQ3.1 — Contrato de caos y harness local/hosted**
+
+- RED de release confirmado: la prueba de biblioteca no compiló porque `ReleaseVerification` carecía de los tres contadores de caos; la prueba CLI ejecutó el binario real y falló porque el JSON no contenía esos campos.
+- El verifier ahora exige el inventario exacto de 12 identificadores materializados que cubren los escenarios §45.7, evidencia local existente/no symlink para cada escenario cubierto, waivers no críticos explícitos y scopes no conflados.
+- Mutaciones hash-locked de escenario desconocido y evidencia cubierta inexistente son rechazadas por el verifier real.
+- GREEN vigente: 2 waivers de caos, 1 bloqueo `GENERAL_AVAILABILITY` y 1 bloqueo `GSP_RUNTIME_CERTIFICATION`; estos contadores son independientes de los 0 waivers de aceptación.
+- La primera inyección determinista fijó `max_page_count` desde una conexión auxiliar, pero el store reabierto confirmó el append. El resultado se trató como RED de diseño: el límite no estaba instalado en el pager que ejecutaba la transacción.
+- La inyección se movió al mismo connection/pager dentro de una prueba unitaria privada del crate, sin añadir API productiva exclusiva de test. Allí el append sobredimensionado devuelve `SQLITE_FULL`; tras restaurar el límite, tanto la conexión vigente como la reapertura reportan `quick_check=ok`, WAL, cadena válida y exactamente versión/evento/comando/resultado `1`.
+- El harness físico es un test ignorado: exige variable y marker exactos, rechaza workspace/ancestros/descendientes y symlinks, crea un hijo fijo, limita el filler a 64 MiB y limpia sólo cinco nombres conocidos.
+- El workflow incorpora un job Ubuntu dedicado que monta un `tmpfs` de 24 MiB con `nosuid,nodev,noexec`, ejecuta sólo el test físico exacto y desmonta en `always()`.
+- Pruebas focalizadas, compilación del test físico ignorado y Clippy estricto del crate SQLite: PASS. El ENOSPC físico aún no se ha ejecutado; el waiver permanece intacto.
+
+**Estado previo al gate del commit de harness**
+
+- Implementación: 12/12 macrofases; 15/15 slices.
+- Calificación AC-086/AC-089: 2/2.
+- Calificación del bloqueo GA `physical-disk-full`: 0/1.
+- Siguiente acción: ejecutar el gate integral local, versionar el harness si queda verde y publicar ese SHA para obtener evidencia física hosted antes de tocar `release/chaos-report.json`.
+
+**Refinamiento del entorno antes de publicación**
+
+- El job físico se ajustó de `tmpfs` a ext4 sobre una imagen loopback de tamaño fijo de 32 MiB. Así el fault ocurre en un filesystem de bloque Linux real, manteniendo el mismo aislamiento efímero y sin llenar el filesystem del host.
+- El job registra `findmnt` para probar tipo, dispositivo y capacidad, desmonta siempre el mountpoint exacto y elimina sólo la imagen creada por ese job.
+- Clippy señaló `format_collect` en un helper SHA-256 de tests; se corrigió usando el patrón `fold`/`write!` ya empleado por el verifier. El gate integral se reinició y Clippy estricto pasó.
+
+**Gate integral del harness RQ3.1 — PASS**
+
+- Un RED adicional demostró que el chaos report podía retirarse del inventario sin ser rechazado por ese motivo. El verifier ahora exige explícitamente su entrada hash-locked; la prueba de remoción es GREEN.
+- La recuperación compara también el digest del génesis capturado antes del fault y exige ausencia del resultado del comando fallido. El filler físico sincroniza cada bloque escrito para observar la asignación real de ext4.
+- Formato, fetch locked, Clippy estricto, suite workspace/all-targets/all-features y build release locked: PASS. Hay 229 atributos `#[test]` inventariados; el escenario físico es el único nuevo test ignorado localmente y no se contabiliza como evidencia ejecutada.
+- Schemas, specs preservadas v0.1/v0.2, contratos (46/92/53), G-Skills (11/22), GSP (28 registry/31 schemas/140 fixtures), Radar (5/10), Agent Skill (2 schemas/7 triggers/5 policies) e integración compatibility: PASS.
+- Benchmark (9 métricas, 0 waivers), release reproducible, release check y CLI release verify: PASS. El resultado conserva 90 AC, 32 PL, 0 secretos, 0 blockers de aceptación, 0 evidencia ausente y 0 waivers de aceptación; caos conserva 2 waivers, 1 bloqueo GA y 1 bloqueo GSP runtime.
+- `cargo deny --offline check`: PASS; duplicidades transitivas conocidas informativas. Replay SHA-256 13/13 y `git diff --check`: PASS.
+- El remote se revalidó como `https://github.com/gcatalansc/G-Ledger.git`, repositorio `PRIVATE`. No hay cambios ajenos en el worktree.
+- El harness se versionará como `test: add bounded disk-full chaos gate`; después se publicará ese SHA exacto. `physical-disk-full` sigue waived hasta observar la ejecución física hosted.

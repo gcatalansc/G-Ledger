@@ -46,3 +46,48 @@ jobs:
       - uses: EmbarkStudios/cargo-deny-action@v2.1.1
         with:
           command: check
+
+  physical-disk-full-chaos:
+    runs-on: ubuntu-latest
+    env:
+      RUSTUP_TOOLCHAIN: 1.97.1
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - uses: Swatinem/rust-cache@v2.9.2
+      - run: cargo fetch --locked
+      - name: Mount bounded ephemeral filesystem
+        shell: bash
+        run: |
+          set -euo pipefail
+          volume_root="$(mktemp -d "${RUNNER_TEMP}/project-ledger-disk-full.XXXXXX")"
+          echo "PROJECT_LEDGER_CHAOS_VOLUME_ROOT=$volume_root" >> "$GITHUB_ENV"
+          mount_dir="$volume_root/mount"
+          volume_image="$volume_root/volume.ext4"
+          mkdir "$mount_dir"
+          truncate -s 32M "$volume_image"
+          mkfs.ext4 -q -F -m 0 "$volume_image"
+          sudo mount -o loop,nosuid,nodev,noexec "$volume_image" "$mount_dir"
+          sudo chown "$(id -u):$(id -g)" "$mount_dir"
+          echo 'project-ledger-disk-full/0.2.0' > "$mount_dir/project-ledger-ephemeral-disk-full.marker"
+          echo "PROJECT_LEDGER_DISK_FULL_ROOT=$mount_dir" >> "$GITHUB_ENV"
+          findmnt --target "$mount_dir" --output SOURCE,FSTYPE,SIZE,AVAIL
+      - name: Verify physical ENOSPC rollback and recovery
+        run: cargo test -p project-ledger-storage-sqlite --test disk_full physical_kernel_enospc_rolls_back_and_reopens_with_the_committed_chain -- --ignored --exact --nocapture --test-threads=1
+      - name: Unmount bounded ephemeral filesystem
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -n "${PROJECT_LEDGER_CHAOS_VOLUME_ROOT:-}"; then
+            mount_dir="$PROJECT_LEDGER_CHAOS_VOLUME_ROOT/mount"
+            volume_image="$PROJECT_LEDGER_CHAOS_VOLUME_ROOT/volume.ext4"
+            if mountpoint -q "$mount_dir"; then
+              sudo umount "$mount_dir"
+            fi
+            if test -f "$volume_image"; then
+              rm -- "$volume_image"
+            fi
+            rmdir "$mount_dir" 2>/dev/null || true
+            rmdir "$PROJECT_LEDGER_CHAOS_VOLUME_ROOT"
+          fi
