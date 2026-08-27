@@ -4,14 +4,14 @@ use project_ledger_release::{ReleaseError, verify_release};
 use tempfile::tempdir;
 
 #[test]
-fn ac_088_release_gate_covers_exactly_ac_001_to_090_and_pl_01_to_32() {
+fn ac_086_ac_088_release_gate_covers_all_ids_with_zero_waivers() {
     let report = verify_release(workspace_root()).unwrap();
 
     assert_eq!(report.acceptance_criteria_count, 90);
     assert_eq!(report.benchmark_scenario_count, 32);
     assert_eq!(report.missing_evidence_count, 0);
     assert_eq!(report.blocked_count, 0);
-    assert_eq!(report.waived_count, 1);
+    assert_eq!(report.waived_count, 0);
 }
 
 #[test]

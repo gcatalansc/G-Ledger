@@ -3,7 +3,7 @@
   "artifact_inventory": [
     {
       "path": "release/acceptance-report.json",
-      "sha256": "82415651893da987ff2034424106b81eef3e6dbf71898b38e094a58778fb1d25"
+      "sha256": "09e31d56593cb35824f7d5dc46a03be9850cb159b5bdceb09369ec17fdcac33e"
     },
     {
       "path": "release/chaos-report.json",

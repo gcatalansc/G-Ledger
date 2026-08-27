@@ -1553,3 +1553,53 @@ Ejecutar el gate integral local sobre la remediación, versionarla en un commit 
 **Siguiente acción**
 
 Publicar el commit de remediación, identificar la nueva ejecución por SHA exacto y exigir PASS de Windows, Ubuntu, macOS y dependency-policy antes de editar la evidencia de aceptación.
+
+**Ejecución hosted aceptada para AC-086**
+
+- El commit de remediación es `5d34294c1f06b59e635c84d734b3156950940ae5` (`fix: harden hosted cross-platform gate`) y `origin/main` quedó exactamente en ese SHA.
+- Run agregado: `33031982562`, `success`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33031982562`.
+- Windows: job `98386337267`, `success`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33031982562/job/98386337267`.
+- Ubuntu: job `98386337436`, `success`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33031982562/job/98386337436`.
+- macOS: job `98386337365`, `success`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33031982562/job/98386337365`.
+- Dependency policy: job `98386337495`, `success`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33031982562/job/98386337495`.
+- Los cuatro jobs comparten el mismo `headSha`; no hubo jobs missing, skipped ni neutral. La ejecución fallida anterior no se reutiliza como evidencia positiva.
+
+**TDD de cierre evidencial**
+
+- RED confirmado: la prueba del crate release y la prueba CLI exigieron `waived_count=0` y ambas observaron el valor vigente `1` antes de modificar el reporte.
+- `release/acceptance-report.json` promueve exclusivamente AC-086 de `WAIVED` a `PASS`, elimina su waiver y conserva el run, SHA y cuatro IDs de jobs en el locator hash-locked.
+- Los cuatro perfiles de integración permanecen `certified_compatibility=false`; la evidencia hosted no demuestra contraparte, bilateralidad ni runtime live.
+- La calificación RQ1/RQ2 alcanza 2/2 waivers de aceptación resueltos, pero el release permanece `ENGINEERING_RELEASE_CANDIDATE`: `release/chaos-report.json` todavía declara el escenario `physical-disk-full` como waiver que bloquea `GENERAL_AVAILABILITY`.
+
+**Siguiente acción**
+
+Regenerar manifest/checksums, demostrar GREEN de las pruebas de cero waivers y ejecutar el gate integral antes de versionar el cierre de RQ2.
+
+### 2026-08-26 — Cierre de calificación RQ2 / Gate 2 de 2: CI hosted multiplataforma
+
+**Resultado materializado**
+
+- AC-086 es `PASS` con evidencia del run `33031982562` sobre el SHA exacto `5d34294c1f06b59e635c84d734b3156950940ae5`; Windows, Ubuntu, macOS y dependency-policy concluyeron `success`.
+- La evidencia conserva run URL, SHA y los cuatro IDs de jobs dentro de `release/acceptance-report.json`; el release manifest fija su digest y `release/checksums.sha256` fija tanto el acceptance report como el manifest.
+- TDD RED→GREEN: las dos pruebas de release observaron primero `waived_count=1` y después pasan con `waived_count=0`.
+- El reporte agregado queda en 90 AC, 32 PL, 0 blockers, 0 evidencia ausente, 0 secretos, 0 waivers de aceptación y 0 certificaciones.
+
+**Gate integral final fresco**
+
+- Formato, fetch locked, Clippy estricto, suite workspace, schemas, specs, contratos, cuatro integraciones y build release: PASS.
+- Benchmark: nueve métricas medidas, cero waivers; release generate/check y CLI release verify: PASS y `waived_count=0`.
+- `cargo deny --offline check`: PASS para advisories, bans, licenses y sources; las duplicidades transitivas conocidas siguen siendo informativas.
+- Replay de 13 checksums y `git diff --check`: PASS.
+- Los cuatro perfiles continúan `COMPLETE` localmente y `certified_compatibility=false`; no se añadió evidencia counterpart, bilateral ni live.
+
+**Estado real**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices.
+- Avance de calificación AC-086/AC-089: 2/2 waivers resueltos.
+- Estado de release: `ENGINEERING_RELEASE_CANDIDATE`, no General Availability.
+- Bloqueo GA restante: `release/chaos-report.json` mantiene `physical-disk-full` como waiver no crítico que bloquea `GENERAL_AVAILABILITY`. El waiver `live-sidecar-process-crash` bloquea específicamente la certificación runtime de GSP.
+- El cierre se versionará mediante el commit `chore: qualify hosted cross-platform release`.
+
+**Siguiente paso según la especificación**
+
+Diseñar y ejecutar una prueba destructiva controlada de `physical-disk-full` en un entorno efímero, verificando fallo cerrado, rollback/recovery SQLite y preservación de la cadena antes de retirar ese waiver. Después, aportar evidencia counterpart/bilateral/live para cualquier perfil que se pretenda certificar, sin modificar `certified_compatibility=false` antes de ello.
