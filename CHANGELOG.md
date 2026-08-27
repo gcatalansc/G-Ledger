@@ -63,4 +63,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.
 - Verificación semántica hash-locked del inventario de caos, con contadores separados para waivers, bloqueos General Availability y bloqueos de certificación runtime GSP.
 - Prueba SQLite `SQLITE_FULL` en la conexión real y harness hosted de kernel `ENOSPC(28)` sobre ext4/loopback efímero de 32 MiB; rollback y reapertura preservan cadena/digest/versionado sin llenar el disco del host.
-- Calificación `physical-disk-full` con run/job/SHA hosted exactos: se retira su waiver GA y se conserva el waiver `live-sidecar-process-crash` exclusivamente para certificación runtime GSP.
+- Calificación RQ3 `physical-disk-full` con run/job/SHA hosted exactos: se retira su waiver GA; en ese cierre permanecía `live-sidecar-process-crash` para certificación runtime GSP.
+- Adapter GSP opcional one-shot por archivos: ejecuta el compilador upstream real fijado, verifica checkout y schemas, acota entrada/salida y no recibe una DB ni sobrescribe artefactos existentes.
+- RQ4: tres tests live de compilación/rechazo/crash con proceso propio, terminación OS y reap, cadena/proyección intactas, reinicio, seis artefactos exactos, enlace explícito y replay sin duplicados. Job hosted separado con entorno frozen, 18 tests upstream y hashes/contratos/fixtures.
+- Regresión de parseo del workflow publicado y guard fail-closed para evidencia live con fault, contraparte exacta y locator hosted. Cierre del último waiver de caos tras el run `33060749387` en `30c17ac0253a581db69b7fe38e001da07c9216d8`; todas las certificaciones permanecen falsas y no hay promoción GA automática.

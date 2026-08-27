@@ -40,7 +40,9 @@
   "cli_artifact_workflow_status": "REAL_SQLITE_PASS",
   "semantic_degradation_count": 0,
   "authority_elevation_count": 0,
-  "live_external_sidecar_e2e_status": "PENDING_SEPARATE_EVIDENCE",
+  "live_external_sidecar_e2e_status": "BOUNDED_ARTIFACT_EXCHANGE_CRASH_E2E_PASS",
+  "live_external_sidecar_evidence": "https://github.com/gcatalansc/G-Ledger/actions/runs/33060749387/job/98478615297#head_sha=30c17ac0253a581db69b7fe38e001da07c9216d8",
+  "pending_runtime_certification": ["full-runtime-conformance-beyond-bounded-crash", "certification-review"],
   "lock_status": "S11_LOCAL_PASS",
   "certified_compatibility": false
 }

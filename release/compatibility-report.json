@@ -3,7 +3,7 @@
   "overall_certified_compatibility": false,
   "profiles": [
     {"profile":"gskills-v0.3.0","local_status":"COMPLETE","certified_compatibility":false,"pending_evidence":["counterpart-runtime","bilateral-e2e"]},
-    {"profile":"gsp-exact-2026.04.12","local_status":"COMPLETE","certified_compatibility":false,"pending_evidence":["live-sidecar-e2e"]},
+    {"profile":"gsp-exact-2026.04.12","local_status":"COMPLETE","certified_compatibility":false,"pending_evidence":["full-runtime-conformance-beyond-bounded-crash","certification-review"]},
     {"profile":"project-ledger-radar-artifact/0.1.1","local_status":"COMPLETE","certified_compatibility":false,"pending_evidence":["counterpart-extension","bilateral-e2e"]},
     {"profile":"project-ledger-agent-skill/0.2.0","local_status":"COMPLETE","certified_compatibility":false,"pending_evidence":["external-agent-runtime"]}
   ]

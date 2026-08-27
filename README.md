@@ -24,9 +24,9 @@ S13 añade `project-ledger-agent-skill/0.2.0`: `SKILL.md` descubrible, manifest/
 
 S14 añade `project-ledger-release`: políticas fail-closed para trust/argv, escáner de privacidad sin eco de valores, evidencia exacta AC-001…090 y PL-01…32, threat model, caos, migración v0.1→v0.2 no destructiva/reversible, paquete single-binary, SBOM SPDX 2.3, checksums y benchmark p95 con entorno declarado. Las calificaciones posteriores cierran AC-089 con peak-RSS del proceso release y AC-086 con una matriz hosted Windows/Linux/macOS sobre un SHA exacto. El estado distribuido continúa `ENGINEERING_RELEASE_CANDIDATE`; la evidencia de ingeniería no promueve automáticamente General Availability ni certifica integraciones externas.
 
-La calificación de caos separa el fault determinista SQLite por límite de páginas del `ENOSPC(28)` real observado en ext4 sobre una imagen loopback efímera de 32 MiB. El append falla cerrado y la recuperación conserva el digest previo, versión, comandos, resultados y eventos; el volumen de prueba se desmonta y elimina. `release verify` interpreta el inventario hash-locked y expone por separado los waivers de caos, sus bloqueos GA y los bloqueos de certificación runtime GSP. `physical-disk-full` queda cubierto por el run hosted `33035586838`; permanece un único waiver de caos, `live-sidecar-process-crash`, que bloquea la certificación runtime GSP y no se confunde con un bloqueo GA.
+La calificación de caos separa el fault determinista SQLite por límite de páginas del `ENOSPC(28)` real observado en ext4 sobre una imagen loopback efímera de 32 MiB. El append falla cerrado y la recuperación conserva el digest previo, versión, comandos, resultados y eventos; el volumen de prueba se desmonta y elimina. `release verify` interpreta el inventario hash-locked y expone por separado los waivers de caos, sus bloqueos GA y los bloqueos de caos para certificación runtime GSP. `physical-disk-full` queda cubierto por el run hosted `33035586838`; `live-sidecar-process-crash`, por el run `33060749387` sobre GSP v0.2.0 real y fijado por SHA. La terminación del proceso propio conserva cadena/proyección, el reinicio produce seis artefactos válidos y sólo el enlace explícito añade un evento, con replay sin duplicados. Quedan cero waivers de caos; esto no certifica toda la integración.
 
-La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen fuera de la evidencia local. `certified_compatibility=false` continúa siendo obligatorio; S9–S14 demuestran fronteras locales/procedimentales y readiness de ingeniería, no obediencia universal del agente, compatibilidad bilateral/live-sidecar, General Availability, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
+La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y la conformidad runtime GSP completa permanecen pendientes. `certified_compatibility=false` continúa siendo obligatorio; S9–S14 y las calificaciones posteriores demuestran fronteras locales/procedimentales y el ensayo GSP externo acotado, no obediencia universal del agente, compatibilidad bilateral universal, General Availability, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
 
 ## Autoridad
 
@@ -138,6 +138,14 @@ cargo run -p project-ledger-cli -- integration gsp link-result --database <ledge
 
 `scope.json` es un `GspCorpusRequest` cerrado, con query, referencias seleccionadas y budgets. El corpus queda unido por digest canónico a su manifest, contenidos y `EvidenceBundle`. Los tres primeros comandos no mutan el stream. `link-result` verifica identidad/digest del receipt y su binding con la proyección SQLite vigente, y exige concurrencia, idempotencia, actor, URI y tiempo explícitos; no puede cerrar fases, verificar gates ni cambiar lifecycle.
 
+Compilación externa opcional entre `export-corpus` y `validate-result` (rutas absolutas explícitas al intérprete y checkout GSP):
+
+```powershell
+& $env:PROJECT_LEDGER_GSP_PYTHON -I -B integrations/gsp/sidecar/compile_bundle.py --source-root $env:PROJECT_LEDGER_GSP_SOURCE_ROOT --input <corpus.json> --output <compilation-result.json>
+```
+
+El checkout debe estar limpio en `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, con entorno Python 3.12 provisionado mediante su `uv.lock` frozen. El adapter verifica el pin y los bytes contractuales originales, no recibe acceso a SQLite, no llama modelos y rechaza entrada mayor a 1 MiB, resultado mayor a 8 MiB o salida existente. Los bytes generados requieren `validate-result` antes de cualquier enlace. No es un daemon ni una dependencia del golden path Rust. El ensayo opt-in de compilación/crash/reinicio se ejecuta con `cargo test -p project-ledger-cli --test gsp_bridge live_sidecar:: -- --ignored --nocapture --test-threads=1` y esas dos variables explícitas.
+
 Perfil Project Radar por artifact exchange local:
 
 ```powershell
@@ -149,4 +157,4 @@ cargo run -p project-ledger-cli -- catalog radar-export --all --catalog <known-l
 
 `known-ledgers.json` es un array explícito de `database`, `project_ref`, `phase_catalog` y `source_aliases`; no existe discovery del filesystem. Los exports verifican cadena/proyección, son canónicos, read-only y no-clobber. El importador incluido es sólo una referencia pura/fixture: no abre Project Radar ni su IndexedDB.
 
-La red no forma parte del runtime ni de las pruebas. La descarga inicial de dependencias es una operación de desarrollo de Cargo.
+La red no forma parte del runtime ni de la compilación ensayada. La descarga inicial de dependencias Cargo y la provisión opcional del checkout/entorno GSP son operaciones de desarrollo.

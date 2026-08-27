@@ -7,7 +7,7 @@
     },
     {
       "path": "release/chaos-report.json",
-      "sha256": "365d8f1926bd25921a854b9c48a7e7af1770d1445b558b61134fc5d71ce4eeeb"
+      "sha256": "97a41c7663fcc7729b6c422edadf4fc5540e0f15ad8c27e58dfd67519ba7d65b"
     },
     {
       "path": "release/migrations/v0.1-to-v0.2.json",
@@ -47,7 +47,7 @@
     },
     {
       "path": "release/compatibility-report.json",
-      "sha256": "5a714173f56c0e5d8da3a149395d48e668b2a2c1bd1e83346be7d816fdadd44f"
+      "sha256": "1ae5101eca0f96f9a148597953ed22956757672aa116838fd10de1c01a7cf7e2"
     },
     {
       "path": "docs/THREAT_MODEL.md",

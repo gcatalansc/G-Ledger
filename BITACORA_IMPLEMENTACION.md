@@ -1792,3 +1792,44 @@ Calificar `live-sidecar-process-crash` frente a una contraparte GSP identificada
 - El waiver sigue vigente y RQ4 permanece 1/3; no hubo crash hosted ni cambio de calificación.
 - La regresión y PyYAML ya pasan con el comando entrecomillado. También se resolvió el tag anotado `setup-uv@v7` hasta su commit real `37802adc94f370d6bfd71619e3f0bf239e1f3b78`, en lugar de fijar el objeto tag `94527f2e...`; `setup-python` ya estaba fijado a un commit.
 - Gate de corrección PASS: regresión CLI, parseo YAML, formato, Clippy estricto, suite workspace completa, release check, generación reproducible y diff check. La corrección sólo cambia el workflow, su test consumidor y esta bitácora; los artefactos oficiales conservan el waiver.
+
+**Fuente hosted corregida y RED de cierre**
+
+- Corrección publicada en `30c17ac0253a581db69b7fe38e001da07c9216d8`, push fast-forward y árbol limpio en ese momento.
+- Run `33060749387`, URL `https://github.com/gcatalansc/G-Ledger/actions/runs/33060749387`, aceptado por GitHub y en curso sobre ese SHA. Jobs: GSP live `98478615297`, macOS `98478615538`, Windows `98478615568`, Ubuntu `98478615585`, ENOSPC `98478615614`, dependencias `98478615619`.
+- El setup de GSP y sus gates upstream ya pasaron; el ensayo live hosted y la matriz general siguen en curso. No se retira todavía el waiver.
+- RED evidencial de cierre: biblioteca y CLI se cambiaron primero para exigir cero waivers de caos/cero bloqueos de caos GSP; ambos tests fallaron con exit 101 porque el reporte oficial conserva `chaos_waived_count=1` y `gsp_runtime_certification_blocker_count=1`.
+- Punto de continuación: esperar éxito agregado de los seis jobs, leer log GSP, registrar contraparte/entorno/terminación/reinicio/link/replay y sólo entonces mover el escenario a covered, regenerar artefactos y demostrar GREEN.
+
+**Evidencia hosted GSP observada — matriz agregada aún en curso**
+
+- Job `98478615297` concluyó `success` en el run `33060749387`, SHA exacto `30c17ac0253a581db69b7fe38e001da07c9216d8`; todos sus pasos, incluidos los post/cleanup, terminaron success.
+- Ventana: `2026-08-27T09:55:26Z`–`09:57:28Z`. Entorno observado: imagen `ubuntu-24.04`, versión `20260816.277.1`, Python 3.12.14, uv 0.11.16 y toolchain Rust 1.97.1 fijado por workflow. La diferencia Python respecto de Windows local (3.12.13) queda explícita.
+- Contraparte confirmada en el log: `7a43559c02417641691dbb5f2a6e79c13d74d1a1`; hashes/contratos/fixtures PASS, 18 tests upstream PASS.
+- `09:57:17Z`: el proceso propio PID 5115 entró al `compile_evidence` real; terminó por intervención OS, fue reaped, no dejó resultado y conservó exactamente cadena/proyección, delta de eventos 0.
+- `09:57:18Z`: proceso nuevo recompiló y Ledger aceptó los seis artefactos; delta 0 antes del enlace. Enlace explícito delta 1, replay delta 0, elevación de autoridad 0 y certificación false. Suite live: 3 PASS, 0 FAIL, 0 IGNORE.
+- Fuente inmutable: `https://github.com/gcatalansc/G-Ledger/actions/runs/33060749387/job/98478615297`. No se presenta un provider mock ni un resultado fixture como runtime; tampoco se afirma calidad semántica/científica del contenido.
+- La matriz Windows/macOS/Ubuntu aún debe concluir; el chaos report oficial conserva su waiver hasta éxito agregado.
+
+**RQ4.2 — Calificación hosted completa y cierre evidencial en curso**
+
+- El run `33060749387` concluyó `completed/success` sobre `30c17ac0253a581db69b7fe38e001da07c9216d8`. Los seis jobs, incluidos Windows/macOS/Ubuntu, dependencias, ENOSPC y GSP live, terminaron success. La evidencia agregada se reconsultó antes de modificar los reportes.
+- RQ4 alcanza 2/3. Sólo ahora se mueve `live-sidecar-process-crash` a covered con fault `PROCESS_TERMINATED_DURING_COMPILE`, contraparte exacta y locator run/job/head SHA/entorno. El chaos report pasa a `PASS` sin waivers; la evidencia física ENOSPC anterior se conserva.
+- Se concilian los metadatos propios de Ledger en compatibility report y upstream lock: el E2E acotado por artifact exchange/crash está probado, pero siguen pendientes conformidad runtime completa y revisión de certificación. No se cambian pins/digests upstream, reporte histórico S11, booleanos de certificación ni estado `ENGINEERING_RELEASE_CANDIDATE`.
+- README, compatibilidad GSP, changelog, matriz y plan delimitan los resultados reales sobre SQLite desechable frente a operación productiva, daemon, validez científica y compatibilidad universal. Python sigue siendo opt-in fuera del golden path Rust.
+- Siguiente acción: regenerar los artefactos, demostrar GREEN del RED de cierre y ejecutar el gate integral fresco antes del commit final y su CI exact-SHA.
+
+**RQ4.3 — Gate integral fresco y snapshot de cierre preparado**
+
+- GREEN del cierre: 11/11 tests de biblioteca release y 2/2 de CLI; se regeneraron manifest/checksums con `cargo xtask release generate --root .`. Los consumidores ahora confirman cero waivers de caos y cero bloqueos de caos GA/GSP, sin habilitar certificación.
+- Repetición GSP real después del cambio de metadatos: 3/3 PASS. PID propio 31276 terminó por intervención OS durante la compilación, fue reaped y dejó cadena/proyección idénticas; reinicio válido, seis artefactos, enlace delta 1 y replay delta 0. No se cuenta el skip de la suite estándar como ejecución live.
+- Gate final completo: formato, fetch locked, Clippy workspace/all-targets/all-features con warnings como errores, suite completa y build release locked PASS. Conteo fresco agregado: 231 PASS, 0 FAIL, 4 IGNORE opt-in (3 GSP y 1 ENOSPC).
+- Schemas, specs preservadas, contratos, cuatro integraciones, compatibility, benchmark, generación reproducible, release check y release verify PASS. `cargo deny --offline check`: advisories/bans/licenses/sources PASS; duplicidades transitivas conocidas informativas. Replay SHA-256: 13/13 PASS; diff check PASS.
+- Resultado de release: 90 AC, 32 PL, 0 blockers de aceptación, 0 evidencia ausente, 0 waivers de aceptación, 0 waivers de caos, 0 bloqueos GA de caos, 0 bloqueos GSP de caos, 0 secretos en superficies declaradas y 0 certificaciones. `ENGINEERING_RELEASE_CANDIDATE` se conserva.
+- Los pins/digests upstream, reporte histórico S11, contratos congelados, Cargo.lock y dependencias Rust permanecen intactos. El checkout GSP activo sigue limpio en `ddf2cfb32b53de0eb0967a57862ff11fdfa65af1`; las dos copias de tooling también están limpias.
+- Se prepara `chore: qualify live GSP crash recovery`. El snapshot conserva la fuente inmutable ya aprobada (`33060749387` / `98478615297` / `30c17ac0253a581db69b7fe38e001da07c9216d8`); la entrega exige publicar este cierre, observar los seis jobs finales en success y comprobar HEAD=origin/main=SHA hosted con árbol limpio. No se da por aprobado aquí un resultado futuro.
+- Avance de implementación: 12/12 macrofases y 15/15 slices. AC-086/089: 2/2. Disk-full: 1/1. RQ4 permanece 2/3 hasta esa comprobación post-commit de sólo lectura, que se comunicará en la entrega.
+
+**Siguiente paso según plan y especificación**
+
+Revisar la evidencia bilateral/runtime restante y delimitar el alcance de conformidad GSP más allá del ensayo de crash antes de plantear su certificación (§35, AC-090). Mantener todos los `certified_compatibility=false`; no modificar otro repositorio ni promover GA automáticamente.

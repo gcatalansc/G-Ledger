@@ -19,9 +19,9 @@ fn ac_086_ac_088_release_gate_covers_all_ids_with_zero_waivers() {
 fn phase_11_chaos_gate_reports_each_blocking_scope_without_conflation() {
     let report = verify_release(workspace_root()).unwrap();
 
-    assert_eq!(report.chaos_waived_count, 1);
+    assert_eq!(report.chaos_waived_count, 0);
     assert_eq!(report.general_availability_blocker_count, 0);
-    assert_eq!(report.gsp_runtime_certification_blocker_count, 1);
+    assert_eq!(report.gsp_runtime_certification_blocker_count, 0);
 }
 
 #[test]

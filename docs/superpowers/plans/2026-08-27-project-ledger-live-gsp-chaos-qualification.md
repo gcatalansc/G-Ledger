@@ -81,23 +81,23 @@
 - [x] Add a re-locked release mutation that moves the live scenario to covered without runtime evidence and assert verification fails; observe RED before implementing the coverage guard.
 - [x] Add the corresponding guard while retaining the current waiver. Add a hosted Ubuntu job that checks out GSP at the fixed SHA into an ignored directory, uses Python 3.12 plus a pinned `uv` tool and `uv sync --frozen`, verifies the clean source, and runs the exact opt-in test. Bound the job duration; no private credential or model is required.
 - [x] Run format, strict Clippy, full workspace/all-targets/all-features tests, locked release build, schema/spec/contract/integration/benchmark/release gates, dependency policy, 13-checksum replay and diff checks. Result: 230 passed, 0 failed, 4 intentionally ignored; full gate PASS. The harness snapshot is prepared for commit/push with its waiver intact.
-- [ ] Require every hosted job to finish successfully at that source commit; inspect the actual live crash/recovery log before changing the waiver.
+- [x] Require every hosted job to finish successfully at that source commit; inspect the actual live crash/recovery log before changing the waiver. Run `33060749387` passed all six jobs on `30c17ac0253a581db69b7fe38e001da07c9216d8`; live job `98478615297` showed real process termination/reaping, preserved chain/projection, fresh compilation, link delta 1 and replay delta 0.
 
 ### Task 4: Close only the observed chaos qualification
 
-**Files:** `release/chaos-report.json`, generated manifest/checksums, release library/CLI tests, `specs/compatibility/gsp-v0.2.md`, README, CHANGELOG, contract matrix and bitácora.
+**Files:** `release/chaos-report.json`, `release/compatibility-report.json`, generated manifest/checksums, release library/CLI tests, `integrations/gsp/upstream-lock.json`, `specs/compatibility/gsp-v0.2.md`, README, CHANGELOG, contract matrix and bitácora. Reconcile only Ledger-owned qualification metadata in the upstream lock; preserve every upstream pin/digest and the historical S11 conformance report.
 
 **Interfaces:** Successful immutable source run/job/SHA evidence; report counts become zero chaos waivers/GA chaos blockers/GSP chaos blockers. Compatibility flags remain false.
 
-- [ ] First require `chaos_waived_count=0` and `gsp_runtime_certification_blocker_count=0` in library/CLI tests and observe RED against the existing waiver.
-- [ ] Move only the live crash scenario to covered using the observed fault, counterpart SHA and hosted locator; status becomes `PASS`. Regenerate manifests/checksums and verify GREEN.
-- [ ] Reconcile documentation with the exact artifact-exchange/crash scope, leaving full integration certification separate. Run the complete fresh gate and prepare the closing commit.
+- [x] First require `chaos_waived_count=0` and `gsp_runtime_certification_blocker_count=0` in library/CLI tests and observe RED against the existing waiver. Both consumers failed with exit 101 while the official report still returned one waiver.
+- [x] Move only the live crash scenario to covered using the observed fault, counterpart SHA and hosted locator; status becomes `PASS`. Regenerate manifests/checksums and verify GREEN. Release library 11/11, CLI 2/2 and live counterpart 3/3 passed after the evidence update.
+- [x] Reconcile documentation with the exact artifact-exchange/crash scope, leaving full integration certification separate. Run the complete fresh gate and prepare the closing commit. Final local gate: 231 passed, 0 failed, 4 intentionally ignored; strict Clippy, locked release build, schema/spec/contract/integration/benchmark/release/dependency gates and 13 checksums passed.
 - [ ] Publish the closing commit and verify all hosted jobs on its exact SHA. Report that final read-only observation in the delivery message; preserve the already-successful immutable source run in committed evidence.
 
 ## Progress and Completion
 
 - Existing implementation: 12/12 macro phases; 15/15 slices. AC-086/089 qualification: 2/2. Physical disk-full: 1/1.
 - RQ4 milestones: 0/3 at opening — real local counterpart/crash recovery; source hosted qualification; evidence-qualified closure.
-- Checkpoint: 1/3 achieved locally; all three live tests passed, as did exact upstream hash/contract/fixture commands and 18 unchanged upstream API/compiler/contract tests. The source hosted and evidence-closure milestones remain pending.
+- Checkpoint: 2/3 achieved, with the evidence-qualified closing snapshot ready. Local and hosted live tests passed, as did exact upstream hash/contract/fixture commands and 18 unchanged upstream API/compiler/contract tests. All six source jobs and the fresh local closing gate passed. Milestone 3 requires publication and final exact-SHA CI; its post-commit observation belongs in the delivery, not a prediction embedded in this snapshot.
 - Success requires evidence for every milestone, final HEAD equal to remote main and hosted head SHA, and a clean worktree. An unavailable/mismatching counterpart leaves the waiver intact and is reported explicitly.
 - Next after RQ4: assess remaining counterpart/bilateral evidence for the integration profile chosen for certification; do not infer certification or implement a different repository without authorization.

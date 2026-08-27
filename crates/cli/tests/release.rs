@@ -36,12 +36,12 @@ fn ac_083_ac_086_ac_088_ac_090_cli_verifies_zero_waivers_without_certification_o
         .stdout(predicate::str::contains("benchmark_scenario_count\":32"))
         .stdout(predicate::str::contains("secret_persistence_count\":0"))
         .stdout(predicate::str::contains("waived_count\":0"))
-        .stdout(predicate::str::contains("chaos_waived_count\":1"))
+        .stdout(predicate::str::contains("chaos_waived_count\":0"))
         .stdout(predicate::str::contains(
             "general_availability_blocker_count\":0",
         ))
         .stdout(predicate::str::contains(
-            "gsp_runtime_certification_blocker_count\":1",
+            "gsp_runtime_certification_blocker_count\":0",
         ))
         .stdout(predicate::str::contains(
             "overall_certified_compatibility\":false",
