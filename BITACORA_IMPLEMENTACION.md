@@ -1727,3 +1727,58 @@ Escribir expectativas RED que obliguen al verifier y al CLI a exponer dos waiver
 **Siguiente paso según la especificación**
 
 Calificar `live-sidecar-process-crash` frente a una contraparte GSP identificada por versión/SHA y con evidencia bilateral/runtime live. Conservar el waiver y `certified_compatibility=false` hasta observar crash, recuperación y reconciliación reales; no iniciar esa fase dentro del cierre de RQ3.
+
+### 2026-08-27 — Apertura RQ4 / live-sidecar-process-crash
+
+**Estado reconciliado y autoridad**
+
+- `HEAD=44a0260db3ca3d4af0a7da54278336843f28dc63`, árbol limpio; CI `33037163775` reconsultada en `completed/success` sobre ese SHA.
+- Verificación fresca: 28 contratos GSP, 31 schemas y 140 fixtures MATCH; release conserva 90 AC, 32 PL, 0 waivers de aceptación, 1 waiver de caos, 0 bloqueos GA de caos, 1 bloqueo GSP runtime y 0 certificaciones.
+- La especificación §35.1–35.7 permite `compile_bundle`, artifact exchange, corpus minimizado y sidecar opcional sin shared DB; §45.7 exige crash del sidecar.
+- La contraparte fijada existe en Git: GSP v0.2.0 / `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, contratos `004b14d7b64837025671970eac2469f092c49475`. El repositorio upstream es público. El checkout activo GSP está limpio en `ddf2cfb32b53de0eb0967a57862ff11fdfa65af1` (línea posterior); no se cambiará ni usará silenciosamente en lugar del pin.
+- La API real valida y compila seis artefactos sin llamar modelos ni red. Se usará en un checkout aislado con dependencias frozen, no mediante un resultado fixture ni un error simulado in-process.
+- Se leyeron las instrucciones operativas y el workflow GSP del commit fijado. Sus referencias a `docs/01_SPEC_MVP.md` y `docs/02_IMPLEMENTATION_PLAN_CODEX_QWEN.md` ya no existen en ese commit; no se reconstruyen ni se reabre la implementación upstream. Su API y contratos exactos son la autoridad de esta integración.
+
+**Plan y límites**
+
+- Plan persistente: `docs/superpowers/plans/2026-08-27-project-ledger-live-gsp-chaos-qualification.md`; ejecución inline con TDD y verificación previa al cierre.
+- Adapter Python opcional por artifact exchange, no dependencia del core; comandos/paths explícitos, entrada/salida acotadas y salida create-new.
+- Fault real: terminar y reap sólo el proceso propio después de entrar al compilador; comprobar cadena/proyección intactas, reiniciar, validar resultado y enlazar/reconciliar explícitamente en SQLite desechable.
+- La sincronización del fault queda en utilidades de test; no se modifica el código ni los contratos GSP, ni se exponen flags destructivos en la API productiva.
+- Se mantienen el waiver y todas las certificaciones falsas hasta evidencia; esta calificación de caos no equivale a validez semántica/científica, runtime universal ni promoción GA.
+
+**Avance**
+
+- Implementación: 12/12 macrofases, 15/15 slices. AC-086/089: 2/2. Disk-full: 1/1.
+- RQ4: 0/3 hitos — ejecución/crash local real, calificación hosted y cierre evidencial.
+- Siguiente acción: provisionar el pin aislado y escribir el test live RED antes del adapter.
+
+**RQ4.1 — Ejecución local real y TDD**
+
+- Se provisionó `.tooling/rq4-gsp-runtime` desde el tag público v0.2.0 y se comprobó el commit exacto `7a43559c...`. `uv 0.11.16 sync --frozen` instaló un entorno separado: Python 3.12.13, GSP 0.2.0 y 27 paquetes fijados por el lock; no cambió el entorno GSP activo ni Python global.
+- RED de compilación: el CLI exportó un corpus real desde SQLite desechable y el proceso falló por ausencia del adapter. GREEN posterior: el API GSP real produjo un resultado aceptado por Ledger con seis artefactos y delta de eventos 0.
+- Diagnóstico del primer adapter: el manifiesto tiene 31 archivos JSON y un README bajo schemas. Se preservó la verificación de bytes de todos y se corrigió únicamente el conteo JSON, sin tocar upstream.
+- RED de crash: el test rechazó la salida prematura del proceso porque aún no existía el helper de sincronización. GREEN posterior: el proceso propio PID 11824 entró a `gspgemma.compiler.pipeline.compile_evidence`, recibió terminación OS, fue reaped y no publicó resultado; cadena y proyección permanecieron idénticas con `quick_check=ok`, WAL y 7 eventos.
+- Reinicio en proceso nuevo: seis artefactos exactos aceptados, delta 0 antes del enlace. `link-result` explícito: delta 1; replay misma clave: delta 0; lifecycle/gates/phases sin elevación y `certified=false`.
+- Casos de rechazo reales: checkout incorrecto, JSON inválido, entrada mayor a 1 MiB y salida existente; no publican resultado válido ni mutan Ledger. La salida existente se conserva byte a byte.
+- El primer fixture de la prueba release carecía de evidencia colateral. Se completaron sus referencias y checksums hasta verificar primero el fixture intacto; sólo entonces el RED probó que el verifier aceptaba una cobertura live sin evidencia. El nuevo guard exige fault observado, contraparte exacta y locator hosted. No se retira todavía el waiver.
+- Resultado focalizado: 3/3 tests live realmente ejecutados, 10/10 tests release; Ruff PASS. Las pruebas live permanecen opt-in/ignoradas en el golden path sin Python.
+- RQ4 alcanza 1/3 hitos. Siguiente acción: gate integral local y publicación del harness para calificación hosted sobre SHA exacto.
+
+**Gates de contraparte y endurecimiento evidencial**
+
+- Se provisionó además el paquete contractual completo en `.tooling/rq4-gsp-spec`, SHA `004b14d7...`, con digest del manifiesto `c6ca0f6d...`. Los comandos reales GSP `verify-upstream-hashes`, `validate-contracts` y `fixture-replay` pasan. La selección inicial de tests usó el nombre inexistente `test_api.py`; tras localizar el archivo vigente `test_public_api.py`, los 18 tests de API/compilador/contratos pasan. Ambas copias upstream permanecen limpias.
+- Se reforzó el fingerprint para invocar `verify_event_chain` explícitamente. Las pruebas de rechazo verifican códigos estructurados sin eco de datos e incluyen claves JSON duplicadas.
+- RED adicional: un locator con `head_sha=unverified` era aceptado. GREEN: ahora exige repositorio/run/job exactos en la forma del locator, IDs numéricos y SHA hexadecimal de 40 caracteres, además del fault y counterpart commit fijados.
+- Suite release focalizada: 11/11 PASS; suite live real: 3/3 PASS; Clippy estricto y Ruff: PASS. El job hosted incluirá los mismos gates de contraparte antes del fault, con acciones setup-python/setup-uv fijadas por commit y uv 0.11.16.
+- Siguiente acción: ejecutar el gate integral fresco; el waiver oficial aún no cambia.
+
+**Gate integral del harness RQ4 — PASS**
+
+- Formato/fetch locked/Clippy estricto/workspace completo/build release locked: PASS; 230 tests aprobados, 0 fallos y 4 tests opt-in ignorados en el golden path (3 GSP live, 1 ENOSPC).
+- Schemas, specs v0.1/v0.2, contratos 46/92/53, cuatro integraciones, benchmark de 9 métricas, artefactos reproducibles, release check y CLI release verify: PASS.
+- `cargo deny --offline check`: advisories/bans/licenses/sources PASS; duplicidades transitivas conocidas informativas. Replay de checksums 13/13 y diff check: PASS.
+- GSP live separado: 3/3 PASS; counterpart upstream: hashes/contratos/fixtures y 18 tests PASS. El `uv.lock` de contraparte tiene SHA-256 `e999e6ad6856e25b76a630312df396e6e74841333b91e0dadb3e507b48555620`.
+- El checkout activo GSP sigue limpio en `ddf2cfb32b53de0eb0967a57862ff11fdfa65af1`; las copias aisladas también siguen limpias. No se modificaron Cargo.lock, dependencias Rust, autoridad congelada ni flags de certificación.
+- El harness queda preparado para el commit `test: qualify live GSP process crash isolation`. RQ4 permanece en 1/3 hasta observar la ejecución hosted sobre ese SHA; se conserva `live-sidecar-process-crash` como waiver oficial.
+- Siguiente acción: publicar el commit y exigir éxito de los seis jobs, incluyendo contraparte real, antes de editar evidencia de release.

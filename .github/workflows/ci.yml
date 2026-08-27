@@ -91,3 +91,62 @@ jobs:
             rmdir "$mount_dir" 2>/dev/null || true
             rmdir "$PROJECT_LEDGER_CHAOS_VOLUME_ROOT"
           fi
+
+  live-gsp-sidecar-chaos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: 1.97.1
+      UV_LINK_MODE: copy
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7.0.1
+        with:
+          repository: gcatalansc/gsp-gemma-compiler
+          ref: 7a43559c02417641691dbb5f2a6e79c13d74d1a1
+          path: .tooling/rq4-gsp-runtime
+          persist-credentials: false
+      - uses: actions/checkout@v7.0.1
+        with:
+          repository: gcatalansc/gsp-spec
+          ref: 004b14d7b64837025671970eac2469f092c49475
+          path: .tooling/rq4-gsp-spec
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: '0.11.16'
+          enable-cache: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - uses: Swatinem/rust-cache@v2.9.2
+      - name: Provision and verify the exact optional counterpart
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_root="$GITHUB_WORKSPACE/.tooling/rq4-gsp-runtime"
+          test "$(git -C "$source_root" rev-parse HEAD)" = 7a43559c02417641691dbb5f2a6e79c13d74d1a1
+          uv sync --frozen --project "$source_root"
+          test -z "$(git -C "$source_root" status --porcelain)"
+          echo "PROJECT_LEDGER_GSP_SOURCE_ROOT=$source_root" >> "$GITHUB_ENV"
+          echo "PROJECT_LEDGER_GSP_PYTHON=$source_root/.venv/bin/python" >> "$GITHUB_ENV"
+          echo "GSPGEMMA_UPSTREAM_ROOT=$GITHUB_WORKSPACE/.tooling/rq4-gsp-spec" >> "$GITHUB_ENV"
+          echo "GSPGEMMA_REPORTS_DIR=$RUNNER_TEMP/gsp-contract-reports" >> "$GITHUB_ENV"
+          git -C "$source_root" rev-parse HEAD
+          "$source_root/.venv/bin/python" --version
+      - name: Verify the unchanged counterpart contracts and runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python_bin="$PROJECT_LEDGER_GSP_PYTHON"
+          "$python_bin" -I -B -m gspgemma verify-upstream-hashes
+          "$python_bin" -I -B -m gspgemma validate-contracts
+          "$python_bin" -I -B -m gspgemma fixture-replay
+          "$python_bin" -I -B -m pytest .tooling/rq4-gsp-runtime/tests/test_public_api.py .tooling/rq4-gsp-runtime/tests/test_compiler.py .tooling/rq4-gsp-runtime/tests/test_contracts.py -q -p no:cacheprovider
+          test -z "$(git -C "$PROJECT_LEDGER_GSP_SOURCE_ROOT" status --porcelain)"
+      - run: cargo fetch --locked
+      - name: Validate artifact adapter style
+        run: .tooling/rq4-gsp-runtime/.venv/bin/python -I -B -m ruff check --no-cache integrations/gsp/sidecar/compile_bundle.py crates/cli/tests/gsp_live/crash_probe.py
+      - name: Verify actual GSP compilation, rejection and crash recovery
+        run: cargo test -p project-ledger-cli --test gsp_bridge live_sidecar:: -- --ignored --nocapture --test-threads=1

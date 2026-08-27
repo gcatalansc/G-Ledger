@@ -23,6 +23,9 @@ use serde::Serialize;
 use serde_json::{Value, json};
 use tempfile::TempDir;
 
+#[path = "gsp_live/mod.rs"]
+mod live_sidecar;
+
 fn repository_root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()

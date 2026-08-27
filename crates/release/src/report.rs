@@ -145,6 +145,7 @@ struct CoveredChaosScenario {
     evidence: String,
     locator: Option<String>,
     observed_fault: Option<String>,
+    counterpart_commit: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -333,6 +334,19 @@ fn verify_chaos(root: &Path, report: &ChaosReport) -> Result<(usize, usize, usiz
         {
             return invalid("physical disk-full coverage requires hosted ENOSPC(28) evidence");
         }
+        if covered.scenario == "live-sidecar-process-crash"
+            && (covered.observed_fault.as_deref() != Some("PROCESS_TERMINATED_DURING_COMPILE")
+                || covered.counterpart_commit.as_deref()
+                    != Some("7a43559c02417641691dbb5f2a6e79c13d74d1a1")
+                || covered
+                    .locator
+                    .as_deref()
+                    .is_none_or(|locator| !hosted_runtime_locator(locator)))
+        {
+            return invalid(
+                "live sidecar coverage requires hosted process-termination evidence and the exact counterpart commit",
+            );
+        }
     }
 
     let mut general_availability_blocker_count = 0;
@@ -371,6 +385,26 @@ fn verify_chaos(root: &Path, report: &ChaosReport) -> Result<(usize, usize, usiz
         general_availability_blocker_count,
         gsp_runtime_certification_blocker_count,
     ))
+}
+
+fn hosted_runtime_locator(locator: &str) -> bool {
+    let Some((url, metadata)) = locator.split_once("#head_sha=") else {
+        return false;
+    };
+    let sha = metadata.split('&').next().unwrap_or_default();
+    let Some(path) = url.strip_prefix("https://github.com/gcatalansc/G-Ledger/actions/runs/")
+    else {
+        return false;
+    };
+    let Some((run, job)) = path.split_once("/job/") else {
+        return false;
+    };
+    sha.len() == 40
+        && sha.bytes().all(|byte| byte.is_ascii_hexdigit())
+        && !run.is_empty()
+        && !job.is_empty()
+        && run.bytes().all(|byte| byte.is_ascii_digit())
+        && job.bytes().all(|byte| byte.is_ascii_digit())
 }
 
 fn verify_benchmark(root: &Path) -> Result<(), ReleaseError> {
