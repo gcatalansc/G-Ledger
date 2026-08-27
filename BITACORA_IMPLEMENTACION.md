@@ -1492,3 +1492,64 @@ Regenerar la cadena de release, ejecutar el gate integral completo y versionar R
 **Siguiente paso según el plan**
 
 Iniciar RQ2: configurar o identificar un remote autorizado, ejecutar la matriz GitHub Actions en Windows/Linux/macOS para el commit exacto de calificación y conservar IDs/URLs de jobs. AC-086 sólo podrá pasar si los tres entornos concluyen satisfactoriamente sobre el mismo SHA; hasta entonces el release no es GA.
+
+### 2026-08-26 — Apertura de calificación RQ2 / Gate 2 de 2: CI hosted multiplataforma
+
+**Reconciliación de remote**
+
+- Git inicia limpio en `24e490d` (`perf: qualify peak RSS budget`) y la rama local es `main`.
+- `git remote -v` no devuelve ningún remote configurado.
+- GitHub CLI está autenticada como `gcatalansc`, con permisos `repo` y `workflow`.
+- La cuenta posee 14 repositorios, pero ninguno contiene `ledger` en el nombre.
+- Las consultas exactas a `gcatalansc/G-Ledger` y `gcatalansc/project-ledger` fallan porque ambos repositorios son inexistentes o inaccesibles.
+- No se observaron organizaciones asociadas ni un repositorio público/accesible exacto que pueda adoptarse sin ambigüedad.
+
+**Bloqueo de autoridad**
+
+- RQ2 exige un remote GitHub inequívoco para publicar el SHA y ejecutar `.github/workflows/ci.yml` en `windows-latest`, `ubuntu-latest` y `macos-latest`.
+- Crear un repositorio nuevo requiere una decisión humana sobre nombre/owner y visibilidad pública o privada. No se inventa esa decisión ni se reutiliza uno de los 14 repositorios existentes.
+- No se configuró remote, no se realizó push y no se inició ninguna ejecución hosted.
+- AC-086 permanece `WAIVED`; el release continúa `ENGINEERING_RELEASE_CANDIDATE`, no GA, con avance de calificación 1/2.
+
+**Entrada humana requerida para continuar**
+
+Autorizar la creación de `gcatalansc/G-Ledger` indicando visibilidad pública o privada, o proporcionar la URL exacta de un repositorio GitHub existente que deba usarse como `origin`. Tras esa decisión, verificar historial/destino, hacer sólo push fast-forward, observar la matriz del SHA publicado y conservar URLs/IDs de jobs antes de modificar AC-086.
+
+**Autorización y materialización del remote**
+
+- El usuario autorizó explícitamente crear el repositorio con visibilidad privada.
+- Se creó `gcatalansc/G-Ledger` como `PRIVATE` el 2026-08-27T01:34:38Z: `https://github.com/gcatalansc/G-Ledger`.
+- `origin` apunta por HTTPS a `https://github.com/gcatalansc/G-Ledger.git` para fetch y push.
+- `defaultBranchRef` y `git ls-remote --heads origin` confirman que el repositorio remoto está vacío; no existe historia que sobrescribir ni reconciliar.
+- La creación no incluyó push. Antes de publicar `main` se ejecutará un gate local fresco sobre `24e490d`.
+
+**Primera ejecución hosted y diagnóstico sistemático**
+
+- El gate local fresco sobre `24e490d2ef044a20115ed5db4bb472d569bcaf3c` pasó formato, Clippy estricto, suite workspace, build release locked, reproducción de artefactos, verificación agregada, política de dependencias y replay 13/13 de checksums.
+- `main` se publicó por primera vez mediante fast-forward y `origin/main` quedó exactamente en ese SHA. GitHub creó la ejecución `33030810589`: `https://github.com/gcatalansc/G-Ledger/actions/runs/33030810589`.
+- La ejecución no es evidencia de aceptación: `dependency-policy` pasó, pero Windows y Ubuntu fallaron en Clippy, y macOS falló durante la suite workspace.
+- Causa 1 verificada: aunque la acción instala Rust 1.97.1, `rust-toolchain.toml` declara `stable` y prevalece al ejecutar Cargo; los runners usaron Rust/Clippy 1.98.0. El lint nuevo `chunks_exact_to_as_chunks` detectó `crates/canonical-json/src/lib.rs:65`. El fallo se reprodujo localmente con `cargo +1.98.0 clippy`.
+- Causa 2 verificada: el test de release ejecuta `cargo metadata --locked --offline`; en el runner macOS no estaba descargado `anstyle-wincon`, una dependencia target-specific de Windows, y el comando falló cerrado. En un `CARGO_HOME` nuevo se comprobó que `cargo fetch --locked` descarga dependencias de todos los targets y permite inmediatamente el metadata offline.
+
+**Corrección mínima RED→GREEN previa al reintento**
+
+- El parser SHA-256 usa `as_chunks::<2>()`, compatible con el MSRV 1.97.1 y con el lint estricto de Rust 1.98.0; no cambia su contrato ni sus bytes de salida.
+- El job de matriz fija `RUSTUP_TOOLCHAIN=1.97.1`, manteniendo `rust-toolchain.toml` en `stable` para no reactivar el conflicto local de instalación nominal ya documentado, y ejecuta `cargo fetch --locked` antes de los gates offline.
+- GREEN focalizado: Clippy del crate canónico pasa tanto con Rust 1.98.0 como con el workspace Rust 1.97.1; 5/5 pruebas canónicas y 3/3 pruebas de release `xtask` pasan.
+- AC-086 continúa `WAIVED`. La ejecución fallida se conserva como evidencia de diagnóstico, no como prueba de conformidad.
+
+**Siguiente acción**
+
+Ejecutar el gate integral local sobre la remediación, versionarla en un commit propio y publicar ese SHA para obtener una nueva matriz hosted completa.
+
+**Cierre local de la remediación RQ2**
+
+- Gate integral PASS: formato, `cargo fetch --locked`, Clippy estricto, suite workspace completa, schemas deterministas, specs v0.1/v0.2, 46 schemas/92 fixtures/53 filas, cuatro verificadores de integración, build release locked, nueve métricas sin waivers de benchmark, artefactos reproducibles y verificación release CLI.
+- Resultado agregado sin cambio de aceptación anticipado: 90 AC, 32 PL, 0 blockers, 0 evidencia ausente, 0 secretos, 1 waiver (AC-086) y 0 certificaciones.
+- `cargo deny --offline check` pasa advisories, bans, licenses y sources; replay SHA-256 13/13 y `git diff --check` pasan.
+- `actionlint` no está instalado localmente. La aceptación sintáctica y conductual del workflow se comprobará mediante la ejecución GitHub posterior al push del commit de remediación.
+- La remediación se versionará con el commit `fix: harden hosted cross-platform gate`; AC-086 no cambia en este commit.
+
+**Siguiente acción**
+
+Publicar el commit de remediación, identificar la nueva ejecución por SHA exacto y exigir PASS de Windows, Ubuntu, macOS y dependency-policy antes de editar la evidencia de aceptación.

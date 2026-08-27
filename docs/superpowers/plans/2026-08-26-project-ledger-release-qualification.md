@@ -84,9 +84,13 @@
 - Consumes: immutable hosted run URLs/IDs for the exact candidate SHA, with successful Windows, Linux and macOS jobs covering the workflow's specified gates.
 - Produces: AC-086 `PASS` with run identifiers; zero GA waivers only if every hosted requirement is observed.
 
-- [ ] **Step 1: Establish a verifiable remote**
+- [x] **Step 1: Establish a verifiable remote**
 
   Configure or identify the repository remote and confirm the target repository/branch without creating one implicitly.
+
+- [x] **Step 1a: Diagnose and remediate the first hosted execution**
+
+  Preserve failed run `33030810589`; reproduce the Rust 1.98 Clippy failure, align hosted Cargo with Rust 1.97.1, hydrate all locked target dependencies before offline release generation, and verify the focused regressions locally before retrying.
 
 - [ ] **Step 2: Execute the hosted matrix for the exact qualification commit**
 
