@@ -9,10 +9,10 @@ use project_ledger_domain::{
     GateEvaluation, GateEvaluationRequestedEvent, GateEvaluationResult, GateMarkedStaleEvent,
     GateRejectedEvent, GateRevalidationRequestedEvent, GateRevalidationRequiredEvent,
     GateRuleResult, GateStatus, GateVerifiedEvent, GateWaivedEvent, PhaseCompletedEvent,
-    PhaseReopenedEvent, PhaseStatus, ProjectStatusDerivedEvent, RejectedEvidence,
-    RepositoryBindingRefreshedEvent, RepositoryBindingRevokedEvent, RepositoryBoundEvent,
-    ResourceRef, RevalidationTrigger, RuleResult, SchemaVersion, StableId,
-    VerificationRecordedEvent,
+    PhaseMarkedReadyToCloseEvent, PhaseReopenedEvent, PhaseStatus, ProjectStatusDerivedEvent,
+    RejectedEvidence, RepositoryBindingRefreshedEvent, RepositoryBindingRevokedEvent,
+    RepositoryBoundEvent, ResourceRef, RevalidationTrigger, RuleResult, SchemaVersion, StableId,
+    TrustLevel, VerificationRecordedEvent,
 };
 use project_ledger_event_store::{EventDraft, IntegrityError, build_event};
 use project_ledger_projection_engine::{
@@ -308,7 +308,12 @@ impl GateEngine {
                 )?;
             }
             Command::RequestPhaseCompletion(payload) => {
-                require_human(command)?;
+                if !matches!(
+                    command.actor.trust_level,
+                    TrustLevel::LocalUser | TrustLevel::TrustedForRecording
+                ) {
+                    return Err(invalid("phase readiness requires explicit recording trust"));
+                }
                 if !matches!(
                     projection.phase_status(&payload.phase_ref),
                     Some(
@@ -347,6 +352,20 @@ impl GateEngine {
                         "roadmap authority must be current for phase completion",
                         &roadmap.source_document_ref,
                     ));
+                }
+                if command.actor.actor_kind != ActorKind::Human
+                    || command.actor.trust_level != TrustLevel::LocalUser
+                {
+                    append(
+                        command,
+                        &mut projection,
+                        &mut drafts,
+                        Event::PhaseMarkedReadyToClose(PhaseMarkedReadyToCloseEvent {
+                            phase_ref: payload.phase_ref.clone(),
+                            pending_approval: true,
+                        }),
+                    )?;
+                    return Ok(drafts);
                 }
                 let mut gate_evaluation_refs = projection
                     .gates_for_phase(&payload.phase_ref)

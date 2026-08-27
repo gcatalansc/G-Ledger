@@ -301,10 +301,36 @@ fn pass_evaluation_is_the_only_path_to_verified_and_explicit_phase_completion() 
         }),
         ActorKind::Agent,
     );
-    assert!(matches!(
-        GateEngine::handle(&agent_close, &stream.events),
-        Err(GateEngineError::InvalidCommand { .. })
-    ));
+    let pending = GateEngine::handle(&agent_close, &stream.events).unwrap();
+    assert!(
+        matches!(&pending[0].event, Event::PhaseMarkedReadyToClose(ready) if ready.pending_approval)
+    );
+    assert!(
+        !pending
+            .iter()
+            .any(|draft| matches!(draft.event, Event::PhaseCompleted(_)))
+    );
+    stream.append(&agent_close, pending);
+    let projection =
+        project_ledger_projection_engine::ProjectStateProjection::rebuild(&stream.events).unwrap();
+    assert_eq!(
+        projection.phase_status(&id("phase:implementation")),
+        Some(project_ledger_domain::PhaseStatus::ReadyToClose)
+    );
+    let human_approval = command(
+        35,
+        stream.events.len() as u64,
+        Command::RequestPhaseCompletion(RequestPhaseCompletionPayload {
+            phase_ref: id("phase:implementation"),
+        }),
+        ActorKind::Human,
+    );
+    let completed = GateEngine::handle(&human_approval, &stream.events).unwrap();
+    assert!(
+        completed
+            .iter()
+            .any(|draft| matches!(draft.event, Event::PhaseCompleted(_)))
+    );
 }
 
 #[test]

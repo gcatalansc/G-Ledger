@@ -1,5 +1,5 @@
 use project_ledger_continuity::{ContinuityEngine, ContinuityError};
-use project_ledger_domain::{Command, CommandEnvelope, ErrorCode, EventEnvelope};
+use project_ledger_domain::{Command, CommandEnvelope, ErrorCode, EventEnvelope, TrustLevel};
 use project_ledger_event_store::EventDraft;
 use project_ledger_gate_engine::GateEngine;
 use project_ledger_lifecycle::LifecycleEngine;
@@ -16,6 +16,15 @@ impl CommandHandler for CoreCommandHandler {
         command: &CommandEnvelope,
         verified_stream: &[EventEnvelope],
     ) -> Result<Vec<EventDraft>, CommandHandlerError> {
+        if !matches!(
+            command.actor.trust_level,
+            TrustLevel::LocalUser | TrustLevel::TrustedForRecording
+        ) {
+            return Err(CommandHandlerError::new(
+                ErrorCode::InvalidContract,
+                "canonical commands require explicit recording trust",
+            ));
+        }
         let base = match &command.command {
             Command::CreateProject(_) => CreateProjectHandler.handle(command, verified_stream),
             Command::RegisterAuthorityDocument(_)
@@ -37,6 +46,13 @@ impl CommandHandler for CoreCommandHandler {
                 )
             }
             Command::RecordWorkProgress(_)
+            | Command::RecordNote(_)
+            | Command::AddArtifactReference(_)
+            | Command::StartSession(_)
+            | Command::EndSession(_)
+            | Command::ConfirmExternalMapping(_)
+            | Command::RevokeExternalMapping(_)
+            | Command::RecordEventCorrection(_)
             | Command::RecordUnknown(_)
             | Command::ResolveUnknown(_)
             | Command::CreateContinuityCheckpoint(_) => {

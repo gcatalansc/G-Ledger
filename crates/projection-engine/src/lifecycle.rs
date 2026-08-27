@@ -18,10 +18,14 @@ use crate::project_state::{
     validate_next_event,
 };
 
+mod auxiliary;
+use auxiliary::AuxiliaryRecords;
+
 /// Stateful deterministic fold retaining indexes that are intentionally absent
 /// from the compact public `ProjectState` contract.
 #[derive(Clone, Debug)]
 pub struct ProjectStateProjection {
+    auxiliary: AuxiliaryRecords,
     state: ProjectState,
     head_digest: Sha256Digest,
     phase_statuses: BTreeMap<StableId, PhaseStatus>,
@@ -57,6 +61,7 @@ impl ProjectStateProjection {
     pub fn rebuild(events: &[EventEnvelope]) -> Result<Self, ProjectionError> {
         let (state, head_digest) = genesis_state(events)?;
         let mut projection = Self {
+            auxiliary: AuxiliaryRecords::default(),
             state,
             head_digest,
             phase_statuses: BTreeMap::new(),
@@ -111,6 +116,14 @@ impl ProjectStateProjection {
         }
         validate_next_event(&self.state, expected_previous_event_digest, event)?;
         self.reduce(event)?;
+        if matches!(
+            event.event,
+            Event::NoteRecorded(_) | Event::WorkProgressRecorded(_)
+        ) {
+            self.auxiliary
+                .descriptive_events
+                .insert(event.event_id.clone(), event.event.clone());
+        }
         if is_non_material_continuity_event(&event.event) {
             advance_non_material_state(&mut self.state, event)?;
         } else {
@@ -475,11 +488,13 @@ impl ProjectStateProjection {
                 sort_authority(&mut self.state.authority_documents);
             }
             Event::AuthorityDocumentMarkedUnavailable(unavailable) => {
-                authority_mut(
+                let document = authority_mut(
                     &mut self.state.authority_documents,
                     &unavailable.document_ref,
-                )?
-                .status = AuthorityDocumentStatus::Unavailable;
+                )?;
+                if document.status != AuthorityDocumentStatus::Superseded {
+                    document.status = AuthorityDocumentStatus::Unavailable;
+                }
             }
             Event::AuthorityDocumentDigestMismatch(mismatch) => {
                 let document =
@@ -491,7 +506,9 @@ impl ProjectStateProjection {
                         "authority mismatch must preserve and cite the canonical digest",
                     ));
                 }
-                document.status = AuthorityDocumentStatus::DigestMismatch;
+                if document.status != AuthorityDocumentStatus::Superseded {
+                    document.status = AuthorityDocumentStatus::DigestMismatch;
+                }
             }
             Event::RepositoryBound(bound) => {
                 validate_record(&bound.binding, bound.binding.digest)?;
@@ -998,8 +1015,19 @@ impl ProjectStateProjection {
                     .decisions
                     .get_mut(&accepted.decision_ref)
                     .ok_or_else(|| invariant("decision reference does not exist"))?;
-                if decision.status != DecisionStatus::Proposed {
-                    return Err(invariant("only a proposed decision can be accepted"));
+                if !matches!(
+                    decision.status,
+                    DecisionStatus::Proposed | DecisionStatus::RevalidationRequired
+                ) {
+                    return Err(invariant(
+                        "only a proposed or revalidation-required decision can be accepted",
+                    ));
+                }
+                if decision.status == DecisionStatus::RevalidationRequired
+                    && (event.actor.actor_kind != project_ledger_domain::ActorKind::Human
+                        || event.actor.trust_level != project_ledger_domain::TrustLevel::LocalUser)
+                {
+                    return Err(invariant("decision reacceptance requires a local human"));
                 }
                 decision.status = DecisionStatus::Accepted;
                 decision.authority_ref = Some(accepted.authority_ref.clone());
@@ -1276,7 +1304,7 @@ impl ProjectStateProjection {
                 conflict.resolution_ref = Some(resolved.resolution_ref.clone());
                 self.sync_conflict_refs();
             }
-            _ => return Err(ProjectionError::UnsupportedEvent),
+            _ => self.reduce_auxiliary(event)?,
         }
         Ok(())
     }

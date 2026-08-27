@@ -63,7 +63,7 @@
     },
     {
       "path": "release/sbom.spdx.json",
-      "sha256": "1a1bd64c61f874acf80c2e9cf30ad2bcfcc65f67f56ebab66de567ed8ddb4790"
+      "sha256": "979734fd9b4506f63bff3c3af082e04efb916699e73337f7694abeaf21797734"
     }
   ],
   "compatibility_report": "release/compatibility-report.json",

@@ -36,9 +36,9 @@
 
 **Consumes/produces:** `CommandEnvelope` → `CoreCommandHandler` → `EventDraft` → `CommandProcessor`/SQLite → `ProjectStateProjection`. No nuevas variantes públicas.
 
-- [ ] RED: enviar notas, artefactos, sesiones, mappings y correcciones válidos por el procesador real; exigir aceptación, append, replay y reconstrucción equivalente. Añadir rechazos de referencias ajenas, IDs repetidos, sesiones cerradas y campos de corrección no permitidos.
-- [ ] GREEN: completar handlers e índices internos. Las correcciones sólo alteran vistas descriptivas allowlisted; conservan originales/digests y no cambian identidad, autoridad, evidencia, gates ni lifecycle.
-- [ ] Auditar los 53 comandos y 67 eventos con casos positivos/negativos aplicables; ejecutar gates y commit.
+- [x] RED: enviar notas, artefactos, sesiones, mappings y correcciones válidos por el procesador real; exigir aceptación, append, replay y reconstrucción equivalente. Añadir rechazos de referencias ajenas, IDs repetidos, sesiones cerradas y campos de corrección no permitidos.
+- [x] GREEN: completar handlers e índices internos. Las correcciones sólo alteran vistas descriptivas allowlisted; conservan originales/digests y no cambian identidad, autoridad, evidencia, gates ni lifecycle.
+- [x] Auditar los 53 comandos y 67 eventos con casos positivos/negativos aplicables; ejecutar gates y commit. Se observaron 66 eventos ejecutables; LEGACY_IMPORT_REVIEWED se verifica como prohibido por las 53 filas v0.2, no como emisión implementada. Evidencia: `docs/PREPILOT_CORE_COVERAGE.md`.
 
 ## Stage 3 — CLI operativa
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **1/8, NOT_READY**. Stage 1 verificada; los 13 gaps funcionales/evidenciales restantes no se consideran cerrados. Siguiente paso: Stage 2, comandos auxiliares y reconstrucción con TDD.
+Estado de ejecución: **2/8, NOT_READY**. Stages 1 y 2 verificadas localmente; PP-03…PP-14 siguen abiertas. Siguiente paso: Stage 3, CLI cotidiana, errores tipados, queries sin migración y reconciliación por idempotencia. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.

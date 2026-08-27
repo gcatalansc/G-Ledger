@@ -4,10 +4,11 @@ use project_ledger_domain::{
     AuthorityDocumentRegisteredEvent, AuthorityDocumentStatus, AuthorityDocumentSupersededEvent,
     BlockerOpenedEvent, BlockerResolvedEvent, BlockerUpdatedEvent, Command, CommandEnvelope,
     ConflictKind, ConflictOpenedEvent, ConflictRecord, ConflictResolvedEvent, ConflictStatus,
-    DecisionAcceptedEvent, DecisionProposedEvent, DecisionRejectedEvent, DecisionSupersededEvent,
-    Event, EventId, NextActionCancelledEvent, NextActionCompletedEvent, NextActionSetEvent,
-    PhaseBlockedEvent, PhaseReopenedEvent, PhaseSkippedEvent, PhaseStartedEvent, PhaseStatus,
-    ProjectArchivedEvent, ProjectMetadataUpdatedEvent, ProjectPausedEvent, ProjectResumedEvent,
+    DecisionAcceptedEvent, DecisionProposedEvent, DecisionRejectedEvent,
+    DecisionRevalidationRequiredEvent, DecisionSupersededEvent, Event, EventId,
+    NextActionCancelledEvent, NextActionCompletedEvent, NextActionSetEvent, PhaseBlockedEvent,
+    PhaseReopenedEvent, PhaseSkippedEvent, PhaseStartedEvent, PhaseStatus, ProjectArchivedEvent,
+    ProjectMetadataUpdatedEvent, ProjectPausedEvent, ProjectResumedEvent,
     ProjectStatusDerivedEvent, RiskClosedEvent, RiskMitigatedEvent, RiskOpenedEvent,
     RiskUpdatedEvent, RoadmapDefinedEvent, RoadmapRevisedEvent, ScopeKind, Severity, StableId,
 };
@@ -468,6 +469,39 @@ impl LifecycleEngine {
             }
         }
 
+        if matches!(
+            command.command,
+            Command::RegisterAuthorityDocument(_)
+                | Command::RefreshAuthorityDocumentDigest(_)
+                | Command::SupersedeAuthorityDocument(_)
+        ) {
+            let affected: Vec<_> = projection
+                .state()
+                .current_decision_refs
+                .iter()
+                .filter(|id| {
+                    projection
+                        .decision(id)
+                        .and_then(|decision| decision.authority_ref.as_ref())
+                        .and_then(|id| projection.authority_document(id))
+                        .is_none_or(|authority| {
+                            authority.status != AuthorityDocumentStatus::Current
+                        })
+                })
+                .cloned()
+                .collect();
+            for decision_ref in affected {
+                append(
+                    command,
+                    &mut projection,
+                    &mut drafts,
+                    Event::DecisionRevalidationRequired(DecisionRevalidationRequiredEvent {
+                        decision_ref,
+                        reason_codes: vec!["AUTHORITY_NOT_CURRENT".to_owned()],
+                    }),
+                )?;
+            }
+        }
         append_status_if_changed(command, &mut projection, &mut drafts)?;
         Ok(drafts)
     }

@@ -139,6 +139,58 @@ fn ac_040_transport_unknown_is_not_a_server_command_result_status() {
     assert!(serde_json::from_value::<CommandResult>(json).is_err());
 }
 
+#[test]
+fn legacy_review_cannot_be_smuggled_through_a_v02_canonical_command() {
+    let matrix = project_ledger_schemas::command_event_matrix();
+    assert!(matrix.rows.iter().all(|row| {
+        row.forbidden_events
+            .contains(&project_ledger_domain::EventType::LegacyImportReviewed)
+    }));
+    let directory = tempdir().unwrap();
+    let mut store = SqliteEventStore::open(&directory.path().join("ledger.db")).unwrap();
+    let result = CommandProcessor::new(&mut store, &FixedClock::new(timestamp()))
+        .execute(
+            create_command("Ledger", 0, "idempotency:legacy-forbidden"),
+            &ForbiddenLegacyHandler,
+        )
+        .unwrap();
+    assert_eq!(result.status, CommandResultStatus::IncompatibleContract);
+    assert_eq!(
+        result.rejection.unwrap().code,
+        ErrorCode::CommandEventContractViolation
+    );
+    assert_eq!(store.event_count(&project_id()).unwrap(), 0);
+}
+
+struct ForbiddenLegacyHandler;
+
+impl CommandHandler for ForbiddenLegacyHandler {
+    fn handle(
+        &self,
+        command: &CommandEnvelope,
+        _stream: &[project_ledger_domain::EventEnvelope],
+    ) -> Result<Vec<EventDraft>, CommandHandlerError> {
+        let value = project_ledger_schemas::fixture_catalog()
+            .unwrap()
+            .into_iter()
+            .find(|item| item.schema_id.ends_with(":legacy-import-review:0.2.0"))
+            .unwrap()
+            .positive;
+        let review = serde_json::from_value(value).unwrap();
+        let mut drafts = CreateProjectHandler.handle(command, &[])?;
+        drafts.push(EventDraft {
+            event_id: EventId::new(),
+            event: Event::LegacyImportReviewed(project_ledger_domain::LegacyImportReviewedEvent {
+                review,
+            }),
+            correlation_ref: StableId::parse("correlation:forbidden").unwrap(),
+            occurred_at: command.submitted_at.clone(),
+            recorded_at: command.submitted_at.clone(),
+        });
+        Ok(drafts)
+    }
+}
+
 #[derive(Debug)]
 struct ForbiddenCreateHandler;
 

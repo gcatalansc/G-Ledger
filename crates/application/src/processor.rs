@@ -1,6 +1,6 @@
 use project_ledger_domain::{
-    CommandEnvelope, CommandRejection, CommandResult, CommandResultStatus, ErrorCode,
-    EventEnvelope, LedgerTimestamp, StableId,
+    Command, CommandEnvelope, CommandRejection, CommandResult, CommandResultStatus, ErrorCode,
+    Event, EventEnvelope, LedgerTimestamp, StableId, TrustLevel,
 };
 use project_ledger_event_store::{
     CommandCommit, CommandResultDraft, CommitDisposition, EventDraft, EventStore,
@@ -149,6 +149,16 @@ where
         self.store.verify_event_chain(&command.project_ref)?;
         let stream = self.store.load_stream(&command.project_ref)?;
         let current = stream.len() as u64;
+        if !recording_authorized(&command) {
+            return self.persist_rejected(
+                &command,
+                CommandResultStatus::PolicyDenied,
+                current,
+                ErrorCode::InvalidContract,
+                "actor lacks authority for this canonical operation",
+                Vec::new(),
+            );
+        }
         if command.expected_state_version != current {
             return self.persist_rejected(
                 &command,
@@ -200,6 +210,10 @@ where
             current,
             current + events.len() as u64,
             events.iter().map(|event| event.event_id.clone()).collect(),
+            events.iter().find_map(|event| match &event.event {
+                Event::CheckpointCreated(created) => Some(created.checkpoint.checkpoint_id.clone()),
+                _ => None,
+            }),
             None,
             false,
             self.clock.now(),
@@ -252,6 +266,7 @@ where
             current,
             current,
             Vec::new(),
+            None,
             Some(CommandRejection {
                 code,
                 message: message.into(),
@@ -322,6 +337,29 @@ where
     }
 }
 
+const fn recording_authorized(command: &CommandEnvelope) -> bool {
+    match command.actor.trust_level {
+        TrustLevel::LocalUser => true,
+        TrustLevel::TrustedForRecording => matches!(
+            command.command,
+            Command::RecordWorkProgress(_)
+                | Command::RecordNote(_)
+                | Command::AddArtifactReference(_)
+                | Command::RecordClaim(_)
+                | Command::RecordUnknown(_)
+                | Command::RecordVerificationResult(_)
+                | Command::LinkExternalEvidence(_)
+                | Command::RequestGateEvaluation(_)
+                | Command::RequestGateRevalidation(_)
+                | Command::RequestPhaseCompletion(_)
+                | Command::CreateContinuityCheckpoint(_)
+                | Command::StartSession(_)
+                | Command::EndSession(_)
+        ),
+        _ => false,
+    }
+}
+
 fn matrix_accepts(command: &CommandEnvelope, drafts: &[EventDraft]) -> bool {
     let matrix = command_event_matrix();
     let Some(row) = matrix.row(command.command_type()) else {
@@ -349,6 +387,7 @@ fn build_result(
     previous_state_version: u64,
     new_state_version: u64,
     emitted_event_refs: Vec<project_ledger_domain::EventId>,
+    resulting_checkpoint_ref: Option<StableId>,
     rejection: Option<CommandRejection>,
     replayed: bool,
     processed_at: LedgerTimestamp,
@@ -362,7 +401,7 @@ fn build_result(
         previous_state_version,
         new_state_version,
         emitted_event_refs,
-        resulting_checkpoint_ref: None,
+        resulting_checkpoint_ref,
         rejection,
         replayed,
         processed_at,

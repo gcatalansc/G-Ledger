@@ -12,6 +12,7 @@ project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+time.workspace = true
 
 [lints]
 workspace = true

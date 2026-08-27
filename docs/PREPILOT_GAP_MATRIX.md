@@ -27,7 +27,7 @@ Baseline: `dea208d294dfddc282b84dcb5a58b9d8d9887b91`, 2026-08-27. Alcance autori
 
 Todos los PP están OPEN en baseline salvo la conciliación PP-01, que se cierra con la etapa 1. Las etapas posteriores actualizan esta sección y el informe; no reescriben la evidencia baseline.
 
-Estado de ejecución: **PP-01 CLOSED; PP-02…PP-14 OPEN; 1/8 etapas**. La verificación de baseline incluyó formato, Clippy estricto y suite workspace completa (exit 0); los cuatro tests opt-in no se cuentan como nuevas ejecuciones físicas/runtime.
+Estado de ejecución: **PP-01 y PP-02 CLOSED; PP-03…PP-14 OPEN; 2/8 etapas**. La evidencia de etapa 2 está en `docs/PREPILOT_CORE_COVERAGE.md`: 53 comandos y 66 eventos ejecutables mediante transacciones reales, un evento contractualmente prohibido con prueba negativa, autorización, replay y reconstrucción. Formato, Clippy estricto, suite workspace completa, build locked, schemas/specs/contratos, release check, dependencias e integridad pasaron localmente. Los cuatro tests opt-in no se cuentan como nuevas ejecuciones físicas/runtime y los informes históricos de aceptación no sustituyen las 12 brechas pendientes.
 
 ## Cobertura completa de aceptación (sin añadir certificación al alcance)
 

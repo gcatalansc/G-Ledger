@@ -1,9 +1,12 @@
 use project_ledger_canonical_json::{CanonicalJsonError, Sha256Digest, sha256_digest};
 use project_ledger_domain::{
-    CheckpointCreatedEvent, CheckpointFreshnessStatus, CheckpointInvalidatedEvent, Command,
-    CommandEnvelope, ContinuityCheckpoint, Event, EventEnvelope, EventId, GateCriticality,
-    GateStatus, RepositoryBindingStatus, RepositorySnapshot, SchemaVersion, StableId,
-    UnknownRecordedEvent, UnknownResolvedEvent, WorkProgressRecordedEvent,
+    ArtifactReferenceAddedEvent, CheckpointCreatedEvent, CheckpointFreshnessStatus,
+    CheckpointInvalidatedEvent, Command, CommandEnvelope, ContinuityCheckpoint, Event,
+    EventCorrectionRecordedEvent, EventEnvelope, EventId, ExternalMappingConfirmedEvent,
+    ExternalMappingRevokedEvent, GateCriticality, GateStatus, NoteRecordedEvent,
+    RepositoryBindingStatus, RepositorySnapshot, SchemaVersion, SessionEndedEvent,
+    SessionStartedEvent, StableId, UnknownRecordedEvent, UnknownResolvedEvent,
+    WorkProgressRecordedEvent,
 };
 use project_ledger_event_store::{EventDraft, IntegrityError, build_event};
 use project_ledger_projection_engine::{
@@ -57,6 +60,7 @@ impl ContinuityEngine {
     ///
     /// Rejects version/project mismatch, malformed facts, ambiguous repository
     /// selection and commands owned by another engine.
+    #[allow(clippy::too_many_lines)] // Closed variants share the same checked append boundary.
     pub fn handle(
         command: &CommandEnvelope,
         stream: &[EventEnvelope],
@@ -64,6 +68,88 @@ impl ContinuityEngine {
         let mut projection = checked_projection(command, stream)?;
         let mut drafts = Vec::new();
         match &command.command {
+            Command::RecordNote(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::NoteRecorded(NoteRecordedEvent {
+                    note_id: stable_command_id("note", command)?,
+                    kind: payload.kind.clone(),
+                    text: payload.text.clone(),
+                    scope_ref: payload.scope_ref.clone(),
+                }),
+            )?,
+            Command::AddArtifactReference(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::ArtifactReferenceAdded(ArtifactReferenceAddedEvent {
+                    artifact: payload.artifact.clone(),
+                }),
+            )?,
+            Command::StartSession(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::SessionStarted(SessionStartedEvent {
+                    session: payload.session.clone(),
+                }),
+            )?,
+            Command::EndSession(payload) => {
+                // Create/validate both drafts before persistence. The checkpoint
+                // precedes the end event so its reference is already resolvable.
+                let checkpoint_ref = if payload.create_checkpoint {
+                    let event_id = deterministic_event_id(command, drafts.len())?;
+                    let checkpoint = build_checkpoint(command, &projection, event_id.clone())?;
+                    let checkpoint_ref = checkpoint.checkpoint_id.clone();
+                    append_with_id(
+                        command,
+                        &mut projection,
+                        &mut drafts,
+                        event_id,
+                        Event::CheckpointCreated(CheckpointCreatedEvent { checkpoint }),
+                    )?;
+                    Some(checkpoint_ref)
+                } else {
+                    None
+                };
+                append(
+                    command,
+                    &mut projection,
+                    &mut drafts,
+                    Event::SessionEnded(SessionEndedEvent {
+                        session_ref: payload.session_ref.clone(),
+                        ending_checkpoint_ref: checkpoint_ref,
+                    }),
+                )?;
+            }
+            Command::ConfirmExternalMapping(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::ExternalMappingConfirmed(ExternalMappingConfirmedEvent {
+                    mapping: payload.mapping.clone(),
+                }),
+            )?,
+            Command::RevokeExternalMapping(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::ExternalMappingRevoked(ExternalMappingRevokedEvent {
+                    mapping_ref: payload.mapping_ref.clone(),
+                    reason: payload.reason.clone(),
+                }),
+            )?,
+            Command::RecordEventCorrection(payload) => append(
+                command,
+                &mut projection,
+                &mut drafts,
+                Event::EventCorrectionRecorded(EventCorrectionRecordedEvent {
+                    corrects_event_ref: payload.corrects_event_ref.clone(),
+                    reason: payload.reason.clone(),
+                    replacement_field_values: payload.replacement_field_values.clone(),
+                }),
+            )?,
             Command::RecordWorkProgress(payload) => append(
                 command,
                 &mut projection,
@@ -291,6 +377,7 @@ const fn allows_checkpoint_invalidation(command: &Command) -> bool {
             | Command::ConfirmExternalMapping(_)
             | Command::RevokeExternalMapping(_)
             | Command::ResolveConflict(_)
+            | Command::RecordEventCorrection(_)
     )
 }
 

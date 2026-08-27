@@ -1858,3 +1858,51 @@ Revisar la evidencia bilateral/runtime restante y delimitar el alcance de confor
 - Se contrastó el inventario completo de 90 AC / 32 PL con la matriz y se verificaron hashes de autoridad y contratos. PP-01 queda CLOSED; 13 brechas siguen OPEN. No se modificaron contratos, dependencia, runtime o semántica productiva en esta etapa.
 - Commit de etapa: `docs: reconcile prepilot baseline and eight-stage gap matrix`. Las pruebas nuevas de etapa 2 se preparan por separado y no forman parte de este commit.
 - Siguiente paso: RED/GREEN de los comandos auxiliares del núcleo, incluidos replay, referencias, autorización y reconstrucción.
+
+**Etapa 2 en curso — checkpoint de implementación**
+
+- Etapa 1 quedó en commit `e51ec81`. Las nuevas pruebas de aplicación fallaron primero 6/7 por comandos válidos enviados al motor equivocado; se implementaron las siete variantes existentes y sus índices/reductores auxiliares sin modificar schemas.
+- GREEN inicial: 7/7. Notas/artefactos, sesiones con y sin checkpoint, mappings y corrección descriptiva son transacciones reales y replayables. Correcciones restringidas a `text` de nota y `work_record.summary`, con originales intactos y sin autoridad semántica.
+- RED adicional observado: un actor `UNTRUSTED` podía editar metadata por `CoreCommandHandler`. Guard de recording explícito agregado; 8/8 pruebas focales PASS. Se amplía la prueba para distinguir `POLICY_DENIED` y evitar que `TRUSTED_FOR_RECORDING` permita lifecycle/authority.
+- Se prepara `command_coverage.rs`: recorrido real de los 53 comandos con aceptación, replay, rechazo de versión obsoleta y rebuild después de cada operación. Las fixtures aportan entradas, no resultados simulados ni prueba runtime externa. Etapa 2 sigue abierta hasta superar esa cobertura y regresión completa.
+- No se habilitan CLI nueva, runtime o piloto; estado global permanece 1/8, NOT_READY. Cambios de etapa 2 todavía no comprometidos.
+
+**Etapa 2 — segundo checkpoint de continuidad**
+
+- Se reprodujeron rechazos no tipados y ausencia de `resulting_checkpoint_ref`; se corrigieron en el processor sin ampliar `ErrorCode` ni los contratos. La política central diferencia recording de autoridad y devuelve `POLICY_DENIED` sin eventos.
+- La prueba de sesiones reprodujo cierre anterior al inicio y ahora compara instantes RFC3339 (incluidos offsets diferentes), no strings. El reloj del resultado no reemplaza `submitted_at` del evento; se corrigió primero ese detalle del test. Los 10 tests auxiliares pasaron después.
+- El recorrido observó los 53 comandos y 66 eventos ejecutables, con replay, versiones obsoletas y rebuild. La cobertura ampliada agrega rechazo `UNTRUSTED` a cada comando. `LEGACY_IMPORT_REVIEWED` está prohibido en todas las filas v0.2: se prueba su rechazo transaccional, no se inventa un comando de emisión.
+- Dos omisiones detectadas por esa cobertura: decisiones sin revalidación tras perder su autoridad y ausencia de `PHASE_MARKED_READY_TO_CLOSE`. Ahora una solicitud con recording trust sólo deja la fase pendiente de aprobación; completar requiere humano local y todos los predicados. Autoridad no vigente invalida decisiones dependientes, sin afectar documentos ajenos ni reaceptar automáticamente al recuperar un digest.
+- Se reprodujo que una decisión en revalidación no tenía ruta de reaceptación. Se permite `ACCEPT_DECISION` explícito por humano local con autoridad vigente, preservando los eventos anteriores.
+- El projector interno pasa a versión 5 para no reutilizar caches construidas con semántica anterior; wire/schema permanece 0.2.0. Se reutiliza `time` ya bloqueado en el workspace para comparación temporal.
+- Una ejecución concurrente de tests en Windows produjo LNK1104 al intentar reemplazar el mismo ejecutable todavía activo. Se identificó el proceso propio y se dejó finalizar; no se eliminó ni mató un proceso ajeno. La repetición se hace secuencialmente. No es evidencia RED de comportamiento.
+- Pendientes antes del commit: regresión workspace/Clippy/build/spec/contratos, cobertura de corrección de work summary, consolidar evidencia del núcleo. Etapas 3–8 todavía pendientes; estado 1/8 y `NOT_READY`.
+
+**Etapa 2 — verificación ampliada y metadatos**
+
+- `command_coverage` pasó con 53 comandos, 66 eventos, replay, versiones obsoletas y rechazo UNTRUSTED por comando. `command_transaction`: 6/6, incluida la prohibición real de LEGACY_IMPORT_REVIEWED. Auxiliares: 11/11, incluido work summary corregido con historia intacta y checkpoint invalidado.
+- RED/GREEN adicional: observar una autoridad SUPERSEDED la convertía en UNAVAILABLE, permitiendo que un MATCH posterior la reactivase. Las observaciones ahora preservan SUPERSEDED; el test recorre UNAVAILABLE → MATCH → MISMATCH → MATCH sin devolver autoridad.
+- Se reprodujo y corrigió el reconocimiento de la URI plural `project-ledger://projects/<uuid>` que genera el catálogo. Se conserva la forma singular ya admitida y se rechazan identidades ajenas.
+- Dependencias (`cargo deny --offline check`): advisories/bans/licenses/sources OK; duplicidades transitivas informativas. Hashes v0.1/v0.2 MATCH; contratos 46/92/53 MATCH. No nuevos pins ni versiones de dependencias externas.
+- La primera suite workspace se detuvo en el test de release por hash anterior de Cargo.lock. Se regeneran SBOM/manifiesto/checksums con el generador existente; esto no eleva el estado del producto. Clippy estricto pasó antes de esa ejecución; se repite junto con la suite/build/checks después de las últimas correcciones.
+- Verificación final en curso (sesión de comandos local); no commit de etapa 2 todavía. Próximo punto: revisar salida final, actualizar informe/matriz y crear commit sólo si todos los controles pasan.
+
+## 2026-08-27 — Reanudación solicitada: continuar desde el checkpoint
+
+- El usuario pide retomar profesionalmente el plan. HEAD sigue en `e51ec81` (etapa 1); los cambios de etapa 2 y sus metadatos generados están presentes y se preservan. No se reinicia Git ni se rehace la etapa cerrada.
+- La sesión de verificación interrumpida ya no permite recuperar una salida final. No se infiere PASS: se repetirá el gate fresco antes del commit. Estado confirmado: 1/8, NOT_READY; implementación de etapa 2 pendiente de cierre verificado.
+- Se reutiliza el plan persistente con las skills de planificación, TDD, diagnóstico y verificación. Ejecución inline; no hay autorización nueva sobre proyectos reales ni cambios upstream.
+
+**Etapa 2 cerrada — 2/8, NOT_READY**
+
+- Se repitió la verificación completa tras la interrupción. Un test previo exigía error para toda solicitud de cierre por agente; se reprodujo el fallo y se contrastó con la nueva ruta contractual de preparación. Ahora comprueba READY_TO_CLOSE con aprobación pendiente, ausencia de PHASE_COMPLETED y cierre posterior mediante solicitud humana. No se eliminó la comprobación de autoridad ni se habilitó cierre autónomo.
+- Gate local completo con exit 0: formato, Clippy workspace/all-targets/all-features con warnings como errores, tests workspace/all-targets/all-features, build workspace locked, schema check, specs verify y contracts verify. Contratos: 46 schemas / 92 fixtures / 53 filas; hashes de specs preservados.
+- `cargo xtask release check` pasó: 90 AC / 32 PL del inventario histórico, 0 secretos; valida el reporte histórico de 9 métricas y 0 waivers, no ejecuta un benchmark nuevo. `cargo deny --offline check`: advisories/bans/licenses/sources OK, con duplicidades transitivas conocidas. SHA-256 13/13 y diff check correctos.
+- Se añadieron 15 tests: 11 auxiliares, 3 recorridos/invariantes del núcleo y 1 rechazo transaccional de legacy no emitible. Se observaron los 53 comandos y 66 eventos ejecutables con replay, rechazo UNTRUSTED, conflicto de versión e igualdad incremental/rebuild. El evento restante está prohibido por las 53 filas v0.2; no se simula su implementación.
+- Las cuatro pruebas opt-in (tres GSP real y una ENOSPC físico) permanecieron ignored. No hubo nueva CI hosted, ejecución de runtime GSP, prueba de ZIP ni intervención de un proyecto real. Los contratos, schemas, integraciones fijadas y workflow CI no cambiaron.
+- Plan, matriz y `release/prepilot-readiness.json` conciliados a 2/8. PP-02 cerrado; PP-03…PP-14 abiertos. La cobertura y sus límites quedan en `docs/PREPILOT_CORE_COVERAGE.md`.
+- Commit de cierre preparado: `feat: complete prepilot core command and event behavior`.
+
+**Siguiente paso según el plan**
+
+Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selección explícita de proyecto, consultas sin crear/migrar bases y reconciliación por clave de idempotencia. Mantener `NOT_READY` hasta verificar las ocho etapas; no usar todavía un proyecto real.
