@@ -115,7 +115,7 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
         with:
           version: '0.11.16'
           enable-cache: false
@@ -149,4 +149,4 @@ jobs:
       - name: Validate artifact adapter style
         run: .tooling/rq4-gsp-runtime/.venv/bin/python -I -B -m ruff check --no-cache integrations/gsp/sidecar/compile_bundle.py crates/cli/tests/gsp_live/crash_probe.py
       - name: Verify actual GSP compilation, rejection and crash recovery
-        run: cargo test -p project-ledger-cli --test gsp_bridge live_sidecar:: -- --ignored --nocapture --test-threads=1
+        run: 'cargo test -p project-ledger-cli --test gsp_bridge live_sidecar:: -- --ignored --nocapture --test-threads=1'

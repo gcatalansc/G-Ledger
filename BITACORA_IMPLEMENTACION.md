@@ -1782,3 +1782,13 @@ Calificar `live-sidecar-process-crash` frente a una contraparte GSP identificada
 - El checkout activo GSP sigue limpio en `ddf2cfb32b53de0eb0967a57862ff11fdfa65af1`; las copias aisladas también siguen limpias. No se modificaron Cargo.lock, dependencias Rust, autoridad congelada ni flags de certificación.
 - El harness queda preparado para el commit `test: qualify live GSP process crash isolation`. RQ4 permanece en 1/3 hasta observar la ejecución hosted sobre ese SHA; se conserva `live-sidecar-process-crash` como waiver oficial.
 - Siguiente acción: publicar el commit y exigir éxito de los seis jobs, incluyendo contraparte real, antes de editar evidencia de release.
+
+**Publicación y corrección de sintaxis CI**
+
+- Harness publicado en `bdd482553806ebbd0139b916b663c4a9908c9483`; `HEAD` y `origin/main` coincidieron con árbol limpio.
+- El run `33060429046` terminó `failure` sin jobs: el parser YAML rechazó el `run` no entrecomillado que contiene `live_sidecar::` (línea 152, columna 78). No se reutiliza ese run como evidencia física/runtime.
+- Se reprodujo con PyYAML y, antes de editar el workflow, con una regresión Rust que parsea el archivo publicado y comprueba que cada `run` es una cadena ejecutable. RED observado por el error de scanner, no por una comparación textual.
+- Corrección mínima: entrecomillar el comando YAML conservando exactamente su argv. Se ejecutará el gate nuevamente antes de publicar `fix: quote live sidecar CI command`.
+- El waiver sigue vigente y RQ4 permanece 1/3; no hubo crash hosted ni cambio de calificación.
+- La regresión y PyYAML ya pasan con el comando entrecomillado. También se resolvió el tag anotado `setup-uv@v7` hasta su commit real `37802adc94f370d6bfd71619e3f0bf239e1f3b78`, en lugar de fijar el objeto tag `94527f2e...`; `setup-python` ya estaba fijado a un commit.
+- Gate de corrección PASS: regresión CLI, parseo YAML, formato, Clippy estricto, suite workspace completa, release check, generación reproducible y diff check. La corrección sólo cambia el workflow, su test consumidor y esta bitácora; los artefactos oficiales conservan el waiver.

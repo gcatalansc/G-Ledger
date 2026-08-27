@@ -4,6 +4,26 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 #[test]
+fn published_workflow_parses_and_run_steps_are_executable_strings() {
+    let text = std::fs::read_to_string(workspace_root().join(".github/workflows/ci.yml")).unwrap();
+    let workflow: serde_yaml::Value = serde_yaml::from_str(&text).expect("published CI must parse");
+    let jobs = workflow["jobs"].as_mapping().unwrap();
+    assert!(!jobs.is_empty());
+    for job in jobs.values() {
+        for step in job["steps"].as_sequence().unwrap() {
+            if let Some(run) = step.get("run") {
+                assert!(
+                    !run.as_str()
+                        .expect("run must be a command string")
+                        .trim()
+                        .is_empty()
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn ac_083_ac_086_ac_088_ac_090_cli_verifies_zero_waivers_without_certification_overclaim() {
     let mut command = Command::cargo_bin("project-ledger").unwrap();
     command
