@@ -251,20 +251,45 @@ fn verify_benchmark(root: &Path) -> Result<(), ReleaseError> {
         .ok_or_else(|| ReleaseError::Invalid {
             message: "benchmark waivers are missing".to_owned(),
         })?;
+    let required_metrics = [
+        "append_command",
+        "cold_cli_startup",
+        "gate_evaluation_simple",
+        "idle_cpu",
+        "memory_one_shot_p95",
+        "network_calls_default",
+        "projection_request_warm",
+        "render_10k_events",
+        "status_resume_warm",
+    ]
+    .into_iter()
+    .collect::<BTreeSet<_>>();
+    let metric_names = metrics
+        .iter()
+        .filter_map(|metric| metric["name"].as_str())
+        .collect::<BTreeSet<_>>();
+    let memory = metrics
+        .iter()
+        .find(|metric| metric["name"] == "memory_one_shot_p95");
     if report["profile"] != "project-ledger-performance-benchmark/0.2.0"
-        || report["measurement_status"] != "COMPLETE_WITH_EXPLICIT_WAIVER"
-        || metrics.len() != 8
+        || report["measurement_status"] != "COMPLETE"
+        || metrics.len() != 9
+        || metric_names != required_metrics
         || metrics.iter().any(|metric| {
             metric["passed"] != true
                 || metric["samples"] != 20
                 || metric["method"].as_str().is_none_or(str::is_empty)
         })
-        || waivers.len() != 1
-        || waivers[0]["metric"] != "memory_one_shot_p95"
-        || waivers[0]["non_critical"] != true
-        || waivers[0]["blocks"].as_array().is_none_or(Vec::is_empty)
+        || !waivers.is_empty()
+        || memory.is_none_or(|metric| {
+            metric["unit"] != "MiB"
+                || metric["budget"] != 100.0
+                || metric["p95"]
+                    .as_f64()
+                    .is_none_or(|p95| p95 <= 0.0 || p95 >= 100.0)
+        })
     {
-        return invalid("benchmark is incomplete, over budget or hides its memory waiver");
+        return invalid("benchmark is incomplete, over budget or has invalid memory evidence");
     }
     Ok(())
 }

@@ -20,6 +20,7 @@ project-ledger-storage-sqlite = { path = "../crates/storage-sqlite", version = "
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
+sysinfo.workspace = true
 tempfile.workspace = true
 time.workspace = true
 uuid.workspace = true

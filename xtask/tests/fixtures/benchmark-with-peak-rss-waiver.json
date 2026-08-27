@@ -1,0 +1,32 @@
+{
+  "profile": "project-ledger-performance-benchmark/0.2.0",
+  "measurement_status": "COMPLETE_WITH_EXPLICIT_WAIVER",
+  "environment": {
+    "os": "windows",
+    "arch": "x86_64",
+    "rust": "1.97.1",
+    "build_profile": "release",
+    "sample_count": 20,
+    "event_count": 10000,
+    "measured_at": "2026-08-23T00:00:00Z"
+  },
+  "metrics": [
+    {"name":"append_command","unit":"ms","budget":150.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"cold_cli_startup","unit":"ms","budget":250.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"gate_evaluation_simple","unit":"ms","budget":100.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"idle_cpu","unit":"percent","budget":0.0,"p95":0.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"network_calls_default","unit":"calls","budget":0.0,"p95":0.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"projection_request_warm","unit":"ms","budget":200.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"render_10k_events","unit":"ms","budget":500.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"},
+    {"name":"status_resume_warm","unit":"ms","budget":100.0,"p95":1.0,"samples":20,"passed":true,"method":"fixture"}
+  ],
+  "waivers": [
+    {
+      "metric": "memory_one_shot_p95",
+      "reason": "legacy fixture",
+      "non_critical": true,
+      "blocks": ["GENERAL_AVAILABILITY"],
+      "review_by": "2026-09-23"
+    }
+  ]
+}

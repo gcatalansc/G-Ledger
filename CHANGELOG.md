@@ -58,6 +58,6 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - CLI `integration agent-skill verify-contracts`, `resume --format codex|json` read-only y `checkpoint create` gobernado; handoff SQLite real, replay idempotente y conflicto de versión fail-closed sin completion bypass.
 - Crate `release` con policy de trust, exact argv/no-shell, escáner de secretos/transcripts/private reasoning, paths normalizados y gate hash-locked sobre 90 AC, 32 PL y siete superficies declaradas.
 - Threat model, chaos report, migración v0.1→v0.2 revisada/no destructiva/reversible y compatibility report con cuatro perfiles locales completos pero nunca certificados.
-- Package manifest single-binary, SBOM SPDX 2.3 de 200 paquetes, checksums reproducibles y benchmark release p95 de 20 muestras/10.000 eventos con waiver explícito de peak-RSS.
+- Package manifest single-binary, SBOM SPDX 2.3, checksums reproducibles y benchmark release p95 de 20 muestras/10.000 eventos; la calificación posterior mide `memory_one_shot_p95` en 17,855 MiB sobre Windows x86_64/Rust 1.97.1 y cierra AC-089.
 - CLI `release verify` y `cargo xtask release generate|check`/`benchmark run|check`; CI construye el binario release y ejecuta el gate en Windows, Linux y macOS.
 - Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.

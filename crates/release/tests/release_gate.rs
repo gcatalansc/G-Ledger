@@ -11,7 +11,7 @@ fn ac_088_release_gate_covers_exactly_ac_001_to_090_and_pl_01_to_32() {
     assert_eq!(report.benchmark_scenario_count, 32);
     assert_eq!(report.missing_evidence_count, 0);
     assert_eq!(report.blocked_count, 0);
-    assert_eq!(report.waived_count, 2);
+    assert_eq!(report.waived_count, 1);
 }
 
 #[test]

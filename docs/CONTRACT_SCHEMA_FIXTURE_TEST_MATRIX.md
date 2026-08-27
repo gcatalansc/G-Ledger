@@ -170,9 +170,9 @@ El gate integral S13 vuelve a ejecutar el workspace completo. Esta evidencia dem
 | AC-084/087 | `portable-bundle/tests/export.rs`, `interop-radar/tests/export.rs`, `schemas/tests/registry.rs` | Exports mínimos y refs offline siguen cubiertos por conducta real previa y el gate agregado |
 | AC-086 | `.github/workflows/ci.yml`, `release/acceptance-report.json` | Matrix Windows/Linux/macOS configurada; ejecución hosted no presente localmente queda waiver no crítico que bloquea GA |
 | AC-088, PL-01…32 | `release/acceptance-report.json`, tests referenciados | Inventario cerrado exige exactamente 90 AC y 32 PL, sin duplicados ni evidencia inexistente |
-| AC-089 | `benchmark/project-ledger-v0.2.0-windows-x86_64.json`, `xtask/tests/release_command.rs` | Ocho métricas medidas pasan en entorno declarado; peak-RSS no medido queda waiver explícito, no resultado inventado |
+| AC-089 | `benchmark/project-ledger-v0.2.0-windows-x86_64.json`, `xtask/tests/release_command.rs` | Nueve métricas medidas pasan en entorno declarado; peak-RSS p95 17,855 MiB mediante máximo RSS muestreado cada 1 ms sobre el proceso release real |
 | AC-090, REQ-INT-002/REQ-REL-001 | `release/compatibility-report.json`, `release/tests/release_gate.rs` | Cuatro perfiles locales completos, pending evidence visible y cero certificaciones |
 | REQ-REL-002 | `release/migrations/v0.1-to-v0.2.json`, `legacy-import/tests/review.rs` | Migración explícita hacia store nuevo, source preservado, sin reinterpretación silenciosa y rollback por descarte del destino |
 | Packaging/SBOM/checksums | `release/package-manifest.json`, `sbom.spdx.json`, `checksums.sha256` | Binario default único/offline, grafo Cargo inventariado y artefactos reproducibles ligados por SHA-256 |
 
-El gate S14 representa un engineering release candidate. Dos waivers no críticos (hosted cross-platform run y peak-RSS) y la evidencia counterpart/live pendiente impiden declarar General Availability o compatibilidad certificada.
+El gate S14 representa un engineering release candidate. El waiver no crítico de ejecución hosted cross-platform y la evidencia counterpart/live pendiente impiden declarar General Availability o compatibilidad certificada.

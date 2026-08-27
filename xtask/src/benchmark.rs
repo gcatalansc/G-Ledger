@@ -3,6 +3,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::{Command as ProcessCommand, Stdio},
+    thread,
     time::{Duration, Instant},
 };
 
@@ -24,6 +25,7 @@ use project_ledger_gate_engine::evaluate_predicate;
 use project_ledger_projection_engine::ProjectStateProjection;
 use project_ledger_storage_sqlite::SqliteEventStore;
 use serde::{Deserialize, Serialize};
+use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System};
 use tempfile::tempdir;
 
 const REPORT_PATH: &str = "benchmark/project-ledger-v0.2.0-windows-x86_64.json";
@@ -145,6 +147,7 @@ pub fn run_and_write(root: &Path) -> Result<String, String> {
         Ok(())
     })?;
     let append = append_samples()?;
+    let memory = memory_samples(&binary, root)?;
 
     let metrics = vec![
         latency_metric(
@@ -183,6 +186,7 @@ pub fn run_and_write(root: &Path) -> Result<String, String> {
             projection_request,
             "ProjectStateProjection rebuild of a declared 100-event warm stream",
         ),
+        memory_metric(memory)?,
         zero_metric(
             "idle_cpu",
             "percent",
@@ -196,7 +200,7 @@ pub fn run_and_write(root: &Path) -> Result<String, String> {
     ];
     let report = BenchmarkReport {
         profile: "project-ledger-performance-benchmark/0.2.0".to_owned(),
-        measurement_status: "COMPLETE_WITH_EXPLICIT_WAIVER".to_owned(),
+        measurement_status: "COMPLETE".to_owned(),
         environment: BenchmarkEnvironment {
             os: std::env::consts::OS.to_owned(),
             arch: std::env::consts::ARCH.to_owned(),
@@ -204,16 +208,10 @@ pub fn run_and_write(root: &Path) -> Result<String, String> {
             build_profile: "release".to_owned(),
             sample_count: SAMPLES,
             event_count: EVENT_COUNT,
-            measured_at: "2026-08-23T00:00:00Z".to_owned(),
+            measured_at: "2026-08-26T00:00:00Z".to_owned(),
         },
         metrics,
-        waivers: vec![BenchmarkWaiver {
-            metric: "memory_one_shot_p95".to_owned(),
-            reason: "portable peak-RSS instrumentation is not available without adding platform-specific unsafe/runtime dependencies".to_owned(),
-            non_critical: true,
-            blocks: vec!["GENERAL_AVAILABILITY".to_owned()],
-            review_by: "2026-09-23".to_owned(),
-        }],
+        waivers: Vec::new(),
     };
     let bytes = pretty_json(&report)?;
     let path = root.join(REPORT_PATH);
@@ -234,6 +232,7 @@ pub fn check(root: &Path) -> Result<String, String> {
         "cold_cli_startup",
         "gate_evaluation_simple",
         "idle_cpu",
+        "memory_one_shot_p95",
         "network_calls_default",
         "projection_request_warm",
         "render_10k_events",
@@ -244,25 +243,85 @@ pub fn check(root: &Path) -> Result<String, String> {
         .iter()
         .map(|metric| metric.name.as_str())
         .collect::<std::collections::BTreeSet<_>>();
+    let memory = report
+        .metrics
+        .iter()
+        .find(|metric| metric.name == "memory_one_shot_p95");
     if report.profile != "project-ledger-performance-benchmark/0.2.0"
-        || report.measurement_status != "COMPLETE_WITH_EXPLICIT_WAIVER"
+        || report.measurement_status != "COMPLETE"
         || report.environment.sample_count != SAMPLES
         || report.environment.event_count != EVENT_COUNT
+        || report.environment.os.is_empty()
+        || report.environment.arch.is_empty()
+        || report.environment.rust != "1.97.1"
+        || report.environment.build_profile != "release"
         || actual != required.into_iter().collect()
         || report
             .metrics
             .iter()
             .any(|metric| !metric.passed || metric.samples != SAMPLES || metric.method.is_empty())
-        || report.waivers.len() != 1
-        || report.waivers[0].metric != "memory_one_shot_p95"
-        || !report.waivers[0].non_critical
-        || report.waivers[0].blocks.is_empty()
+        || !report.waivers.is_empty()
+        || memory.is_none_or(|metric| {
+            metric.unit != "MiB"
+                || (metric.budget - 100.0).abs() > f64::EPSILON
+                || metric.p95 <= 0.0
+                || metric.p95 >= metric.budget
+        })
     {
         return Err(
             "benchmark report is incomplete, over budget or has an invalid waiver".to_owned(),
         );
     }
-    Ok("benchmark verified: 8 measured metrics, 1 explicit waiver".to_owned())
+    Ok("benchmark verified: 9 measured metrics, 0 explicit waivers".to_owned())
+}
+
+fn memory_samples(binary: &Path, root: &Path) -> Result<Vec<u64>, String> {
+    if !sysinfo::IS_SUPPORTED_SYSTEM {
+        return Err("peak RSS measurement is unsupported on this operating system".to_owned());
+    }
+    let mut values = Vec::with_capacity(SAMPLES);
+    for _ in 0..SAMPLES {
+        values.push(sample_peak_rss(binary, root)?);
+    }
+    Ok(values)
+}
+
+fn sample_peak_rss(binary: &Path, root: &Path) -> Result<u64, String> {
+    let mut child = ProcessCommand::new(binary)
+        .args(["contracts", "verify"])
+        .current_dir(root)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(|error| error.to_string())?;
+    let pid = Pid::from_u32(child.id());
+    let mut system = System::new();
+    let mut peak_bytes = 0_u64;
+
+    loop {
+        system.refresh_processes_specifics(
+            ProcessesToUpdate::Some(&[pid]),
+            false,
+            ProcessRefreshKind::nothing().with_memory().without_tasks(),
+        );
+        if let Some(process) = system.process(pid) {
+            peak_bytes = peak_bytes.max(process.memory());
+        }
+        match child.try_wait().map_err(|error| error.to_string())? {
+            Some(status) => {
+                if !status.success() {
+                    return Err("release binary memory probe failed".to_owned());
+                }
+                break;
+            }
+            None => thread::sleep(Duration::from_millis(1)),
+        }
+    }
+
+    if peak_bytes == 0 {
+        return Err("release binary exited without a resident-set measurement".to_owned());
+    }
+    Ok(peak_bytes)
 }
 
 fn build_stream(count: usize) -> Result<Vec<EventEnvelope>, String> {
@@ -466,6 +525,24 @@ fn zero_metric(name: &str, unit: &str, method: &str) -> BenchmarkMetric {
         passed: true,
         method: method.to_owned(),
     }
+}
+
+fn memory_metric(mut values: Vec<u64>) -> Result<BenchmarkMetric, String> {
+    values.sort_unstable();
+    let index = (values.len() * 95).div_ceil(100).saturating_sub(1);
+    let bytes = u32::try_from(values[index])
+        .map_err(|_| "sampled RSS exceeds the benchmark representation range".to_owned())?;
+    let mebibytes = f64::from(bytes) / (1024.0 * 1024.0);
+    let p95 = (mebibytes * 1_000.0).round() / 1_000.0;
+    Ok(BenchmarkMetric {
+        name: "memory_one_shot_p95".to_owned(),
+        unit: "MiB".to_owned(),
+        budget: 100.0,
+        p95,
+        samples: SAMPLES,
+        passed: p95 < 100.0,
+        method: "1 ms sampled resident-set maximum of release project-ledger contracts verify process via sysinfo 0.39.6".to_owned(),
+    })
 }
 
 fn p95_ms(mut values: Vec<Duration>) -> f64 {

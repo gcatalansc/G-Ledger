@@ -22,7 +22,7 @@ S12 añade `project-ledger-radar-artifact/0.1.1`: cinco schemas y diez fixtures 
 
 S13 añade `project-ledger-agent-skill/0.2.0`: `SKILL.md` descubrible, manifest/workflow cerrados, locks de bytes, 7 triggers, 5 políticas y conformance para missing-tool, conflicto de versión, outcome incierto y no-authority. El handoff CLI real expone resume read-only y checkpoint gobernado con expected version/idempotency; la skill no contiene estado vigente ni puede leer DB, editar Markdown generado, verificar gates o completar fases.
 
-S14 añade `project-ledger-release`: políticas fail-closed para trust/argv, escáner de privacidad sin eco de valores, evidencia exacta AC-001…090 y PL-01…32, threat model, caos, migración v0.1→v0.2 no destructiva/reversible, paquete single-binary, SBOM SPDX 2.3, checksums y benchmark p95 con entorno declarado. El estado distribuido es `ENGINEERING_RELEASE_CANDIDATE`: AC-086 y AC-089 conservan waivers no críticos por ejecución hosted Linux/macOS y peak-RSS no medido, que bloquean GA.
+S14 añade `project-ledger-release`: políticas fail-closed para trust/argv, escáner de privacidad sin eco de valores, evidencia exacta AC-001…090 y PL-01…32, threat model, caos, migración v0.1→v0.2 no destructiva/reversible, paquete single-binary, SBOM SPDX 2.3, checksums y benchmark p95 con entorno declarado. La calificación posterior mide peak-RSS del proceso release y cierra AC-089. El estado distribuido continúa `ENGINEERING_RELEASE_CANDIDATE`: AC-086 conserva un waiver no crítico por falta de ejecución hosted Linux/macOS y bloquea GA.
 
 La semántica ejecutable sigue acotada por la especificación: el counterpart/IndexedDB de Project Radar, UI, daemon general, AI embebida, el counterpart RecordSink de G-Skills y el E2E live-sidecar GSP permanecen fuera de la evidencia local. `certified_compatibility=false` continúa siendo obligatorio; S9–S14 demuestran fronteras locales/procedimentales y readiness de ingeniería, no obediencia universal del agente, compatibilidad bilateral/live-sidecar, General Availability, operación productiva ni validez científica. `GeneratedArtifactRecord` se devuelve junto con los bytes renderizados, pero no se persiste porque el contrato v0.2.0 no define un command/event para ello. De igual modo, los contratos congelados no definen una mutación durable de fork: la divergencia falla cerrada y `FORK_EXPLICIT` devuelve target nuevo más provenance de origen sin reescribir eventos ni authority.
 
@@ -61,7 +61,7 @@ cargo xtask release generate --root .
 cargo xtask release generate --check --root .
 ```
 
-El benchmark versionado usa 20 muestras en Windows x86_64/Rust 1.97.1 y un stream canónico de 10.000 eventos. Los targets medidos pasan; la memoria one-shot p95 permanece waiver explícito y no se infiere de una aproximación.
+El benchmark versionado usa 20 muestras en Windows x86_64/Rust 1.97.1 y un stream canónico de 10.000 eventos. Los nueve targets medidos pasan; `memory_one_shot_p95` es 17,855 MiB frente al presupuesto de 100 MiB, calculado como p95 del máximo RSS muestreado cada 1 ms durante `project-ledger contracts verify`. Es una medición de ingeniería ligada al entorno, no un pico kernel exacto ni una garantía universal.
 
 Inicialización offline contra una ubicación explícita:
 

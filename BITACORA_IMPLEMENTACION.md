@@ -1406,3 +1406,89 @@ Ejecutar formato y Clippy estricto; corregir cualquier hallazgo; regenerar artef
 **Siguiente paso según la especificación**
 
 No queda otro slice de implementación. El siguiente paso es la calificación de release: obtener ejecuciones hosted Linux/macOS, incorporar medición portable de peak-RSS y cerrar ambos waivers; después aportar evidencia counterpart/bilateral/live para cualquier perfil que se quiera certificar, sin cambiar `certified_compatibility=false` antes de esa evidencia.
+
+### 2026-08-26 — Apertura de calificación de release / Gate 1 de 2: peak-RSS
+
+**Reconciliación de entrada**
+
+- Git está limpio en `cd99750` (`feat: harden and prepare v0.2.0 release`); la implementación permanece cerrada en 12/12 macrofases y 15/15 slices.
+- El checkout no tiene ningún remote Git configurado. `gh` está autenticado, pero no puede resolver un repositorio ni ejecuciones hosted; por ello AC-086 continúa `WAIVED` y bloquea General Availability.
+- AC-089 continúa `WAIVED`: el reporte actual contiene ocho métricas medidas y un waiver para `memory_one_shot_p95`.
+- La autoridad §44 fija `memory one-shot p95 < 100 MiB` y aclara que los targets son presupuestos de ingeniería, no garantías universales.
+
+**Decisión de implementación**
+
+- El plan persistente `docs/superpowers/plans/2026-08-26-project-ledger-release-qualification.md` separa dos gates de calificación: peak-RSS portable y ejecución hosted multiplataforma.
+- El Gate 1 medirá externamente el RSS del binario release real, con 20 ejecuciones one-shot y muestreo por PID cada 1 ms mediante `sysinfo` 0.39.6 sin features por defecto. La dependencia quedará confinada a `xtask`; no se añadirá red, daemon, shell ni `unsafe` propio al producto.
+- El resultado se describirá honestamente como máximo RSS muestreado por ejecución y p95 del conjunto, ligado al entorno declarado. No se presentará como pico kernel exacto ni garantía universal.
+- El Gate 2 no puede cerrarse en este estado porque no existe remote ni identificador de ejecución. No se creará ni seleccionará un repositorio remoto por inferencia.
+
+**Estado de apertura**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices, sin cambio.
+- Avance de calificación GA: 0/2 waivers resueltos.
+- Estado de release: `ENGINEERING_RELEASE_CANDIDATE`; `certified_compatibility=false` en los cuatro perfiles.
+
+**Siguiente acción**
+
+Aplicar TDD: cambiar la expectativa ejecutable de AC-089 a nueve métricas sin waivers, demostrar el RED contra el reporte vigente y sólo entonces implementar el muestreador externo.
+
+**Hito de calificación RQ1.1 — Peak-RSS RED→GREEN**
+
+- RED confirmado: 2/2 pruebas AC-089 fallaron porque `benchmark check` todavía aceptaba ocho métricas y el waiver `memory_one_shot_p95`.
+- El checker ahora exige inventario exacto de nueve métricas, `measurement_status=COMPLETE`, 20 muestras por métrica, cero waivers, métodos declarados y peak-RSS positivo/menor que 100 MiB.
+- `sysinfo` 0.39.6 se limita a `xtask`, con features por defecto deshabilitadas y sólo `system` habilitada. El binario `project-ledger` y su perfil offline/single-binary no adquieren esa dependencia.
+- La primera sonda sobre `--version` falló cerrada con cero lecturas: el proceso duraba aproximadamente 24–73 ms y Windows no exponía RSS antes de su salida. No se aceptó cero como resultado.
+- Se seleccionó la operación one-shot real `project-ledger contracts verify`, que valida 46 schemas/92 fixtures. El muestreador externo observa sólo ese PID cada 1 ms, conserva el máximo RSS de cada ejecución y calcula p95 sobre 20 muestras.
+- Medición material Windows x86_64, Rust 1.97.1, release, fechada 2026-08-26: `memory_one_shot_p95=17,855 MiB`, presupuesto `<100 MiB`, PASS. El reporte completo contiene nueve métricas PASS y cero waivers.
+- GREEN focalizado: 2/2 pruebas AC-089 PASS; el fixture legacy con waiver es rechazado por el comando real.
+- `release/acceptance-report.json` promueve exclusivamente AC-089 a PASS. AC-086 continúa `WAIVED`; el estado sigue `ENGINEERING_RELEASE_CANDIDATE` y los cuatro perfiles conservan `certified_compatibility=false`.
+
+**Estado previo al gate integral**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices.
+- Avance de calificación GA: 1/2 waivers resueltos.
+- Falta regenerar SBOM/manifest/checksums desde el grafo y evidencia finales, y ejecutar el gate integral fresco antes del commit de calificación.
+
+**Siguiente acción**
+
+Regenerar la cadena de release, ejecutar el gate integral completo y versionar RQ1 sólo si no aparece drift, fallo de política o regresión.
+
+### 2026-08-26 — Cierre de calificación RQ1 / Gate 1 de 2: peak-RSS
+
+**Resultado materializado**
+
+- El runner externo mide el proceso release real `project-ledger contracts verify` sin shell, con argv literal, muestreo RSS por PID cada 1 ms y 20 máximos one-shot.
+- `memory_one_shot_p95=17,855 MiB` frente al presupuesto `<100 MiB` en Windows x86_64, Rust 1.97.1, release, campaña fechada 2026-08-26.
+- El benchmark contiene nueve métricas PASS, `measurement_status=COMPLETE` y cero waivers. El fixture anterior de ocho métricas con waiver es rechazado.
+- AC-089 cambia de `WAIVED` a `PASS`. AC-086 es el único waiver no crítico restante y sigue bloqueando General Availability.
+- `sysinfo` 0.39.6 se incorpora sólo a `xtask`, con default features deshabilitadas y feature `system`; el árbol locked de `project-ledger-cli` no contiene `sysinfo`.
+- SBOM SPDX 2.3 regenerado con 217 paquetes; release manifest y 13 checksums se regeneraron desde el lock y los artefactos finales.
+
+**Gate integral final fresco**
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: PASS.
+- `cargo test --workspace --all-targets --all-features`: PASS; 222 atributos `#[test]` inventariados, cero fallos.
+- `cargo build --locked --release -p project-ledger-cli`: PASS.
+- `cargo xtask schema check`: PASS.
+- `project-ledger specs verify`: PASS; v0.1 `772ea517`, v0.2 `31cb7cd4`.
+- `project-ledger contracts verify`: PASS; 46 schemas, 92 fixtures y 53 filas de matriz.
+- G-Skills: 11 schemas/22 fixtures PASS; GSP: registry 28, 31 schemas/140 fixtures PASS; Radar: 5 schemas/10 fixtures PASS; Agent Skill: 2 schemas, 7 triggers y 5 policies PASS.
+- `integration compatibility`: PASS local; cuatro perfiles `COMPLETE`, certificación global y por perfil falsa.
+- `cargo xtask benchmark check`: PASS; nueve métricas y cero waivers de benchmark.
+- `cargo xtask release generate --check`, `cargo xtask release check` y `project-ledger release verify`: PASS; 90 AC, 32 PL, 0 secretos, 0 blockers, 0 evidencia ausente, 1 waiver y 0 certificaciones.
+- `cargo deny --offline check`: PASS para advisories, bans, licenses y sources; duplicidades transitivas informativas conocidas de `getrandom`, `r-efi` y `syn`.
+- Replay de 13 SHA-256: PASS. `project-ledger-cli` excluye `sysinfo`. `git diff --check`: PASS.
+
+**Estado y límites de evidencia**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices, sin cambio.
+- Avance de calificación GA: 1/2 waivers resueltos.
+- Estado: `ENGINEERING_RELEASE_CANDIDATE`, no General Availability.
+- Los cuatro perfiles continúan `certified_compatibility=false`; esta calificación no aporta counterpart, bilateral, live-sidecar ni runtime externo.
+- El cierre se versiona mediante el commit de calificación `perf: qualify peak RSS budget`.
+
+**Siguiente paso según el plan**
+
+Iniciar RQ2: configurar o identificar un remote autorizado, ejecutar la matriz GitHub Actions en Windows/Linux/macOS para el commit exacto de calificación y conservar IDs/URLs de jobs. AC-086 sólo podrá pasar si los tres entornos concluyen satisfactoriamente sobre el mismo SHA; hasta entonces el release no es GA.

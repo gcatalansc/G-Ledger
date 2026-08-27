@@ -15,7 +15,7 @@ fn ac_083_ac_088_ac_090_cli_verifies_release_evidence_without_certification_over
         .stdout(predicate::str::contains("acceptance_criteria_count\":90"))
         .stdout(predicate::str::contains("benchmark_scenario_count\":32"))
         .stdout(predicate::str::contains("secret_persistence_count\":0"))
-        .stdout(predicate::str::contains("waived_count\":2"))
+        .stdout(predicate::str::contains("waived_count\":1"))
         .stdout(predicate::str::contains(
             "overall_certified_compatibility\":false",
         ));

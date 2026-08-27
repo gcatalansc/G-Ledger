@@ -3,7 +3,7 @@
   "artifact_inventory": [
     {
       "path": "release/acceptance-report.json",
-      "sha256": "07a8d6e47a9313de0d7bbcedb03c815063689d3d042e7af8739a81a6b50b6123"
+      "sha256": "82415651893da987ff2034424106b81eef3e6dbf71898b38e094a58778fb1d25"
     },
     {
       "path": "release/chaos-report.json",
@@ -55,7 +55,7 @@
     },
     {
       "path": "benchmark/project-ledger-v0.2.0-windows-x86_64.json",
-      "sha256": "0d6e3d3410ebd95fc8f1f23df818289623b145f8cd29daec4acd84d186308861"
+      "sha256": "eaad085a1c521c175f7b5bd8de5d97e1d2fe9625f5a1492882610d1e93798d72"
     },
     {
       "path": "release/package-manifest.json",
@@ -63,7 +63,7 @@
     },
     {
       "path": "release/sbom.spdx.json",
-      "sha256": "a3f7f88ab0e83b15f6be9cb73216ea6f56ff73ded576b80434acae66107ef943"
+      "sha256": "1a1bd64c61f874acf80c2e9cf30ad2bcfcc65f67f56ebab66de567ed8ddb4790"
     }
   ],
   "compatibility_report": "release/compatibility-report.json",

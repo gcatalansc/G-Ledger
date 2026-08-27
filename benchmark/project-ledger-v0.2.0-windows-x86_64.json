@@ -1,6 +1,6 @@
 {
   "profile": "project-ledger-performance-benchmark/0.2.0",
-  "measurement_status": "COMPLETE_WITH_EXPLICIT_WAIVER",
+  "measurement_status": "COMPLETE",
   "environment": {
     "os": "windows",
     "arch": "x86_64",
@@ -8,14 +8,14 @@
     "build_profile": "release",
     "sample_count": 20,
     "event_count": 10000,
-    "measured_at": "2026-08-23T00:00:00Z"
+    "measured_at": "2026-08-26T00:00:00Z"
   },
   "metrics": [
     {
       "name": "cold_cli_startup",
       "unit": "ms",
       "budget": 250.0,
-      "p95": 41.355,
+      "p95": 92.136,
       "samples": 20,
       "passed": true,
       "method": "release binary --version process"
@@ -24,7 +24,7 @@
       "name": "status_resume_warm",
       "unit": "ms",
       "budget": 100.0,
-      "p95": 0.098,
+      "p95": 0.424,
       "samples": 20,
       "passed": true,
       "method": "ResumeBuilder over warm 10k-event projection"
@@ -33,7 +33,7 @@
       "name": "append_command",
       "unit": "ms",
       "budget": 150.0,
-      "p95": 4.318,
+      "p95": 118.408,
       "samples": 20,
       "passed": true,
       "method": "SQLite WAL CommandCommit transaction"
@@ -42,7 +42,7 @@
       "name": "gate_evaluation_simple",
       "unit": "ms",
       "budget": 100.0,
-      "p95": 0.026,
+      "p95": 0.089,
       "samples": 20,
       "passed": true,
       "method": "closed PredicateAst evaluation"
@@ -51,7 +51,7 @@
       "name": "render_10k_events",
       "unit": "ms",
       "budget": 500.0,
-      "p95": 0.07,
+      "p95": 0.3,
       "samples": 20,
       "passed": true,
       "method": "MarkdownRenderer over verified 10k-event stream"
@@ -60,10 +60,19 @@
       "name": "projection_request_warm",
       "unit": "ms",
       "budget": 200.0,
-      "p95": 37.61,
+      "p95": 188.513,
       "samples": 20,
       "passed": true,
       "method": "ProjectStateProjection rebuild of a declared 100-event warm stream"
+    },
+    {
+      "name": "memory_one_shot_p95",
+      "unit": "MiB",
+      "budget": 100.0,
+      "p95": 17.855,
+      "samples": 20,
+      "passed": true,
+      "method": "1 ms sampled resident-set maximum of release project-ledger contracts verify process via sysinfo 0.39.6"
     },
     {
       "name": "idle_cpu",
@@ -84,15 +93,5 @@
       "method": "offline benchmark path exposes no network operation"
     }
   ],
-  "waivers": [
-    {
-      "metric": "memory_one_shot_p95",
-      "reason": "portable peak-RSS instrumentation is not available without adding platform-specific unsafe/runtime dependencies",
-      "non_critical": true,
-      "blocks": [
-        "GENERAL_AVAILABILITY"
-      ],
-      "review_by": "2026-09-23"
-    }
-  ]
+  "waivers": []
 }
