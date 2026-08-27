@@ -1833,3 +1833,28 @@ Calificar `live-sidecar-process-crash` frente a una contraparte GSP identificada
 **Siguiente paso según plan y especificación**
 
 Revisar la evidencia bilateral/runtime restante y delimitar el alcance de conformidad GSP más allá del ensayo de crash antes de plantear su certificación (§35, AC-090). Mantener todos los `certified_compatibility=false`; no modificar otro repositorio ni promover GA automáticamente.
+
+## 2026-08-27 — Inicio del cierre pre-piloto autorizado (0/8)
+
+**Solicitud y acuerdos**
+
+- El usuario autoriza implementar el plan de ocho etapas, antes de usar Ledger con un proyecto nuevo o actual real. Windows primero; Ledger + Codex + GSP exacto; G-Skills/Radar deshabilitados para el piloto y conservados como regresión; contratos v0.2 sin ampliación.
+- Se aplican planificación, diagnóstico causal, TDD y verificación fresca. Ejecución inline; las subskills de ejecución referidas por la skill de planes no están disponibles. No se crean agentes, proyectos de usuario, instalaciones globales ni cambios upstream.
+- Git ya estaba inicializado y limpio en `dea208d294dfddc282b84dcb5a58b9d8d9887b91`. Se conserva el repo privado y se hará commit por etapa. El contador nuevo X/8 no sustituye la historia, pero el antiguo 12/12/15/15 no acredita CLI/paquete operativos completos.
+
+**Etapa 1 — baseline y conciliación**
+
+- Persistido `docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md`, con los ocho cierres, interfaces, pruebas y límites. `docs/PREPILOT_GAP_MATRIX.md` asigna 14 brechas y cubre AC-001…090 / PL-01…32 distinguiendo biblioteca, CLI, runtime, fixtures, paquete y hosted.
+- `release/prepilot-readiness.json` declara `NOT_READY`, 0/8, ninguna prueba real de usuario y cero certificación. El reporte de aceptación histórico no se borra ni se convierte en prueba de preparación operacional.
+- Consulta GitHub fresca: run `33062468586`, SHA `dea208d294dfddc282b84dcb5a58b9d8d9887b91`, completed/success y seis jobs success. RQ4 se concilia a 3/3 para crash/recovery; los anteriores 2/3 quedan como checkpoints históricos pre-commit. README y plan RQ4 aclaran el alcance.
+- Probes CLI no mutantes reproducidos: `record progress --help` devuelve 2 (comando ausente); resume con DB inexistente devuelve 1 (esperado 4), y no crea el archivo. `integration gsp verify-contracts` desde Temp falla porque busca recursos bajo cwd (exit 1).
+- Hallazgos estáticos separados de los probes: siete comandos auxiliares sin handler/reducer, `Command::output()` sin timeout/captura acotada/entorno permitido, sin backup online ni apertura de lectura separada. No se afirma haber reproducido agotamiento de memoria ni pérdida de datos.
+- Hashes v0.1/v0.2 coinciden; `specs verify` y `contracts verify` PASS (46 schemas / 92 fixtures / 53 filas); reporte parseado: 90 AC, 32 PL, ocho etapas y 14 brechas iniciales. `git diff --check` PASS. Gate Rust completo en curso, aún no es evidencia de cierre.
+- Siguiente acción: terminar la verificación de etapa 1, cerrarla con commit, luego completar el núcleo con pruebas RED de comandos auxiliares.
+
+**Etapa 1 cerrada — 1/8, NOT_READY**
+
+- Formato, Clippy workspace/all-targets/all-features con warnings como errores y suite workspace completa concluyeron con exit 0. Los tres tests GSP opt-in y el ENOSPC físico permanecen ignored en esa suite; no se cuentan como nuevos resultados runtime/físicos.
+- Se contrastó el inventario completo de 90 AC / 32 PL con la matriz y se verificaron hashes de autoridad y contratos. PP-01 queda CLOSED; 13 brechas siguen OPEN. No se modificaron contratos, dependencia, runtime o semántica productiva en esta etapa.
+- Commit de etapa: `docs: reconcile prepilot baseline and eight-stage gap matrix`. Las pruebas nuevas de etapa 2 se preparan por separado y no forman parte de este commit.
+- Siguiente paso: RED/GREEN de los comandos auxiliares del núcleo, incluidos replay, referencias, autorización y reconstrucción.

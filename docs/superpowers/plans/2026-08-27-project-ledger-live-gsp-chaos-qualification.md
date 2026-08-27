@@ -10,6 +10,10 @@
 
 **Tech Stack:** Rust 1.97.1, Python 3.12, GSP v0.2.0, frozen `uv.lock`, SQLite/WAL, existing artifact-exchange CLI, GitHub Actions.
 
+## Conciliación posterior al commit — 2026-08-27
+
+RQ4 está cerrado **3/3** para su alcance de crash/recovery. La consulta fresca del run `33062468586` confirma `completed/success` sobre `dea208d294dfddc282b84dcb5a58b9d8d9887b91`; seis jobs success, incluido GSP real `98484355574` y ENOSPC `98484355673`. Los checkpoints 2/3 del documento se conservan como historia pre-commit, no como estado vigente. Esta calificación no acredita la CLI cotidiana ni un paquete portable, y no certifica GSP. El trabajo siguiente lo gobierna el plan pre-piloto de ocho etapas autorizado el 2026-08-27.
+
 ## Global Constraints
 
 - Ledger authority: §32.2/32.3, §35.1–35.7, §45.7–45.8 of `PROJECT_LEDGER_SPEC_v0.2.0.md`.

@@ -2,6 +2,14 @@
 
 Project Ledger es un motor local de continuidad verificable para proyectos desarrollados por personas y agentes.
 
+## Estado operativo actual
+
+**NOT_READY para el primer piloto.** El historial S0–S14 y los reports de release describen componentes y pruebas de ingeniería, no cobertura operacional completa de la CLI ni una distribución ya probada. Se han confirmado comandos cotidianos ausentes, siete comandos auxiliares sin implementar, errores CLI sin códigos diferenciados, procesos de evidencia sin supervisión acotada y recursos dependientes del cwd. El cierre autorizado tiene ocho etapas independientes del contador histórico: [plan pre-piloto](docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md), [matriz de brechas](docs/PREPILOT_GAP_MATRIX.md) e [informe de preparación](release/prepilot-readiness.json).
+
+RQ4 sí quedó cerrado: la CI `33062468586` sobre `dea208d294dfddc282b84dcb5a58b9d8d9887b91` terminó con seis jobs success. Esa evidencia acredita el ensayo de crash/recovery y su regresión, no elimina las brechas operativas siguientes ni certifica GSP.
+
+## Historial de componentes implementados
+
 El repositorio ha materializado S0–S14: preservación, contratos cerrados, JSON canónico, SQLite/WAL append-only, cadena SHA-256 obligatoria, ejecución transaccional de comandos, idempotencia, concurrencia optimista, reconciliación de submissions, inicialización offline, proyección determinista de `ProjectState`, lifecycle, gates/evidencia, continuidad, portabilidad, protocolo genérico de integración, provider/RecordSink G-Skills exactos, bridge GSP exact-contract, perfil de artefacto read-only Project Radar, Agent Skill/Codex gobernada y un gate de hardening/release reproducible. La caché de proyección es descartable y se reconstruye desde el stream canónico ante ausencia, obsolescencia o corrupción.
 
 S5 incorpora runner local sin shell y con allowlist, importación de evidencia con degradación de confianza, los 17 operadores cerrados de `PredicateAst`, `GateEvaluation` inmutable, waivers humanos, claims inicialmente `ASSERTED`, cierre explícito por Phase Engine y revalidación por evidencia, autoridad o snapshot de repositorio. El `CommandProcessor` entrega a los motores exactamente el stream cuya cadena verificó y conserva expected version, idempotencia, matriz cerrada y append atómico.
