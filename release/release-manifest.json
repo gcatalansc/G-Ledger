@@ -7,7 +7,7 @@
     },
     {
       "path": "release/chaos-report.json",
-      "sha256": "1a96d1a63f0c4db9298d0d7c67fb5d804589be77ef8191dff62742adce47e16c"
+      "sha256": "365d8f1926bd25921a854b9c48a7e7af1770d1445b558b61134fc5d71ce4eeeb"
     },
     {
       "path": "release/migrations/v0.1-to-v0.2.json",

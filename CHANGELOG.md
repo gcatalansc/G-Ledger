@@ -61,3 +61,6 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 - Package manifest single-binary, SBOM SPDX 2.3, checksums reproducibles y benchmark release p95 de 20 muestras/10.000 eventos; la calificación posterior mide `memory_one_shot_p95` en 17,855 MiB sobre Windows x86_64/Rust 1.97.1 y cierra AC-089.
 - CLI `release verify` y `cargo xtask release generate|check`/`benchmark run|check`; CI construye el binario release y ejecuta el gate en Windows, Linux y macOS.
 - Gate local reproducible con formato, Clippy estricto, workspace tests, contratos exactos y política de dependencias.
+- Verificación semántica hash-locked del inventario de caos, con contadores separados para waivers, bloqueos General Availability y bloqueos de certificación runtime GSP.
+- Prueba SQLite `SQLITE_FULL` en la conexión real y harness hosted de kernel `ENOSPC(28)` sobre ext4/loopback efímero de 32 MiB; rollback y reapertura preservan cadena/digest/versionado sin llenar el disco del host.
+- Calificación `physical-disk-full` con run/job/SHA hosted exactos: se retira su waiver GA y se conserva el waiver `live-sidecar-process-crash` exclusivamente para certificación runtime GSP.

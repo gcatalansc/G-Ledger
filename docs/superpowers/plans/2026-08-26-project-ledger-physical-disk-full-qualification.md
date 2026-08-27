@@ -100,7 +100,7 @@
 
   The normal workspace suite must compile but skip the physical test. The deterministic capacity test and release semantics must pass.
 
-- [ ] **Step 4: Commit and publish the harness phase**
+- [x] **Step 4: Commit and publish the harness phase**
 
   Commit message: `test: add bounded disk-full chaos gate`
 
@@ -113,11 +113,11 @@
 - Consumes: GitHub run/job conclusion, exact `headSha`, job ID/URL and physical test log.
 - Produces: an immutable evidence locator only if the dedicated job concludes `success` and its log demonstrates OS error 28 plus recovery assertions.
 
-- [ ] **Step 1: Wait for the exact published SHA**
+- [x] **Step 1: Wait for the exact published SHA**
 
   Identify the workflow run by commit SHA; do not reuse earlier runs or infer success from workflow configuration.
 
-- [ ] **Step 2: Inspect the dedicated job and log**
+- [x] **Step 2: Inspect the dedicated job and log**
 
   Require the mount, ENOSPC observation, failed append, rollback and reopened chain-recovery output. Any skipped, neutral, cancelled or failed state retains the waiver.
 
@@ -131,33 +131,36 @@
 - Regenerate: `release/checksums.sha256`
 - Modify: `README.md`
 - Modify: `CHANGELOG.md`
+- Modify: `docs/CONTRACT_SCHEMA_FIXTURE_TEST_MATRIX.md`
 - Modify: `BITACORA_IMPLEMENTACION.md`
 
 **Interfaces:**
 - Consumes: immutable successful hosted run/job/SHA evidence.
 - Produces: `physical-disk-full` as covered with test path, `ENOSPC(28)` and hosted locator; chaos counts 1 total waiver, 0 GA blockers and 1 GSP runtime-certification blocker.
 
-- [ ] **Step 1: Change the executable expectations and verify RED**
+- [x] **Step 1: Change the executable expectations and verify RED**
 
   Expect zero GA blockers and one remaining GSP-specific waiver before modifying the report; run library and CLI tests to observe the current GA count of 1.
 
-- [ ] **Step 2: Update only the observed chaos evidence**
+- [x] **Step 2: Update only the observed chaos evidence**
 
   Move `physical-disk-full` from `waived` to `covered`; retain `live-sidecar-process-crash` unchanged and retain every compatibility flag as false.
 
-- [ ] **Step 3: Regenerate the evidence chain and verify GREEN**
+- [x] **Step 3: Regenerate the evidence chain and verify GREEN**
 
   Run release generation, focused release/CLI tests and checksum replay.
 
-- [ ] **Step 4: Execute the complete fresh gate**
+- [x] **Step 4: Execute the complete fresh gate**
 
   Run format, strict Clippy, all workspace tests/all targets/all features, locked release build, schema/spec/contract/integration/benchmark/release gates, dependency policy, checksum replay, diff check and clean-status inspection.
 
-- [ ] **Step 5: Commit, push and require final hosted success**
+- [x] **Step 5: Prepare the evidence-qualified closing snapshot**
 
-  Commit message: `chore: qualify physical disk-full recovery`
+  Local closing gate: 228 tests passed, 0 failed, 1 physical test intentionally ignored locally; all release/contract/dependency gates and 13 checksums passed. The physical test passed separately in hosted run `33035586838` on source SHA `7464e2e3ff17fa3c5bdc58b198ae8b01f8ab4ae8`.
 
-  Confirm the final workflow, including the physical job, passes on the exact closing SHA before reporting the phase complete.
+  Commit message: `chore: qualify physical disk-full recovery`.
+
+**Post-commit delivery gate:** Push the closing snapshot and confirm its workflow, including the physical job, passes on the exact closing SHA before reporting the phase complete. This read-only final observation is reported in the delivery message; the committed evidence above retains the already-successful immutable source run rather than claiming a future result or creating a self-referential commit.
 
 ## Completion Evidence Required
 

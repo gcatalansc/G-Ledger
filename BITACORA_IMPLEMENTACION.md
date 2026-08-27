@@ -1667,3 +1667,63 @@ Escribir expectativas RED que obliguen al verifier y al CLI a exponer dos waiver
 - `cargo deny --offline check`: PASS; duplicidades transitivas conocidas informativas. Replay SHA-256 13/13 y `git diff --check`: PASS.
 - El remote se revalidó como `https://github.com/gcatalansc/G-Ledger.git`, repositorio `PRIVATE`. No hay cambios ajenos en el worktree.
 - El harness se versionará como `test: add bounded disk-full chaos gate`; después se publicará ese SHA exacto. `physical-disk-full` sigue waived hasta observar la ejecución física hosted.
+
+**Publicación del harness y espera evidencial**
+
+- Commit de preparación: `7464e2e3ff17fa3c5bdc58b198ae8b01f8ab4ae8` (`test: add bounded disk-full chaos gate`). Push fast-forward confirmado; `origin/main` coincide con ese SHA.
+- Run hosted iniciado: `33035586838`, `https://github.com/gcatalansc/G-Ledger/actions/runs/33035586838`, con `headSha` exacto.
+- Job físico: `98397460929`; Windows: `98397460944`; Ubuntu: `98397460955`; macOS: `98397460930`; dependency-policy: `98397460762`.
+- La ejecución está en curso. No hay todavía conclusión física positiva ni cambio del waiver; el siguiente paso es inspeccionar su log y los resultados de la matriz.
+
+**Evidencia física observada y RED de cierre**
+
+- El job `98397460929` concluyó `success` en 55 s, incluyendo el desmontaje y cleanup; el SHA fuente es `7464e2e3ff17fa3c5bdc58b198ae8b01f8ab4ae8`.
+- Log físico leído mediante el endpoint de logs del job: a las `2026-08-27T03:11:25Z`, `findmnt` mostró `/dev/loop0`, `ext4`, tamaño utilizable `26M` y `25.3M` disponibles sobre la imagen fija de 32 MiB.
+- A las `2026-08-27T03:11:54Z`, el filler sincronizado recibió `ENOSPC(28)` después de 26.214.400 bytes. El append real del store falló cerrado con `database or disk is full`.
+- Rollback en el mismo proceso: versión/evento/comando/resultado `1`, cadena válida, digest previo preservado y resultado del comando fallido ausente.
+- Reapertura: `quick_check=ok`, WAL y cadena versión/conteo `1/1`; el test físico terminó `1 passed; 0 failed; 0 ignored`.
+- La evidencia es kernel ENOSPC de Linux/ext4 en loopback efímero, no un mock, no una cuota SQLite y no una certificación de dispositivos/OS universales.
+- RED de cierre confirmado antes de editar el chaos report: biblioteca y CLI devuelven exit 101 porque observan 2 waivers de caos frente a la expectativa nueva de 1; el JSON conserva todavía 1 bloqueo GA.
+- La matriz general hosted continúa en curso. Se mantiene el reporte sin cambios hasta que el run agregado termine satisfactoriamente.
+
+**Aceptación hosted completa y actualización evidencial**
+
+- Run `33035586838`: `completed/success`, SHA `7464e2e3ff17fa3c5bdc58b198ae8b01f8ab4ae8`.
+- Los cinco jobs concluyeron `success`: dependency-policy `98397460762`, físico `98397460929`, macOS `98397460930`, Windows `98397460944` y Ubuntu `98397460955`; no hubo jobs missing/skipped/neutral.
+- El job Windows terminó en 22m15s; la demora fue de compilación/gates, no un fallo de aceptación.
+- Entorno físico confirmado en log: Ubuntu 24.04.4 LTS, imagen `ubuntu-24.04` versión `20260823.283.1`, Rust 1.97.1, ext4/loopback con imagen de 33.554.432 bytes y filler ENOSPC observado de 26.214.400 bytes.
+- Sólo después de ese cierre se movió `physical-disk-full` de `waived` a `covered`, con test path, `ENOSPC(28)` y locator que conserva job/run/SHA/entorno/capacidad.
+- `live-sidecar-process-crash` permanece sin cambios y bloquea únicamente `GSP_RUNTIME_CERTIFICATION`. `release_status` y todos los flags de certificación permanecen intactos.
+- README y matriz contractual fueron reconciliados: ya no describen AC-086 como waived y distinguen calificación de caos, promoción GA y certificación externa.
+- Siguiente acción: regenerar manifest/checksums, demostrar GREEN de los dos consumidores y ejecutar el gate integral de cierre.
+
+**GREEN evidencial RQ3**
+
+- `cargo xtask release generate --root .` regeneró la cadena de artefactos; sólo cambian los digests ligados al chaos report y al manifest.
+- Biblioteca release: 9/9 tests PASS, incluyendo rechazo de drift, escenario desconocido, evidencia ausente y remoción del hash lock.
+- CLI release: PASS. Resultado observado: 90 AC, 32 PL, 0 waivers de aceptación, 1 waiver de caos, 0 bloqueos GA de caos, 1 bloqueo GSP runtime, 0 secretos y 0 certificaciones.
+- El avance evidencial del escenario físico alcanza 1/1; falta el gate integral y el commit de cierre antes de entregar la fase.
+
+### 2026-08-26 — Cierre local de calificación RQ3 / physical disk-full
+
+**Gate integral final fresco — PASS**
+
+- Formato, `cargo fetch --locked`, Clippy workspace/all-targets/all-features con warnings como errores y build release locked: PASS.
+- Suite workspace completa: 228 tests PASS, 0 FAIL y 1 test físico ignorado intencionadamente en el equipo local. Ese escenario fue ejecutado realmente en el job hosted `98397460929`, no se contabiliza el skip como evidencia física.
+- Schemas, specs preservadas, contratos, los cuatro verificadores de integración, compatibility, benchmark, generación reproducible, release check y release verify: PASS.
+- `cargo deny --offline check`: advisories, bans, licenses y sources PASS; duplicidades transitivas conocidas informativas.
+- Replay SHA-256: 13/13 PASS. `git diff --check`: PASS. El cierre sólo modifica evidencia, expectativas y documentación; no cambia el motor transaccional ni introduce dependencias.
+- Resultado de release: 90 AC, 32 PL, 0 blockers de aceptación, 0 evidencia ausente, 0 waivers de aceptación, 1 waiver de caos, 0 bloqueos GA de caos, 1 bloqueo GSP runtime, 0 secretos y 0 certificaciones.
+
+**Estado y publicación de cierre**
+
+- Avance de implementación: 12/12 macrofases y 15/15 slices.
+- Avance de calificación AC-086/AC-089: 2/2.
+- Avance evidencial `physical-disk-full`: 1/1, sustentado en el run `33035586838` y SHA exacto `7464e2e3ff17fa3c5bdc58b198ae8b01f8ab4ae8`.
+- Estado de release: `ENGINEERING_RELEASE_CANDIDATE`. Cero bloqueos GA de caos no constituye una promoción automática a General Availability; los cuatro perfiles conservan `certified_compatibility=false`.
+- Este snapshot queda preparado para el commit `chore: qualify physical disk-full recovery`. La entrega requiere publicar el commit y observar los cinco jobs del workflow final en `success` sobre ese SHA exacto; ese resultado futuro no se da por aprobado en esta bitácora.
+- La comprobación post-commit será de sólo lectura y se incluirá en el mensaje de entrega, conservando aquí la evidencia fuente inmutable ya observada.
+
+**Siguiente paso según la especificación**
+
+Calificar `live-sidecar-process-crash` frente a una contraparte GSP identificada por versión/SHA y con evidencia bilateral/runtime live. Conservar el waiver y `certified_compatibility=false` hasta observar crash, recuperación y reconciliación reales; no iniciar esa fase dentro del cierre de RQ3.
