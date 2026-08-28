@@ -47,6 +47,7 @@
     "full_workspace_and_real_gsp_repeated": false
   },
   "prepilot_readiness": "NOT_READY",
+  "local_handoff_evidence": "release/prepilot-local-handoff.json",
   "real_gsp_opt_in_tests": {
     "passed": 6,
     "session": "56539",
@@ -55,6 +56,7 @@
     "probe_origin": "RQ4 test-only instrumentation; actual pinned compiler"
   },
   "hosted_ci": {
+    "management_status": "DEFERRED_BY_USER",
     "run_id": 33137113781,
     "last_checked_attempt": 3,
     "checked_at": "2026-08-28T03:45:01Z",

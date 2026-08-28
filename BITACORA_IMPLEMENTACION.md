@@ -2088,3 +2088,25 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Control documental b39004 exit 0: JSON, intento 3/seis jobs sin pasos, 7/8, fechas históricas intactas y diff limitado a cuatro documentos. Se corrigió sólo la comprobación ad hoc de fechas: ConvertFrom-Json devuelve DateTime y la comparación inicial con texto fallaba; tipo, bytes y diff confirmaron que ningún timestamp histórico había cambiado. Diagnóstico con `systematic-debugging`, sin parche de código del producto.
 
 **Siguiente paso necesario:** resolver la restricción de cuenta que GitHub sigue notificando y, una vez habilitadas las ejecuciones, verificar CI exact-SHA y artefacto alojado antes de cerrar 8/8. No repetir intentos automáticamente bajo el mismo bloqueo.
+
+## 2026-08-27 — GitHub aplazado; entrega local de etapa 8 en curso, 7/8
+
+- El usuario indicó «Dejemos pendiente github, avanza con lo siguiente del plan». Se aplazan consultas, reintentos y pushes; la evidencia del intento 3 se conserva como histórica y no se vuelve a inspeccionar en este turno. No se dispensan los criterios de cierre 8/8.
+- La revisión del plan y la matriz confirma implementación local completa y sólo PP-14 abierto. Se separan en la checklist los controles locales ya verificados de la CI pendiente, sin atribuir al PASS local cobertura Linux/macOS/ENOSPC nueva.
+- Continuación dentro de etapa 8: entrega local identificada, guía operativa probada en datos descartables, carpeta con ZIP/evidencia/checksums y registro final. Se usará el candidato limpio existente sin cambiar su binario ni recursos. No se agrega fase 9, se habilitan integraciones excluidas ni se interviene un proyecto real.
+- `writing-plans` guía la separación del aplazamiento y la entrega; `verification-before-completion` exige ejecutar la guía/validar copias antes de declarar la entrega local comprobada. Trabajo inline, sin subagentes.
+
+**Siguiente paso local:** preparar y ejecutar la guía desde el ZIP, empaquetar la evidencia local y cerrar este checkpoint documental; GitHub queda fuera de la actividad hasta nueva instrucción del usuario.
+
+- Guía `docs/PREPILOT_LOCAL_HANDOFF.md` creada y ejecutada desde su copia en la carpeta de entrega, con ZIP de hash/fuente conocidos. 67950 exit 0, 2026-08-28T03:57:29Z: cuatro bloques, 19 invocaciones, v3, checkpoint `checkpoint:49cfa512-453c-7aa9-b4f9-6cbc3b70285e`; digest `sha256:ba63c0af8361920f212e6ded58ba19a662e49d1bb7b94be7f9d3277b292de51a` preservado por reconciliación tras restore. Replay DUPLICATE_REPLAY, rechazo 2 al sobrescribir destino, audit sin findings y SHA incorrecto rechazado antes de extraer.
+- Evidencia local nueva separada de los gates históricos; no se volvió a compilar Ledger ni a ejecutar GSP/ENOSPC o CI. Procesos de guía sin PATH, sólo SystemRoot/TEMP/TMP, sin SQLite directo o autoridad humana atribuida. Resultado sanitizado en `release/prepilot-local-handoff.json`; pendiente validar el dossier completo y guardar commit local.
+
+## 2026-08-28 — Entrega local preparada; GitHub continúa aplazado, 7/8
+
+- 026894 exit 0, 2026-08-28T04:00:56Z: carpeta nueva `dist/entrega-local-0.2.0-f4b34e5/`, 17 archivos seleccionados explícitamente (ZIP, guía y 15 documentos/informes), todas las copias contrastadas por SHA-256 con sus fuentes. No se empaquetan los proyectos de ensayo ni los respaldos privados generados. El ZIP conserva su hash original; los documentos externos no alteran su catálogo incorporado.
+- Guía entregada en LEEME.md, con cuatro bloques ya ejecutados desde esa copia; resultados en `release/prepilot-local-handoff.json`. README, matriz, plan y readiness distinguen la entrega local de GitHub DEFERRED_BY_USER. El aplazamiento no se trata como waiver, CI aprobada ni una novena fase.
+- Se prepara commit de entrega local con revisión final de hashes/diff y sin push. No se ha consultado GitHub durante este turno. La evidencia del último intento conserva su fecha histórica. Código, contratos, dependencias y runtime no cambiaron; no corresponde atribuir a este cambio documental una nueva regresión del workspace.
+
+- Integridad final 5f8556 exit 0: 17/17 entradas SHA-256, 18 archivos incluyendo el manifiesto, sin extras ni copias desactualizadas, documentos de readiness coherentes con 7/8 y GitHub aplazado, implementación/recursos del candidato sin cambios y diff sin errores. Entrega local comprobada; este registro no afirma cierre de etapa 8. Se conservará el mismo control después de incorporar esta anotación a las copias finales.
+
+**Siguiente paso del plan:** no quedan tareas locales de implementación; revisar o repetir la guía descartable si se desea. Cuando el usuario retome GitHub, verificar CI exact-SHA/artefacto alojado para cerrar 8/8 y después elegir el proyecto real del piloto. No hay reintentos ni nuevas fases automáticas.

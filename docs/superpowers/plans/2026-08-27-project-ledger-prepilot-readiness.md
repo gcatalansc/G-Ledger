@@ -98,13 +98,29 @@
 
 - [x] RED/GREEN: recursos resueltos desde instalación o ruta explícita, no cwd; núcleo ejecutable sin toolchain/checkout/Python/red y requisitos GSP separados.
 - [x] Probar el ZIP fuera del repo, rutas con espacios/no ASCII, permisos, núcleo offline y recorridos completos. ZIP limpio 52201, SHA y evidencia en `docs/PREPILOT_WINDOWS_DELIVERY.md`.
-- [ ] Ejecutar formato, Clippy estricto, tests workspace, build locked, schemas/specs/integraciones, benchmark, dependencias, checksums, pruebas de fallos afectadas y CI exact-SHA.
+- [x] Gate local: formato, Clippy estricto, tests workspace, build locked, schemas/specs/integraciones, benchmark, dependencias, checksums y fallos Windows/GSP afectados. Evidencia 70512, 64399, 52201 y 56539; no sustituye ENOSPC físico ni CI del candidato en Linux/macOS.
+- [ ] CI exact-SHA con seis jobs y artefacto alojado: **aplazada por instrucción del usuario**, no dispensada ni aprobada.
 - [ ] Cerrar sólo sin brechas conocidas en alcance. Registrar implementación verificada, artefacto, CI y limitaciones; commit final documental conserva evidencia ya observada y no promete CI futura.
+
+### Entrega local mientras GitHub queda aplazado
+
+Decisión del usuario del 2026-08-27: «Dejemos pendiente github, avanza con lo siguiente del plan». Se suspende toda consulta, reintento y push a GitHub. El trabajo continúa con la documentación/entrega local prevista en esta misma etapa, no con una fase 9 ni un piloto real. La CI sigue siendo requisito de cierre 8/8; el aplazamiento no elimina PP-14.
+
+**Archivos y responsabilidad:** `docs/PREPILOT_LOCAL_HANDOFF.md` contendrá la guía operativa descartable; `release/prepilot-local-handoff.json`, el resultado verificable de esa guía. La carpeta nueva `dist/entrega-local-0.2.0-f4b34e5/` contendrá el ZIP existente, la guía, los informes y la evidencia documental seleccionada explícitamente, con hashes. `release/prepilot-readiness.json`, README, matriz y bitácora registrarán el aplazamiento sin alterar contratos, binario ni recursos incorporados.
+
+**Interfaces:** consumir el ZIP limpio fuente `f4b34e591b13199d040ecf7d41a071e21bf63d37`, SHA-256 `0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c`. Producir una entrega local para revisión/ensayo descartable, nunca READY_FOR_CONTROLLED_PILOT mientras la CI quede pendiente.
+
+- [x] Preparar guía PowerShell con selección explícita de un ZIP, hash antes de extraer, destino temporal nuevo con acentos y comandos CLI reales de init, resume, nota, checkpoint, reconciliación, render, backup, restore y audit. Sin `--as-human`, lectura directa de SQLite, edición de Markdown generado, instalación global o descargas.
+- [x] Ejecutar los bloques exactos de la guía desde fuera del checkout; exigir un checkpoint reconciliado idéntico, restore con estado/idempotencia conservados y replay sin duplicación. Sólo datos descartables nuevos; detenerse ante cualquier código inesperado. 67950 exit 0: 19 invocaciones, v3, resultado preservado, replay sin duplicación y audit sin findings; SHA incorrecto rechazado antes de extraer.
+- [x] Preparar la carpeta local mediante copias explícitas sin sobrescribir instalaciones ajenas; verificar hashes de todos sus archivos y el ZIP, y repetir la guía contra esa copia. 026894 exit 0: 17 archivos explícitos, copias íntegras, ZIP original y guía sin cambios; ensayo de la copia en 67950. Resultados históricos y único pendiente alojado separados.
+- [x] Conciliar informes/plan/bitácora y preparar el commit de entrega local sujeto a la validación final de checksums/diff. No es commit de cierre 8/8; no hacer push durante el aplazamiento.
 
 ## Seguimiento
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **7/8, NOT_READY**. Stages 1–7 verificadas; etapa 8 implementada y verificada localmente, incluido ZIP limpio. Sólo PP-14 sigue abierto: GitHub bloqueó los seis jobs de CI 33137113781 antes de ejecutar pasos por pagos fallidos o límite de gasto. Siguiente paso: el titular habilita Actions; reejecutar la CI del candidato f4b34e591b13199d040ecf7d41a071e21bf63d37, resolver cualquier fallo real y cerrar etapa 8 con commit documental. Sin cambios de facturación, visibilidad, contratos o proyecto real. No se declara apto para piloto todavía.
+Estado de ejecución: **7/8, NOT_READY; GitHub aplazado por el usuario**. Stages 1–7 verificadas; etapa 8 implementada y verificada localmente, incluido ZIP limpio. Sólo PP-14 sigue abierto. Se continúa con la entrega local descrita arriba, sin consultas/reintentos/pushes a GitHub. Cuando el usuario lo retome, verificar CI del candidato exacto y su artefacto antes de cerrar 8/8. Sin cambios de facturación, visibilidad, contratos o proyecto real. No se declara apto para piloto todavía.
 
 Reanudación 2026-08-27 23:21 America/Santiago: el único reintento (attempt 2) confirmó la misma restricción en los seis jobs, todos sin pasos. La verificación local del ZIP se repitió en 58849, exit 0, conservando el SHA del candidato y dos recorridos completos aprobados. No hay cierre adicional: esperar confirmación del titular de que Actions está habilitado antes de otro reintento; no convertir el PASS local en CI alojada aprobada.
+
+Actualización 2026-08-28: entrega local preparada y ensayo de su guía verificado; no quedan pasos locales de implementación en este plan. Se conserva la CI como pendiente aplazado y no se agrega trabajo para sustituirla. El siguiente criterio de cierre 8/8 será verificar GitHub cuando el usuario lo retome; hasta entonces la carpeta local sirve para revisión/ensayo descartable, no piloto real.

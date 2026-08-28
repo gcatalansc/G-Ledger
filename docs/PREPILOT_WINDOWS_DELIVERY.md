@@ -1,6 +1,6 @@
 # Etapa 8 — entrega Windows y preparación para piloto
 
-Estado: implementación y verificación local terminadas; **7/8, NOT_READY por CI alojada bloqueada**. El ZIP es un candidato limpio comprobado localmente, no una entrega apta para piloto hasta cerrar la CI pendiente.
+Estado: implementación y verificación local terminadas; **7/8, NOT_READY; GitHub aplazado por el usuario**. El ZIP es un candidato limpio comprobado localmente, no una entrega apta para piloto hasta cerrar la CI pendiente. La [entrega local y guía descartable](PREPILOT_LOCAL_HANDOFF.md) permite avanzar en la revisión del paquete sin consultar GitHub ni cambiar sus criterios de cierre.
 
 ## Distribución y recursos
 
@@ -53,4 +53,10 @@ Los harnesses de ensayo se compilan fuera del paquete; invocan el ejecutable ext
 
 Reintento expresamente solicitado por el usuario («Prueba ahora»): [intento 3](https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781/attempts/3) del mismo candidato, observado a las 2026-08-28T03:45:01Z. Volvió a terminar failure antes de ejecutar pasos; las seis anotaciones coinciden en la restricción de pagos/límite de gasto. Jobs ENOSPC 98747749850, Ubuntu 98747749914, Windows 98747749918, dependencias 98747749919, macOS 98747749948 y GSP 98747750004. Sigue 7/8, NOT_READY; no hubo pruebas del código ni artefacto alojado nuevos. Las verificaciones locales anteriores conservan sus fechas, no se repitieron en este intento.
 
-El titular debe resolver la restricción de cuenta en Billing & plans y habilitar GitHub Actions. Entonces reejecutar la CI del candidato, observar sus seis jobs y resolver cualquier fallo real antes de cerrar 8/8 con un commit documental. La salida será apto para piloto controlado sólo después de ese cierre. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.
+El usuario decidió después dejar GitHub pendiente. Se suspenden consultas, reintentos y pushes hasta nueva instrucción; no se exige resolver la cuenta para revisar esta entrega local. Cuando se retome GitHub, habrá que observar los seis jobs del candidato y su artefacto antes del cierre 8/8. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.
+
+## Entrega local con CI aplazada
+
+Guía ejecutada en 67950 exit 0, 2026-08-28T03:57:29Z, a partir de la copia del ZIP en `dist/entrega-local-0.2.0-f4b34e5/`. Se ejecutaron sus cuatro bloques exactos: 19 invocaciones CLI, recursos/specs/contratos/release, init/nota/checkpoint/reconcile/resume, render/verify, backup/restore/replay y audit. Estado final v3, resultado durable idéntico al reconciliar la restauración, DUPLICATE_REPLAY, destino restore existente rechazado 2, cero findings. Hash incorrecto rechazado antes de extraer. Procesos sin PATH, extracción temporal externa con espacios/acentos; no SQLite directo, `--as-human` ni proyecto real.
+
+Se conserva el ZIP original byte por byte; los informes de entrega son externos al catálogo incorporado al binario. La carpeta local reúne ZIP, guía, informes, plan y matrices identificados mediante checksums. El registro sanitizado está en `release/prepilot-local-handoff.json`. Este ensayo nuevo no sustituye el gate completo anterior ni acredita GSP/ENOSPC o CI nuevos. No añade una etapa al plan ni convierte 7/8 en 8/8.

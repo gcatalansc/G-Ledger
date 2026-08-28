@@ -10,6 +10,13 @@
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
+  "github_deferral": {
+    "status": "DEFERRED_BY_USER",
+    "decision": "Dejemos pendiente github, avanza con lo siguiente del plan",
+    "automatic_queries_retries_and_pushes": false,
+    "waives_stage_8_ci_requirement": false,
+    "continuation": "Local delivery documentation and disposable rehearsal within stage 8"
+  },
   "open_gaps": ["PP-14"],
   "stage_evidence": [{
     "stage": 1,
@@ -64,7 +71,7 @@
   },
   "stage_8": {
     "implementation_status": "COMPLETE",
-    "verification_status": "LOCAL_PASS_HOSTED_BLOCKED",
+    "verification_status": "LOCAL_PASS_HOSTED_DEFERRED",
     "evidence": "docs/PREPILOT_WINDOWS_DELIVERY.md",
     "aggregate_local_gate": "70512 exit 0",
     "windows_zip_verification": "52201 exit 0; extracted Unicode path; isolated core environment; exactly two full-flow harness cases passed",
@@ -81,6 +88,13 @@
     "zip_path": "dist/project-ledger-0.2.0-windows-x86_64-clean.zip",
     "zip_sha256": "0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c",
     "reviewed_resource_count": 448,
+    "local_handoff": {
+      "status": "LOCAL_REHEARSAL_VERIFIED",
+      "evidence": "release/prepilot-local-handoff.json",
+      "guide": "docs/PREPILOT_LOCAL_HANDOFF.md",
+      "delivery_directory": "dist/entrega-local-0.2.0-f4b34e5",
+      "scope": "disposable local review only; not a real-project pilot or hosted CI waiver"
+    },
     "hosted_ci": {
       "run_id": 33137113781,
       "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781",

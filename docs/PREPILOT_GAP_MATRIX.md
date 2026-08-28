@@ -31,6 +31,8 @@ Estado de ejecución: **PP-01…PP-13 CLOSED; PP-14 OPEN por CI no ejecutada; 7/
 
 Revalidación 2026-08-27 23:21 America/Santiago: intento 2 de esa CI, mismo bloqueo confirmado en seis jobs sin pasos; ZIP limpio repetido en 58849 PASS. PP-14 no cambia de estado. El detalle verificable está en la entrega Windows y en `release/prepilot-readiness.json`.
 
+Decisión posterior del usuario: GitHub queda **aplazado**, sin consultas/reintentos/pushes. PP-14 continúa OPEN; no se dispensa la CI. La entrega local y su ensayo 67950 (19 invocaciones, v3, restore/replay íntegros) están en `docs/PREPILOT_LOCAL_HANDOFF.md` y `release/prepilot-local-handoff.json`. No hay nuevos requisitos ni piloto real.
+
 ## Cobertura completa de aceptación (sin añadir certificación al alcance)
 
 | Criterios | Responsable / prueba requerida | Evidencia histórica conservada |
