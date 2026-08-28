@@ -2070,3 +2070,11 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - No se cambiaron pagos, límites, visibilidad, runners o contratos, ni se intervino un proyecto real. Se conserva un nuevo checkpoint documental local; no se envía otro push que dispare CI bajo la misma restricción conocida. No es un commit de cierre de etapa 8.
 
 **Siguiente paso necesario:** el titular resuelve el bloqueo de GitHub Actions y confirma que está habilitado. Después, repetir CI del candidato, verificar sus seis jobs y el artefacto alojado, resolver fallos reales si aparecen y cerrar 8/8 antes del piloto.
+
+## 2026-08-27 — Consulta de continuidad sin nueva ejecución, 7/8
+
+- Nueva instrucción: «Procede con el siguiente paso profesionalmente». Consulta de sólo lectura a GitHub a las 2026-08-28T03:24:56Z: autenticación válida, ninguna CI más reciente en main y run `33137113781` todavía en attempt 2, SHA `f4b34e591b13199d040ecf7d41a071e21bf63d37`, failure. La anotación Windows conserva el motivo de pagos fallidos/límite de gasto; esto describe aquel intento y no demuestra por sí solo el estado actual de facturación.
+- No se ha recibido confirmación de que el titular resolvió la restricción. Conforme al punto de continuación registrado, no se lanza un tercer intento ni un push, no se alteran ajustes de cuenta y no se repiten pruebas locales ya verificadas para presentarlas como avance nuevo. El estado permanece 7/8, NOT_READY, PP-14 abierto.
+- Sólo se actualiza esta bitácora en un checkpoint documental local, sin cambios de código, recursos del ZIP o evidencia histórica. La inspección sigue `gh-fix-ci` y el cierre continúa sujeto a `verification-before-completion`.
+
+**Siguiente paso necesario:** confirmar con el titular si ya resolvió la restricción de GitHub Actions en Billing & plans. Si está resuelta, reanudar la CI del candidato y verificar los seis jobs y el artefacto antes del cierre 8/8; de lo contrario, esa gestión de cuenta sigue pendiente y no corresponde iniciar el piloto.
