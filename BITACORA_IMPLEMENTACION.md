@@ -1906,3 +1906,38 @@ Revisar la evidencia bilateral/runtime restante y delimitar el alcance de confor
 **Siguiente paso según el plan**
 
 Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selección explícita de proyecto, consultas sin crear/migrar bases y reconciliación por clave de idempotencia. Mantener `NOT_READY` hasta verificar las ocho etapas; no usar todavía un proyecto real.
+
+## 2026-08-27 — Autorización para continuar hasta el cierre del plan
+
+- El usuario solicita avanzar hasta terminar. Se retoma desde `d024f2a`, árbol limpio, 2/8 verificado. Se ejecutarán las etapas 3–8 en orden con pruebas y commit por cierre, sin pedir una autorización redundante entre etapas.
+- Se preservan alcance, contratos y proyectos reales fuera de intervención. `NOT_READY` se mantiene hasta demostrar todos los criterios, incluida CI exact-SHA y ZIP extraído. Una limitación externa real se informará sin simular un cierre.
+- Skills aplicadas: planificación para el seguimiento existente, TDD/diagnóstico para reproducciones y correcciones, verificación antes de cada cierre. Ejecución inline.
+
+**Etapa 3 — checkpoint de CLI (continúa abierta, 2/8)**
+
+- RED observado: cuatro pruebas de procesos fallaron por ausencia de record/pause/status y código 1 en lugar de 4. Tras implementar selección explícita, política recording/humano, reconciliación scoped y apertura SQLite sin migraciones, las cuatro pasan.
+- `open_read_only` y `open_existing` validan la versión y digests de migraciones; no crean ni migran DB. Reconciliación consulta el scope completo y valida comando/resultado; una clave no encontrada devuelve OUTCOME_UNKNOWN (12), no invita a duplicar.
+- Se amplió la CLI por familias con payloads JSON/YAML y argumentos cotidianos. Ocho pruebas de procesos pasaron, incluidas 26 operaciones con replay y consultas, importación rebajada a OBSERVED, rechazo de gate con código 6, notas/progreso y flags cotidianos. Las fixtures son entradas, no prueba de compilador externo.
+- Se identificaron y corrigieron dos errores de preparación de tests: el WorkRecord referenciaba un claim no creado y tenía timestamp diferente al envelope; Session también requería el timestamp real del comando. Se conservó el rechazo productivo y se corrigieron los inputs, no los invariantes.
+- En curso: pruebas adicionales de acciones posicionales, enlace/desenlace, YAML, repositorio existente y refresh/supersede de autoridad. No commit ni cierre de etapa 3 todavía. Pendientes: completar interfaz/errores restantes, catálogo y regresión integral; después continuar etapas 4–8 sin nueva autorización.
+
+**Etapa 3 — checkpoint ampliado antes de cierre**
+
+- Pasaron 14 pruebas de procesos, más el caso nuevo de `evidence run` con política explícita, parser no cualificado y replay sin nueva ejecución. `docs/CLI_OPERATIONS.md` documenta los comandos reales, selección, scopes y límites. Se conserva `NOT_READY`, 2/8.
+- RED/GREEN adicionales: colisión de command_id entre actores con la misma clave corregida incorporando actor/trust; importación YAML de Decision confundía su campo descriptivo `decision` con un payload wrapper, ahora distingue objetos; rutas locales de autoridad se convierten a file URI y el refresh no descarga ni ejecuta nada.
+- Supersesión de autoridad/decisión exige que el reemplazo ya esté registrado/aceptado, según el núcleo. La CLI no añade silenciosamente otro comando. El test registra primero el reemplazo y conserva los archivos del repositorio existente intactos.
+- Se unificaron las funciones CLI a CliError. Consultas heredadas GSP/Radar/provider abren read-only; sink y enlaces abren existing sin migrar. Contratos y wire schemas no cambiaron. Se regeneraron SBOM/manifiesto/checksums por las nuevas aristas de dependencias internas.
+- Clippy estricto pasó. Suite workspace completa en curso, sesión local 91604; todavía no se cuenta como PASS. No lanzar otra compilación de ese ejecutable mientras termine: Windows produjo LNK1104 cuando dos ejecuciones previas coincidieron; no se mataron procesos ajenos.
+- Se añadieron dos tests de revisión final todavía pendientes de ejecutar: auditoría de command_results manipulados y aislamiento de scopes entre actores en checkpoint histórico. Confirmar RED y corregir antes del commit si fallan. Después repetir formato/Clippy/tests/build/spec/contratos/release/dependencias/checksums y actualizar matriz/plan a 3/8 sólo cuando proceda.
+- Investigación read-only para etapa 4: documentación primaria de process-wrap (sucesor de command-group), Job Objects Windows y grupos POSIX para limpiar descendientes propios. No se incorporó aún esa dependencia ni se implementaron timeout/cancelación/entorno acotado. La ejecución genérica actual sigue bajo las limitaciones pendientes de PP-07/08.
+
+## 2026-08-27 — Etapa 3 verificada: CLI operativa, 3/8
+
+- RED final confirmado: audit aceptaba resultados manipulados (0 en lugar de 15); checkpoints de dos actores con igual clave colisionaban en command_id (11). GREEN: auditoría utiliza recovery_report, IDs nuevos incluyen actor/trust y replay recupera el ID histórico. Pasan las 17 pruebas de procesos CLI.
+- Gate fresco completo, sesión 16727, exit 0: formato, Clippy estricto, tests workspace/all-targets/all-features, build workspace locked, schema check (46 schemas, 92 fixtures, 53 filas), specs/contratos, release check y cargo deny offline. SHA-256 13/13 y git diff check correctos. Las duplicidades transitivas siguen siendo warnings permitidos; no hubo fallos.
+- Las cuatro pruebas opt-in no se ejecutaron. No se atribuye a esta etapa prueba nueva de runtime GSP, ENOSPC físico, Codex completo, ZIP o CI hosted. Inventario release/benchmark histórico no equivale a readiness.
+- Plan/matriz/informe conciliados a 3/8, NOT_READY. PP-03/04 cerrados; componentes CLI de PP-05/06 verificados, resto en sus etapas. Evidencia y límites: `docs/PREPILOT_CLI_COVERAGE.md`.
+- Se prepararon aparte pruebas RED de entorno heredado/ruta relativa/importación sensible para etapa 4; no forman parte del commit de etapa 3 ni del PASS anterior.
+- Commit de cierre: `feat: complete operational CLI and scoped reconciliation`.
+
+**Siguiente paso:** ejecutar etapa 4 con procesos propios descartables, límites y cancelación, redacción y prevención durable de reejecución incierta; continuar luego etapas 5–8 según autorización vigente.

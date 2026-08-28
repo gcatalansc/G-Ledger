@@ -212,6 +212,81 @@ impl EventStore for SqliteEventStore {
     }
 }
 
+impl SqliteEventStore {
+    /// Reads and verifies a stored command for reconciliation, without mutation.
+    ///
+    /// # Errors
+    /// Rejects mismatched identity, digest, malformed JSON or storage failures.
+    pub fn recorded_command(
+        &self,
+        id: &CommandId,
+    ) -> Result<Option<project_ledger_domain::CommandEnvelope>, StoreError> {
+        let bytes: Option<Vec<u8>> = self
+            .connection
+            .query_row(
+                "SELECT command_json FROM commands WHERE command_id=?1",
+                [id.as_str()],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(persistence)?;
+        bytes
+            .map(|bytes| {
+                let command: project_ledger_domain::CommandEnvelope =
+                    serde_json::from_slice(&bytes)?;
+                validate_command_integrity(&command)?;
+                if command.command_id != *id {
+                    return Err(StoreError::InvalidCommit {
+                        message: "stored command identity mismatch".to_owned(),
+                    });
+                }
+                Ok(command)
+            })
+            .transpose()
+    }
+
+    /// Resolves a durable result using the complete canonical idempotency scope.
+    ///
+    /// # Errors
+    /// Rejects corrupt command/result data or storage failures. Does not write.
+    pub fn reconcile_command(
+        &self,
+        project: &ProjectId,
+        kind: CommandType,
+        actor: &StableId,
+        trust: &str,
+        key: &StableId,
+    ) -> Result<Option<CommandResult>, StoreError> {
+        let stored: Option<Vec<u8>> = self.connection.query_row(
+            "SELECT c.command_json FROM idempotency_keys i JOIN commands c ON c.command_id=i.command_ref
+             WHERE i.project_ref=?1 AND i.command_type=?2 AND i.actor_id=?3 AND i.trust_domain=?4 AND i.idempotency_key=?5",
+            rusqlite::params![project.as_str(), contract_name(&kind)?, actor.as_str(), trust, key.as_str()],
+            |row| row.get(0),
+        ).optional().map_err(persistence)?;
+        let Some(bytes) = stored else { return Ok(None) };
+        let command: project_ledger_domain::CommandEnvelope = serde_json::from_slice(&bytes)?;
+        validate_command_integrity(&command)?;
+        if command.project_ref != *project
+            || command.command_type() != kind
+            || command.actor.actor_id != *actor
+            || contract_name(&command.actor.trust_level)? != trust
+            || command.idempotency_key != *key
+        {
+            return Err(StoreError::InvalidCommit {
+                message: "reconciliation scope differs from stored command".to_owned(),
+            });
+        }
+        match self.lookup_idempotency(project, kind, actor, trust, key, command.command_digest)? {
+            IdempotencyLookup::Replay(result) if result.command_ref == command.command_id => {
+                Ok(Some(result))
+            }
+            _ => Err(StoreError::InvalidCommit {
+                message: "reconciliation result is inconsistent".to_owned(),
+            }),
+        }
+    }
+}
+
 impl EventImportStore for SqliteEventStore {
     fn append_imported_events(
         &mut self,

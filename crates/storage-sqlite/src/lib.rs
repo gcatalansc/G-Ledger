@@ -14,7 +14,7 @@ mod test_support;
 
 use std::{fs, path::Path, time::Duration};
 
-use rusqlite::Connection;
+use rusqlite::{Connection, OpenFlags};
 use thiserror::Error;
 
 pub use recovery::RecoveryReport;
@@ -43,6 +43,37 @@ pub struct SqliteEventStore {
 }
 
 impl SqliteEventStore {
+    /// Opens an existing current-schema store without creating or migrating it.
+    ///
+    /// # Errors
+    /// Rejects missing, old, future or tampered databases.
+    pub fn open_read_only(path: &Path) -> Result<Self, SqliteStoreError> {
+        Self::open_current(path, true)
+    }
+
+    /// Opens an existing current-schema store for explicit command writes.
+    ///
+    /// # Errors
+    /// Rejects missing or incompatible databases; never applies migrations.
+    pub fn open_existing(path: &Path) -> Result<Self, SqliteStoreError> {
+        Self::open_current(path, false)
+    }
+
+    fn open_current(path: &Path, read_only: bool) -> Result<Self, SqliteStoreError> {
+        let flags = if read_only {
+            OpenFlags::SQLITE_OPEN_READ_ONLY
+        } else {
+            OpenFlags::SQLITE_OPEN_READ_WRITE
+        };
+        let connection = Connection::open_with_flags(path, flags)?;
+        connection.busy_timeout(Duration::from_secs(5))?;
+        migrations::verify_current(&connection)?;
+        connection.pragma_update(None, "foreign_keys", true)?;
+        if !read_only {
+            connection.pragma_update(None, "synchronous", "FULL")?;
+        }
+        Ok(Self { connection })
+    }
     /// Opens or creates a database and applies all supported migrations.
     ///
     /// # Errors

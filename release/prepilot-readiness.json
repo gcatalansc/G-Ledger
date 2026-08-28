@@ -5,12 +5,12 @@
   "plan": "docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md",
   "gap_matrix": "docs/PREPILOT_GAP_MATRIX.md",
   "total_stages": 8,
-  "completed_stages": [1, 2],
+  "completed_stages": [1, 2, 3],
   "historical_release_inventory_is_operational_coverage": false,
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
-  "open_gaps": ["PP-03", "PP-04", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12", "PP-13", "PP-14"],
+  "open_gaps": ["PP-05", "PP-06", "PP-07", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12", "PP-13", "PP-14"],
   "stage_evidence": [{
     "stage": 1,
     "kind": "OBSERVED_BASELINE_AND_TRACEABILITY",
@@ -26,6 +26,13 @@
     "events_rejected_by_all_v02_command_rows": ["LEGACY_IMPORT_REVIEWED"],
     "verification": ["cargo fmt --all -- --check", "cargo clippy --workspace --all-targets --all-features -- -D warnings", "cargo test --workspace --all-targets --all-features", "cargo build --workspace --locked", "cargo xtask schema check", "specs verify", "contracts verify", "cargo xtask release check", "cargo deny --offline check", "13/13 SHA-256 checksums", "git diff --check"],
     "runtime_scope": "library and existing CLI regression; four opt-in tests not executed; no new hosted CI or package proof"
+  }, {
+    "stage": 3,
+    "kind": "REAL_CLI_PROCESSES_AND_SQLITE",
+    "evidence": "docs/PREPILOT_CLI_COVERAGE.md",
+    "new_cli_tests_passed": 17,
+    "verification": ["cargo fmt --all -- --check", "cargo clippy --workspace --all-targets --all-features -- -D warnings", "cargo test --workspace --all-targets --all-features", "cargo build --workspace --locked", "cargo xtask schema check", "specs verify", "contracts verify", "cargo xtask release check", "cargo deny --offline check", "13/13 SHA-256 checksums", "git diff --check"],
+    "runtime_scope": "operational CLI with disposable projects; supervisor/Codex/GSP/package remain pending; four opt-in tests not executed; no new hosted CI"
   }],
   "historical_rq4": {
     "status": "COMPLETE_BOUNDED_CRASH_RECOVERY",

@@ -46,9 +46,9 @@
 
 **Consumes/produces:** CLI normativa §27 → envelopes existentes → resultados canónicos. Añadir reconciliación por clave sin dependencia de G-Skills. Mantener argv existentes compatibles.
 
-- [ ] RED: diagnóstico, autoridad/repositorio, roadmap/fases/gates, registros/evidencia, decisiones/blockers/riesgos y continuidad deben ser invocables. DB ausente debe devolver 4, versión obsoleta 5 y conflicto idempotente 10; stdout JSON no contiene diagnóstico.
-- [ ] GREEN: implementar wrappers del motor, errores tipados y selección explícita prioritaria. El localizador sólo identifica; nunca habilita permisos o hooks.
-- [ ] Consultas no crean/migran DB. Reconciliación devuelve el resultado original y replay produce cero eventos adicionales. Verificar casos de cada familia y commit.
+- [x] RED: diagnóstico, autoridad/repositorio, roadmap/fases/gates, registros/evidencia, decisiones/blockers/riesgos y continuidad deben ser invocables. DB ausente debe devolver 4, versión obsoleta 5 y conflicto idempotente 10; stdout JSON no contiene diagnóstico.
+- [x] GREEN: implementar wrappers del motor, errores tipados y selección explícita prioritaria. El localizador sólo identifica; nunca habilita permisos o hooks.
+- [x] Consultas no crean/migran DB. Reconciliación devuelve el resultado original y replay produce cero eventos adicionales. 17 pruebas CLI y regresión completa verificadas; evidencia en `docs/PREPILOT_CLI_COVERAGE.md`.
 
 ## Stage 4 — Procesos y privacidad
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **2/8, NOT_READY**. Stages 1 y 2 verificadas localmente; PP-03…PP-14 siguen abiertas. Siguiente paso: Stage 3, CLI cotidiana, errores tipados, queries sin migración y reconciliación por idempotencia. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **3/8, NOT_READY**. Stages 1–3 verificadas localmente; PP-05/06 tienen su parte CLI verificada y conservan pendientes de etapas 5/6. PP-07…PP-14 siguen abiertas. Siguiente paso: Stage 4, supervisión acotada de procesos, privacidad y protección ante resultado incierto. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.

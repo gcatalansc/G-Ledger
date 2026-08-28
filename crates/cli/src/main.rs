@@ -1,3 +1,7 @@
+mod errors;
+mod operations;
+use errors::CliError;
+
 use std::{
     cell::RefCell,
     collections::BTreeMap,
@@ -61,12 +65,16 @@ const V0_2_DIGEST: &str = "sha256:31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2
     about = "Verifiable local project continuity"
 )]
 struct Cli {
+    #[arg(long, global = true)]
+    json: bool,
     #[command(subcommand)]
     command: TopLevelCommand,
 }
 
 #[derive(Debug, Subcommand)]
 enum TopLevelCommand {
+    #[command(flatten)]
+    Operations(Box<operations::Operation>),
     Init(InitArgs),
     Resume(ResumeArgs),
     Checkpoint {
@@ -182,10 +190,8 @@ enum ResumeFormat {
 
 #[derive(Clone, Debug, Args)]
 struct ResumeArgs {
-    #[arg(long)]
-    database: PathBuf,
-    #[arg(long)]
-    project_ref: String,
+    #[command(flatten)]
+    selection: operations::Selection,
     #[arg(long, value_enum, default_value = "codex")]
     format: ResumeFormat,
 }
@@ -216,6 +222,8 @@ struct CheckpointCreateArgs {
 #[derive(Clone, Debug, Subcommand)]
 enum CatalogCommand {
     RadarExport(RadarCatalogExportArgs),
+    List(operations::CatalogArgs),
+    Rebuild(operations::CatalogArgs),
 }
 
 #[derive(Clone, Debug, Args)]
@@ -351,8 +359,64 @@ struct ServeSinkArgs {
 }
 
 fn main() -> ExitCode {
-    let cli = Cli::parse();
+    let cli = match Cli::try_parse() {
+        Ok(cli) => cli,
+        Err(error) => {
+            if error.use_stderr() && env::args().any(|arg| arg == "--json") {
+                println!("{}", CliError::input(&error).json());
+            }
+            let _ = error.print();
+            return ExitCode::from(u8::try_from(error.exit_code()).unwrap_or(2));
+        }
+    };
+    let json = cli.json;
     let result = match cli.command {
+        TopLevelCommand::Operations(operation) => operations::run(*operation),
+        TopLevelCommand::Resume(mut args) => {
+            if json {
+                args.format = ResumeFormat::Json;
+            }
+            resume_project(&args)
+        }
+        TopLevelCommand::Catalog {
+            command: CatalogCommand::List(args),
+        } => operations::catalog(&args, false),
+        TopLevelCommand::Catalog {
+            command: CatalogCommand::Rebuild(args),
+        } => operations::catalog(&args, true),
+        TopLevelCommand::Checkpoint {
+            command: CheckpointCommand::Create(args),
+        } => create_checkpoint(&args),
+        other => dispatch_existing(other),
+    };
+    match result {
+        Ok(output) => {
+            if json && !output.is_empty() && serde_json::from_str::<Value>(&output).is_err() {
+                println!("{}", serde_json::json!({"output":output}));
+            } else {
+                print!("{output}");
+            }
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            if json {
+                println!("{}", error.json());
+            }
+            eprintln!("{}: {}", error.code, error.message);
+            ExitCode::from(error.exit)
+        }
+    }
+}
+
+fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
+    match command {
+        TopLevelCommand::Catalog {
+            command: CatalogCommand::List(args),
+        } => operations::catalog(&args, false),
+        TopLevelCommand::Catalog {
+            command: CatalogCommand::Rebuild(args),
+        } => operations::catalog(&args, true),
+        TopLevelCommand::Operations(operation) => operations::run(*operation),
         TopLevelCommand::Init(args) => initialize_project(args),
         TopLevelCommand::Resume(args) => resume_project(&args),
         TopLevelCommand::Checkpoint {
@@ -436,29 +500,19 @@ fn main() -> ExitCode {
         TopLevelCommand::Serve {
             command: ServeCommand::Sink(args),
         } => serve_gskills_sink(&args),
-    };
-    match result {
-        Ok(output) => {
-            print!("{output}");
-            ExitCode::SUCCESS
-        }
-        Err(error) => {
-            eprintln!("{error}");
-            ExitCode::FAILURE
-        }
     }
 }
 
-fn repository_root() -> Result<PathBuf, String> {
-    env::current_dir().map_err(|error| format!("cannot determine repository root: {error}"))
+fn repository_root() -> Result<PathBuf, CliError> {
+    env::current_dir().map_err(CliError::input)
 }
 
-fn verify_release_cli(args: &ReleaseVerifyArgs) -> Result<String, String> {
-    let report = verify_release(&args.root).map_err(|error| error.to_string())?;
+fn verify_release_cli(args: &ReleaseVerifyArgs) -> Result<String, CliError> {
+    let report = verify_release(&args.root).map_err(CliError::input)?;
     canonical_stdout(&report)
 }
 
-fn initialize_project(args: InitArgs) -> Result<String, String> {
+fn initialize_project(args: InitArgs) -> Result<String, CliError> {
     let timestamp = current_timestamp()?;
     let project_ref = ProjectId::new();
     let base = match args.data_root {
@@ -485,8 +539,8 @@ fn initialize_project(args: InitArgs) -> Result<String, String> {
         archived_at: None,
     };
     let command_id = CommandId::new();
-    let idempotency_key = StableId::parse(&format!("init:{}", command_id.uuid()))
-        .map_err(|error| error.to_string())?;
+    let idempotency_key =
+        StableId::parse(&format!("init:{}", command_id.uuid())).map_err(CliError::input)?;
     let command = prepare_command(CommandDraft {
         schema_version: SchemaVersion::V0_2_0,
         command_id,
@@ -494,8 +548,7 @@ fn initialize_project(args: InitArgs) -> Result<String, String> {
         expected_state_version: 0,
         idempotency_key,
         actor: Actor {
-            actor_id: StableId::parse("system:project-ledger-cli")
-                .map_err(|error| error.to_string())?,
+            actor_id: StableId::parse("system:project-ledger-cli").map_err(CliError::input)?,
             actor_kind: ActorKind::System,
             trust_level: TrustLevel::LocalUser,
             display_name: Some("Project Ledger CLI".to_owned()),
@@ -503,21 +556,18 @@ fn initialize_project(args: InitArgs) -> Result<String, String> {
         command: Command::CreateProject(CreateProjectPayload { project }),
         submitted_at: timestamp.clone(),
     })
-    .map_err(|error| error.to_string())?;
-    let mut store = SqliteEventStore::open(&database).map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
+    let mut store = SqliteEventStore::open(&database)?;
     let clock = FixedClock::new(timestamp);
-    let result = CommandProcessor::new(&mut store, &clock)
-        .execute(command, &CreateProjectHandler)
-        .map_err(|error| error.to_string())?;
+    let result =
+        CommandProcessor::new(&mut store, &clock).execute(command, &CreateProjectHandler)?;
     if result.status != CommandResultStatus::Accepted {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "project initialization was not accepted: {:?}",
             result.status
-        ));
+        )));
     }
-    let recovery = store
-        .recovery_report(&project_ref)
-        .map_err(|error| error.to_string())?;
+    let recovery = store.recovery_report(&project_ref)?;
     Ok(format!(
         "project_ref={project_ref}\ndatabase={}\nstate_version={}\n",
         database.display(),
@@ -525,40 +575,49 @@ fn initialize_project(args: InitArgs) -> Result<String, String> {
     ))
 }
 
-fn resume_project(args: &ResumeArgs) -> Result<String, String> {
-    require_file(&args.database, "Project Ledger database")?;
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
-    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let stream = store
-        .load_stream(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+fn resume_project(args: &ResumeArgs) -> Result<String, CliError> {
+    let (_, projection) = args.selection.load()?;
     let budget = match args.format {
         ResumeFormat::Codex => ResumeBudget::AgentMarkdown,
         ResumeFormat::Json => ResumeBudget::Compact,
     };
-    let resume = ResumeBuilder::build(&projection, budget).map_err(|error| error.to_string())?;
+    let resume = ResumeBuilder::build(&projection, budget).map_err(CliError::domain)?;
     match args.format {
         ResumeFormat::Codex => Ok(render_agent_markdown(&resume)),
-        ResumeFormat::Json => canonical_stdout(&resume),
+        ResumeFormat::Json => canonical_stdout(&resume).map_err(CliError::input),
     }
 }
 
-fn create_checkpoint(args: &CheckpointCreateArgs) -> Result<String, String> {
-    require_file(&args.database, "Project Ledger database")?;
-    if args.reason.trim().is_empty() {
-        return Err("checkpoint reason cannot be empty".to_owned());
+fn create_checkpoint(args: &CheckpointCreateArgs) -> Result<String, CliError> {
+    operations::Selection {
+        database: Some(args.database.clone()),
+        project_ref: Some(args.project_ref.clone()),
+        locator: None,
     }
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
-    let idempotency_key =
-        StableId::parse(&args.idempotency_key).map_err(|error| error.to_string())?;
-    let actor_id = StableId::parse(&args.actor_id).map_err(|error| error.to_string())?;
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
-    let command_id = deterministic_cli_command_id("checkpoint", &project_ref, &idempotency_key)?;
+    .resolve()?;
+    if args.reason.trim().is_empty() {
+        return Err(CliError::input("checkpoint reason cannot be empty"));
+    }
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
+    let idempotency_key = StableId::parse(&args.idempotency_key).map_err(CliError::input)?;
+    let actor_id = StableId::parse(&args.actor_id).map_err(CliError::input)?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
+    let mut store = SqliteEventStore::open_existing(&args.database)?;
+    // Preserve historical command IDs on replay while isolating new actor scopes.
+    let command_id = match store.reconcile_command(
+        &project_ref,
+        project_ledger_domain::CommandType::CreateContinuityCheckpoint,
+        &actor_id,
+        "LOCAL_USER",
+        &idempotency_key,
+    )? {
+        Some(result) => result.command_ref,
+        None => deterministic_cli_command_id(
+            &format!("checkpoint:{actor_id}:LOCAL_USER"),
+            &project_ref,
+            &idempotency_key,
+        )?,
+    };
     let command = prepare_command(CommandDraft {
         schema_version: SchemaVersion::V0_2_0,
         command_id,
@@ -576,32 +635,17 @@ fn create_checkpoint(args: &CheckpointCreateArgs) -> Result<String, String> {
         }),
         submitted_at: observed_at.clone(),
     })
-    .map_err(|error| error.to_string())?;
-    let mut store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
     let result = CommandProcessor::new(&mut store, &FixedClock::new(observed_at))
-        .execute(command, &CoreCommandHandler)
-        .map_err(|error| error.to_string())?;
-    if !matches!(
-        result.status,
-        CommandResultStatus::Accepted | CommandResultStatus::DuplicateReplay
-    ) {
-        let status = serde_json::to_value(result.status)
-            .ok()
-            .and_then(|value| value.as_str().map(ToOwned::to_owned))
-            .unwrap_or_else(|| format!("{:?}", result.status));
-        return Err(format!(
-            "checkpoint was not accepted: {status} {:?}",
-            result.rejection
-        ));
-    }
-    canonical_stdout(&result)
+        .execute(command, &CoreCommandHandler)?;
+    CliError::command(result)
 }
 
 fn deterministic_cli_command_id(
     operation: &str,
     project_ref: &ProjectId,
     idempotency_key: &StableId,
-) -> Result<CommandId, String> {
+) -> Result<CommandId, CliError> {
     let seed = format!("cli:{operation}:{project_ref}:{idempotency_key}");
     let digest = sha256_bytes(seed.as_bytes());
     let mut bytes = [0_u8; 16];
@@ -609,48 +653,50 @@ fn deterministic_cli_command_id(
     bytes[6] = (bytes[6] & 0x0f) | 0x70;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     let uuid = uuid::Uuid::from_bytes(bytes);
-    CommandId::parse(&format!("command:{uuid}")).map_err(|error| error.to_string())
+    CommandId::parse(&format!("command:{uuid}")).map_err(CliError::input)
 }
 
-fn current_timestamp() -> Result<LedgerTimestamp, String> {
+fn current_timestamp() -> Result<LedgerTimestamp, CliError> {
     let encoded = OffsetDateTime::now_utc()
         .format(&Rfc3339)
         .map_err(|error| format!("cannot format current timestamp: {error}"))?;
-    LedgerTimestamp::parse(&encoded).map_err(|error| error.to_string())
+    LedgerTimestamp::parse(&encoded).map_err(CliError::input)
 }
 
 #[cfg(target_os = "windows")]
-fn default_data_root() -> Result<PathBuf, String> {
-    env::var_os("APPDATA")
-        .map(PathBuf::from)
-        .ok_or_else(|| "cannot resolve the Windows user-data directory from APPDATA".to_owned())
+fn default_data_root() -> Result<PathBuf, CliError> {
+    env::var_os("APPDATA").map(PathBuf::from).ok_or_else(|| {
+        CliError::input("cannot resolve the Windows user-data directory from APPDATA")
+    })
 }
 
 #[cfg(target_os = "macos")]
-fn default_data_root() -> Result<PathBuf, String> {
+fn default_data_root() -> Result<PathBuf, CliError> {
     env::var_os("HOME")
         .map(PathBuf::from)
         .map(|home| home.join("Library/Application Support"))
-        .ok_or_else(|| "cannot resolve the macOS user-data directory from HOME".to_owned())
+        .ok_or_else(|| CliError::input("cannot resolve the macOS user-data directory from HOME"))
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
-fn default_data_root() -> Result<PathBuf, String> {
+fn default_data_root() -> Result<PathBuf, CliError> {
     if let Some(path) = env::var_os("XDG_DATA_HOME") {
         return Ok(PathBuf::from(path));
     }
     env::var_os("HOME")
         .map(PathBuf::from)
         .map(|home| home.join(".local/share"))
-        .ok_or_else(|| "cannot resolve the Unix user-data directory".to_owned())
+        .ok_or_else(|| CliError::input("cannot resolve the Unix user-data directory"))
 }
 
 #[cfg(not(any(unix, target_os = "windows")))]
-fn default_data_root() -> Result<PathBuf, String> {
-    Err("this operating system has no configured user-data convention".to_owned())
+fn default_data_root() -> Result<PathBuf, CliError> {
+    Err(CliError::input(
+        "this operating system has no configured user-data convention".to_owned(),
+    ))
 }
 
-fn verify_specs(root: &Path) -> Result<String, String> {
+fn verify_specs(root: &Path) -> Result<String, CliError> {
     let versions = [
         (
             "v0.1.0",
@@ -668,19 +714,18 @@ fn verify_specs(root: &Path) -> Result<String, String> {
         let bytes = fs::read(&path).map_err(|error| format!("{}: {error}", path.display()))?;
         let actual = sha256_bytes(&bytes).to_string();
         if actual != expected {
-            return Err(format!(
+            return Err(CliError::input(format!(
                 "{version} MISMATCH expected={expected} actual={actual}"
-            ));
+            )));
         }
-        writeln!(&mut output, "{version} MATCH {}", &actual[7..15])
-            .map_err(|error| error.to_string())?;
+        writeln!(&mut output, "{version} MATCH {}", &actual[7..15]).map_err(CliError::input)?;
     }
     Ok(output)
 }
 
-fn verify_contract_artifacts(root: &Path) -> Result<String, String> {
-    check_generated(root).map_err(|error| error.to_string())?;
-    let report = validate_contracts().map_err(|error| error.to_string())?;
+fn verify_contract_artifacts(root: &Path) -> Result<String, CliError> {
+    check_generated(root).map_err(CliError::input)?;
+    let report = validate_contracts().map_err(CliError::input)?;
     Ok(format!(
         "contracts MATCH schemas={} fixtures={} matrix_rows={}\n",
         report.schema_count,
@@ -689,8 +734,8 @@ fn verify_contract_artifacts(root: &Path) -> Result<String, String> {
     ))
 }
 
-fn integration_manifest() -> Result<String, String> {
-    let manifest = build_default_manifest(Vec::new()).map_err(|error| error.to_string())?;
+fn integration_manifest() -> Result<String, CliError> {
+    let manifest = build_default_manifest(Vec::new()).map_err(CliError::input)?;
     canonical_stdout(&manifest)
 }
 
@@ -701,7 +746,7 @@ struct CompatibilityReport {
     integrations: Vec<project_ledger_integration_protocol::UpstreamLockInspection>,
 }
 
-fn integration_compatibility(root: &Path) -> Result<String, String> {
+fn integration_compatibility(root: &Path) -> Result<String, CliError> {
     let mut integrations = Vec::new();
     for relative in [
         "integrations/gskills/upstream-lock.json",
@@ -713,7 +758,7 @@ fn integration_compatibility(root: &Path) -> Result<String, String> {
         let bytes = fs::read(&path).map_err(|error| format!("{}: {error}", path.display()))?;
         let value = serde_json::from_slice(&bytes)
             .map_err(|error| format!("{}: {error}", path.display()))?;
-        integrations.push(inspect_upstream_lock(&value).map_err(|error| error.to_string())?);
+        integrations.push(inspect_upstream_lock(&value).map_err(CliError::input)?);
     }
     canonical_stdout(&CompatibilityReport {
         schema_version: "1.0.0",
@@ -724,8 +769,8 @@ fn integration_compatibility(root: &Path) -> Result<String, String> {
     })
 }
 
-fn verify_gskills_contracts(root: &Path) -> Result<String, String> {
-    let report = verify_gskills_vendored_contracts(root).map_err(|error| error.to_string())?;
+fn verify_gskills_contracts(root: &Path) -> Result<String, CliError> {
+    let report = verify_gskills_vendored_contracts(root).map_err(CliError::input)?;
     Ok(format!(
         "gskills contracts MATCH schemas={} fixtures={} profile={}\n",
         report.schema_count,
@@ -734,8 +779,8 @@ fn verify_gskills_contracts(root: &Path) -> Result<String, String> {
     ))
 }
 
-fn verify_gsp_contracts(root: &Path) -> Result<String, String> {
-    let report = verify_gsp_vendored_contracts(root).map_err(|error| error.to_string())?;
+fn verify_gsp_contracts(root: &Path) -> Result<String, CliError> {
+    let report = verify_gsp_vendored_contracts(root).map_err(CliError::input)?;
     Ok(format!(
         "gsp contracts MATCH registry={} schemas={} fixtures={} profile={}\n",
         report.registry_contract_count,
@@ -745,8 +790,8 @@ fn verify_gsp_contracts(root: &Path) -> Result<String, String> {
     ))
 }
 
-fn verify_radar_contracts(root: &Path) -> Result<String, String> {
-    let report = verify_radar_profile_contracts(root).map_err(|error| error.to_string())?;
+fn verify_radar_contracts(root: &Path) -> Result<String, CliError> {
+    let report = verify_radar_profile_contracts(root).map_err(CliError::input)?;
     Ok(format!(
         "radar contracts MATCH schemas={} fixtures={} profile={}\n",
         report.schema_count,
@@ -755,9 +800,9 @@ fn verify_radar_contracts(root: &Path) -> Result<String, String> {
     ))
 }
 
-fn verify_agent_skill_contracts(root: &Path) -> Result<String, String> {
-    let package = verify_agent_skill_package(root).map_err(|error| error.to_string())?;
-    let conformance = run_agent_skill_conformance(root).map_err(|error| error.to_string())?;
+fn verify_agent_skill_contracts(root: &Path) -> Result<String, CliError> {
+    let package = verify_agent_skill_package(root).map_err(CliError::input)?;
+    let conformance = run_agent_skill_conformance(root).map_err(CliError::input)?;
     Ok(format!(
         "agent skill MATCH schemas={} triggers={} policies={} profile={}\n",
         package.schema_count,
@@ -767,12 +812,11 @@ fn verify_agent_skill_contracts(root: &Path) -> Result<String, String> {
     ))
 }
 
-fn export_radar_project(args: &RadarExportArgs) -> Result<String, String> {
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+fn export_radar_project(args: &RadarExportArgs) -> Result<String, CliError> {
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
     let source_instance_ref =
-        ResourceRef::parse(&args.source_instance_ref).map_err(|error| error.to_string())?;
+        ResourceRef::parse(&args.source_instance_ref).map_err(CliError::input)?;
     let project = radar_project_from_sqlite(
         &args.database,
         &project_ref,
@@ -788,13 +832,13 @@ fn export_radar_project(args: &RadarExportArgs) -> Result<String, String> {
                 "radar-sync:{}:{state_version}",
                 project_ref.uuid()
             ))
-            .map_err(|error| error.to_string())?,
+            .map_err(CliError::input)?,
             source_instance_ref,
             exported_at: observed_at,
         },
     )
-    .map_err(|error| error.to_string())?;
-    validate_sync_envelope(&envelope).map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
+    validate_sync_envelope(&envelope).map_err(CliError::input)?;
     write_new_json(&args.output, &envelope)?;
     Ok(format!(
         "radar export EXPORTED projects=1 output={}\n",
@@ -802,15 +846,15 @@ fn export_radar_project(args: &RadarExportArgs) -> Result<String, String> {
     ))
 }
 
-fn validate_radar_export(root: &Path, args: &RadarValidateExportArgs) -> Result<String, String> {
+fn validate_radar_export(root: &Path, args: &RadarValidateExportArgs) -> Result<String, CliError> {
     require_file(&args.input, "Project Radar export")?;
     let value: Value = read_json_file(&args.input)?;
-    let catalog = RadarContractCatalog::load(root).map_err(|error| error.to_string())?;
+    let catalog = RadarContractCatalog::load(root).map_err(CliError::input)?;
     catalog
         .validate("radar-sync-envelope", &value)
-        .map_err(|error| error.to_string())?;
-    let envelope = serde_json::from_value(value).map_err(|error| error.to_string())?;
-    validate_sync_envelope(&envelope).map_err(|error| error.to_string())?;
+        .map_err(CliError::input)?;
+    let envelope = serde_json::from_value(value).map_err(CliError::input)?;
+    validate_sync_envelope(&envelope).map_err(CliError::input)?;
     Ok(format!(
         "radar export VALID projects={} profile={}\n",
         envelope.projects.len(),
@@ -818,9 +862,11 @@ fn validate_radar_export(root: &Path, args: &RadarValidateExportArgs) -> Result<
     ))
 }
 
-fn export_radar_catalog(args: &RadarCatalogExportArgs) -> Result<String, String> {
+fn export_radar_catalog(args: &RadarCatalogExportArgs) -> Result<String, CliError> {
     if !args.all {
-        return Err("catalog radar-export requires explicit --all".to_owned());
+        return Err(CliError::input(
+            "catalog radar-export requires explicit --all".to_owned(),
+        ));
     }
     require_file(&args.catalog, "Project Radar known-ledger catalog")?;
     let catalog_bytes =
@@ -828,16 +874,16 @@ fn export_radar_catalog(args: &RadarCatalogExportArgs) -> Result<String, String>
     let sources: Vec<RadarCatalogSource> = serde_json::from_slice(&catalog_bytes)
         .map_err(|error| format!("{}: {error}", args.catalog.display()))?;
     if sources.is_empty() {
-        return Err("Project Radar known-ledger catalog is empty".to_owned());
+        return Err(CliError::input(
+            "Project Radar known-ledger catalog is empty".to_owned(),
+        ));
     }
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
     let source_instance_ref =
-        ResourceRef::parse(&args.source_instance_ref).map_err(|error| error.to_string())?;
+        ResourceRef::parse(&args.source_instance_ref).map_err(CliError::input)?;
     let mut projects = Vec::with_capacity(sources.len());
     for source in sources {
-        let project_ref =
-            ProjectId::parse(&source.project_ref).map_err(|error| error.to_string())?;
+        let project_ref = ProjectId::parse(&source.project_ref).map_err(CliError::input)?;
         projects.push(radar_project_from_sqlite(
             &source.database,
             &project_ref,
@@ -854,12 +900,12 @@ fn export_radar_catalog(args: &RadarCatalogExportArgs) -> Result<String, String>
                 "radar-sync:catalog:{}",
                 digest.trim_start_matches("sha256:")
             ))
-            .map_err(|error| error.to_string())?,
+            .map_err(CliError::input)?,
             source_instance_ref,
             exported_at: observed_at,
         },
     )
-    .map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
     write_new_json(&args.output, &envelope)?;
     Ok(format!(
         "radar catalog EXPORTED projects={} output={}\n",
@@ -874,24 +920,20 @@ fn radar_project_from_sqlite(
     phase_catalog_path: &Path,
     source_aliases: &[String],
     observed_at: &LedgerTimestamp,
-) -> Result<project_ledger_domain::LedgerRadarProjectProjection, String> {
-    require_file(database, "Project Radar export database")?;
+) -> Result<project_ledger_domain::LedgerRadarProjectProjection, CliError> {
+    require_database(database)?;
     require_file(phase_catalog_path, "Project Radar phase catalog")?;
     let phase_catalog = load_phase_catalog(phase_catalog_path)?;
-    let store = SqliteEventStore::open(database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(project_ref)
-        .map_err(|error| error.to_string())?;
-    let stream = store
-        .load_stream(project_ref)
-        .map_err(|error| error.to_string())?;
-    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let store = SqliteEventStore::open_read_only(database)?;
+    store.verify_event_chain(project_ref)?;
+    let stream = store.load_stream(project_ref)?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(CliError::domain)?;
     let provenance_ref = ResourceRef::parse(&format!(
         "project-ledger://provenance/radar-export/{}/{}",
         project_ref.uuid(),
         projection.state().state_version
     ))
-    .map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
     build_project_projection(
         &projection,
         &RadarExportContext {
@@ -901,27 +943,25 @@ fn radar_project_from_sqlite(
             provenance_ref,
         },
     )
-    .map_err(|error| error.to_string())
+    .map_err(CliError::input)
 }
 
-fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, String> {
-    require_file(&args.database, "GSP corpus database")?;
+fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, CliError> {
+    require_database(&args.database)?;
     require_file(&args.request, "GSP corpus request")?;
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
     let request: GspCorpusRequest = read_json_file(&args.request)?;
     if request.project_ref != project_ref {
-        return Err("GSP corpus CLI project differs from the explicit request".to_owned());
+        return Err(CliError::input(
+            "GSP corpus CLI project differs from the explicit request".to_owned(),
+        ));
     }
-    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let stream = store
-        .load_stream(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let store = SqliteEventStore::open_read_only(&args.database)?;
+    store.verify_event_chain(&project_ref)?;
+    let stream = store.load_stream(&project_ref)?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(CliError::domain)?;
     let corpus = project_ledger_interop_gsp::build_minimized_corpus(&projection, &stream, &request)
-        .map_err(|error| error.to_string())?;
+        .map_err(CliError::input)?;
     write_new_json(&args.output, &corpus)?;
     Ok(format!(
         "gsp corpus EXPORTED files={} output={}\n",
@@ -930,15 +970,15 @@ fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, String> {
     ))
 }
 
-fn validate_gsp_result(root: &Path, args: &GspValidateResultArgs) -> Result<String, String> {
+fn validate_gsp_result(root: &Path, args: &GspValidateResultArgs) -> Result<String, CliError> {
     require_file(&args.evidence_bundle, "GSP EvidenceBundle corpus")?;
     require_file(&args.result, "GSP CompilationResult")?;
     let corpus: GspCorpus = read_json_file(&args.evidence_bundle)?;
     let raw: Value = read_json_file(&args.result)?;
-    let bridge = GspBridge::load(root).map_err(|error| error.to_string())?;
+    let bridge = GspBridge::load(root).map_err(CliError::input)?;
     let validated = bridge
         .validate_result(&corpus, raw)
-        .map_err(|error| error.to_string())?;
+        .map_err(CliError::input)?;
     write_new_json(&args.output, &validated)?;
     Ok(format!(
         "gsp result VALIDATED contracts={} review={} output={}\n",
@@ -948,43 +988,43 @@ fn validate_gsp_result(root: &Path, args: &GspValidateResultArgs) -> Result<Stri
     ))
 }
 
-fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, String> {
-    require_file(&args.database, "GSP link database")?;
+fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, CliError> {
+    require_database(&args.database)?;
     require_file(&args.receipt, "GSP compilation receipt")?;
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
     let value: Value = read_json_file(&args.receipt)?;
     let receipt_value = value.get("receipt").cloned().unwrap_or(value);
     let receipt: GspCompilationReceipt =
-        serde_json::from_value(receipt_value).map_err(|error| error.to_string())?;
+        serde_json::from_value(receipt_value).map_err(CliError::input)?;
     if receipt.project_ref != project_ref {
-        return Err("GSP receipt project differs from the explicit CLI project".to_owned());
+        return Err(CliError::input(
+            "GSP receipt project differs from the explicit CLI project".to_owned(),
+        ));
     }
     if receipt.project_state_version != args.expected_state_version {
-        return Err("GSP receipt state version differs from --expected-state-version".to_owned());
+        return Err(CliError::input(
+            "GSP receipt state version differs from --expected-state-version".to_owned(),
+        ));
     }
-    if !receipt.verify_digest().map_err(|error| error.to_string())? {
-        return Err("GSP compilation receipt digest mismatch".to_owned());
+    if !receipt.verify_digest().map_err(CliError::input)? {
+        return Err(CliError::input(
+            "GSP compilation receipt digest mismatch".to_owned(),
+        ));
     }
-    let artifact_uri = ResourceRef::parse(&args.receipt_uri).map_err(|error| error.to_string())?;
-    let idempotency_key =
-        StableId::parse(&args.idempotency_key).map_err(|error| error.to_string())?;
-    let actor_id = StableId::parse(&args.actor_id).map_err(|error| error.to_string())?;
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
-    let mut store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let stream = store
-        .load_stream(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let artifact_uri = ResourceRef::parse(&args.receipt_uri).map_err(CliError::input)?;
+    let idempotency_key = StableId::parse(&args.idempotency_key).map_err(CliError::input)?;
+    let actor_id = StableId::parse(&args.actor_id).map_err(CliError::input)?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
+    let mut store = SqliteEventStore::open_existing(&args.database)?;
+    store.verify_event_chain(&project_ref)?;
+    let stream = store.load_stream(&project_ref)?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(CliError::domain)?;
     let state = projection.state();
     if state.state_version == receipt.project_state_version
         && (state.material_state_version != receipt.material_state_version
             || state.state_digest != receipt.project_state_digest)
     {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "GSP receipt state binding differs from the current Ledger projection: receipt=({},{},{}) ledger=({},{},{})",
             receipt.project_state_version,
             receipt.material_state_version,
@@ -992,7 +1032,7 @@ fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, String> {
             state.state_version,
             state.material_state_version,
             state.state_digest
-        ));
+        )));
     }
     let command_id =
         deterministic_gsp_link_command_id(&project_ref, &idempotency_key, receipt.receipt_digest)?;
@@ -1011,27 +1051,17 @@ fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, String> {
         command: Command::LinkExternalEvidence(receipt.link_payload(artifact_uri)),
         submitted_at: observed_at.clone(),
     })
-    .map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
     let result = CommandProcessor::new(&mut store, &FixedClock::new(observed_at))
-        .execute(command, &CoreCommandHandler)
-        .map_err(|error| error.to_string())?;
-    if !matches!(
-        result.status,
-        CommandResultStatus::Accepted | CommandResultStatus::DuplicateReplay
-    ) {
-        return Err(format!(
-            "GSP receipt link was not accepted: {:?} {:?}",
-            result.status, result.rejection
-        ));
-    }
-    canonical_stdout(&result)
+        .execute(command, &CoreCommandHandler)?;
+    CliError::command(result)
 }
 
 fn deterministic_gsp_link_command_id(
     project_ref: &ProjectId,
     idempotency_key: &StableId,
     receipt_digest: project_ledger_canonical_json::Sha256Digest,
-) -> Result<CommandId, String> {
+) -> Result<CommandId, CliError> {
     let seed = format!("gsp-link:{project_ref}:{idempotency_key}:{receipt_digest}");
     let digest = sha256_bytes(seed.as_bytes());
     let mut bytes = [0_u8; 16];
@@ -1057,24 +1087,39 @@ fn deterministic_gsp_link_command_id(
         bytes[14],
         bytes[15]
     );
-    CommandId::parse(&format!("command:{uuid}")).map_err(|error| error.to_string())
+    CommandId::parse(&format!("command:{uuid}")).map_err(CliError::input)
 }
 
-fn require_file(path: &Path, label: &str) -> Result<(), String> {
+fn require_file(path: &Path, label: &str) -> Result<(), CliError> {
     if path.is_file() {
         Ok(())
     } else {
-        Err(format!("{label} does not exist: {}", path.display()))
+        Err(CliError::input(format!(
+            "{label} does not exist: {}",
+            path.display()
+        )))
     }
 }
 
-fn read_json_file<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, String> {
-    let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
-    serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))
+fn require_database(path: &Path) -> Result<(), CliError> {
+    if path.is_file() {
+        Ok(())
+    } else {
+        Err(CliError::new(
+            4,
+            "PROJECT_NOT_INITIALIZED",
+            "Project Ledger database does not exist",
+        ))
+    }
 }
 
-fn write_new_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
-    let bytes = to_canonical_vec(value).map_err(|error| error.to_string())?;
+fn read_json_file<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, CliError> {
+    let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    serde_json::from_slice(&bytes).map_err(CliError::input)
+}
+
+fn write_new_json<T: Serialize>(path: &Path, value: &T) -> Result<(), CliError> {
+    let bytes = to_canonical_vec(value).map_err(CliError::input)?;
     let mut file = OpenOptions::new()
         .write(true)
         .create_new(true)
@@ -1082,44 +1127,39 @@ fn write_new_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
         .map_err(|error| format!("refusing to overwrite {}: {error}", path.display()))?;
     file.write_all(&bytes)
         .map_err(|error| format!("{}: {error}", path.display()))?;
-    file.write_all(b"\n")
-        .map_err(|error| format!("{}: {error}", path.display()))
+    file.write_all(b"\n").map_err(CliError::storage)
 }
 
-fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, String> {
+fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, CliError> {
     if !args.stdio {
-        return Err("provider service requires --stdio".to_owned());
+        return Err(CliError::input(
+            "provider service requires --stdio".to_owned(),
+        ));
     }
     if args.profile != GSKILLS_PROFILE {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "unsupported provider profile: expected {GSKILLS_PROFILE}, received {}",
             args.profile
-        ));
+        )));
     }
     if !args.database.is_file() {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "provider database does not exist: {}",
             args.database.display()
-        ));
+        )));
     }
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
     let phase_catalog = load_phase_catalog(&args.phase_catalog)?;
     let external_project_ref =
         ResourceRef::parse(&format!("project-ledger://projects/{}", project_ref.uuid()))
-            .map_err(|error| error.to_string())?;
-    let process_instance_id =
-        StableId::parse("provider-process:cli").map_err(|error| error.to_string())?;
+            .map_err(CliError::input)?;
+    let process_instance_id = StableId::parse("provider-process:cli").map_err(CliError::input)?;
 
-    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let stream = store
-        .load_stream(&project_ref)
-        .map_err(|error| error.to_string())?;
-    let projection = ProjectStateProjection::rebuild(&stream).map_err(|error| error.to_string())?;
+    let store = SqliteEventStore::open_read_only(&args.database)?;
+    store.verify_event_chain(&project_ref)?;
+    let stream = store.load_stream(&project_ref)?;
+    let projection = ProjectStateProjection::rebuild(&stream).map_err(CliError::domain)?;
     let provider = GSkillsProvider::new(
         projection,
         ProviderContext {
@@ -1130,65 +1170,66 @@ fn serve_gskills_provider(args: ServeProviderArgs) -> Result<String, String> {
             observed_at,
         },
     )
-    .map_err(|error| error.to_string())?;
+    .map_err(CliError::input)?;
     let handler = GSkillsJsonRpcHandler::new(&provider);
     serve_stdio(&handler, FrameLimits::default())?;
     Ok(String::new())
 }
 
-fn serve_gskills_sink(args: &ServeSinkArgs) -> Result<String, String> {
+fn serve_gskills_sink(args: &ServeSinkArgs) -> Result<String, CliError> {
     if !args.stdio {
-        return Err("record sink service requires --stdio".to_owned());
+        return Err(CliError::input(
+            "record sink service requires --stdio".to_owned(),
+        ));
     }
     if args.profile != GSKILLS_PROFILE {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "unsupported record sink profile: expected {GSKILLS_PROFILE}, received {}",
             args.profile
-        ));
+        )));
     }
     if !args.database.is_file() {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "record sink database does not exist: {}",
             args.database.display()
-        ));
+        )));
     }
     if !args.policy.is_file() {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "explicit record sink policy does not exist: {}",
             args.policy.display()
-        ));
+        )));
     }
-    let project_ref = ProjectId::parse(&args.project_ref).map_err(|error| error.to_string())?;
-    let observed_at =
-        LedgerTimestamp::parse(&args.observed_at).map_err(|error| error.to_string())?;
+    let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
+    let observed_at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
     let policy = load_record_sink_policy(&args.policy)?;
     if policy.native_project_ref != project_ref
         || policy.gskills_project_ref != args.gskills_project_ref
     {
-        return Err("record sink CLI identity differs from the explicit policy".to_owned());
+        return Err(CliError::input(
+            "record sink CLI identity differs from the explicit policy".to_owned(),
+        ));
     }
 
-    let store = SqliteEventStore::open(&args.database).map_err(|error| error.to_string())?;
-    store
-        .verify_event_chain(&project_ref)
-        .map_err(|error| error.to_string())?;
+    let store = SqliteEventStore::open_existing(&args.database)?;
+    store.verify_event_chain(&project_ref)?;
     let host = SqliteRecordSinkHost {
         store: RefCell::new(store),
         project_ref,
         clock: FixedClock::new(observed_at),
     };
     // Only this explicit, digest-valid policy can construct a mutable sink.
-    let sink = GSkillsRecordSink::new(&host, policy).map_err(|error| error.to_string())?;
+    let sink = GSkillsRecordSink::new(&host, policy).map_err(CliError::input)?;
     let handler = GSkillsRecordSinkJsonRpcHandler::new(&sink);
     serve_stdio(&handler, FrameLimits::default())?;
     Ok(String::new())
 }
 
-fn load_record_sink_policy(path: &Path) -> Result<RecordSinkPolicy, String> {
+fn load_record_sink_policy(path: &Path) -> Result<RecordSinkPolicy, CliError> {
     let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
     let value: Value =
         serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))?;
-    RecordSinkPolicy::from_value(&value).map_err(|error| error.to_string())
+    RecordSinkPolicy::from_value(&value).map_err(CliError::input)
 }
 
 #[derive(Debug)]
@@ -1265,27 +1306,28 @@ impl RecordSinkHost for SqliteRecordSinkHost {
     }
 }
 
-fn load_phase_catalog(path: &Path) -> Result<BTreeMap<StableId, Phase>, String> {
+fn load_phase_catalog(path: &Path) -> Result<BTreeMap<StableId, Phase>, CliError> {
     let bytes = fs::read(path).map_err(|error| format!("{}: {error}", path.display()))?;
     let phases: Vec<Phase> =
         serde_json::from_slice(&bytes).map_err(|error| format!("{}: {error}", path.display()))?;
     let mut catalog = BTreeMap::new();
     for phase in phases {
         if catalog.insert(phase.phase_id.clone(), phase).is_some() {
-            return Err("phase catalog contains a duplicate phase identifier".to_owned());
+            return Err(CliError::input(
+                "phase catalog contains a duplicate phase identifier".to_owned(),
+            ));
         }
     }
     Ok(catalog)
 }
 
-fn serve_stdio<H: JsonRpcHandler>(handler: &H, limits: FrameLimits) -> Result<(), String> {
+fn serve_stdio<H: JsonRpcHandler>(handler: &H, limits: FrameLimits) -> Result<(), CliError> {
     let stdin = io::stdin();
     let stdout = io::stdout();
     let mut reader = stdin.lock();
     let mut writer = stdout.lock();
     while let Some(frame) = read_frame(&mut reader, limits)? {
-        let response =
-            dispatch_frame(&frame, limits, handler).map_err(|error| error.to_string())?;
+        let response = dispatch_frame(&frame, limits, handler).map_err(CliError::input)?;
         writer
             .write_all(&response)
             .map_err(|error| format!("cannot write stdio response: {error}"))?;
@@ -1296,7 +1338,10 @@ fn serve_stdio<H: JsonRpcHandler>(handler: &H, limits: FrameLimits) -> Result<()
     Ok(())
 }
 
-fn read_frame<R: BufRead>(reader: &mut R, limits: FrameLimits) -> Result<Option<Vec<u8>>, String> {
+fn read_frame<R: BufRead>(
+    reader: &mut R,
+    limits: FrameLimits,
+) -> Result<Option<Vec<u8>>, CliError> {
     let mut header = Vec::new();
     if reader
         .read_until(b'\n', &mut header)
@@ -1306,14 +1351,18 @@ fn read_frame<R: BufRead>(reader: &mut R, limits: FrameLimits) -> Result<Option<
         return Ok(None);
     }
     if header.len() > limits.max_header_bytes || !header.ends_with(b"\r\n") {
-        return Err("invalid or oversized stdio Content-Length header".to_owned());
+        return Err(CliError::input(
+            "invalid or oversized stdio Content-Length header".to_owned(),
+        ));
     }
     let mut terminator = Vec::new();
     reader
         .read_until(b'\n', &mut terminator)
         .map_err(|error| format!("cannot read stdio header terminator: {error}"))?;
     if terminator != b"\r\n" || header.len() + terminator.len() > limits.max_header_bytes {
-        return Err("stdio framing requires one Content-Length header".to_owned());
+        return Err(CliError::input(
+            "stdio framing requires one Content-Length header".to_owned(),
+        ));
     }
     let header_text = std::str::from_utf8(&header)
         .map_err(|_| "stdio Content-Length header is not UTF-8".to_owned())?;
@@ -1324,10 +1373,10 @@ fn read_frame<R: BufRead>(reader: &mut R, limits: FrameLimits) -> Result<Option<
         .parse::<usize>()
         .map_err(|_| "invalid stdio Content-Length value".to_owned())?;
     if content_length > limits.max_content_bytes {
-        return Err(format!(
+        return Err(CliError::input(format!(
             "stdio content exceeds {} bytes",
             limits.max_content_bytes
-        ));
+        )));
     }
     let mut body = vec![0_u8; content_length];
     reader
@@ -1338,9 +1387,9 @@ fn read_frame<R: BufRead>(reader: &mut R, limits: FrameLimits) -> Result<Option<
     Ok(Some(header))
 }
 
-fn canonical_stdout<T: Serialize>(value: &T) -> Result<String, String> {
-    let bytes = to_canonical_vec(value).map_err(|error| error.to_string())?;
-    let mut output = String::from_utf8(bytes).map_err(|error| error.to_string())?;
+fn canonical_stdout<T: Serialize>(value: &T) -> Result<String, CliError> {
+    let bytes = to_canonical_vec(value).map_err(CliError::input)?;
+    let mut output = String::from_utf8(bytes).map_err(CliError::input)?;
     output.push('\n');
     Ok(output)
 }

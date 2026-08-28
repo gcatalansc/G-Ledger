@@ -5,6 +5,24 @@ use project_ledger_canonical_json::sha256_bytes;
 
 const SUPPORTED_VERSION: u32 = 2;
 
+pub(crate) fn verify_current(connection: &Connection) -> Result<(), SqliteStoreError> {
+    let current: u32 = connection.query_row(
+        "SELECT COALESCE(MAX(version), 0) FROM schema_migrations",
+        [],
+        |row| row.get(0),
+    )?;
+    if current != SUPPORTED_VERSION {
+        return Err(SqliteStoreError::UnsupportedMigration {
+            found: current,
+            supported: SUPPORTED_VERSION,
+        });
+    }
+    for (version, name, sql) in migrations() {
+        verify_applied(connection, version, name, sql)?;
+    }
+    Ok(())
+}
+
 pub(crate) fn apply(connection: &mut Connection) -> Result<(), SqliteStoreError> {
     connection.execute_batch(
         "CREATE TABLE IF NOT EXISTS schema_migrations (
