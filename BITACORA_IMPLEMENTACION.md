@@ -1988,3 +1988,21 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Commit de cierre: `feat: complete verified portability and SQLite recovery`. Sin nueva CI, ZIP, GSP/ENOSPC opt-in ni proyecto real.
 
 **Siguiente paso:** etapa 6, ejemplos ejecutables de la skill y recorrido Codex descartable; continuar después GSP y paquete Windows conforme a la autorización de terminar el plan.
+
+## 2026-08-27 — Etapa 6 en ejecución, 5/8
+
+- Etapa 5 cerrada en `9a03de0`. Skill actualizada con argv ejecutables, códigos de salida, scope de reconciliación y sin elevación humana. RED inicial por ejemplo inexistente; dos tests CLI y seis del paquete pasan; validador skill-creator PASS. El fixture de gate necesitó su digest real, no el placeholder del catálogo de schemas.
+- Recorrido real Codex por CLI documentado en `docs/PREPILOT_CODEX_PROCEDURE.md`: progreso/evidencia/gate incompleto/checkpoint/reconciliación, datos descartables; sin SQLite directo ni Markdown editado. Denegación 9 y missing-result 12 comprobados.
+- Hallazgo real: resume JSON usa presupuesto compacto de 220 bytes conservadores y elimina referencias/progreso cuando crece el texto; no pérdida en SQLite. Nueva aserción E2E exige preservar autoridad, gate pendiente y progreso después del checkpoint. Etapa 6 permanece abierta hasta corregir, repetir regresión y demostrar salida completa.
+- Gate 12219 se interrumpió por acceso Windows al binario mientras estaba en uso por el recorrido; se evitó repetir el solapamiento. Gate 17205 corresponde al código anterior a la corrección de resume; no puede cerrar ese nuevo hallazgo. No tocar otros procesos ni repositorios.
+
+- Resume corregido: modo Structured para JSON y resume.json portable sin pérdida de referencias por presupuesto textual. Markdown anuncia su acotación y muestra autoridad; skill usa JSON para argumentos exactos. No schemas modificados. RED explícito en copia del binario antiguo; tests focales 44889 PASS. Recorrido Codex repetido completo en v16 conserva autoridad/gate/progreso y audit sin findings. Detalles/digests en el informe de etapa 6.
+- Gate fresco 24790: formato y Clippy pasaron; workspace completo en ejecución, luego build locked/specs/contratos/release/deny/checksums/diff. No ejecutar el binario target durante compilación Windows ni solapar pipelines Cargo. Etapas 7–8 sólo preparación/lectura: pin GSP sigue limpio y exacto, `integration gsp compile` sigue ausente (RED observado). No commit de etapa 6 todavía.
+
+## 2026-08-27 — Etapa 6 verificada, 6/8
+
+- Gate 24790 finalizó exit 0 con todas las comprobaciones enumeradas; quick_validate de la skill volvió a pasar. Recorrido Codex real repetido y E2E automatizado demuestran referencias conservadas, gate pendiente, permisos, versión, reconciliación y replay.
+- PP-06/11 cerrados; JSON/portable resume completo y Markdown explícitamente acotado sin cambiar contratos. Plan, matriz, README y readiness conciliados. Commit: `fix: verify Codex workflow and preserve structured resume context`.
+- Consulta read-only de issues (hasta 30, todos los estados) de gcatalansc/G-Ledger y gcatalansc/gsp-gemma-compiler devolvió [] en ambos. No se interpreta como aceptación bilateral; el informe GSP de etapa 7 distinguirá la evidencia local de certificación externa.
+
+**Siguiente paso:** etapa 7, entrada GSP supervisada, matriz finita runtime/adversarial y revisión de evidencia disponible; luego ZIP/CI de etapa 8. No piloto real ni certificación.

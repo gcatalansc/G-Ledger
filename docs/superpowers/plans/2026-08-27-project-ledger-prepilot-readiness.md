@@ -76,9 +76,9 @@
 
 **Consumes/produces:** herramienta → resume → progreso/evidencia → evaluación → checkpoint → reconciliación → resume; operaciones exclusivamente por CLI/stdio autorizados.
 
-- [ ] RED: recorrido completo y condiciones missing-tool, versión desactualizada, autorización insuficiente y resultado incierto por procesos reales, no fixtures como prueba de ejecución.
-- [ ] GREEN: conciliar instrucciones/ejemplos con interfaces implementadas y actualizar hashes del paquete propio, nunca contratos upstream.
-- [ ] Ejecutar el recorrido desde Codex en un proyecto descartable y registrar evidencia; sin DB directa, Markdown como autoridad o cierre autónomo de gate/fase. Verificar y commit.
+- [x] RED: recorrido completo y condiciones missing-tool, versión desactualizada, autorización insuficiente y resultado incierto por procesos reales. La versión antigua es un proceso fixture etiquetado, no una release histórica ejecutada.
+- [x] GREEN: conciliar instrucciones/ejemplos con interfaces implementadas y actualizar hashes del paquete propio, nunca contratos upstream. Corregir pérdida de referencias en resume JSON detectada en el recorrido real.
+- [x] Recorrido desde Codex descartable completo, sin DB directa, Markdown como autoridad o cierre autónomo de gate/fase. Gate completo verificado; `docs/PREPILOT_CODEX_PROCEDURE.md`.
 
 ## Stage 7 — Runtime GSP finito
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **5/8, NOT_READY**. Stages 1–5 verificadas localmente. PP-05/09/10 cerrados; PP-06 conserva el recorrido Codex y PP-08 la prueba del paquete. Siguiente paso: Stage 6, skill y recorrido Codex mediante interfaces autorizadas. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **6/8, NOT_READY**. Stages 1–6 verificadas localmente. PP-06/11 cerrados con recorrido Codex y corrección de resume JSON; PP-08 conserva la prueba del paquete. Siguiente paso: Stage 7, compilación GSP supervisada y matriz finita del runtime fijado. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.

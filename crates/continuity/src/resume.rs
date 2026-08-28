@@ -8,6 +8,8 @@ use thiserror::Error;
 pub enum ResumeBudget {
     Compact,
     AgentMarkdown,
+    /// Machine-readable references are complete; text budgets must not delete facts.
+    Structured,
 }
 
 impl ResumeBudget {
@@ -15,6 +17,7 @@ impl ResumeBudget {
         match self {
             Self::Compact => 220,
             Self::AgentMarkdown => 450,
+            Self::Structured => u32::MAX,
         }
     }
 }
@@ -93,7 +96,7 @@ impl ResumeBuilder {
 
         loop {
             let rendered = match budget {
-                ResumeBudget::Compact => render_compact(&resume),
+                ResumeBudget::Compact | ResumeBudget::Structured => render_compact(&resume),
                 ResumeBudget::AgentMarkdown => render_agent_markdown(&resume),
             };
             let count = ConservativeTokenCounter::count(&rendered);
@@ -112,8 +115,9 @@ impl ResumeBuilder {
 /// Renders the bounded Markdown handoff intended for an agent context.
 pub fn render_agent_markdown(resume: &ResumeProjection) -> String {
     format!(
-        "# Project Ledger Resume\n- Project: `{}`\n- State: v{}\n- Freshness: `{}`\n- Active: {}\n- Completed: {}\n- Decisions: {}\n- Blockers: {}\n- Risks: {}\n- Gates: {}\n- Progress: {}\n- Next: {}\n- Critical unknowns: {}\n- Conflicts: {}\n- Checkpoint: {}\n",
+        "# Project Ledger Resume\nBounded view; use resume --format json for full references.\n- Project: `{}`\n- Authority: {}\n- State: v{}\n- Freshness: `{}`\n- Active: {}\n- Completed: {}\n- Decisions: {}\n- Blockers: {}\n- Risks: {}\n- Gates: {}\n- Progress: {}\n- Next: {}\n- Critical unknowns: {}\n- Conflicts: {}\n- Checkpoint: {}\n",
         short_ref(resume.project_ref.as_str()),
+        render_refs(&resume.authority_document_refs),
         resume.state_version,
         freshness_name(resume.checkpoint_freshness),
         render_refs(&resume.active_phase_refs),

@@ -291,7 +291,7 @@ pub fn export(args: &ExportArgs) -> Result<String, CliError> {
         stream,
         schemas_lock: json!({"schema_version":"0.2.0","schemas":schemas}),
         upstream_locks,
-        resume: ResumeBuilder::build(&p, ResumeBudget::Compact).map_err(CliError::domain)?,
+        resume: ResumeBuilder::build(&p, ResumeBudget::Structured).map_err(CliError::domain)?,
         evidence_references: json!(p.evidence_records()),
         radar_projection: json!(radar),
         generated_markdown: markdown.content.into_bytes(),

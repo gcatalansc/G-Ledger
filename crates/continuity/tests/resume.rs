@@ -81,6 +81,10 @@ fn ac_024_resume_fits_budget_and_ac_025_stale_checkpoint_is_labeled() {
     );
     assert!(agent.rendered_token_count <= 450);
     assert_eq!(resume_digest(&agent), agent.digest);
+    assert!(agent_markdown.contains("Bounded view; use resume --format json"));
+    let structured = ResumeBuilder::build(&projection, ResumeBudget::Structured).unwrap();
+    assert_eq!(structured.critical_unknown_refs.len(), 13);
+    assert_eq!(resume_digest(&structured), structured.digest);
 }
 
 fn unknown(number: u8) -> UnknownRecord {

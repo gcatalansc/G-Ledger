@@ -1,0 +1,28 @@
+{
+  "purpose": "Executable argv templates, not a script or authorization. Substitute only user-approved paths and engine-returned identities. Refresh STATE_VERSION after each known result; preserve the original request for reconciliation or exact replay.",
+  "minimum_version": "0.2.0",
+  "maximum_version_exclusive": "0.3.0",
+  "commands": {
+    "probe_version": ["--version"],
+    "probe_progress": ["record", "progress", "--help"],
+    "probe_evidence": ["evidence", "run", "--help"],
+    "probe_evaluate": ["gate", "evaluate", "--help"],
+    "probe_checkpoint": ["checkpoint", "create", "--help"],
+    "probe_reconcile": ["reconcile", "--help"],
+    "resume": ["resume", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--format", "json"],
+    "progress": ["record", "progress", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--summary", "${SUMMARY}", "--actor-id", "${ACTOR_ID}", "--observed-at", "${OBSERVED_AT}", "--expected-version", "${STATE_VERSION}", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json"],
+    "evidence": ["evidence", "run", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--kind", "TEST_RESULT", "--gate", "${GATE_REF}", "--policy", "${POLICY_PATH}", "--cwd", "${WORKING_DIRECTORY}", "--actor-id", "${ACTOR_ID}", "--observed-at", "${OBSERVED_AT}", "--expected-version", "${STATE_VERSION}", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json", "--", "${AUTHORIZED_TOOL}", "--version"],
+    "evaluate": ["gate", "evaluate", "${GATE_REF}", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--actor-id", "${ACTOR_ID}", "--observed-at", "${OBSERVED_AT}", "--expected-version", "${STATE_VERSION}", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json"],
+    "checkpoint": ["checkpoint", "create", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--reason", "${SUMMARY}", "--actor-id", "${ACTOR_ID}", "--observed-at", "${OBSERVED_AT}", "--expected-version", "${STATE_VERSION}", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json"],
+    "reconcile_checkpoint": ["reconcile", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--command-type", "CREATE_CONTINUITY_CHECKPOINT", "--actor-id", "${ACTOR_ID}", "--trust-domain", "LOCAL_USER", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json"],
+    "human_only_negative": ["pause", "--database", "${DATABASE_PATH}", "--project-ref", "${PROJECT_REF}", "--reason", "Negative test only; do not invoke in routine work", "--actor-id", "${ACTOR_ID}", "--observed-at", "${OBSERVED_AT}", "--expected-version", "${STATE_VERSION}", "--idempotency-key", "${IDEMPOTENCY_KEY}", "--json"]
+  },
+  "limits": [
+    "evidence is a bounded version probe of the explicitly authorized executable, not a qualified test parser or proof of project correctness",
+    "human_only_negative is exclusively a disposable test and must be rejected without --as-human; never add that flag to bypass denial",
+    "gate evaluation can return an ACCEPTED command with exit 6: the evaluation was recorded but the gate remains unsatisfied",
+    "checkpoint's existing v0.2 CLI uses LOCAL_USER scope even for an agent actor; this does not grant human lifecycle privileges",
+    "ordinary record/evidence/gate commands use TRUSTED_FOR_RECORDING; reconcile their exact command type, actor, trust domain and key",
+    "do not execute this file wholesale, reuse keys for different intents, or infer permission from a locator"
+  ]
+}

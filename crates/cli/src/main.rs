@@ -579,7 +579,7 @@ fn resume_project(args: &ResumeArgs) -> Result<String, CliError> {
     let (_, projection) = args.selection.load()?;
     let budget = match args.format {
         ResumeFormat::Codex => ResumeBudget::AgentMarkdown,
-        ResumeFormat::Json => ResumeBudget::Compact,
+        ResumeFormat::Json => ResumeBudget::Structured,
     };
     let resume = ResumeBuilder::build(&projection, budget).map_err(CliError::domain)?;
     match args.format {
