@@ -10,7 +10,7 @@
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
-  "open_gaps": ["PP-08", "PP-13", "PP-14"],
+  "open_gaps": ["PP-14"],
   "stage_evidence": [{
     "stage": 1,
     "kind": "OBSERVED_BASELINE_AND_TRACEABILITY",
@@ -61,6 +61,31 @@
     "new_cli_tests_passed": 5,
     "aggregate_gate": "62580 exit 0: fmt, Clippy, workspace tests, locked build, schemas, specs, contracts, release, dependency policy, 13 hashes, diff",
     "scope": "local fixed-set conformity; no external certification, new hosted CI or ZIP proof"
+  },
+  "stage_8": {
+    "implementation_status": "COMPLETE",
+    "verification_status": "LOCAL_PASS_HOSTED_BLOCKED",
+    "evidence": "docs/PREPILOT_WINDOWS_DELIVERY.md",
+    "aggregate_local_gate": "70512 exit 0",
+    "windows_zip_verification": "52201 exit 0; extracted Unicode path; isolated core environment; exactly two full-flow harness cases passed",
+    "candidate_commit": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
+    "candidate_tree_dirty": false,
+    "zip_path": "dist/project-ledger-0.2.0-windows-x86_64-clean.zip",
+    "zip_sha256": "0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c",
+    "reviewed_resource_count": 448,
+    "hosted_ci": {
+      "run_id": 33137113781,
+      "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781",
+      "head_sha": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
+      "reported_conclusion": "failure",
+      "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+      "jobs_with_zero_steps": [98739436754, 98739436756, 98739436757, 98739436787, 98739436805, 98739436808],
+      "annotation_confirmed_for_all_jobs": true,
+      "code_failure_observed": false,
+      "required_user_action": "Resolve GitHub Actions account payment/spending restriction, then rerun the candidate CI",
+      "billing_changes_performed": false,
+      "repository_visibility_changed": false
+    }
   },
   "historical_rq4": {
     "status": "COMPLETE_BOUNDED_CRASH_RECOVERY",

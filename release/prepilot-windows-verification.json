@@ -1,0 +1,53 @@
+{
+  "profile": "project-ledger-package-verification/1",
+  "status": "PASS",
+  "zip_sha256": "0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c",
+  "source_commit": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
+  "source_tree_dirty": false,
+  "scenarios": [
+    "compiled-resource-hashes",
+    "specs-contracts-release",
+    "Codex-full-flow",
+    "portable-backup-restore-replay",
+    "privacy-and-error-codes",
+    "missing-optional-GSP",
+    "resource-tamper-rejected"
+  ],
+  "runtime_environment": "PATH absent; only SystemRoot/TEMP/TMP passed to Ledger; no Cargo/Git/Python/checkout required by core",
+  "imported_system_dlls": [
+    "kernel32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "oleaut32.dll",
+    "bcryptprimitives.dll",
+    "KERNEL32.dll",
+    "ntdll.dll"
+  ],
+  "certified_compatibility": false,
+  "harness_results": [
+    {
+      "failed": 0,
+      "test": "published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access",
+      "passed": 1
+    },
+    {
+      "failed": 0,
+      "test": "portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains",
+      "passed": 1
+    }
+  ],
+  "scope": "LOCAL_WINDOWS_EXACT_CANDIDATE_ONLY",
+  "prepilot_readiness": "NOT_READY",
+  "real_gsp_opt_in_tests": {
+    "passed": 6,
+    "session": "56539",
+    "runtime_commit": "7a43559c02417641691dbb5f2a6e79c13d74d1a1",
+    "contract": "gsp-exact-2026.04.12",
+    "probe_origin": "RQ4 test-only instrumentation; actual pinned compiler"
+  },
+  "hosted_ci": {
+    "run_id": 33137113781,
+    "status": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+    "executed_jobs": 0,
+    "blocked_jobs": 6
+  }
+}

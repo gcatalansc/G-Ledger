@@ -96,8 +96,8 @@
 
 **Consumes/produces:** release build y recursos hash-locked → ZIP Windows → pruebas desde extracción limpia → informe READY_FOR_CONTROLLED_PILOT cuando proceda.
 
-- [ ] RED/GREEN: recursos resueltos desde instalación o ruta explícita, no cwd; núcleo ejecutable sin toolchain/checkout/Python/red y requisitos GSP separados.
-- [ ] Probar el ZIP fuera del repo, rutas con espacios/no ASCII, permisos, núcleo offline y recorridos completos. No sustituir prueba de paquete por manifiesto de build.
+- [x] RED/GREEN: recursos resueltos desde instalación o ruta explícita, no cwd; núcleo ejecutable sin toolchain/checkout/Python/red y requisitos GSP separados.
+- [x] Probar el ZIP fuera del repo, rutas con espacios/no ASCII, permisos, núcleo offline y recorridos completos. ZIP limpio 52201, SHA y evidencia en `docs/PREPILOT_WINDOWS_DELIVERY.md`.
 - [ ] Ejecutar formato, Clippy estricto, tests workspace, build locked, schemas/specs/integraciones, benchmark, dependencias, checksums, pruebas de fallos afectadas y CI exact-SHA.
 - [ ] Cerrar sólo sin brechas conocidas en alcance. Registrar implementación verificada, artefacto, CI y limitaciones; commit final documental conserva evidencia ya observada y no promete CI futura.
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **7/8, NOT_READY**. Stages 1–7 verificadas localmente. PP-12 cerrado con seis pruebas explícitas del runtime fijado y matriz finita; PP-08 conserva la prueba del paquete. Siguiente paso: Stage 8, recursos portables, ZIP Windows y CI exact-SHA. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **7/8, NOT_READY**. Stages 1–7 verificadas; etapa 8 implementada y verificada localmente, incluido ZIP limpio. Sólo PP-14 sigue abierto: GitHub bloqueó los seis jobs de CI 33137113781 antes de ejecutar pasos por pagos fallidos o límite de gasto. Siguiente paso: el titular habilita Actions; reejecutar la CI del candidato f4b34e591b13199d040ecf7d41a071e21bf63d37, resolver cualquier fallo real y cerrar etapa 8 con commit documental. Sin cambios de facturación, visibilidad, contratos o proyecto real. No se declara apto para piloto todavía.

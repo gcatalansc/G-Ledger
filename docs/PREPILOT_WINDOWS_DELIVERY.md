@@ -1,6 +1,6 @@
 # Etapa 8 — entrega Windows y preparación para piloto
 
-Estado: en verificación, avance 7/8, NOT_READY. No usar un ZIP candidato como entrega cerrada antes de registrar abajo su hash y CI observada.
+Estado: implementación y verificación local terminadas; **7/8, NOT_READY por CI alojada bloqueada**. El ZIP es un candidato limpio comprobado localmente, no una entrega apta para piloto hasta cerrar la CI pendiente.
 
 ## Distribución y recursos
 
@@ -38,8 +38,11 @@ Los harnesses de ensayo se compilan fuera del paquete; invocan el ejecutable ext
 - Benchmark: RED 62658 confirmó fecha histórica fija; GREEN 73652 prueba reloj real. Clippy requirió ordenar el módulo de tests y después pasó en 12018. Medición 64399 PASS, 2026-08-28T02:39:50.27391Z: nueve targets, startup p95 42,77 ms, RSS p95 19,684 MiB, 20 muestras/10.000 eventos; reports y hashes regenerados. La medición usa el binario estático candidato, no afirma rendimiento universal.
 - Allowlist de distribución: RED 61570 por ausencia de inventario revisado; sustituida enumeración de directorios por 448 rutas explícitas. Test exige igualdad exacta entre inventario y catálogo; ningún archivo local adicional entra por descubrimiento.
 - Gate completo 70512 exit 0: fmt, Clippy, workspace/all-targets/all-features, build locked, schemas/specs/contratos/release, dependencias y 13 hashes. ZIP actualizado incluirá además LICENSE del proyecto (omisión detectada por prueba negativa del candidato-1); no cambia el catálogo de recursos. Falta observar la reconstrucción limpia y CI.
-- Fuente/ZIP/CI finales: pendientes. No se ha ejecutado piloto sobre un proyecto real.
+- Candidato limpio 52201 PASS: fuente `f4b34e591b13199d040ecf7d41a071e21bf63d37`, ZIP `dist/project-ledger-0.2.0-windows-x86_64-clean.zip`, SHA-256 `0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c`. 448 recursos, binario y LICENSE íntegros; exactamente 1 test Codex y 1 portable/bind/privacidad PASS desde extracción externa con acentos. Se conserva reporte local sin rutas personales en `release/prepilot-windows-verification.json`.
+- GSP repetido sobre ese ZIP limpio: 56539 exit 0, seis tests reales PASS. Tres de supervisión con CLI extraída; RQ4 usa su probe test-only y observó crash propio PID 45084, reinicio y link/replay sin cambios de autoridad. No se cambió ningún upstream.
+- [CI 33137113781](https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781), SHA exacto del candidato: reported failure, seis jobs con cero pasos. Las seis anotaciones indican que GitHub no inició el trabajo por pagos recientes fallidos o límite de gasto insuficiente. No hay logs de tests ni fallo observado del código. Jobs: Windows 98739436754, macOS 98739436756, ENOSPC 98739436757, GSP 98739436787, Ubuntu 98739436805 y dependencias 98739436808.
+- Diagnóstico con gh-fix-ci: autenticación repo/workflow válida, push privado confirmado y anotaciones de todos los jobs revisadas. No se altera workflow para eludir el bloqueo, no se cambia visibilidad ni facturación y no se repiten ejecuciones mientras siga la misma restricción. No se ha ejecutado un proyecto real.
 
 ## Límites y siguiente paso
 
-La salida final será apto para piloto controlado sólo cuando 8/8 esté verificado. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. Tras cerrar la entrega, el usuario elegirá un proyecto nuevo o actual para un piloto acotado.
+El titular debe resolver la restricción de cuenta en Billing & plans y habilitar GitHub Actions. Entonces reejecutar la CI del candidato, observar sus seis jobs y resolver cualquier fallo real antes de cerrar 8/8 con un commit documental. La salida será apto para piloto controlado sólo después de ese cierre. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.

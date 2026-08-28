@@ -2049,3 +2049,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Se prepara commit de candidato `feat: package Windows candidate with locked installation resources`. Es un checkpoint de implementación, no el cierre 8/8: faltan reconstrucción limpia/QA, push privado y CI exact-SHA. El cierre tendrá su propio commit documental con evidencia observada y artefacto identificado.
 
 **Siguiente paso:** construir/probar el ZIP limpio del candidato y observar CI Windows/Linux/macOS, dependencias, ENOSPC y GSP. Resolver cualquier fallo del alcance antes de entregar.
+
+## 2026-08-27 — Verificación local completa; cierre bloqueado por GitHub, 7/8
+
+- Candidato `f4b34e591b13199d040ecf7d41a071e21bf63d37` comprometido y enviado al repositorio privado. 52201 exit 0: build estático locked, árbol limpio, ZIP con 448 recursos + binario + LICENSE; hashes y PE verificados. SHA ZIP `0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c`. Ambos harnesses ejecutaron exactamente un escenario con cero fallos desde extracción externa Unicode, sin PATH ni herramientas de desarrollo para el núcleo.
+- 56539 exit 0: seis GSP reales repetidos usando la CLI de ese ZIP en los casos supervisados; crash RQ4 propio PID 45084 seguido de recuperación, un enlace y replay sin efecto. Los recursos del paquete, no el cwd, gobiernan la entrada de compilación. Prerrequisitos externos GSP siguen explícitos y separados.
+- CI `33137113781` sobre f4b34e5 terminó failure sin ejecutar pasos. gh-fix-ci: auth válida, todos los jobs con steps=[] y las seis anotaciones coinciden en bloqueo de cuenta por pagos fallidos o límite de gasto. Windows 98739436754, macOS 98739436756, ENOSPC 98739436757, GSP 98739436787, Ubuntu 98739436805, dependencias 98739436808. No hay logs porque no arrancaron; no se atribuye el fallo al código ni se reutiliza la CI histórica como cierre nuevo.
+- PP-08 y PP-13 cerrados con artefacto limpio; sólo PP-14 permanece abierto. Plan, matriz, README y readiness conservan 7/8 y NOT_READY. Informe de verificación local persistido sin rutas personales en `release/prepilot-windows-verification.json`.
+- No se efectuaron pagos, cambios de límite/visibilidad, instalación de runners, ampliaciones de contratos, piloto real ni reintentos ciegos de CI. El checkpoint documental queda en commit local; no se fuerza otro push/ejecución conocida como bloqueada. Esto no es commit de cierre de etapa 8.
+
+**Siguiente paso necesario:** el titular habilita GitHub Actions resolviendo la restricción indicada en Billing & plans; reejecutar CI del candidato exacto, verificar seis jobs y cerrar 8/8 con evidencia observada. No intervenir un proyecto real hasta entonces.
