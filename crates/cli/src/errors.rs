@@ -99,6 +99,21 @@ impl From<project_ledger_storage_sqlite::SqliteStoreError> for CliError {
     }
 }
 
+impl From<project_ledger_storage_sqlite::BackupError> for CliError {
+    fn from(error: project_ledger_storage_sqlite::BackupError) -> Self {
+        use project_ledger_storage_sqlite::BackupError;
+        match error {
+            BackupError::DestinationExists => Self::input(error),
+            BackupError::Integrity | BackupError::Recovery(_) => Self::new(
+                15,
+                "BACKUP_INTEGRITY",
+                "backup or recovery metadata is inconsistent",
+            ),
+            other => Self::storage(other),
+        }
+    }
+}
+
 impl From<project_ledger_evidence::supervisor::SupervisionError> for CliError {
     fn from(error: project_ledger_evidence::supervisor::SupervisionError) -> Self {
         use project_ledger_evidence::supervisor::SupervisionError;

@@ -43,6 +43,8 @@ pub struct ReviewedLegacyImport {
 /// Fail-closed legacy parsing and review failures.
 #[derive(Debug, Error)]
 pub enum LegacyImportError {
+    #[error("legacy review exceeds 1 MiB or 1024 candidates; split the source explicitly")]
+    BudgetExceeded,
     #[error("legacy Markdown is not valid UTF-8")]
     InvalidUtf8,
     #[error("legacy source path must be a safe non-empty relative path")]
@@ -81,6 +83,9 @@ impl LegacyImporter {
     /// Returns [`LegacyImportError`] for invalid provenance, encoding or a source
     /// with no recognized explicit candidate. Chronology is never authority.
     pub fn preview(request: LegacyReviewRequest) -> Result<LegacyImportReview, LegacyImportError> {
+        if request.markdown.len() > 1024 * 1024 {
+            return Err(LegacyImportError::BudgetExceeded);
+        }
         validate_source_path(&request.source_path)?;
         let markdown =
             std::str::from_utf8(&request.markdown).map_err(|_| LegacyImportError::InvalidUtf8)?;
@@ -98,6 +103,9 @@ impl LegacyImporter {
                 continue;
             };
             let candidate_id = candidate_id(source_digest, line_number, kind, value)?;
+            if candidates.len() >= 1024 {
+                return Err(LegacyImportError::BudgetExceeded);
+            }
             candidates.push(LegacyImportCandidate {
                 schema_version: SchemaVersion::V0_2_0,
                 candidate_id,

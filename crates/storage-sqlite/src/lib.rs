@@ -1,5 +1,6 @@
 //! SQLite/WAL adapter for the Project Ledger event-store ports.
 
+mod backup;
 mod events;
 mod executions;
 mod migrations;
@@ -18,6 +19,7 @@ use std::{fs, path::Path, time::Duration};
 use rusqlite::{Connection, OpenFlags};
 use thiserror::Error;
 
+pub use backup::{BackupError, BackupManifest};
 pub use executions::ExecutionReservation;
 pub use recovery::RecoveryReport;
 

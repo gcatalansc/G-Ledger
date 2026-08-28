@@ -52,7 +52,11 @@ Ctrl-C solicita cancelación; también se puede crear el archivo absoluto indica
 
 Antes de ejecutar se reserva durablemente la clave y un digest de la solicitud en metadatos SQLite. Si queda una reserva sin resultado, repetir devuelve OUTCOME_UNKNOWN sin volver a ejecutar; una solicitud diferente devuelve 10. Reconciliar una solicitud ya registrada recupera el resultado y replay no ejecuta. Si el proceso termina con exit distinto de cero, se registra su evidencia OBSERVED y la CLI devuelve 3; el CommandResult ACCEPTED significa registro aceptado, no prueba aprobada.
 
-La migración SQLite interna 3 contiene estas reservas, sin ampliar contratos canónicos. La migración autorizada con backup y su restauración se verifican en etapa 5; las consultas nunca migran por sí solas.
+La migración SQLite interna 3 contiene estas reservas, sin ampliar contratos canónicos. `migrate --backup <directorio nuevo>` respalda antes de cambiar el esquema; las consultas nunca migran por sí solas.
+
+## Incorporación, vistas y recuperación
+
+`render`, `verify --artifact`, `export --format portable`, `import`, `import-markdown`, `backup`, `restore` y `migrate` están descritos con sus límites y revisión explícita en [portabilidad y recuperación](PREPILOT_PORTABILITY_RECOVERY.md). El portable conserva el historial, pero no resultados/idempotencia operacionales; un backup SQLite completo sí los conserva. Restore exige un destino nuevo. Fork materializado no está disponible en v0.2.
 
 ## Evidencia de implementación
 

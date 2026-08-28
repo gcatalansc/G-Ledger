@@ -9,15 +9,16 @@ license.workspace = true
 project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
 project-ledger-domain = { path = "../domain", version = "=0.2.0" }
 project-ledger-event-store = { path = "../event-store", version = "=0.2.0" }
-rusqlite.workspace = true
+rusqlite = { workspace = true, features = ["backup"] }
+project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
+sha2.workspace = true
+tempfile.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
 project-ledger-portable-bundle = { path = "../portable-bundle", version = "=0.2.0" }
-project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
-tempfile.workspace = true
 
 [lints]
 workspace = true

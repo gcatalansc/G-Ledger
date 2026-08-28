@@ -6,24 +6,44 @@ use project_ledger_canonical_json::sha256_bytes;
 const SUPPORTED_VERSION: u32 = 3;
 
 pub(crate) fn verify_current(connection: &Connection) -> Result<(), SqliteStoreError> {
-    let current: u32 = connection.query_row(
-        "SELECT COALESCE(MAX(version), 0) FROM schema_migrations",
-        [],
-        |row| row.get(0),
-    )?;
+    let current = verify_known(connection)?;
     if current != SUPPORTED_VERSION {
         return Err(SqliteStoreError::UnsupportedMigration {
             found: current,
             supported: SUPPORTED_VERSION,
         });
     }
-    for (version, name, sql) in migrations() {
-        verify_applied(connection, version, name, sql)?;
-    }
     Ok(())
 }
 
+pub(crate) fn verify_known(connection: &Connection) -> Result<u32, SqliteStoreError> {
+    let current: u32 = connection.query_row(
+        "SELECT COALESCE(MAX(version), 0) FROM schema_migrations",
+        [],
+        |row| row.get(0),
+    )?;
+    if current == 0 || current > SUPPORTED_VERSION {
+        return Err(SqliteStoreError::UnsupportedMigration {
+            found: current,
+            supported: SUPPORTED_VERSION,
+        });
+    }
+    for (version, name, sql) in migrations() {
+        if version <= current {
+            verify_applied(connection, version, name, sql)?;
+        }
+    }
+    Ok(current)
+}
+
 pub(crate) fn apply(connection: &mut Connection) -> Result<(), SqliteStoreError> {
+    let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+    apply_inside(&transaction)?;
+    transaction.commit()?;
+    Ok(())
+}
+
+pub(crate) fn apply_inside(connection: &Connection) -> Result<(), SqliteStoreError> {
     connection.execute_batch(
         "CREATE TABLE IF NOT EXISTS schema_migrations (
             version INTEGER PRIMARY KEY NOT NULL,
@@ -51,13 +71,11 @@ pub(crate) fn apply(connection: &mut Connection) -> Result<(), SqliteStoreError>
         if current >= version {
             continue;
         }
-        let transaction = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
-        transaction.execute_batch(sql)?;
-        transaction.execute(
+        connection.execute_batch(sql)?;
+        connection.execute(
             "INSERT INTO schema_migrations(version, name, migration_digest) VALUES (?1, ?2, ?3)",
             params![version, name, sha256_bytes(sql.as_bytes()).to_string()],
         )?;
-        transaction.commit()?;
     }
     Ok(())
 }

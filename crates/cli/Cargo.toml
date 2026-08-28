@@ -24,6 +24,8 @@ project-ledger-interop-gskills = { path = "../interop-gskills", version = "=0.2.
 project-ledger-interop-gsp = { path = "../interop-gsp", version = "=0.2.0" }
 project-ledger-interop-radar = { path = "../interop-radar", version = "=0.2.0" }
 project-ledger-projection-engine = { path = "../projection-engine", version = "=0.2.0" }
+project-ledger-portable-bundle = { path = "../portable-bundle", version = "=0.2.0" }
+project-ledger-legacy-import = { path = "../legacy-import", version = "=0.2.0" }
 project-ledger-project-catalog = { path = "../project-catalog", version = "=0.2.0" }
 project-ledger-release = { path = "../release", version = "=0.2.0" }
 project-ledger-schemas = { path = "../schemas", version = "=0.2.0" }
@@ -34,12 +36,12 @@ serde_json.workspace = true
 serde_yaml.workspace = true
 time.workspace = true
 uuid.workspace = true
+tempfile.workspace = true
 
 [dev-dependencies]
 rusqlite.workspace = true
 assert_cmd.workspace = true
 predicates.workspace = true
-tempfile.workspace = true
 
 [lints]
 workspace = true

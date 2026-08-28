@@ -1967,3 +1967,24 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Commit de cierre: `feat: supervise evidence processes and preserve uncertain executions`. No piloto ni certificación, y todavía no nueva CI hosted.
 
 **Siguiente paso:** etapa 5, operaciones CLI de render/portable/importación histórica revisada, backup SQLite/WAL completo, restauración nueva y migración con respaldo previo; luego continuar 6–8.
+
+## 2026-08-27 — Etapa 5 en ejecución, checkpoint (4/8)
+
+- Commit etapa 4: `53f6f33`. No nuevas autorizaciones requeridas; sigue vigente completar 5–8.
+- RED reproducidos: CLI sin backup/migrate/export/render/import-markdown; audit aceptaba DELETE de idempotency_keys; portable ignoraba directorio extra vacío; legacy sin límite de candidatos. Implementación mínima y regresión focal: cinco recorridos CLI pasan, metadata recovery pasa y suites portable/legacy pasan.
+- Backup online con WAL, resultado/idempotencia/reservas; restore nuevo checksummed; migración transaccional con respaldo previo y exclusión de escritores. Consultas no migran. Metadata operacional se verifica adicionalmente al hash de eventos. Se conservan contratos v0.2.
+- Render y sidecar derivado con verificación/re-render; portable new/identical/fast-forward, fork rechazado antes de escribir. Importación histórica exige decisiones individuales de revisor humano y digest del preview; sólo ASSERTED, provenance y contradicciones persistidas descriptivamente, sin convertir lifecycle/gates en hechos verificados. Reporta candidatos no materializados y resultados parciales recuperables por clave.
+- Pendiente gate completo. Clippy detectó tres cuestiones de estilo en backup (doc SQLite, unidad Duration, buffer en stack), corregidas; reejecución vigente sesión 92302 ya terminó y el nuevo Clippy está corriendo. Tests adicionales privacidad/divergencia/WAL concreto por ejecutar. Detalles de límites en `docs/PREPILOT_PORTABILITY_RECOVERY.md`, todavía declara no cerrado.
+- Próximo: terminar revisión y gates, actualizar a 5/8 sólo si pasan, commit; luego skill/Codex, matriz GSP y ZIP/CI fresca. No piloto, ninguna nueva ejecución GSP/ENOSPC, ningún push aún.
+
+- Revisión de la prueba WAL: abrir una conexión sin leer no retenía una transacción, por lo que SQLite podía checkpointar al cerrar el escritor CLI. El nuevo assert sobre un WAL real expuso esa debilidad del test (archivo ausente). Se mantiene un snapshot lector anterior al append para impedir el checkpoint completo; la prueba deberá recuperar el commit que permanece en WAL. No se presenta la prueba anterior como evidencia de páginas WAL pendientes.
+
+- La prueba WAL reforzada pasó. Revisión adicional con proceso CLI y SQLite descartable confirmó audit=0 tras sustituir sólo idempotency_keys.command_ref por una referencia inexistente: el lookup validaba el result pero no ese índice cruzado. Se añade regresión persistente y validación explícita del join completo. El gate 55727 verificaba la versión previa a esta última corrección; repetir regresión afectada y agregado antes de cerrar. Python se usó sólo como cliente SQLite de la prueba descartable, no como dependencia operativa del núcleo ni modificación del runtime GSP.
+
+## 2026-08-27 — Etapa 5 verificada, 5/8
+
+- Sesión 92829 exit 0: formato, Clippy estricto, regresión de metadata, workspace/all-targets/all-features, build locked, schemas/specs/contratos, release check, cargo deny offline, 13/13 SHA-256 y diff. Seis recorridos CLI de portabilidad/recuperación pasan; la última corrección del índice cruzado sí está incluida en este gate.
+- Plan, matriz, README y readiness conciliados. PP-05/09/10 cerrados. Se preserva la diferencia entre exportación de historia y respaldo privado completo; revisión Markdown sólo ASSERTED, fork explícitamente no disponible, no contratos ampliados.
+- Commit de cierre: `feat: complete verified portability and SQLite recovery`. Sin nueva CI, ZIP, GSP/ENOSPC opt-in ni proyecto real.
+
+**Siguiente paso:** etapa 6, ejemplos ejecutables de la skill y recorrido Codex descartable; continuar después GSP y paquete Windows conforme a la autorización de terminar el plan.

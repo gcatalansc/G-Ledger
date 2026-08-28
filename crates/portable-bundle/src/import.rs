@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{collections::BTreeMap, fs, io::Read, path::Path};
 
 use project_ledger_domain::{
     EventEnvelope, EventId, PortableExport, PortableImportPolicy, ProjectId,
@@ -141,6 +141,25 @@ impl PortableBundle {
     /// Returns [`PortableBundleError`] for missing/extra/symlinked files, invalid
     /// JSONL, checksum or manifest divergence, and any invalid event/state chain.
     pub fn read_directory(directory: &Path) -> Result<Self, PortableBundleError> {
+        Self::read_directory_with_limit(directory, 64 * 1024 * 1024)
+    }
+
+    /// Reads the fixed tree with an explicit total byte budget (default 64 MiB).
+    /// # Errors
+    /// Rejects unlisted trees, links, excess files/bytes or invalid bundle contents.
+    pub fn read_directory_with_limit(
+        directory: &Path,
+        maximum_bytes: u64,
+    ) -> Result<Self, PortableBundleError> {
+        if fs::symlink_metadata(directory)
+            .map_err(|source| io(directory, source))?
+            .file_type()
+            .is_symlink()
+        {
+            return Err(PortableBundleError::UnsupportedEntry {
+                path: "bundle root".to_owned(),
+            });
+        }
         let upstream_locks = directory.join("upstream-locks");
         if !upstream_locks.is_dir() {
             return Err(PortableBundleError::Integrity {
@@ -148,7 +167,8 @@ impl PortableBundle {
             });
         }
         let mut entries = BTreeMap::new();
-        collect_entries(directory, directory, &mut entries)?;
+        let mut remaining = maximum_bytes;
+        collect_entries(directory, directory, &mut entries, &mut remaining)?;
         validate_entry_names(&entries)?;
 
         let manifest_bytes = required(&entries, "manifest.json")?;
@@ -259,6 +279,7 @@ fn collect_entries(
     root: &Path,
     directory: &Path,
     entries: &mut BTreeMap<String, Vec<u8>>,
+    remaining: &mut u64,
 ) -> Result<(), PortableBundleError> {
     let iterator = fs::read_dir(directory).map_err(|source| io(directory, source))?;
     for item in iterator {
@@ -272,7 +293,26 @@ fn collect_entries(
             });
         }
         if file_type.is_dir() {
-            collect_entries(root, &item.path(), entries)?;
+            let relative = item
+                .path()
+                .strip_prefix(root)
+                .map_err(|_| PortableBundleError::UnsupportedEntry {
+                    path: "directory".to_owned(),
+                })?
+                .to_string_lossy()
+                .replace('\\', "/");
+            if ![
+                "upstream-locks",
+                "evidence",
+                "generated",
+                "integrations",
+                "projections",
+            ]
+            .contains(&relative.as_str())
+            {
+                return Err(PortableBundleError::UnsupportedEntry { path: relative });
+            }
+            collect_entries(root, &item.path(), entries, remaining)?;
             continue;
         }
         if !file_type.is_file() {
@@ -288,7 +328,23 @@ fn collect_entries(
             })?
             .to_string_lossy()
             .replace('\\', "/");
-        let bytes = fs::read(item.path()).map_err(|source| io(&item.path(), source))?;
+        if entries.len() >= 256 {
+            return Err(PortableBundleError::Integrity {
+                message: "bundle file budget exceeded".to_owned(),
+            });
+        }
+        let mut bytes = Vec::new();
+        fs::File::open(item.path())
+            .map_err(|source| io(&item.path(), source))?
+            .take(remaining.saturating_add(1))
+            .read_to_end(&mut bytes)
+            .map_err(|source| io(&item.path(), source))?;
+        if bytes.len() as u64 > *remaining {
+            return Err(PortableBundleError::Integrity {
+                message: "bundle size budget exceeded".to_owned(),
+            });
+        }
+        *remaining -= bytes.len() as u64;
         entries.insert(relative, bytes);
     }
     Ok(())

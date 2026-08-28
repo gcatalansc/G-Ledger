@@ -5,12 +5,12 @@
   "plan": "docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md",
   "gap_matrix": "docs/PREPILOT_GAP_MATRIX.md",
   "total_stages": 8,
-  "completed_stages": [1, 2, 3, 4],
+  "completed_stages": [1, 2, 3, 4, 5],
   "historical_release_inventory_is_operational_coverage": false,
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
-  "open_gaps": ["PP-05", "PP-06", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12", "PP-13", "PP-14"],
+  "open_gaps": ["PP-06", "PP-08", "PP-11", "PP-12", "PP-13", "PP-14"],
   "stage_evidence": [{
     "stage": 1,
     "kind": "OBSERVED_BASELINE_AND_TRACEABILITY",
@@ -39,6 +39,13 @@
     "evidence": "docs/PREPILOT_PROCESS_SAFETY.md",
     "verification": ["cargo fmt --all -- --check", "cargo clippy --workspace --all-targets --all-features -- -D warnings", "cargo test --workspace --all-targets --all-features", "cargo build --workspace --locked", "cargo xtask schema check", "specs verify", "contracts verify", "cargo xtask release check", "cargo deny check", "13/13 SHA-256 checksums", "git diff --check"],
     "runtime_scope": "Windows owned processes, timeout, cancellation, overflow, descendant cleanup including abrupt supervisor termination; 20 CLI tests; no new GSP, ENOSPC, hosted CI or package proof"
+  }, {
+    "stage": 5,
+    "kind": "REAL_CLI_PORTABILITY_AND_WAL_RECOVERY",
+    "evidence": "docs/PREPILOT_PORTABILITY_RECOVERY.md",
+    "new_cli_tests_passed": 6,
+    "verification": ["cargo fmt --all -- --check", "cargo clippy --workspace --all-targets --all-features -- -D warnings", "cargo test --workspace --all-targets --all-features", "cargo build --workspace --locked", "cargo xtask schema check", "specs verify", "contracts verify", "cargo xtask release check", "cargo deny --offline check", "13/13 SHA-256 checksums", "git diff --check"],
+    "runtime_scope": "disposable CLI projects, pending WAL pages, full restore, reviewed historical assertions, portable roundtrip and corruption/divergence refusal; no new GSP, ENOSPC, hosted CI or package proof"
   }],
   "historical_rq4": {
     "status": "COMPLETE_BOUNDED_CRASH_RECOVERY",

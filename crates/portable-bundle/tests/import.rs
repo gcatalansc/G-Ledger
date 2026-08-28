@@ -4,6 +4,23 @@ use project_ledger_domain::{PortableImportPolicy, ProjectId};
 use project_ledger_portable_bundle::{PortableBundle, PortableBundleError, PortableImportPlan};
 
 #[test]
+fn reader_rejects_unlisted_empty_directories_before_traversal() {
+    let temp = tempfile::tempdir().unwrap();
+    let directory = temp.path().join("bundle");
+    support::bundle(
+        support::stream_with_title("safe", 1),
+        PortableImportPolicy::FastForward,
+    )
+    .write_directory(&directory)
+    .unwrap();
+    std::fs::create_dir(directory.join("unexpected")).unwrap();
+    assert!(matches!(
+        PortableBundle::read_directory(&directory),
+        Err(PortableBundleError::UnsupportedEntry { .. })
+    ));
+}
+
+#[test]
 fn ac_005_directory_roundtrip_verifies_equivalent_chain_and_rejects_tampering() {
     let source = support::stream_with_title("source-title", 2);
     let bundle = support::bundle(source.clone(), PortableImportPolicy::FastForward);

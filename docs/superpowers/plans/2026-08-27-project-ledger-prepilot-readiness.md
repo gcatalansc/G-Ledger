@@ -66,9 +66,9 @@
 
 **Consumes/produces:** repositorio nuevo/existente → binding explícito; historial → Markdown derivado/bundle portable; SQLite → snapshot consistente y restauración nueva.
 
-- [ ] RED: incorporar ambos tipos de proyecto sin modificar sus archivos, render/divergencia/regeneración, roundtrip portable, importación revisada y fork no disponible.
-- [ ] GREEN: adaptar las bibliotecas existentes a CLI; exigir revisión individual de candidatos y preservar procedencia/contradicciones. Nunca deducir fases verificadas de Markdown.
-- [ ] RED/GREEN: backup online WAL, restauración nueva con cadena/resultados/idempotencia íntegros, backup antes de migrar y consulta sin migración. Rechazar corrupción/divergencia/destino existente sin sobrescribir. Verificar y commit.
+- [x] RED: incorporar ambos tipos de proyecto sin modificar sus archivos, render/divergencia/regeneración, roundtrip portable, importación revisada y fork no disponible.
+- [x] GREEN: adaptar las bibliotecas existentes a CLI; exigir revisión individual de candidatos y preservar procedencia/contradicciones. Nunca deducir fases verificadas de Markdown.
+- [x] RED/GREEN: backup online WAL, restauración nueva con cadena/resultados/idempotencia íntegros, backup antes de migrar y consulta sin migración. Rechazar corrupción/divergencia/destino existente sin sobrescribir. Gate completo y seis recorridos CLI verificados; `docs/PREPILOT_PORTABILITY_RECOVERY.md`.
 
 ## Stage 6 — Codex real
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **4/8, NOT_READY**. Stages 1–4 verificadas localmente; PP-05/06 tienen su parte CLI verificada y conservan pendientes de etapas 5/6. PP-07 cerrado; PP-08 conserva verificación de exportación/paquete. Siguiente paso: Stage 5, incorporación, portabilidad, backup/restauración y migración explícita. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **5/8, NOT_READY**. Stages 1–5 verificadas localmente. PP-05/09/10 cerrados; PP-06 conserva el recorrido Codex y PP-08 la prueba del paquete. Siguiente paso: Stage 6, skill y recorrido Codex mediante interfaces autorizadas. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.

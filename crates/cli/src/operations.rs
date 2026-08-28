@@ -15,7 +15,9 @@ use serde_json::{Value, json};
 use std::{fs, path::PathBuf};
 
 mod evidence_run;
+mod legacy;
 mod payloads;
+mod portability;
 
 #[derive(Clone, Debug, Default, Args, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -184,8 +186,15 @@ pub struct ReconcileArgs {
 pub enum Operation {
     Status(Selection),
     Doctor(Selection),
-    Audit(Selection),
-    Verify(Selection),
+    Audit(portability::VerifyArgs),
+    Verify(portability::VerifyArgs),
+    Render(portability::RenderArgs),
+    Export(portability::ExportArgs),
+    Import(portability::ImportArgs),
+    Backup(portability::BackupArgs),
+    Restore(portability::RestoreArgs),
+    Migrate(portability::MigrateArgs),
+    ImportMarkdown(legacy::LegacyArgs),
     Pause(WriteArgs),
     ResumeProject(WriteArgs),
     Archive(WriteArgs),
@@ -315,9 +324,7 @@ pub fn run(operation: Operation) -> Result<String, CliError> {
             let (_, p) = selection.load()?;
             crate::canonical_stdout(p.state()).map_err(CliError::input)
         }
-        Operation::Doctor(selection)
-        | Operation::Audit(selection)
-        | Operation::Verify(selection) => {
+        Operation::Doctor(selection) => {
             let (store, p) = selection.load()?;
             let recovery = store.recovery_report(&p.state().project.project_id)?;
             crate::canonical_stdout(&json!({"integrity":recovery.quick_check, "project_ref":p.state().project.project_id, "state_version":p.state().state_version,"head_digest":p.head_digest(),"migration_version":recovery.migration_version,"command_count":recovery.command_count,"command_result_count":recovery.command_result_count,"unresolved_submission_count":recovery.unresolved_submission_count,"read_only":true})).map_err(CliError::input)
@@ -341,6 +348,14 @@ pub fn run(operation: Operation) -> Result<String, CliError> {
         Operation::Session { command } => command.run(),
         Operation::Evidence { command } => command.run(),
         Operation::Reconcile(args) => reconcile(&args),
+        Operation::Audit(args) | Operation::Verify(args) => portability::verify(&args),
+        Operation::Render(args) => portability::render(&args),
+        Operation::Export(args) => portability::export(&args),
+        Operation::Import(args) => portability::import(&args),
+        Operation::Backup(args) => portability::backup(&args),
+        Operation::Restore(args) => portability::restore(&args),
+        Operation::Migrate(args) => portability::migrate(&args),
+        Operation::ImportMarkdown(args) => legacy::run(&args),
     }
 }
 fn mutate(args: &WriteArgs, kind: &str) -> Result<String, CliError> {

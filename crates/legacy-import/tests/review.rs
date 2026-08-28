@@ -16,6 +16,13 @@ const MARKDOWN: &str = "# Estado ejecutivo actual\n\
 - Fase completada: phase-2\n";
 
 #[test]
+fn excessive_candidates_are_rejected_before_quadratic_contradiction_linking() {
+    let mut input = request();
+    input.markdown = "- Active phase: phase-one\n".repeat(1025).into_bytes();
+    assert!(LegacyImporter::preview(input).is_err());
+}
+
+#[test]
 fn ac_034_preview_is_deterministic_line_addressed_and_preserves_contradictions() {
     let first = LegacyImporter::preview(request()).unwrap();
     let second = LegacyImporter::preview(request()).unwrap();
