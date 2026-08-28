@@ -41,10 +41,18 @@ La consulta usa proyecto, tipo de comando, actor, dominio de confianza y clave. 
 ## Evidencia ejecutada
 
 ```json
-{"allowed_programs":["<ruta absoluta al ejecutable autorizado>"],"redactions":[],"max_summary_bytes":4096}
+{"allowed_programs":["<ruta absoluta al ejecutable autorizado>"],"redactions":[],"max_summary_bytes":4096,"process":{"timeout_ms":60000,"max_stdout_bytes":1048576,"max_stderr_bytes":1048576,"environment":{}}}
 ```
 
-`evidence run` requiere `--policy`, `--cwd`, identidad de escritura, `--kind` y `-- <exe> <args...>`. No usa una cadena de shell. El parser genérico no está cualificado y produce OBSERVED; un exit 0 no basta para VERIFIED_SOURCE ni para completar un gate. La misma solicitud aceptada se reconcilia antes de volver a ejecutar el proceso. Las garantías adicionales de timeout, entorno y descendientes se cierran en la etapa 4.
+`evidence run` requiere `--policy`, `--cwd`, identidad de escritura y `-- <exe> <args...>`; `--kind` vale TEST_RESULT por defecto. El programa debe ser absoluto y autorizado; en Windows debe ser un ejecutable nativo, no .cmd/.bat. No usa una cadena de shell. `environment` es el entorno completo, no una extensión del padre: PATH y credenciales no se heredan. Amplíe límites y entorno solamente en la política explícita.
+
+El parser genérico no está cualificado y produce OBSERVED; un exit 0 no basta para VERIFIED_SOURCE ni para completar un gate. Los resúmenes se acotan y redactan; los bytes stdout/stderr son efímeros. El cwd y la intención de ejecución se representan por digests en la evidencia, sin persistir argv o valores del entorno. Una evidencia importada con patrones sensibles soportados se rechaza.
+
+Ctrl-C solicita cancelación; también se puede crear el archivo absoluto indicado en `--cancel-file`. Timeout, cancelación o exceso de salida devuelven 12 con un código específico, sin aprobar ni emitir evidencia exitosa. El supervisor termina la familia propia y confirma limpieza dentro de un plazo adicional de 2 segundos. En Windows un Job Object no heredable también termina esa familia si se mata abruptamente al supervisor. No es un sandbox de código hostil ni un cortafuegos.
+
+Antes de ejecutar se reserva durablemente la clave y un digest de la solicitud en metadatos SQLite. Si queda una reserva sin resultado, repetir devuelve OUTCOME_UNKNOWN sin volver a ejecutar; una solicitud diferente devuelve 10. Reconciliar una solicitud ya registrada recupera el resultado y replay no ejecuta. Si el proceso termina con exit distinto de cero, se registra su evidencia OBSERVED y la CLI devuelve 3; el CommandResult ACCEPTED significa registro aceptado, no prueba aprobada.
+
+La migración SQLite interna 3 contiene estas reservas, sin ampliar contratos canónicos. La migración autorizada con backup y su restauración se verifican en etapa 5; las consultas nunca migran por sí solas.
 
 ## Evidencia de implementación
 

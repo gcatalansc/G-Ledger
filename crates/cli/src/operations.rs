@@ -457,7 +457,12 @@ pub fn submit(args: &WriteArgs, kind: &str, payload: Value) -> Result<String, Cl
                 importer_version: env!("CARGO_PKG_VERSION").to_owned(),
             },
         )
-        .map_err(CliError::input)?;
+        .map_err(|error| match error {
+            project_ledger_evidence::EvidenceImporterError::Privacy => {
+                CliError::new(13, "PRIVACY_REJECTED", error)
+            }
+            other => CliError::input(other),
+        })?;
         json!({"evidence":evidence})
     } else {
         payload

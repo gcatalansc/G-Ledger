@@ -199,10 +199,9 @@ fn locator_never_grants_authority_and_explicit_selection_wins() {
 fn read_queries_reject_migration_without_changing_database() {
     let p = Project::new();
     let db = rusqlite::Connection::open(&p.database).unwrap();
-    db.execute("DELETE FROM schema_migrations WHERE version = 2", [])
+    db.execute("DELETE FROM schema_migrations WHERE version = 3", [])
         .unwrap();
-    db.execute("DROP TABLE project_state_snapshots", [])
-        .unwrap();
+    db.execute("DROP TABLE execution_attempts", []).unwrap();
     drop(db);
     let before = fs::read(&p.database).unwrap();
     let output = p.run(&["status"]);
@@ -213,7 +212,7 @@ fn read_queries_reject_migration_without_changing_database() {
         db.query_row("SELECT MAX(version) FROM schema_migrations", [], |r| r
             .get::<_, u32>(0))
             .unwrap(),
-        1
+        2
     );
 }
 
@@ -1177,4 +1176,162 @@ fn checkpoint_identity_is_actor_scoped_and_reconcilable() {
         assert_eq!(reconciled["result"], first);
     }
     assert_eq!(value(&p.run(&["status"]), 0)["state_version"], 3);
+}
+
+#[test]
+fn supervised_execution_is_bounded_private_and_uncertain_attempts_never_retry() {
+    let p = Project::new();
+    let (version, _) = configure(&p);
+    let exe = std::env::current_exe().unwrap();
+    let policy = p.temporary.path().join("supervisor-policy.json");
+    let marker = p.temporary.path().join("attempts");
+    fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"timeout_ms":700,"environment":{"LEDGER_EXECUTION_MODE":"hang","LEDGER_EXECUTION_MARKER":marker}}})).unwrap()).unwrap();
+    let execute = |key: &str| {
+        Command::cargo_bin("project-ledger")
+            .unwrap()
+            .args(["evidence", "run", "--database"])
+            .arg(&p.database)
+            .args([
+                "--project-ref",
+                &p.id,
+                "--expected-version",
+                &version.to_string(),
+                "--idempotency-key",
+                key,
+                "--actor-id",
+                "agent:codex",
+                "--observed-at",
+                "2026-08-27T12:00:00Z",
+                "--policy",
+            ])
+            .arg(&policy)
+            .arg("--cwd")
+            .arg(p.temporary.path())
+            .args(["--json", "--"])
+            .arg(&exe)
+            .args(["--ignored", "--exact", "execution_fixture", "--nocapture"])
+            .output()
+            .unwrap()
+    };
+    assert_eq!(
+        value(&execute("run:uncertain"), 12)["error"]["code"],
+        "EXECUTION_TIMEOUT"
+    );
+    let before = fs::read(&marker).unwrap();
+    assert_eq!(
+        value(&execute("run:uncertain"), 12)["error"]["code"],
+        "OUTCOME_UNKNOWN"
+    );
+    assert_eq!(before, fs::read(&marker).unwrap());
+    let canary = "CLI_CANARY_582_NEVER_PERSIST";
+    fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"environment":{"LEDGER_EXECUTION_MODE":"fail","LEDGER_EXECUTION_MARKER":marker,"LEDGER_PRIVATE_CANARY":canary}}})).unwrap()).unwrap();
+    value(&execute("run:uncertain"), 10);
+    let result = value(&execute("run:known-failure"), 3);
+    assert_eq!(result["status"], "ACCEPTED");
+    assert_eq!(
+        value(&execute("run:known-failure"), 3)["status"],
+        "DUPLICATE_REPLAY"
+    );
+    let after = result["new_state_version"].as_u64().unwrap();
+    let evaluated = value(
+        &p.write(
+            &["gate", "evaluate"],
+            json!({"gate_ref":"gate:contracts"}),
+            after,
+            "gate:failed-process",
+        ),
+        6,
+    );
+    assert_eq!(evaluated["status"], "ACCEPTED");
+    let status = value(&p.run(&["status"]), 0);
+    assert_eq!(status["verified_gate_refs"], json!([]));
+    for entry in fs::read_dir(p.database.parent().unwrap()).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_file() {
+            assert!(!String::from_utf8_lossy(&fs::read(path).unwrap()).contains(canary));
+        }
+    }
+}
+
+#[test]
+#[ignore = "bounded real child fixture, invoked by evidence run with explicit policy"]
+fn execution_fixture() {
+    use std::io::Write;
+    let mut marker = fs::OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(std::env::var("LEDGER_EXECUTION_MARKER").unwrap())
+        .unwrap();
+    writeln!(marker, "started").unwrap();
+    drop(marker);
+    if std::env::var("LEDGER_EXECUTION_MODE").unwrap() == "hang" {
+        std::thread::sleep(std::time::Duration::from_secs(8));
+    } else {
+        println!("token={}", std::env::var("LEDGER_PRIVATE_CANARY").unwrap());
+        std::process::exit(17);
+    }
+}
+
+#[test]
+fn cancellation_file_stops_the_real_cli_child_without_appending_events() {
+    let p = Project::new();
+    let exe = std::env::current_exe().unwrap();
+    let policy = p.temporary.path().join("cancel-policy.json");
+    let marker = p.temporary.path().join("cancel-started");
+    let cancel = p.temporary.path().join("cancel-request");
+    fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"environment":{"LEDGER_EXECUTION_MODE":"hang","LEDGER_EXECUTION_MARKER":marker}}})).unwrap()).unwrap();
+    let child = Command::cargo_bin("project-ledger")
+        .unwrap()
+        .args(["evidence", "run", "--database"])
+        .arg(&p.database)
+        .args([
+            "--project-ref",
+            &p.id,
+            "--expected-version",
+            "1",
+            "--idempotency-key",
+            "cancel:one",
+            "--actor-id",
+            "agent:codex",
+            "--observed-at",
+            "2026-08-27T12:00:00Z",
+            "--policy",
+        ])
+        .arg(&policy)
+        .arg("--cwd")
+        .arg(p.temporary.path())
+        .arg("--cancel-file")
+        .arg(&cancel)
+        .args(["--json", "--"])
+        .arg(&exe)
+        .args(["--ignored", "--exact", "execution_fixture", "--nocapture"])
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
+    while !marker.exists() && std::time::Instant::now() < deadline {
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+    fs::write(&cancel, b"cancel").unwrap();
+    let result = value(&child.wait_with_output().unwrap(), 12);
+    assert_eq!(result["error"]["code"], "EXECUTION_CANCELLED");
+    assert!(marker.exists(), "the child must really have started");
+    assert_eq!(value(&p.run(&["status"]), 0)["state_version"], 1);
+}
+
+#[test]
+fn evidence_import_privacy_rejection_has_exit_thirteen_and_no_secret_echo() {
+    let p = Project::new();
+    let canary = "IMPORT_CANARY_NOT_ALLOWED_6371";
+    let mut evidence = record("evidence-record", json!({"project_ref":p.id}));
+    evidence["result"]["summary"] = json!(format!("token={canary}"));
+    evidence.as_object_mut().unwrap().remove("payload_digest");
+    evidence["payload_digest"] =
+        json!(project_ledger_canonical_json::sha256_digest(&evidence).unwrap());
+    let output = p.write(&["evidence", "import"], evidence, 1, "import:private");
+    assert!(!String::from_utf8_lossy(&output.stdout).contains(canary));
+    assert!(!String::from_utf8_lossy(&output.stderr).contains(canary));
+    assert_eq!(value(&output, 13)["error"]["code"], "PRIVACY_REJECTED");
+    assert_eq!(value(&p.run(&["status"]), 0)["state_version"], 1);
 }

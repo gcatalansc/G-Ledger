@@ -19,8 +19,10 @@ pub struct EvidenceImportContext {
 /// Failures that prevent an imported artifact from becoming even asserted/observed evidence.
 #[derive(Debug, Error)]
 pub enum EvidenceImporterError {
-    #[error("imported evidence does not satisfy the closed contract: {0}")]
+    #[error("imported evidence does not satisfy the closed contract")]
     Contract(#[from] serde_json::Error),
+    #[error("imported evidence contains a supported secret pattern or forbidden private field")]
+    Privacy,
     #[error(transparent)]
     Canonical(#[from] CanonicalJsonError),
     #[error("imported evidence payload digest does not match its contents")]
@@ -52,6 +54,12 @@ impl EvidenceImporter {
             return Err(EvidenceImporterError::InvalidImporterVersion);
         }
         let mut record: EvidenceRecord = serde_json::from_slice(bytes)?;
+        if !project_ledger_release::PrivacyScanner
+            .scan_json("imported-evidence", &serde_json::to_value(&record)?)
+            .is_empty()
+        {
+            return Err(EvidenceImporterError::Privacy);
+        }
         if record.schema_version != SchemaVersion::V0_2_0 {
             return Err(EvidenceImporterError::UnsupportedSchemaVersion);
         }

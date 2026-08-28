@@ -98,3 +98,18 @@ impl From<project_ledger_storage_sqlite::SqliteStoreError> for CliError {
         Self::storage(error)
     }
 }
+
+impl From<project_ledger_evidence::supervisor::SupervisionError> for CliError {
+    fn from(error: project_ledger_evidence::supervisor::SupervisionError) -> Self {
+        use project_ledger_evidence::supervisor::SupervisionError;
+        let (exit, code) = match error {
+            SupervisionError::PolicyDenied => (9, "POLICY_DENIED"),
+            SupervisionError::Timeout => (12, "EXECUTION_TIMEOUT"),
+            SupervisionError::Cancelled => (12, "EXECUTION_CANCELLED"),
+            SupervisionError::OutputLimit => (12, "EXECUTION_OUTPUT_LIMIT"),
+            SupervisionError::Io => (12, "EXECUTION_PROCESS_ERROR"),
+            SupervisionError::Cleanup => (12, "EXECUTION_CLEANUP_UNCONFIRMED"),
+        };
+        Self::new(exit, code, error)
+    }
+}

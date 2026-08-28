@@ -13,8 +13,18 @@ use project_ledger_evidence::{
 #[test]
 fn ac_018_evidence_run_captures_exit_duration_digest_without_raw_output() {
     let working_directory = env::current_dir().unwrap();
+    // Resolve the real compiler, not the rustup PATH shim which requires inherited configuration.
+    let resolved = std::process::Command::new("rustup")
+        .args(["which", "rustc"])
+        .output()
+        .unwrap();
+    assert!(resolved.status.success());
+    let program = String::from_utf8(resolved.stdout)
+        .unwrap()
+        .trim()
+        .to_owned();
     let request = EvidenceCommand {
-        program: "rustc".to_owned(),
+        program: program.clone(),
         args: vec!["--version".to_owned()],
         command_display: "rustc --version --token secret-value".to_owned(),
         working_directory,
@@ -22,9 +32,10 @@ fn ac_018_evidence_run_captures_exit_duration_digest_without_raw_output() {
         tool: "rustc".to_owned(),
     };
     let policy = EvidenceRunPolicy {
-        allowed_programs: BTreeSet::from(["rustc".to_owned()]),
+        allowed_programs: BTreeSet::from([program]),
         redactions: vec!["secret-value".to_owned()],
         max_summary_bytes: 256,
+        ..EvidenceRunPolicy::default()
     };
     let context = EvidenceRunContext {
         evidence_id: id("evidence:rustc-version"),
@@ -67,6 +78,7 @@ fn runner_rejects_non_allowlisted_program_before_process_creation() {
         allowed_programs: BTreeSet::from(["rustc".to_owned()]),
         redactions: Vec::new(),
         max_summary_bytes: 256,
+        ..EvidenceRunPolicy::default()
     };
     let context = EvidenceRunContext {
         evidence_id: id("evidence:denied"),

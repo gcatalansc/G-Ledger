@@ -663,6 +663,26 @@ fn current_timestamp() -> Result<LedgerTimestamp, CliError> {
     LedgerTimestamp::parse(&encoded).map_err(CliError::input)
 }
 
+fn process_cancel_token(
+    file: Option<PathBuf>,
+) -> Result<project_ledger_evidence::supervisor::CancelToken, CliError> {
+    if file.as_ref().is_some_and(|path| !path.is_absolute()) {
+        return Err(CliError::input(
+            "--cancel-file must be an explicit absolute path",
+        ));
+    }
+    let cancel = project_ledger_evidence::supervisor::CancelToken::with_file(file);
+    let signal = cancel.clone();
+    ctrlc::set_handler(move || signal.cancel()).map_err(|_| {
+        CliError::new(
+            12,
+            "CANCELLATION_UNAVAILABLE",
+            "cannot establish process cancellation handler",
+        )
+    })?;
+    Ok(cancel)
+}
+
 #[cfg(target_os = "windows")]
 fn default_data_root() -> Result<PathBuf, CliError> {
     env::var_os("APPDATA").map(PathBuf::from).ok_or_else(|| {

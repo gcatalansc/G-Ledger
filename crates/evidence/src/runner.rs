@@ -1,4 +1,6 @@
-use std::{collections::BTreeSet, io, path::PathBuf, process::Command, time::Instant};
+use crate::supervisor::{CancelToken, ProcessPolicy, ProcessRequest, SupervisionError, supervise};
+use project_ledger_release::PrivacyScanner;
+use std::{collections::BTreeSet, io, path::PathBuf};
 
 use project_ledger_canonical_json::{CanonicalJsonError, Sha256Digest, sha256_digest};
 use project_ledger_domain::{
@@ -25,6 +27,17 @@ pub struct EvidenceRunPolicy {
     pub allowed_programs: BTreeSet<String>,
     pub redactions: Vec<String>,
     pub max_summary_bytes: usize,
+    pub process: ProcessPolicy,
+}
+impl Default for EvidenceRunPolicy {
+    fn default() -> Self {
+        Self {
+            allowed_programs: BTreeSet::new(),
+            redactions: Vec::new(),
+            max_summary_bytes: 4096,
+            process: ProcessPolicy::default(),
+        }
+    }
 }
 
 /// Durable identity and provenance supplied independently of process output.
@@ -60,6 +73,8 @@ pub enum EvidenceRunnerError {
     PolicyDenied { message: String },
     #[error("evidence process could not execute: {0}")]
     Process(#[from] io::Error),
+    #[error(transparent)]
+    Supervision(#[from] SupervisionError),
     #[error("evidence record encoding failed: {0}")]
     Contract(#[from] serde_json::Error),
     #[error(transparent)]
@@ -83,23 +98,38 @@ impl EvidenceRunner {
         context: &EvidenceRunContext,
         parser: &P,
     ) -> Result<EvidenceRecord, EvidenceRunnerError> {
+        Self::run_with_cancel(policy, request, context, parser, &CancelToken::default())
+    }
+
+    /// Executes with cooperative cancellation and bounded family cleanup.
+    /// # Errors
+    /// Returns policy, supervision or closed-record errors without persisting raw output.
+    pub fn run_with_cancel<P: EvidenceParser>(
+        policy: &EvidenceRunPolicy,
+        request: &EvidenceCommand,
+        context: &EvidenceRunContext,
+        parser: &P,
+        cancel: &CancelToken,
+    ) -> Result<EvidenceRecord, EvidenceRunnerError> {
         validate_policy(policy, request, context)?;
-        let started = Instant::now();
-        let output = Command::new(&request.program)
-            .args(&request.args)
-            .current_dir(&request.working_directory)
-            .output()?;
-        let duration_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
-        let exit_code = output.status.code();
+        let output = supervise(
+            &policy.process,
+            &ProcessRequest {
+                program: request.program.clone().into(),
+                args: request.args.clone(),
+                working_directory: request.working_directory.clone(),
+            },
+            cancel,
+        )?;
+        let duration_ms = output.duration_ms;
+        let exit_code = output.exit_code;
         let parsed = parser.parse(exit_code, &output.stdout, &output.stderr);
-        let summary = redact_and_bound(
-            &parsed.summary,
-            &policy.redactions,
-            policy.max_summary_bytes,
-        );
+        let mut redactions = policy.redactions.clone();
+        redactions.extend(policy.process.environment.values().cloned());
+        let summary = redact_and_bound(&parsed.summary, &redactions, policy.max_summary_bytes);
         let command_display = redact_and_bound(
             &request.command_display,
-            &policy.redactions,
+            &redactions,
             policy.max_summary_bytes,
         );
         let status = if parser.qualified() && context.repository_binding.is_some() {
@@ -137,6 +167,14 @@ impl EvidenceRunner {
             provenance_ref: context.provenance_ref.clone(),
         };
         record.payload_digest = evidence_digest(&record)?;
+        if !PrivacyScanner
+            .scan_json("evidence-record", &serde_json::to_value(&record)?)
+            .is_empty()
+        {
+            return Err(EvidenceRunnerError::PolicyDenied {
+                message: "record contains a supported sensitive field or pattern".into(),
+            });
+        }
         Ok(record)
     }
 }
@@ -146,9 +184,11 @@ fn validate_policy(
     request: &EvidenceCommand,
     context: &EvidenceRunContext,
 ) -> Result<(), EvidenceRunnerError> {
-    if !policy.allowed_programs.contains(&request.program) {
+    if !policy.allowed_programs.contains(&request.program)
+        || !std::path::Path::new(&request.program).is_absolute()
+    {
         return Err(EvidenceRunnerError::PolicyDenied {
-            message: format!("program '{}' is not allowlisted", request.program),
+            message: "program must be an explicitly authorized absolute executable".into(),
         });
     }
     if request.program.trim().is_empty()
@@ -169,6 +209,15 @@ fn redact_and_bound(value: &str, redactions: &[String], max_bytes: usize) -> Str
     let mut redacted = value.to_owned();
     for secret in redactions.iter().filter(|secret| !secret.is_empty()) {
         redacted = redacted.replace(secret, "[REDACTED]");
+    }
+    if !PrivacyScanner
+        .scan_bytes("evidence-summary", redacted.as_bytes())
+        .is_empty()
+        || ["\\Users\\", "/Users/", "/home/"]
+            .iter()
+            .any(|prefix| redacted.contains(prefix))
+    {
+        redacted = "[REDACTED]".into();
     }
     if redacted.len() <= max_bytes {
         return redacted;

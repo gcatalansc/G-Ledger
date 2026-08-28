@@ -2,6 +2,7 @@
 
 mod import;
 mod runner;
+pub mod supervisor;
 
 pub use import::{EvidenceImportContext, EvidenceImporter, EvidenceImporterError};
 pub use runner::{

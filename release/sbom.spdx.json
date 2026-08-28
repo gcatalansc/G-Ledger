@@ -7,7 +7,7 @@
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://project-ledger.invalid/spdx/0.2.0/38faa0d62fb3d6015086fecc09c5d6d2a4237a4655087d81b0447afb14922a5a",
+  "documentNamespace": "https://project-ledger.invalid/spdx/0.2.0/49b7d6499bea8e1e7a07e91188561f579c278befa65246a7739e9db988b19e40",
   "name": "project-ledger-v0.2.0",
   "packages": [
     {
@@ -249,6 +249,23 @@
       "versionInfo": "0.12.1"
     },
     {
+      "SPDXID": "SPDXRef-Package-block2-0-6-2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/block2@0.6.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "name": "block2",
+      "versionInfo": "0.6.2"
+    },
+    {
       "SPDXID": "SPDXRef-Package-borrow-or-share-0-2-4",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -332,6 +349,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "cc",
       "versionInfo": "1.4.4"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-cfg-aliases-0-2-2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/cfg_aliases@0.2.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "name": "cfg_aliases",
+      "versionInfo": "0.2.2"
     },
     {
       "SPDXID": "SPDXRef-Package-cfg-if-1-0-4",
@@ -487,6 +521,23 @@
       "versionInfo": "0.2.2"
     },
     {
+      "SPDXID": "SPDXRef-Package-ctrlc-3-5-2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/ctrlc@3.5.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT/Apache-2.0",
+      "name": "ctrlc",
+      "versionInfo": "3.5.2"
+    },
+    {
       "SPDXID": "SPDXRef-Package-data-encoding-2-11-1",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -553,6 +604,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "digest",
       "versionInfo": "0.11.3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-dispatch2-0-3-1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/dispatch2@0.3.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Zlib OR Apache-2.0 OR MIT",
+      "name": "dispatch2",
+      "versionInfo": "0.3.1"
     },
     {
       "SPDXID": "SPDXRef-Package-displaydoc-0-2-7",
@@ -1320,6 +1388,23 @@
       "versionInfo": "0.3.0"
     },
     {
+      "SPDXID": "SPDXRef-Package-nix-0-31-3",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/nix@0.31.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "name": "nix",
+      "versionInfo": "0.31.3"
+    },
+    {
       "SPDXID": "SPDXRef-Package-normalize-line-endings-0-3-0",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -1507,6 +1592,23 @@
       "versionInfo": "0.2.19"
     },
     {
+      "SPDXID": "SPDXRef-Package-objc2-0-6-4",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/objc2@0.6.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "name": "objc2",
+      "versionInfo": "0.6.4"
+    },
+    {
       "SPDXID": "SPDXRef-Package-objc2-core-foundation-0-3-2",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -1522,6 +1624,23 @@
       "licenseDeclared": "Zlib OR Apache-2.0 OR MIT",
       "name": "objc2-core-foundation",
       "versionInfo": "0.3.2"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-objc2-encode-4-1-0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/objc2-encode@4.1.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "name": "objc2-encode",
+      "versionInfo": "4.1.0"
     },
     {
       "SPDXID": "SPDXRef-Package-objc2-io-kit-0-3-2",
@@ -1777,6 +1896,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "proc-macro2",
       "versionInfo": "1.0.107"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-process-wrap-10-0-0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/process-wrap@10.0.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0 OR MIT",
+      "name": "process-wrap",
+      "versionInfo": "10.0.0"
     },
     {
       "SPDXID": "SPDXRef-Package-project-ledger-agent-skill-0-2-0",
@@ -2833,6 +2969,23 @@
       "versionInfo": "0.5.1"
     },
     {
+      "SPDXID": "SPDXRef-Package-thiserror-1-0-69",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/thiserror@1.0.69",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "thiserror",
+      "versionInfo": "1.0.69"
+    },
+    {
       "SPDXID": "SPDXRef-Package-thiserror-2-0-20",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -2848,6 +3001,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "thiserror",
       "versionInfo": "2.0.20"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-thiserror-impl-1-0-69",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/thiserror-impl@1.0.69",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "thiserror-impl",
+      "versionInfo": "1.0.69"
     },
     {
       "SPDXID": "SPDXRef-Package-thiserror-impl-2-0-20",
@@ -3224,6 +3394,23 @@
       "versionInfo": "0.2.127"
     },
     {
+      "SPDXID": "SPDXRef-Package-win32job-2-0-3",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/win32job@2.0.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "win32job",
+      "versionInfo": "2.0.3"
+    },
+    {
       "SPDXID": "SPDXRef-Package-winapi-0-3-9",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -3275,6 +3462,23 @@
       "versionInfo": "0.4.0"
     },
     {
+      "SPDXID": "SPDXRef-Package-windows-0-61-3",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows@0.61.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows",
+      "versionInfo": "0.61.3"
+    },
+    {
       "SPDXID": "SPDXRef-Package-windows-0-62-2",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -3290,6 +3494,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "windows",
       "versionInfo": "0.62.2"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-windows-collections-0-2-0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-collections@0.2.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-collections",
+      "versionInfo": "0.2.0"
     },
     {
       "SPDXID": "SPDXRef-Package-windows-collections-0-3-2",
@@ -3309,6 +3530,23 @@
       "versionInfo": "0.3.2"
     },
     {
+      "SPDXID": "SPDXRef-Package-windows-core-0-61-2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-core@0.61.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-core",
+      "versionInfo": "0.61.2"
+    },
+    {
       "SPDXID": "SPDXRef-Package-windows-core-0-62-2",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -3324,6 +3562,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "windows-core",
       "versionInfo": "0.62.2"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-windows-future-0-2-1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-future@0.2.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-future",
+      "versionInfo": "0.2.1"
     },
     {
       "SPDXID": "SPDXRef-Package-windows-future-0-3-2",
@@ -3377,6 +3632,23 @@
       "versionInfo": "0.59.3"
     },
     {
+      "SPDXID": "SPDXRef-Package-windows-link-0-1-3",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-link@0.1.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-link",
+      "versionInfo": "0.1.3"
+    },
+    {
       "SPDXID": "SPDXRef-Package-windows-link-0-2-1",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -3392,6 +3664,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "windows-link",
       "versionInfo": "0.2.1"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-windows-numerics-0-2-0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-numerics@0.2.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-numerics",
+      "versionInfo": "0.2.0"
     },
     {
       "SPDXID": "SPDXRef-Package-windows-numerics-0-3-1",
@@ -3411,6 +3700,23 @@
       "versionInfo": "0.3.1"
     },
     {
+      "SPDXID": "SPDXRef-Package-windows-result-0-3-4",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-result@0.3.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-result",
+      "versionInfo": "0.3.4"
+    },
+    {
       "SPDXID": "SPDXRef-Package-windows-result-0-4-1",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
@@ -3426,6 +3732,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "windows-result",
       "versionInfo": "0.4.1"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-windows-strings-0-4-2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-strings@0.4.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-strings",
+      "versionInfo": "0.4.2"
     },
     {
       "SPDXID": "SPDXRef-Package-windows-strings-0-5-1",
@@ -3460,6 +3783,23 @@
       "licenseDeclared": "MIT OR Apache-2.0",
       "name": "windows-sys",
       "versionInfo": "0.61.2"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-windows-threading-0-1-0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "registry+https://github.com/rust-lang/crates.io-index",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/windows-threading@0.1.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "name": "windows-threading",
+      "versionInfo": "0.1.0"
     },
     {
       "SPDXID": "SPDXRef-Package-windows-threading-0-2-1",

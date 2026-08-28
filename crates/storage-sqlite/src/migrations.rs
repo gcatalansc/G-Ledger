@@ -3,7 +3,7 @@ use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use crate::SqliteStoreError;
 use project_ledger_canonical_json::sha256_bytes;
 
-const SUPPORTED_VERSION: u32 = 2;
+const SUPPORTED_VERSION: u32 = 3;
 
 pub(crate) fn verify_current(connection: &Connection) -> Result<(), SqliteStoreError> {
     let current: u32 = connection.query_row(
@@ -66,6 +66,7 @@ fn migrations() -> impl Iterator<Item = (u32, &'static str, &'static str)> {
     [
         (1, "s2-event-store", MIGRATION_V1),
         (2, "s3-project-state-cache", MIGRATION_V2),
+        (3, "prepilot-execution-reservations", MIGRATION_V3),
     ]
     .into_iter()
 }
@@ -209,4 +210,23 @@ CREATE TABLE project_state_snapshots (
     state_json BLOB NOT NULL,
     FOREIGN KEY(project_ref) REFERENCES event_streams(project_ref) ON DELETE CASCADE
 ) STRICT;
+";
+
+// Operational metadata only: no canonical command/event or domain state is added.
+const MIGRATION_V3: &str = r"
+CREATE TABLE execution_attempts (
+    scope_digest TEXT PRIMARY KEY NOT NULL,
+    project_ref TEXT NOT NULL,
+    request_digest TEXT NOT NULL,
+    record_digest TEXT NOT NULL,
+    FOREIGN KEY(project_ref) REFERENCES event_streams(project_ref) ON DELETE RESTRICT
+) STRICT;
+CREATE TRIGGER execution_attempts_forbid_update
+BEFORE UPDATE ON execution_attempts BEGIN
+    SELECT RAISE(ABORT, 'execution reservations are immutable');
+END;
+CREATE TRIGGER execution_attempts_forbid_delete
+BEFORE DELETE ON execution_attempts BEGIN
+    SELECT RAISE(ABORT, 'execution reservations are immutable');
+END;
 ";

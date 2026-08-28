@@ -68,6 +68,27 @@ fn import_rejects_tampered_digest_unknown_fields_and_cross_project_evidence() {
     ));
 }
 
+#[test]
+fn imported_secrets_are_rejected_before_persistence_without_echoing_values() {
+    let mut record = evidence();
+    let canary = "CANARY_NEVER_PERSIST_9258";
+    record.result.summary = format!("token={canary}");
+    record.payload_digest = evidence_digest(&record);
+    let context = EvidenceImportContext {
+        expected_project_ref: project_id(),
+        artifact_uri: ResourceRef::parse("urn:test:artifact").unwrap(),
+        provenance_ref: ResourceRef::parse("urn:test:import").unwrap(),
+        importer_version: "test/1".into(),
+    };
+    let result =
+        EvidenceImporter::import_unsigned_json(&serde_json::to_vec(&record).unwrap(), &context);
+    assert!(
+        result.is_err(),
+        "import must not persist supported secret patterns"
+    );
+    assert!(!result.unwrap_err().to_string().contains(canary));
+}
+
 fn evidence() -> EvidenceRecord {
     let mut record = EvidenceRecord {
         schema_version: SchemaVersion::V0_2_0,

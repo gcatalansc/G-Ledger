@@ -11,7 +11,7 @@ fn new_database_applies_the_locked_connection_and_migration_policy() {
     let store = SqliteEventStore::open(&path).unwrap();
 
     assert_eq!(store.journal_mode().unwrap(), "wal");
-    assert_eq!(store.migration_version().unwrap(), 2);
+    assert_eq!(store.migration_version().unwrap(), 3);
     assert!(store.foreign_keys_enabled().unwrap());
     assert_eq!(store.busy_timeout().unwrap(), Duration::from_secs(5));
     assert_eq!(store.quick_check().unwrap(), "ok");
@@ -25,7 +25,7 @@ fn reopening_an_initialized_database_is_idempotent() {
 
     let reopened = SqliteEventStore::open(&path).unwrap();
 
-    assert_eq!(reopened.migration_version().unwrap(), 2);
+    assert_eq!(reopened.migration_version().unwrap(), 3);
     assert_eq!(reopened.quick_check().unwrap(), "ok");
 }
 

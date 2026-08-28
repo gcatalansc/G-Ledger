@@ -56,9 +56,9 @@
 
 **Consumes/produces:** plan autorizado de argv/cwd/entorno → resultado acotado → `EvidenceRecord` existente; salida cruda efímera por defecto.
 
-- [ ] RED: proceso bloqueado, exceso de stdout/stderr, hijo persistente, cancelación, secreto ficticio y salida cero sin parser cualificado.
-- [ ] GREEN: defaults 60 s, 1 MiB por flujo, resumen 4 KiB; sólo aumentos explícitos. Sin shell, entorno allowlisted, ejecutable autorizado, limpieza de la familia propia y ningún retry ciego.
-- [ ] Asegurar que fallos no aprueban gates y datos importados no ascienden de confianza por su mera presencia. Verificar y commit.
+- [x] RED: proceso bloqueado, exceso de stdout/stderr, hijo persistente, cancelación, secreto ficticio y salida cero sin parser cualificado.
+- [x] GREEN: defaults 60 s, 1 MiB por flujo, resumen 4 KiB; sólo aumentos explícitos. Sin shell, entorno allowlisted, ejecutable autorizado, limpieza de la familia propia y ningún retry ciego.
+- [x] Asegurar que fallos no aprueban gates y datos importados no ascienden de confianza por su mera presencia. Gate completo local verificado; evidencia en `docs/PREPILOT_PROCESS_SAFETY.md`.
 
 ## Stage 5 — Incorporación y recuperación
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **3/8, NOT_READY**. Stages 1–3 verificadas localmente; PP-05/06 tienen su parte CLI verificada y conservan pendientes de etapas 5/6. PP-07…PP-14 siguen abiertas. Siguiente paso: Stage 4, supervisión acotada de procesos, privacidad y protección ante resultado incierto. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **4/8, NOT_READY**. Stages 1–4 verificadas localmente; PP-05/06 tienen su parte CLI verificada y conservan pendientes de etapas 5/6. PP-07 cerrado; PP-08 conserva verificación de exportación/paquete. Siguiente paso: Stage 5, incorporación, portabilidad, backup/restauración y migración explícita. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.

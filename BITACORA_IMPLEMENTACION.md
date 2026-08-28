@@ -1941,3 +1941,29 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Commit de cierre: `feat: complete operational CLI and scoped reconciliation`.
 
 **Siguiente paso:** ejecutar etapa 4 con procesos propios descartables, límites y cancelación, redacción y prevención durable de reejecución incierta; continuar luego etapas 5–8 según autorización vigente.
+
+## 2026-08-27 — Etapa 4 en ejecución, checkpoint de continuidad (3/8)
+
+- Confirmados RED: el runner heredaba una credencial ficticia del padre; aceptaba `rustc` por PATH; el importador admitía `token=...` en un resumen. Tras reemplazar la captura por supervisión, las pruebas de privacidad pasan. No se modifican comandos/eventos/schemas canónicos.
+- `evidence::supervisor`: process-wrap 10.0.0 fijado, Job Objects Windows/grupos POSIX, argv literal, cwd/executable absolutos, env_clear y mapa explícito, 60 s / 1 MiB por flujo por defecto, captura concurrente acotada y limpieza con plazo de 2 s. Pruebas reales de hang, flood en ambos flujos, cancelación, hijos y salida normal del padre pasan en Windows.
+- Runner: resumen 4 KiB configurable, UTF8 seguro, redacción configurada y de patrones soportados; no raw output persistido; parser genérico OBSERVED incluso con exit 0. Importación sensible se rechaza sin eco del valor. Se reutiliza el escáner de privacidad existente.
+- Reserva durable previa a ejecutar: migración SQLite interna 3 (`execution_attempts`), transacción única por scope, sólo digests; no nuevo evento ni autoridad. Pruebas de reapertura, concurrencia, inmutabilidad y tampering pasan. Consultas siguen sin migrar. La operación explícita de migración con backup corresponde a etapa 5 y aún no está expuesta.
+- CLI: política `process` explícita, Ctrl-C/cancel-file, códigos de timeout/cancel/overflow, resultado conocido no cero registrado pero exit 3; replay no ejecuta. El test integrado de timeout → no retry → conflicto de solicitud → evidencia fallida → gate no aprobado pasó; cancel-file real también pasó.
+- Clippy estricto pasó antes del último caso de revisión. Suite evidencia/storage pasó; CLI completa en curso en sesión 29861. Pendiente un test adicional Windows: matar sólo al supervisor propio debe cerrar sus descendientes. Inspección del wrapper muestra Job Object sin kill-on-close; reproducir con el nuevo test `windows_closes_the_owned_job_when_the_supervisor_is_terminated`, corregir con API segura si falla y repetir gates. `win32job` sólo fue inspeccionado, no agregado aún.
+- Estado: 3/8, NOT_READY. Etapa 4 no cerrada ni comprometida. Próximo: terminar revisión de limpieza, regenerar artefactos de dependencias, gate completo y commit de etapa 4; después continuar 5–8 sin pedir autorización redundante. GSP real/ENOSPC físico/ZIP/CI nueva siguen pendientes.
+
+**Etapa 4 — revisión final antes del gate agregado**
+
+- La CLI completa pasó 19 tests. Se reprodujo luego la fuga al matar al supervisor Windows: el heartbeat del descendiente cambió de 5 a 12 después de terminar al padre. Se añadió un job exterior no heredable con kill-on-close usando win32job 2.0.3; se asigna antes de la reanudación y confirma que su lista de procesos queda vacía. El caso de terminación abrupta y los otros cinco casos de supervisión pasan; también argv literal con metacaracteres.
+- Se añadió y reprodujo un error de clasificación de privacidad: importación sensible devolvía 2 en vez de 13. Corregido a PRIVACY_REJECTED; el test confirma ausencia del canary en stdout/stderr y cero eventos nuevos.
+- La generación offline de SBOM necesitó descargar las nuevas dependencias Unix de desarrollo que aún no estaban en caché. `cargo fetch --locked` completó cfg_aliases/nix; no se descargó runtime GSP ni componente durante uso del núcleo. SBOM/manifiesto/checksums se regeneraron correctamente después.
+- Gate completo vigente: sesión 18066. Clippy estricto, test focal de privacidad y generación release pasaron; suite workspace/all-targets/all-features en compilación/ejecución. Quedan build locked, schemas/specs/contratos, release check, cargo deny online, checksums y diff. No contar como PASS antes del exit final. No hay otra compilación activa; la lectura de API backup de SQLite ya terminó.
+- Evidencia y límites en `docs/PREPILOT_PROCESS_SAFETY.md`, todavía declara gate pendiente. Una vez completo: actualizar plan/matriz/readiness a 4/8 y commit; continuar etapa 5. Hay 20 tests normales en operations más un helper; los helpers ignored son ejecutados por sus padres y no equivalen a GSP/ENOSPC opt-in.
+
+## 2026-08-27 — Etapa 4 verificada, 4/8
+
+- Sesión 18066 finalizó exit 0: Clippy estricto, tests workspace/all-targets/all-features, build locked, schemas, specs/contratos, release check, cargo deny online, 13/13 SHA-256 y diff. Formato --check fresco también exit 0. Duplicidades transitivas permitidas, sin fallos.
+- Plan/matriz/readiness y README conciliados. PP-07 cerrado; PP-08 mantiene pendiente la verificación de los canales de exportación y paquete. Los helpers ignored se ejecutaron como hijos reales; las cuatro pruebas opt-in GSP/ENOSPC no se ejecutaron de nuevo.
+- Commit de cierre: `feat: supervise evidence processes and preserve uncertain executions`. No piloto ni certificación, y todavía no nueva CI hosted.
+
+**Siguiente paso:** etapa 5, operaciones CLI de render/portable/importación histórica revisada, backup SQLite/WAL completo, restauración nueva y migración con respaldo previo; luego continuar 6–8.

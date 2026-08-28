@@ -17,6 +17,7 @@ pub struct RecoveryReport {
     pub command_count: u64,
     pub command_result_count: u64,
     pub unresolved_submission_count: u64,
+    pub execution_attempt_count: u64,
 }
 
 impl SqliteEventStore {
@@ -77,6 +78,11 @@ impl SqliteEventStore {
         )?;
         verify_command_results(&self.connection, project_ref)?;
         let unresolved_submission_count = self.unresolved_submission_count()?;
+        let execution_attempt_count = if migration_version >= 3 {
+            self.verify_execution_attempts(project_ref)?
+        } else {
+            0
+        };
         Ok(RecoveryReport {
             quick_check,
             journal_mode,
@@ -87,6 +93,7 @@ impl SqliteEventStore {
             command_count,
             command_result_count,
             unresolved_submission_count,
+            execution_attempt_count,
         })
     }
 }
