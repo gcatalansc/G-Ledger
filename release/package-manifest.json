@@ -14,5 +14,14 @@
     "aarch64-apple-darwin",
     "x86_64-apple-darwin"
   ],
-  "verification": "cargo xtask release check"
+  "verification": "cargo xtask release check",
+  "windows_distribution": {
+    "build_and_verify": "pwsh -File scripts/build-windows-package.ps1 -Output <new.zip> -RequireClean",
+    "core_requires_python": false,
+    "core_requires_toolchain": false,
+    "crt": "static",
+    "format": "ZIP",
+    "optional_gsp": "explicit pinned external environment, no automatic downloads",
+    "resources": "binary-locked resources/; explicit --resources override; never cwd discovery"
+  }
 }

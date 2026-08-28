@@ -2022,3 +2022,30 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Etapa 8 comienza con pruebas RED de resolución de recursos y del directorio instalado; siguen pendientes ZIP Windows y CI final. Se avanzará hasta cerrar el plan conforme a la autorización vigente.
 
 **Siguiente paso:** completar recursos/ZIP, probar la extracción fuera del checkout y ejecutar la CI exact-SHA antes de declarar 8/8.
+
+## 2026-08-27 — Etapa 8 en ejecución, 7/8
+
+- Etapa 7 en `bbd160d`. RED 92171: CLI fuera del checkout tomaba schemas del cwd y faltaba catálogo portable. Implementado catálogo de recursos SHA-256 incorporado al binario, resolución por instalación o `--resources` (prioritario), fallback de desarrollo anclado al exe, sin dependencia de cwd. GREEN 33277: ambos tests reales PASS, incluida instalación con acentos, alteración rechazada y prioridad explícita.
+- Recursos incluyen contratos, schemas, skill, sidecar verificado, reports y archivos fuente de evidencia para release verify; no checkout Git, credenciales, DB ni runtime Python. Readiness/bitácora quedan fuera del catálogo para no fabricar un ciclo de hashes con la entrega. Manual Windows persistido.
+- Scripts nativos para ZIP nuevo, manifiesto de integridad, build con CRT estático, extracción temporal Unicode, PE imports y procesos con entorno sin PATH. Los mismos argv Codex se ejecutarán contra el binario extraído; nuevo recorrido CLI de portable/backup/restore/idempotencia y privacidad. Prueba local inicial corrigió expectativa del test: destino restore existente es INVALID_INPUT/2, no integridad/15.
+- CI incorpora build/ensayo/upload del ZIP Windows, conservando las otras plataformas, ENOSPC y seis casos GSP. Acción upload-artifact v7.0.1 fijada a SHA consultado en su repo oficial; no cambios de permisos ni de visibilidad.
+- Aún no hay ZIP verificado, benchmark fresco ni CI nueva. Siguiente: completar focales, compilar ZIP, corregir fallos reproducibles, repetir gate/benchmark/runtime y publicar candidato privado para observar CI exact-SHA. No cerrar etapa 8 por una compilación aislada.
+
+- RED de distribución real 24701: ZIP del build normal válido en hashes, pero el verificador PE detectó dependencia VCRUNTIME140.dll. Por eso la entrega se compila con CRT estático y se exige pasar ese control; build 50196 en curso. Test de privacidad de proceso 50196 PASS antes del build: fallo observado registrado, canary ausente de resultado/SQLite/Markdown, sin promover gates. El canary de nota local se rechaza al exportar y se omite en vista compartible.
+- Inspección del benchmark encontró measured_at fijo en 2026-08-26. Se extrajo su constructor sin cambiar comportamiento y se añadió prueba de frescura; debe reproducirse RED y corregirse antes de medir el candidato. No se sustituirá la fecha histórica de una medición anterior por una fecha nueva sin ejecutarla.
+
+- ZIP estático candidato 50196 PASS; QA estricto 31049 repitió ambos harnesses, cada uno con exactamente 1 passed/0 failed, en extracción externa Unicode sin PATH. Se añadió rechazo de cero tests filtrados (un filtro inexistente retorna exit 0, reproducido). SHA candidato b13c67f7f4d8992f613084e366908d836d4522b38a3d6ce0fd33c77ad2c85976, árbol sucio identificado; no es la entrega final.
+- RED benchmark 62658, GREEN 73652; Clippy corrigió orden del módulo test. 12018 Clippy + seis GSP reales PASS, incluidos tres supervisados con CLI del ZIP; crash RQ4 PID 5388, sin resultado/eventos antes del reinicio, enlace 1/replay 0. Upstreams siguen limpios.
+- Medición fresca lanzada con el mismo binario estático copiado al artefacto de build target/release (no se modificaron datos de usuario); después regenerar reportes y correr gate completo. Siguen 7/8; quedan commit candidato limpio, ZIP actualizado y CI privada exact-SHA. No expandir alcance ni considerar el ZIP candidato sucio como cierre.
+
+- 64399 exit 0: benchmark fresco 2026-08-28T02:39:50.27391Z, nueve targets PASS, startup p95 42,77 ms y RSS p95 19,684 MiB; reports/hashes regenerados. Windows local observado: 11 Home Single Language 10.0.26200 x64. README actualizado con la medición real, no fecha reemplazada sobre datos antiguos.
+- Inventario cerrado de recursos: RED 61570, GREEN 23550 (3/3 tests). `crates/cli/resources.txt` autoriza exactamente 448 archivos; build sin enumeración de directorios, rutas relativas seguras, no symlinks y límites por recurso. Se conservó el mismo conjunto de recursos observado; se evita empaquetar extras locales ignorados/accidentales.
+- Gate completo 70512 en ejecución: formato/Clippy/release generate PASS; tests workspace en curso. No solapar Cargo ni ejecutar target/debug mientras se reconstruye. Al terminar, commit candidato, ZIP limpio actualizado, push privado y observar seis jobs de CI; después cerrar etapa 8 documentalmente y conservar hashes/artefacto verificables.
+
+## 2026-08-27 — Candidato de etapa 8, verificación externa pendiente, 7/8
+
+- Gate 70512 terminó exit 0: suite workspace completa (53 comandos, CLI y nuevos tests incluidos), fmt, Clippy estricto, build locked, schemas/specs/contratos, release, deny e integridad 13/13. Los seis GSP reales fueron repetidos en 12018; ENOSPC físico será observado en CI.
+- Revisión final del ZIP detectó omisión de LICENSE del proyecto: rechazo reproducido contra candidato-1; empaquetado corregido para incluirla y verificar su hash. La comprobación completa del ZIP limpio debe repetir ese caso. SBOM/NOTICE de contratos se preservan; no se declara certificación legal ni GA.
+- Se prepara commit de candidato `feat: package Windows candidate with locked installation resources`. Es un checkpoint de implementación, no el cierre 8/8: faltan reconstrucción limpia/QA, push privado y CI exact-SHA. El cierre tendrá su propio commit documental con evidencia observada y artefacto identificado.
+
+**Siguiente paso:** construir/probar el ZIP limpio del candidato y observar CI Windows/Linux/macOS, dependencias, ENOSPC y GSP. Resolver cualquier fallo del alcance antes de entregar.

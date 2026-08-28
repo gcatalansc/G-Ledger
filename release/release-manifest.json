@@ -47,7 +47,7 @@
     },
     {
       "path": "release/compatibility-report.json",
-      "sha256": "1ae5101eca0f96f9a148597953ed22956757672aa116838fd10de1c01a7cf7e2"
+      "sha256": "ce57bf4033830552c4ac760c0713f1532aeaf71b01bb0a9c0ee5317462374df3"
     },
     {
       "path": "docs/THREAT_MODEL.md",
@@ -55,15 +55,15 @@
     },
     {
       "path": "benchmark/project-ledger-v0.2.0-windows-x86_64.json",
-      "sha256": "eaad085a1c521c175f7b5bd8de5d97e1d2fe9625f5a1492882610d1e93798d72"
+      "sha256": "f6fd9412f5689fd618d776aecbdc2f9d6dd18396aefbb3c9f78ce69261feaadc"
     },
     {
       "path": "release/package-manifest.json",
-      "sha256": "2005845c583c12fd9ff887f981bfd12d7a45c4b6b19ed3cba7131d9f9c5f28fb"
+      "sha256": "3d18b39c77ad9d933ac721a82b8f592a366020a8bbb0eb49ae0c8742edaf07a0"
     },
     {
       "path": "release/sbom.spdx.json",
-      "sha256": "5c53ff26d069f0cb634a5e1716889998cef295da8f0874cbc1fc28f034a9830a"
+      "sha256": "eb2f987ab60bdc62124e9df16f0edd881ff703a88ad1b433ddd94250e5437d44"
     }
   ],
   "compatibility_report": "release/compatibility-report.json",

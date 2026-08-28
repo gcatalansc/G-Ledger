@@ -201,15 +201,7 @@ pub fn run_and_write(root: &Path) -> Result<String, String> {
     let report = BenchmarkReport {
         profile: "project-ledger-performance-benchmark/0.2.0".to_owned(),
         measurement_status: "COMPLETE".to_owned(),
-        environment: BenchmarkEnvironment {
-            os: std::env::consts::OS.to_owned(),
-            arch: std::env::consts::ARCH.to_owned(),
-            rust: "1.97.1".to_owned(),
-            build_profile: "release".to_owned(),
-            sample_count: SAMPLES,
-            event_count: EVENT_COUNT,
-            measured_at: "2026-08-26T00:00:00Z".to_owned(),
-        },
+        environment: measurement_environment()?,
         metrics,
         waivers: Vec::new(),
     };
@@ -585,6 +577,20 @@ fn timestamp() -> Result<LedgerTimestamp, String> {
     LedgerTimestamp::parse("2026-08-23T00:00:00Z").map_err(|error| error.to_string())
 }
 
+fn measurement_environment() -> Result<BenchmarkEnvironment, String> {
+    Ok(BenchmarkEnvironment {
+        os: std::env::consts::OS.to_owned(),
+        arch: std::env::consts::ARCH.to_owned(),
+        rust: "1.97.1".to_owned(),
+        build_profile: "release".to_owned(),
+        sample_count: SAMPLES,
+        event_count: EVENT_COUNT,
+        measured_at: time::OffsetDateTime::now_utc()
+            .format(&time::format_description::well_known::Rfc3339)
+            .map_err(|error| error.to_string())?,
+    })
+}
+
 fn release_binary(root: &Path) -> PathBuf {
     let name = if cfg!(windows) {
         "project-ledger.exe"
@@ -598,4 +604,19 @@ fn pretty_json(value: &impl Serialize) -> Result<Vec<u8>, String> {
     let mut bytes = serde_json::to_vec_pretty(value).map_err(|error| error.to_string())?;
     bytes.push(b'\n');
     Ok(bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn fresh_measurements_never_reuse_a_historical_timestamp() {
+        let before = time::OffsetDateTime::now_utc();
+        let environment = super::measurement_environment().unwrap();
+        let observed = time::OffsetDateTime::parse(
+            &environment.measured_at,
+            &time::format_description::well_known::Rfc3339,
+        )
+        .unwrap();
+        assert!(observed >= before && observed <= time::OffsetDateTime::now_utc());
+    }
 }

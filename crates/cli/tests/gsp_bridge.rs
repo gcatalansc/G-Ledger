@@ -686,8 +686,11 @@ fn event_count(database: &Path) -> u64 {
 }
 
 fn cli() -> Command {
-    let mut command = Command::cargo_bin("project-ledger").unwrap();
-    command.current_dir(repository_root());
+    let mut command = std::env::var_os("PROJECT_LEDGER_PACKAGE_BINARY").map_or_else(
+        || Command::cargo_bin("project-ledger").unwrap(),
+        Command::new,
+    );
+    command.current_dir(std::env::temp_dir());
     command
 }
 

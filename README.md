@@ -71,7 +71,7 @@ cargo xtask release generate --root .
 cargo xtask release generate --check --root .
 ```
 
-El benchmark versionado usa 20 muestras en Windows x86_64/Rust 1.97.1 y un stream canónico de 10.000 eventos. Los nueve targets medidos pasan; `memory_one_shot_p95` es 17,855 MiB frente al presupuesto de 100 MiB, calculado como p95 del máximo RSS muestreado cada 1 ms durante `project-ledger contracts verify`. Es una medición de ingeniería ligada al entorno, no un pico kernel exacto ni una garantía universal.
+El benchmark versionado usa 20 muestras en Windows x86_64/Rust 1.97.1 y un stream canónico de 10.000 eventos. La medición fresca del 2026-08-28 UTC pasa los nueve targets; `memory_one_shot_p95` es 19,684 MiB frente al presupuesto de 100 MiB, calculado como p95 del máximo RSS muestreado cada 1 ms durante `project-ledger contracts verify`. Es una medición de ingeniería ligada al entorno, no un pico kernel exacto ni una garantía universal.
 
 Inicialización offline contra una ubicación explícita:
 

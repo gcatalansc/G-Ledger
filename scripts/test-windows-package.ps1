@@ -1,0 +1,135 @@
+#requires -Version 7.0
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)][string]$Zip,
+    [Parameter(Mandatory)][string]$ExpectedSha256,
+    [Parameter(Mandatory)][string]$CodexTest,
+    [Parameter(Mandatory)][string]$PortableTest,
+    [string]$Report
+)
+$ErrorActionPreference = 'Stop'
+if ($Report -and (Test-Path -LiteralPath $Report)) { throw 'Verification report destination already exists' }
+$zipPath = (Resolve-Path -LiteralPath $Zip).Path
+if ((Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash -ne $ExpectedSha256) { throw 'ZIP checksum mismatch' }
+$testRoot = Join-Path ([IO.Path]::GetTempPath()) ('Ledger prueba ZIP á ' + [guid]::NewGuid().ToString('N'))
+$install = Join-Path $testRoot 'instalación con espacios'
+$null = New-Item -ItemType Directory -Path $install
+$archive = [IO.Compression.ZipFile]::OpenRead($zipPath)
+try {
+    $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $total = 0L
+    foreach ($entry in $archive.Entries) {
+        $name = $entry.FullName.Replace('\','/')
+        if ($name -match '(^/|^[A-Za-z]:|(^|/)\.\.(/|$)|:)' -or -not $names.Add($name)) { throw 'Unsafe or duplicate ZIP entry' }
+        $total += $entry.Length
+        if ($total -gt 536870912 -or $names.Count -gt 2048) { throw 'ZIP extraction budget exceeded' }
+    }
+    [IO.Compression.ZipFileExtensions]::ExtractToDirectory($archive, $install)
+} finally { $archive.Dispose() }
+$manifest = Get-Content -LiteralPath (Join-Path $install 'package.json') -Raw | ConvertFrom-Json
+if ($manifest.profile -ne 'project-ledger-windows-zip/1' -or $manifest.certified_compatibility) { throw 'Invalid package profile' }
+$listed = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+foreach ($entry in $manifest.files) {
+    $name = $entry.path
+    if ([IO.Path]::IsPathRooted($name) -or $name -match '(^|/)\.\.(/|$)|:|\\' -or -not $listed.Add($name)) { throw 'Unsafe or duplicate manifest path' }
+    $path = Join-Path $install $name
+    $item = Get-Item -LiteralPath $path
+    if ($item.LinkType -or $item.Length -ne $entry.size -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $entry.sha256) { throw "Package integrity failure: $name" }
+}
+$null = $listed.Add('package.json')
+if (-not $listed.Contains('LICENSE')) { throw 'Project license missing from distribution' }
+foreach ($item in Get-ChildItem -LiteralPath $install -File -Recurse -Force) {
+    $name = [IO.Path]::GetRelativePath($install, $item.FullName).Replace('\','/')
+    if (-not $listed.Contains($name)) { throw 'Unlisted package file' }
+}
+$binary = Join-Path $install 'project-ledger.exe'
+# Parse the PE import table: the portable core may import Windows system DLLs, not an MSVC redistributable.
+$pe = [IO.File]::ReadAllBytes($binary)
+$header = [BitConverter]::ToInt32($pe, 0x3c)
+if ([BitConverter]::ToUInt32($pe,$header) -ne 0x4550 -or [BitConverter]::ToUInt16($pe,$header+4) -ne 0x8664) { throw 'Expected a Windows x86_64 PE' }
+$optional = $header + 24
+if ([BitConverter]::ToUInt16($pe,$optional) -ne 0x20b) { throw 'Expected a PE32+ image' }
+$sections = $optional + [BitConverter]::ToUInt16($pe,$header+20)
+$sectionCount = [BitConverter]::ToUInt16($pe,$header+6)
+function Convert-Rva([uint32]$Rva) {
+    for ($n=0; $n -lt $sectionCount; $n++) {
+        $offset = $sections + 40*$n
+        $start = [BitConverter]::ToUInt32($pe,$offset+12)
+        $length = [Math]::Max([BitConverter]::ToUInt32($pe,$offset+8),[BitConverter]::ToUInt32($pe,$offset+16))
+        if ($Rva -ge $start -and $Rva -lt $start+$length) { return [int]($Rva-$start+[BitConverter]::ToUInt32($pe,$offset+20)) }
+    }
+    throw 'Invalid PE import address'
+}
+$imports = [Collections.Generic.List[string]]::new()
+$descriptor = Convert-Rva ([BitConverter]::ToUInt32($pe,$optional+120))
+for ($n=0; $n -lt 256; $n++) {
+    $rva = [BitConverter]::ToUInt32($pe,$descriptor+20*$n+12)
+    if ($rva -eq 0) { break }
+    $offset = Convert-Rva $rva
+    $end = $offset
+    while ($end -lt $pe.Length -and $end-$offset -lt 256 -and $pe[$end] -ne 0) { $end++ }
+    $dll = [Text.Encoding]::ASCII.GetString($pe,$offset,$end-$offset)
+    if ($dll -match '^(VCRUNTIME|MSVCP|MSVCR|ucrtbase)' -or $dll -notmatch '^(api-ms-win-[\w.-]+|[A-Za-z0-9_-]+)\.dll$') { throw "Non-portable runtime import: $dll" }
+    $imports.Add($dll)
+}
+function Invoke-Isolated([string[]]$Arguments, [int]$ExpectedExit=0) {
+    $start = [Diagnostics.ProcessStartInfo]::new($binary)
+    $start.WorkingDirectory = $testRoot
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.Environment.Clear()
+    foreach ($key in @('SystemRoot','TEMP','TMP')) { $start.Environment[$key] = [Environment]::GetEnvironmentVariable($key) }
+    foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::Start($start)
+    $stdout = $process.StandardOutput.ReadToEndAsync()
+    $stderr = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(60000)) { $process.Kill($true); $process.WaitForExit(); throw 'Package command timed out' }
+    if ($process.ExitCode -ne $ExpectedExit) { throw "Package command failed: $($Arguments -join ' ') / $($stdout.Result) / $($stderr.Result)" }
+    return $stdout.Result
+}
+foreach ($family in @('resources','specs','contracts','release')) { $null = Invoke-Isolated @($family,'verify','--json') }
+$harnessResults = [Collections.Generic.List[object]]::new()
+foreach ($test in @(@($CodexTest,'published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access'), @($PortableTest,'portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains'))) {
+    $start = [Diagnostics.ProcessStartInfo]::new((Resolve-Path -LiteralPath $test[0]).Path)
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.WorkingDirectory = $testRoot
+    $start.Environment['PROJECT_LEDGER_PACKAGE_BINARY'] = $binary
+    foreach ($argument in @('--exact',$test[1],'--nocapture')) { $start.ArgumentList.Add($argument) }
+    $process = [Diagnostics.Process]::Start($start)
+    $stdout = $process.StandardOutput.ReadToEndAsync()
+    $stderr = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(120000)) { $process.Kill($true); $process.WaitForExit(); throw 'Package scenario timed out' }
+    if ($process.ExitCode -ne 0 -or $stdout.Result -notmatch 'test result: ok\. 1 passed; 0 failed') { throw "Extracted package scenario missing or failed: $($stdout.Result) / $($stderr.Result)" }
+    $harnessResults.Add(@{test=$test[1]; passed=1; failed=0})
+    Write-Host $stdout.Result
+}
+# Missing optional GSP must be bounded, fail without a result, and leave core operation available.
+$missing = Join-Path $testRoot 'missing-python.exe'
+$policy = Join-Path $testRoot 'optional-policy.json'
+@{allowed_programs=@($missing)} | ConvertTo-Json | Set-Content -LiteralPath $policy -Encoding utf8NoBOM
+$null = Invoke-Isolated @('integration','gsp','compile','--python',$missing,'--source-root',$testRoot,'--input',(Join-Path $testRoot 'missing-corpus.json'),'--output',(Join-Path $testRoot 'must-not-exist.json'),'--policy',$policy,'--cwd',$testRoot,'--json') 12
+if (Test-Path -LiteralPath (Join-Path $testRoot 'must-not-exist.json')) { throw 'Missing runtime published a result' }
+# Tampering does not fall back to the development checkout or accidental cwd.
+$modified = Join-Path $install 'resources/specs/PROJECT_LEDGER_SPEC_v0.2.0.md'
+$original = [IO.File]::ReadAllBytes($modified)
+try {
+    [IO.File]::WriteAllText($modified, 'tampered disposable package')
+    $null = Invoke-Isolated @('resources','verify','--json') 15
+} finally { [IO.File]::WriteAllBytes($modified,$original) }
+$null = Invoke-Isolated @('resources','verify','--json')
+$result = [ordered]@{
+    profile='project-ledger-package-verification/1'; status='PASS'; zip_sha256=$ExpectedSha256.ToLowerInvariant()
+    source_commit=$manifest.source_commit; source_tree_dirty=$manifest.source_tree_dirty; extracted_directory=$install
+    scenarios=@('compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
+    runtime_environment='PATH absent; only SystemRoot/TEMP/TMP passed to Ledger; no Cargo/Git/Python/checkout required by core'
+    imported_system_dlls=$imports.ToArray(); certified_compatibility=$false
+    harness_results=$harnessResults.ToArray()
+}
+$json = $result | ConvertTo-Json -Depth 8
+if ($Report) { $json | Set-Content -LiteralPath $Report -Encoding utf8NoBOM }
+$json

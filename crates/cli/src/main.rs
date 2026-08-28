@@ -1,6 +1,7 @@
 mod errors;
 mod gsp_compile;
 mod operations;
+mod resources;
 use errors::CliError;
 
 use std::{
@@ -68,12 +69,18 @@ const V0_2_DIGEST: &str = "sha256:31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2
 struct Cli {
     #[arg(long, global = true)]
     json: bool,
+    #[arg(long, global = true)]
+    resources: Option<PathBuf>,
     #[command(subcommand)]
     command: TopLevelCommand,
 }
 
 #[derive(Debug, Subcommand)]
 enum TopLevelCommand {
+    Resources {
+        #[command(subcommand)]
+        command: ResourceCommand,
+    },
     #[command(flatten)]
     Operations(Box<operations::Operation>),
     Init(InitArgs),
@@ -125,6 +132,12 @@ enum VerificationCommand {
     Verify,
 }
 
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum ResourceCommand {
+    List,
+    Verify,
+}
+
 #[derive(Clone, Debug, Subcommand)]
 enum ReleaseCommand {
     Verify(ReleaseVerifyArgs),
@@ -132,8 +145,8 @@ enum ReleaseCommand {
 
 #[derive(Clone, Debug, Args)]
 struct ReleaseVerifyArgs {
-    #[arg(long, default_value = ".")]
-    root: PathBuf,
+    #[arg(long)]
+    root: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, Subcommand)]
@@ -389,7 +402,7 @@ fn main() -> ExitCode {
         TopLevelCommand::Checkpoint {
             command: CheckpointCommand::Create(args),
         } => create_checkpoint(&args),
-        other => dispatch_existing(other),
+        other => dispatch_existing(other, cli.resources.as_deref()),
     };
     match result {
         Ok(output) => {
@@ -410,8 +423,24 @@ fn main() -> ExitCode {
     }
 }
 
-fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
+#[allow(clippy::too_many_lines)] // Keep the closed top-level dispatch auditable in one match.
+fn dispatch_existing(
+    command: TopLevelCommand,
+    explicit_resources: Option<&Path>,
+) -> Result<String, CliError> {
+    let resource_root = || resources::resolve(explicit_resources);
     match command {
+        TopLevelCommand::Resources {
+            command: ResourceCommand::List,
+        } => canonical_stdout(&resources::catalog()),
+        TopLevelCommand::Resources {
+            command: ResourceCommand::Verify,
+        } => {
+            let root = resource_root()?;
+            canonical_stdout(
+                &serde_json::json!({"status":"VERIFIED", "root":root, "file_count":resources::catalog()["files"].as_array().map_or(0, Vec::len)}),
+            )
+        }
         TopLevelCommand::Catalog {
             command: CatalogCommand::List(args),
         } => operations::catalog(&args, false),
@@ -426,43 +455,43 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
         } => create_checkpoint(&args),
         TopLevelCommand::Specs {
             command: VerificationCommand::Verify,
-        } => repository_root().and_then(|root| verify_specs(&root)),
+        } => resource_root().and_then(|root| verify_specs(&root)),
         TopLevelCommand::Contracts {
             command: VerificationCommand::Verify,
-        } => repository_root().and_then(|root| verify_contract_artifacts(&root)),
+        } => resource_root().and_then(|root| verify_contract_artifacts(&root)),
         TopLevelCommand::Release {
             command: ReleaseCommand::Verify(args),
-        } => verify_release_cli(&args),
+        } => verify_release_cli(&args, explicit_resources),
         TopLevelCommand::Integration {
             command: IntegrationCommand::Manifest,
         } => integration_manifest(),
         TopLevelCommand::Integration {
             command: IntegrationCommand::Compatibility,
-        } => repository_root().and_then(|root| integration_compatibility(&root)),
+        } => resource_root().and_then(|root| integration_compatibility(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::AgentSkill {
                     command: AgentSkillIntegrationCommand::VerifyContracts,
                 },
-        } => repository_root().and_then(|root| verify_agent_skill_contracts(&root)),
+        } => resource_root().and_then(|root| verify_agent_skill_contracts(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gskills {
                     command: GSkillsIntegrationCommand::VerifyContracts,
                 },
-        } => repository_root().and_then(|root| verify_gskills_contracts(&root)),
+        } => resource_root().and_then(|root| verify_gskills_contracts(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gsp {
                     command: GspIntegrationCommand::VerifyContracts,
                 },
-        } => repository_root().and_then(|root| verify_gsp_contracts(&root)),
+        } => resource_root().and_then(|root| verify_gsp_contracts(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gsp {
                     command: GspIntegrationCommand::Compile(args),
                 },
-        } => repository_root().and_then(|root| gsp_compile::compile(&root, &args)),
+        } => resource_root().and_then(|root| gsp_compile::compile(&root, &args)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gsp {
@@ -474,7 +503,7 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
                 IntegrationCommand::Gsp {
                     command: GspIntegrationCommand::ValidateResult(args),
                 },
-        } => repository_root().and_then(|root| validate_gsp_result(&root, &args)),
+        } => resource_root().and_then(|root| validate_gsp_result(&root, &args)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gsp {
@@ -486,7 +515,7 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
                 IntegrationCommand::Radar {
                     command: RadarIntegrationCommand::VerifyContracts,
                 },
-        } => repository_root().and_then(|root| verify_radar_contracts(&root)),
+        } => resource_root().and_then(|root| verify_radar_contracts(&root)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Radar {
@@ -498,7 +527,7 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
                 IntegrationCommand::Radar {
                     command: RadarIntegrationCommand::ValidateExport(args),
                 },
-        } => repository_root().and_then(|root| validate_radar_export(&root, &args)),
+        } => resource_root().and_then(|root| validate_radar_export(&root, &args)),
         TopLevelCommand::Catalog {
             command: CatalogCommand::RadarExport(args),
         } => export_radar_catalog(&args),
@@ -511,12 +540,12 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
     }
 }
 
-fn repository_root() -> Result<PathBuf, CliError> {
-    env::current_dir().map_err(CliError::input)
-}
-
-fn verify_release_cli(args: &ReleaseVerifyArgs) -> Result<String, CliError> {
-    let report = verify_release(&args.root).map_err(CliError::input)?;
+fn verify_release_cli(
+    args: &ReleaseVerifyArgs,
+    explicit_resources: Option<&Path>,
+) -> Result<String, CliError> {
+    let root = resources::resolve(explicit_resources.or(args.root.as_deref()))?;
+    let report = verify_release(&root).map_err(CliError::input)?;
     canonical_stdout(&report)
 }
 

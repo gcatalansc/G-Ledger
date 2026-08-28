@@ -92,7 +92,7 @@
 
 ## Stage 8 — Paquete y cierre
 
-**Files:** empaquetado `xtask`, recursos CLI, verificadores de release/readiness, CI y documentación de entrega.
+**Files:** metadatos `xtask`, empaquetado/verificación PowerShell, recursos CLI, verificadores de release/readiness, CI y documentación de entrega.
 
 **Consumes/produces:** release build y recursos hash-locked → ZIP Windows → pruebas desde extracción limpia → informe READY_FOR_CONTROLLED_PILOT cuando proceda.
 

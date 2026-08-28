@@ -98,7 +98,16 @@ fn package_manifest() -> Result<Vec<u8>, String> {
         },
         "targets": ["x86_64-pc-windows-msvc", "x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "x86_64-apple-darwin"],
         "build": "cargo build --locked --release -p project-ledger-cli",
-        "verification": "cargo xtask release check"
+        "verification": "cargo xtask release check",
+        "windows_distribution": {
+            "format": "ZIP",
+            "build_and_verify": "pwsh -File scripts/build-windows-package.ps1 -Output <new.zip> -RequireClean",
+            "resources": "binary-locked resources/; explicit --resources override; never cwd discovery",
+            "crt": "static",
+            "core_requires_toolchain": false,
+            "core_requires_python": false,
+            "optional_gsp": "explicit pinned external environment, no automatic downloads"
+        }
     }))
 }
 

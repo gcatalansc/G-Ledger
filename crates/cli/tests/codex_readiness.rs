@@ -1,20 +1,47 @@
-use assert_cmd::prelude::*;
+use assert_cmd::assert::OutputAssertExt;
 use project_ledger_agent_skill::{
     EvidenceAvailability, RuntimeConditions, SkillIntent, SkillPlanStatus, SubmissionState,
     ToolAvailability, plan_skill_actions,
 };
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, fs, path::Path, process::Command};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 const PACKAGE: &str = "integrations/agent-skills/project-ledger-continuity";
 const AT: &str = "2026-08-27T23:00:00Z";
 
-fn root() -> &'static Path {
+fn tool_path() -> PathBuf {
+    std::env::var_os("PROJECT_LEDGER_PACKAGE_BINARY").map_or_else(
+        || assert_cmd::cargo::cargo_bin("project-ledger"),
+        PathBuf::from,
+    )
+}
+
+fn ledger() -> Command {
+    let mut command = Command::new(tool_path());
+    command.env_clear().current_dir(std::env::temp_dir());
+    for key in ["SystemRoot", "TEMP", "TMP"] {
+        if let Some(value) = std::env::var_os(key) {
+            command.env(key, value);
+        }
+    }
+    command
+}
+
+fn root() -> PathBuf {
+    if std::env::var_os("PROJECT_LEDGER_PACKAGE_BINARY").is_some() {
+        return tool_path().parent().unwrap().join("resources");
+    }
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
         .parent()
         .unwrap()
+        .to_path_buf()
 }
 
 fn commands() -> Value {
@@ -42,11 +69,7 @@ fn run(example: &Value, name: &str, values: &BTreeMap<String, String>) -> std::p
             }
         })
         .collect();
-    Command::cargo_bin("project-ledger")
-        .unwrap()
-        .args(args)
-        .output()
-        .unwrap()
+    ledger().args(args).output().unwrap()
 }
 
 fn json_output(output: &std::process::Output, code: i32) -> Value {
@@ -61,8 +84,7 @@ fn json_output(output: &std::process::Output, code: i32) -> Value {
 }
 
 fn state(values: &BTreeMap<String, String>) -> Value {
-    let output = Command::cargo_bin("project-ledger")
-        .unwrap()
+    let output = ledger()
         .args([
             "status",
             "--database",
@@ -119,8 +141,7 @@ fn setup(path: &Path, values: &mut BTreeMap<String, String>) {
         let payload_path = path.join("human-setup.json");
         fs::write(&payload_path, serde_json::to_vec(&payload).unwrap()).unwrap();
         let version = refresh(values);
-        let output = Command::cargo_bin("project-ledger")
-            .unwrap()
+        let output = ledger()
             .args(args)
             .arg("--file")
             .arg(payload_path)
@@ -150,9 +171,11 @@ fn setup(path: &Path, values: &mut BTreeMap<String, String>) {
 #[allow(clippy::too_many_lines)] // The complete procedure is kept in observable execution order.
 fn published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access() {
     let example = commands();
-    let temp = tempfile::tempdir().unwrap();
-    let initialized = Command::cargo_bin("project-ledger")
-        .unwrap()
+    let temp = tempfile::Builder::new()
+        .prefix("Ledger Codex á ")
+        .tempdir()
+        .unwrap();
+    let initialized = ledger()
         .args([
             "init",
             "--title",
@@ -170,7 +193,7 @@ fn published_codex_argv_runs_the_full_governed_flow_without_direct_storage_acces
             .unwrap()
             .to_owned()
     };
-    let tool = assert_cmd::cargo::cargo_bin("project-ledger");
+    let tool = tool_path();
     let policy = temp.path().join("explicit-process-policy.json");
     fs::write(
         &policy,
@@ -329,8 +352,7 @@ fn missing_and_outdated_processes_degrade_before_any_ledger_operation() {
     assert_eq!(plan.status, SkillPlanStatus::DegradedMissingTool);
     assert!(plan.actions.is_empty());
     // A supported version still must reject a capability that this executable does not expose.
-    Command::cargo_bin("project-ledger")
-        .unwrap()
+    ledger()
         .args(["absent-capability", "--help"])
         .assert()
         .code(2);
