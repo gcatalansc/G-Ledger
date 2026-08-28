@@ -2122,3 +2122,11 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - `gh-fix-ci` y la skill de navegación guiaron la distinción entre la anotación del job y el estado actual de cuenta; `verification-before-completion` mantiene el cierre condicionado a evidencia ejecutada. Sólo se actualiza esta bitácora; código, paquete, dossier local ya entregado y resultados históricos permanecen intactos. Sin nueva regresión ni nueva CI que atribuir a esta revisión. Estado: 7/8, NOT_READY y PP-14 abierto.
 
 **Siguiente paso:** el usuario elige esperar la renovación o habilitar gasto acotado. Tras comprobar cuota disponible o restricción resuelta y autorizar la ejecución, repetir la CI del candidato exacto, verificar sus seis jobs y el artefacto alojado; sólo entonces evaluar el cierre 8/8. No hay seguimiento ni reintentos automáticos.
+
+## 2026-08-28 — Acuerdo: esperar la renovación gratuita de Actions, 7/8
+
+- El usuario elige «Espero la cuota». Se conserva GitHub Free y se aplaza la CI hasta disponer de cuota incluida renovada. No se habilita consumo de pago, se cambia el presupuesto ni se contrata otro plan.
+- La consulta anterior situó la renovación alrededor del 1 de septiembre de 2026; esta fecha es una previsión basada en aquel panel, no una renovación ya comprobada. No se consulta GitHub ni se ejecuta CI en este turno, y no se programa monitoreo, recordatorio o reintento automático.
+- Sólo se registra el acuerdo en esta bitácora con un commit local, sin push ni cambios en código, paquete o evidencia histórica. `verification-before-completion` guía el control documental; se mantiene 7/8, NOT_READY y PP-14 abierto. No se inicia el piloto real.
+
+**Siguiente paso:** cuando el usuario indique retomar, comprobar la cuota disponible y, si se renovó, ejecutar la CI del candidato exacto y verificar sus seis jobs y el artefacto alojado antes de cerrar 8/8.
