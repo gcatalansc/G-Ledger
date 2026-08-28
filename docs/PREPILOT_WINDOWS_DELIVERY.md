@@ -51,4 +51,6 @@ Los harnesses de ensayo se compilan fuera del paquete; invocan el ejecutable ext
 
 ## Límites y siguiente paso
 
+Reintento expresamente solicitado por el usuario («Prueba ahora»): [intento 3](https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781/attempts/3) del mismo candidato, observado a las 2026-08-28T03:45:01Z. Volvió a terminar failure antes de ejecutar pasos; las seis anotaciones coinciden en la restricción de pagos/límite de gasto. Jobs ENOSPC 98747749850, Ubuntu 98747749914, Windows 98747749918, dependencias 98747749919, macOS 98747749948 y GSP 98747750004. Sigue 7/8, NOT_READY; no hubo pruebas del código ni artefacto alojado nuevos. Las verificaciones locales anteriores conservan sus fechas, no se repitieron en este intento.
+
 El titular debe resolver la restricción de cuenta en Billing & plans y habilitar GitHub Actions. Entonces reejecutar la CI del candidato, observar sus seis jobs y resolver cualquier fallo real antes de cerrar 8/8 con un commit documental. La salida será apto para piloto controlado sólo después de ese cierre. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.

@@ -2078,3 +2078,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Sólo se actualiza esta bitácora en un checkpoint documental local, sin cambios de código, recursos del ZIP o evidencia histórica. La inspección sigue `gh-fix-ci` y el cierre continúa sujeto a `verification-before-completion`.
 
 **Siguiente paso necesario:** confirmar con el titular si ya resolvió la restricción de GitHub Actions en Billing & plans. Si está resuelta, reanudar la CI del candidato y verificar los seis jobs y el artefacto antes del cierre 8/8; de lo contrario, esa gestión de cuenta sigue pendiente y no corresponde iniciar el piloto.
+
+## 2026-08-27 — Tercer intento expresamente autorizado, 7/8
+
+- El usuario indicó «Prueba ahora». Se reintentó una sola vez CI `33137113781`, tras comprobar autenticación y SHA exacto `f4b34e591b13199d040ecf7d41a071e21bf63d37`. Un error tipográfico en el primer comando de consulta se corrigió antes de enviar el reintento; no produjo otra ejecución.
+- Attempt 3 terminó failure. A las 2026-08-28T03:45:01Z se consultaron los seis jobs y sus anotaciones: ENOSPC 98747749850, Ubuntu 98747749914, Windows 98747749918, dependencias 98747749919, macOS 98747749948 y GSP 98747750004. Todos con cero pasos y la misma restricción de pagos fallidos/límite de gasto. No es un fallo observado del código ni una CI aprobada; no hay un artefacto alojado nuevo.
+- Se actualizan el último intento en readiness/informe Windows y la evidencia de entrega, conservando el historial en esta bitácora y Git. El estado sigue 7/8, NOT_READY y PP-14 abierto. No se repiten pruebas locales ni se atribuye una nueva fecha a resultados anteriores; no se cambian código, recursos, contratos, facturación, visibilidad o runners.
+- Registro documental local, sin push que active otra CI bajo la restricción recién observada. Revisión con `gh-fix-ci` y cierre condicionado por `verification-before-completion`; no se inicia el piloto real.
+- Control documental b39004 exit 0: JSON, intento 3/seis jobs sin pasos, 7/8, fechas históricas intactas y diff limitado a cuatro documentos. Se corrigió sólo la comprobación ad hoc de fechas: ConvertFrom-Json devuelve DateTime y la comparación inicial con texto fallaba; tipo, bytes y diff confirmaron que ningún timestamp histórico había cambiado. Diagnóstico con `systematic-debugging`, sin parche de código del producto.
+
+**Siguiente paso necesario:** resolver la restricción de cuenta que GitHub sigue notificando y, una vez habilitadas las ejecuciones, verificar CI exact-SHA y artefacto alojado antes de cerrar 8/8. No repetir intentos automáticamente bajo el mismo bloqueo.

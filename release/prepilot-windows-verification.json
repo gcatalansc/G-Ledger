@@ -56,8 +56,8 @@
   },
   "hosted_ci": {
     "run_id": 33137113781,
-    "last_checked_attempt": 2,
-    "checked_at": "2026-08-28T03:20:39Z",
+    "last_checked_attempt": 3,
+    "checked_at": "2026-08-28T03:45:01Z",
     "status": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
     "executed_jobs": 0,
     "blocked_jobs": 6

@@ -91,11 +91,12 @@
       "annotation_confirmed_for_all_jobs": true,
       "code_failure_observed": false,
       "latest_recheck": {
-        "run_attempt": 2,
-        "checked_at": "2026-08-28T03:20:39Z",
+        "run_attempt": 3,
+        "checked_at": "2026-08-28T03:45:01Z",
+        "trigger": "explicit user request: Prueba ahora",
         "reported_conclusion": "failure",
         "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
-        "jobs_with_zero_steps": [98744058292, 98744058423, 98744058427, 98744058452, 98744058456, 98744058466],
+        "jobs_with_zero_steps": [98747749850, 98747749914, 98747749918, 98747749919, 98747749948, 98747750004],
         "annotation_confirmed_for_all_jobs": true,
         "code_failure_observed": false,
         "further_retries_require_account_restriction_resolved": true
