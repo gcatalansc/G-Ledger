@@ -150,3 +150,5 @@ jobs:
         run: .tooling/rq4-gsp-runtime/.venv/bin/python -I -B -m ruff check --no-cache integrations/gsp/sidecar/compile_bundle.py crates/cli/tests/gsp_live/crash_probe.py
       - name: Verify actual GSP compilation, rejection and crash recovery
         run: 'cargo test -p project-ledger-cli --test gsp_bridge live_sidecar:: -- --ignored --nocapture --test-threads=1'
+      - name: Verify supervised pinned GSP runtime matrix
+        run: 'cargo test -p project-ledger-cli --test gsp_bridge supervised::actual_ -- --ignored --nocapture --test-threads=1'

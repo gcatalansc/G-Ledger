@@ -2006,3 +2006,19 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Consulta read-only de issues (hasta 30, todos los estados) de gcatalansc/G-Ledger y gcatalansc/gsp-gemma-compiler devolvió [] en ambos. No se interpreta como aceptación bilateral; el informe GSP de etapa 7 distinguirá la evidencia local de certificación externa.
 
 **Siguiente paso:** etapa 7, entrada GSP supervisada, matriz finita runtime/adversarial y revisión de evidencia disponible; luego ZIP/CI de etapa 8. No piloto real ni certificación.
+
+## 2026-08-27 — Etapa 7 en ejecución, 6/8
+
+- Etapa 6 cerrada en `805b783`. RED 99469: compile ausente, export GSP dejaba salir un canary ficticio y validate-result leía >8 MiB sin límite previo. Nueva entrada gsp_compile, policy explícita, supervisor de etapa 4, artefactos acotados y publicación validada sin enlace automático.
+- RED adicional 80051: error de validación reproducía token ficticio y segundo actor con la misma clave provocaba UNIQUE/11. Corregidos escaneo previo + errores sin valores y command_id con scope de actor, preservando IDs históricos por reconciliación. Cinco tests nuevos CLI PASS.
+- Sesión 15576 exit 0: dos tests GSP supervisado real (normal/contradicción/uncertainty, alteraciones de resultados reales, link/replay, startup timeout, cancelación prearmada y drift) y tres RQ4 reales, incluido crash dentro de compile_evidence, PID propio 6340, reinicio y un solo enlace. Runtime upstream limpio e intacto.
+- Se añadió caso real con supervisor compartido para timeout y cancelación después del marker de entrada al compilador; no opción de inyección en producción. Clippy detectó un cast u64 redundante del test y se corrigió. Pipeline 68925: Clippy PASS y tres tests runtime supervisados en ejecución. CI incorpora esos tests para su futura corrida en etapa 8; todavía no se ha hecho push.
+- Matriz/alcance y evidencia bilateral disponible en `docs/PREPILOT_GSP_RUNTIME_MATRIX.md`, aún declara gate pendiente. Próximo: completar 68925, full gate fresco, README/plan/readiness 7/8 y commit; después implementación y prueba del ZIP fuera del checkout + CI exact-SHA. No declarar piloto listo antes de 8/8.
+
+## 2026-08-27 — Etapa 7 verificada, 7/8
+
+- 68925 y gate agregado 62580 terminaron exit 0. Seis pruebas GSP opt-in reales ejecutadas, cinco CLI nuevas, full workspace, formato/Clippy, build locked, schemas/specs/contratos/release, dependencias y 13 hashes verificados. Matriz finita y separación de runtime/fixture/adversarial persistidas; ninguna aceptación externa atribuida.
+- Plan, README, matriz y readiness conciliados; PP-12 cerrado. Commit de etapa: `feat: supervise and verify the pinned GSP runtime`. Sin nuevas descargas, migración de contratos, habilitación G-Skills/Radar, piloto real ni push todavía.
+- Etapa 8 comienza con pruebas RED de resolución de recursos y del directorio instalado; siguen pendientes ZIP Windows y CI final. Se avanzará hasta cerrar el plan conforme a la autorización vigente.
+
+**Siguiente paso:** completar recursos/ZIP, probar la extracción fuera del checkout y ejecutar la CI exact-SHA antes de declarar 8/8.

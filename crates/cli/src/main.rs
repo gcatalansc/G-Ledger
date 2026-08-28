@@ -1,4 +1,5 @@
 mod errors;
+mod gsp_compile;
 mod operations;
 use errors::CliError;
 
@@ -165,6 +166,7 @@ enum GSkillsIntegrationCommand {
 #[derive(Clone, Debug, Subcommand)]
 enum GspIntegrationCommand {
     VerifyContracts,
+    Compile(gsp_compile::CompileArgs),
     ExportCorpus(GspExportCorpusArgs),
     ValidateResult(GspValidateResultArgs),
     LinkResult(GspLinkResultArgs),
@@ -455,6 +457,12 @@ fn dispatch_existing(command: TopLevelCommand) -> Result<String, CliError> {
                     command: GspIntegrationCommand::VerifyContracts,
                 },
         } => repository_root().and_then(|root| verify_gsp_contracts(&root)),
+        TopLevelCommand::Integration {
+            command:
+                IntegrationCommand::Gsp {
+                    command: GspIntegrationCommand::Compile(args),
+                },
+        } => repository_root().and_then(|root| gsp_compile::compile(&root, &args)),
         TopLevelCommand::Integration {
             command:
                 IntegrationCommand::Gsp {
@@ -970,7 +978,8 @@ fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, CliError> {
     require_database(&args.database)?;
     require_file(&args.request, "GSP corpus request")?;
     let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
-    let request: GspCorpusRequest = read_json_file(&args.request)?;
+    let request: GspCorpusRequest =
+        gsp_compile::read_artifact(&args.request, gsp_compile::INPUT_LIMIT)?;
     if request.project_ref != project_ref {
         return Err(CliError::input(
             "GSP corpus CLI project differs from the explicit request".to_owned(),
@@ -982,7 +991,11 @@ fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, CliError> {
     let projection = ProjectStateProjection::rebuild(&stream).map_err(CliError::domain)?;
     let corpus = project_ledger_interop_gsp::build_minimized_corpus(&projection, &stream, &request)
         .map_err(CliError::input)?;
-    write_new_json(&args.output, &corpus)?;
+    let bytes = to_canonical_vec(&corpus).map_err(CliError::input)?;
+    if bytes.len() as u64 + 1 > gsp_compile::INPUT_LIMIT {
+        return Err(CliError::input("GSP corpus exceeds sidecar input budget"));
+    }
+    gsp_compile::publish(&args.output, &corpus)?;
     Ok(format!(
         "gsp corpus EXPORTED files={} output={}\n",
         corpus.manifest.files.len(),
@@ -993,13 +1006,18 @@ fn export_gsp_corpus(args: &GspExportCorpusArgs) -> Result<String, CliError> {
 fn validate_gsp_result(root: &Path, args: &GspValidateResultArgs) -> Result<String, CliError> {
     require_file(&args.evidence_bundle, "GSP EvidenceBundle corpus")?;
     require_file(&args.result, "GSP CompilationResult")?;
-    let corpus: GspCorpus = read_json_file(&args.evidence_bundle)?;
-    let raw: Value = read_json_file(&args.result)?;
+    let corpus: GspCorpus =
+        gsp_compile::read_artifact(&args.evidence_bundle, gsp_compile::INPUT_LIMIT)?;
+    let raw: Value = gsp_compile::read_artifact(&args.result, gsp_compile::RESULT_LIMIT)?;
     let bridge = GspBridge::load(root).map_err(CliError::input)?;
-    let validated = bridge
-        .validate_result(&corpus, raw)
-        .map_err(CliError::input)?;
-    write_new_json(&args.output, &validated)?;
+    let validated = bridge.validate_result(&corpus, raw).map_err(|_| {
+        CliError::new(
+            15,
+            "GSP_RESULT_REJECTED",
+            "GSP result does not match the fixed contracts and input",
+        )
+    })?;
+    gsp_compile::publish(&args.output, &validated)?;
     Ok(format!(
         "gsp result VALIDATED contracts={} review={} output={}\n",
         validated.report.exact_contract_count,
@@ -1012,7 +1030,7 @@ fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, CliError> {
     require_database(&args.database)?;
     require_file(&args.receipt, "GSP compilation receipt")?;
     let project_ref = ProjectId::parse(&args.project_ref).map_err(CliError::input)?;
-    let value: Value = read_json_file(&args.receipt)?;
+    let value: Value = gsp_compile::read_artifact(&args.receipt, gsp_compile::RESULT_LIMIT)?;
     let receipt_value = value.get("receipt").cloned().unwrap_or(value);
     let receipt: GspCompilationReceipt =
         serde_json::from_value(receipt_value).map_err(CliError::input)?;
@@ -1054,8 +1072,22 @@ fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, CliError> {
             state.state_digest
         )));
     }
-    let command_id =
-        deterministic_gsp_link_command_id(&project_ref, &idempotency_key, receipt.receipt_digest)?;
+    // Preserve historical IDs on exact replay while isolating new actor scopes.
+    let command_id = match store.reconcile_command(
+        &project_ref,
+        project_ledger_domain::CommandType::LinkExternalEvidence,
+        &actor_id,
+        "LOCAL_USER",
+        &idempotency_key,
+    )? {
+        Some(result) => result.command_ref,
+        None => deterministic_gsp_link_command_id(
+            &project_ref,
+            &idempotency_key,
+            &actor_id,
+            receipt.receipt_digest,
+        )?,
+    };
     let command = prepare_command(CommandDraft {
         schema_version: SchemaVersion::V0_2_0,
         command_id,
@@ -1080,9 +1112,11 @@ fn link_gsp_result(args: &GspLinkResultArgs) -> Result<String, CliError> {
 fn deterministic_gsp_link_command_id(
     project_ref: &ProjectId,
     idempotency_key: &StableId,
+    actor_id: &StableId,
     receipt_digest: project_ledger_canonical_json::Sha256Digest,
 ) -> Result<CommandId, CliError> {
-    let seed = format!("gsp-link:{project_ref}:{idempotency_key}:{receipt_digest}");
+    let seed =
+        format!("gsp-link:{project_ref}:{idempotency_key}:LOCAL_USER:{actor_id}:{receipt_digest}");
     let digest = sha256_bytes(seed.as_bytes());
     let mut bytes = [0_u8; 16];
     bytes.copy_from_slice(&digest.as_bytes()[..16]);

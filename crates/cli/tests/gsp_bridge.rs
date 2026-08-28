@@ -26,6 +26,9 @@ use tempfile::TempDir;
 #[path = "gsp_live/mod.rs"]
 mod live_sidecar;
 
+#[path = "gsp_live/supervised.rs"]
+mod supervised;
+
 fn repository_root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()

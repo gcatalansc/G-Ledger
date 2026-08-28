@@ -5,12 +5,12 @@
   "plan": "docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md",
   "gap_matrix": "docs/PREPILOT_GAP_MATRIX.md",
   "total_stages": 8,
-  "completed_stages": [1, 2, 3, 4, 5, 6],
+  "completed_stages": [1, 2, 3, 4, 5, 6, 7],
   "historical_release_inventory_is_operational_coverage": false,
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
-  "open_gaps": ["PP-08", "PP-12", "PP-13", "PP-14"],
+  "open_gaps": ["PP-08", "PP-13", "PP-14"],
   "stage_evidence": [{
     "stage": 1,
     "kind": "OBSERVED_BASELINE_AND_TRACEABILITY",
@@ -54,6 +54,14 @@
     "verification": ["cargo fmt --all -- --check", "cargo clippy --workspace --all-targets --all-features -- -D warnings", "cargo test --workspace --all-targets --all-features", "cargo build --workspace --locked", "cargo xtask schema check", "specs verify", "contracts verify", "cargo xtask release check", "cargo deny --offline check", "13/13 SHA-256 checksums", "skill quick_validate", "git diff --check"],
     "runtime_scope": "Codex disposable CLI procedure observed through v16, no direct SQLite or generated Markdown writes; structured resume references preserved; old-version process is labeled fixture, not a historical release; not universal agent obedience or certification"
   }],
+  "stage_7_evidence": {
+    "kind": "PINNED_REAL_RUNTIME_AND_LABELED_ADVERSARIAL_CASES",
+    "evidence": "docs/PREPILOT_GSP_RUNTIME_MATRIX.md",
+    "real_runtime_opt_in_tests_passed": 6,
+    "new_cli_tests_passed": 5,
+    "aggregate_gate": "62580 exit 0: fmt, Clippy, workspace tests, locked build, schemas, specs, contracts, release, dependency policy, 13 hashes, diff",
+    "scope": "local fixed-set conformity; no external certification, new hosted CI or ZIP proof"
+  },
   "historical_rq4": {
     "status": "COMPLETE_BOUNDED_CRASH_RECOVERY",
     "run_id": 33062468586,

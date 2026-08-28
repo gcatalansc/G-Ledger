@@ -86,9 +86,9 @@
 
 **Consumes/produces:** corpus minimizado → compiler real fijado → seis artefactos validados → receipt; enlace posterior separado y explícito.
 
-- [ ] RED/GREEN: entrada supervisada de compilación reutilizando contratos fijados y límites existentes de entrada 1 MiB / resultado 8 MiB.
-- [ ] Cubrir normal, contradicciones, incertidumbre, missing-runtime, drift de versiones, timeout/cancel/crash, truncamiento/manipulación, referencias/estado incorrectos y replay.
-- [ ] Etiquetar origen de cada evidencia (runtime, alteración adversarial, fixture); conciliar evidencia bilateral disponible, sin simular aceptación externa. Antes del link: delta 0; link: un efecto; replay: delta 0; elevación de autoridad: 0. Verificar y commit.
+- [x] RED/GREEN: entrada supervisada de compilación reutilizando contratos fijados y límites existentes de entrada 1 MiB / resultado 8 MiB.
+- [x] Cubrir normal, contradicciones, incertidumbre, missing-runtime, drift de versiones, timeout/cancel/crash, truncamiento/manipulación, referencias/estado incorrectos y replay.
+- [x] Etiquetar origen de cada evidencia (runtime, alteración adversarial, fixture); conciliar evidencia bilateral disponible, sin simular aceptación externa. Antes del link: delta 0; link: un efecto; replay: delta 0; elevación de autoridad: 0. Gate completo verificado; `docs/PREPILOT_GSP_RUNTIME_MATRIX.md`.
 
 ## Stage 8 — Paquete y cierre
 
@@ -105,4 +105,4 @@
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **6/8, NOT_READY**. Stages 1–6 verificadas localmente. PP-06/11 cerrados con recorrido Codex y corrección de resume JSON; PP-08 conserva la prueba del paquete. Siguiente paso: Stage 7, compilación GSP supervisada y matriz finita del runtime fijado. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
+Estado de ejecución: **7/8, NOT_READY**. Stages 1–7 verificadas localmente. PP-12 cerrado con seis pruebas explícitas del runtime fijado y matriz finita; PP-08 conserva la prueba del paquete. Siguiente paso: Stage 8, recursos portables, ZIP Windows y CI exact-SHA. No se ha realizado piloto, nueva CI hosted ni prueba del ZIP.
