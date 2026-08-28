@@ -29,6 +29,8 @@ Todos los PP están OPEN en baseline salvo la conciliación PP-01, que se cierra
 
 Estado de ejecución: **PP-01…PP-13 CLOSED; PP-14 OPEN por CI no ejecutada; 7/8 etapas**. Evidencia: informes `docs/PREPILOT_CORE_COVERAGE.md`, `docs/PREPILOT_CLI_COVERAGE.md`, `docs/PREPILOT_PROCESS_SAFETY.md`, `docs/PREPILOT_PORTABILITY_RECOVERY.md`, `docs/PREPILOT_CODEX_PROCEDURE.md`, `docs/PREPILOT_GSP_RUNTIME_MATRIX.md` y `docs/PREPILOT_WINDOWS_DELIVERY.md`. Gate local completo 70512 y ZIP limpio 52201 PASS, incluidos privacidad, independencia de cwd/toolchain y recuperación. CI 33137113781, SHA f4b34e591b13199d040ecf7d41a071e21bf63d37: seis jobs no iniciados por restricción de pagos/límite de gasto de GitHub. No se cuenta como ejecución de Windows/Linux/macOS, ENOSPC o GSP alojado. Debe habilitarse Actions y repetir ese gate antes de cerrar 8/8; no se cambia la visibilidad privada ni la facturación automáticamente.
 
+Revalidación 2026-08-27 23:21 America/Santiago: intento 2 de esa CI, mismo bloqueo confirmado en seis jobs sin pasos; ZIP limpio repetido en 58849 PASS. PP-14 no cambia de estado. El detalle verificable está en la entrega Windows y en `release/prepilot-readiness.json`.
+
 ## Cobertura completa de aceptación (sin añadir certificación al alcance)
 
 | Criterios | Responsable / prueba requerida | Evidencia histórica conservada |

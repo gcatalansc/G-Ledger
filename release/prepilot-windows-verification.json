@@ -36,6 +36,16 @@
     }
   ],
   "scope": "LOCAL_WINDOWS_EXACT_CANDIDATE_ONLY",
+  "latest_local_recheck": {
+    "verified_at": "2026-08-28T03:21:19Z",
+    "session": "58849",
+    "exit_code": 0,
+    "status": "PASS",
+    "same_zip_sha256": true,
+    "new_external_unicode_extraction": true,
+    "harness_cases_passed": 2,
+    "full_workspace_and_real_gsp_repeated": false
+  },
   "prepilot_readiness": "NOT_READY",
   "real_gsp_opt_in_tests": {
     "passed": 6,
@@ -46,6 +56,8 @@
   },
   "hosted_ci": {
     "run_id": 33137113781,
+    "last_checked_attempt": 2,
+    "checked_at": "2026-08-28T03:20:39Z",
     "status": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
     "executed_jobs": 0,
     "blocked_jobs": 6

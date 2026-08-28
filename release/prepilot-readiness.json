@@ -68,6 +68,14 @@
     "evidence": "docs/PREPILOT_WINDOWS_DELIVERY.md",
     "aggregate_local_gate": "70512 exit 0",
     "windows_zip_verification": "52201 exit 0; extracted Unicode path; isolated core environment; exactly two full-flow harness cases passed",
+    "windows_zip_recheck": {
+      "verified_at": "2026-08-28T03:21:19Z",
+      "session": "58849",
+      "exit_code": 0,
+      "status": "PASS",
+      "harness_cases_passed": 2,
+      "scope": "same clean candidate ZIP; new external Unicode extraction; hashes, isolated core, Codex, portability/recovery/privacy and negative cases repeated; not a new full workspace or GSP runtime gate"
+    },
     "candidate_commit": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
     "candidate_tree_dirty": false,
     "zip_path": "dist/project-ledger-0.2.0-windows-x86_64-clean.zip",
@@ -82,6 +90,16 @@
       "jobs_with_zero_steps": [98739436754, 98739436756, 98739436757, 98739436787, 98739436805, 98739436808],
       "annotation_confirmed_for_all_jobs": true,
       "code_failure_observed": false,
+      "latest_recheck": {
+        "run_attempt": 2,
+        "checked_at": "2026-08-28T03:20:39Z",
+        "reported_conclusion": "failure",
+        "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+        "jobs_with_zero_steps": [98744058292, 98744058423, 98744058427, 98744058452, 98744058456, 98744058466],
+        "annotation_confirmed_for_all_jobs": true,
+        "code_failure_observed": false,
+        "further_retries_require_account_restriction_resolved": true
+      },
       "required_user_action": "Resolve GitHub Actions account payment/spending restriction, then rerun the candidate CI",
       "billing_changes_performed": false,
       "repository_visibility_changed": false
