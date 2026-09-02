@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-process-wrap = { version = "=10.0.0", default-features = false, features = ["std", "job-object", "creation-flags", "process-group"] }
+process-wrap = { version = "=10.0.0", default-features = false, features = ["std", "job-object", "creation-flags", "process-group", "process-session"] }
 project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
 project-ledger-domain = { path = "../domain", version = "=0.2.0" }
 project-ledger-release = { path = "../release", version = "=0.2.0" }

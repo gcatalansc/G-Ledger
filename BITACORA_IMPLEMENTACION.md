@@ -2157,3 +2157,8 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Esto es una corrección candidata: todavía falta demostrar GREEN en macOS y repetir el gate completo del commit final. Etapa 8 y PP-14 permanecen abiertos.
 
 **Siguiente paso:** comprometer la corrección, ejecutar la regresión local completa y publicar el mismo SHA para comprobar los seis jobs. Si macOS confirma GREEN, reconstruir y verificar el ZIP final, conciliar documentos/evidencia y cerrar 8/8 mediante un commit de entrega independiente.
+
+- Seguimiento del candidato `6427b901fa3e6857c60b721ce531a3cd39597597`: la corrida `33663180937`, job macOS `100358424481`, falló antes de los tests con `E0425` porque `ProcessSession` está detrás de la feature opcional `process-session`. La versión fijada `process-wrap = 10.0.0` ya contiene la implementación; se habilita sólo esa capacidad en el manifiesto, sin actualizar dependencia ni contrato.
+- La corrida se cancela tras el resultado concluyente para evitar completar trabajos redundantes de un SHA que no compila en macOS. El gate completo local previo había pasado, pero Windows no compila ramas `cfg(macos)` y por ello no podía detectar esta omisión. El ZIP local de ese SHA pasó sus harnesses, pero queda descartado como candidato final.
+
+**Siguiente paso actualizado:** verificar manifiesto/lock y regresión local, comprometer la feature faltante y repetir la matriz alojada. La corrección de comportamiento seguirá pendiente hasta que el test de desbordamiento y descendientes pase realmente en macOS.
