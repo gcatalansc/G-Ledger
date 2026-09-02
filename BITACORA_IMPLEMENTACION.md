@@ -2201,3 +2201,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Conforme al protocolo, el ZIP `a83624f2…963ad80` queda invalidado para este piloto aunque continúa siendo evidencia histórica prepiloto. Stage 1 queda `BLOCKED`, OPA-S01/S02 `INVALIDATED`, OPA-S03 `BLOCKED`, avance 0/8. Aún faltan gate integral, commit separado, candidato nuevo y recalificación exact-SHA.
 
 **Siguiente paso:** ejecutar el gate integral de la corrección, comprometerla aisladamente y generar/verificar un nuevo paquete. No reanudar Stage 1 contra el artefacto anterior ni presentar la corrección local como aceptación operativa.
+
+## 2026-09-02 — Corrección y preflight local verificados; procedencia hosted pendiente, 0/8
+
+- `OPA-DEFECT-001` se corrigió aisladamente en `bd564cdba07b616337681c15801d22478824108b`. El gate integral local pasó formato, Clippy estricto, workspace completo, schemas, specs, 53 comandos, cuatro perfiles de integración, build release locked, benchmark y release; los cuatro perfiles conservan `certified_compatibility=false`.
+- Desde un worktree detached limpio del SHA se generó el ZIP `19429f1a9cb4431ec6f9bb06d18f5c8b49310666e894763ec45228bd083d0884`. Los harnesses extraídos de Codex y portabilidad pasaron 2/2 sin toolchains, y el manifest declara source limpio y no certificado.
+- El runner Stage 1 quedó versionado en `68cd78e` tras RED por ausencia, RED del defecto del producto, RED de timestamp no canónico del fixture y GREEN 3/3. Rechaza hash incorrecto y destino existente antes de mutar.
+- La ceremonia humana se limitó a autoridad, binding declarativo, roadmap, nueve gates y arranque de la fase en `.tooling/g-ledger-operational-pilot/`. El preflight local creó `project:01a063b4-dcf7-72b2-926f-a571c97baa1e`, state version 15, fase activa, ocho gates requeridos y uno opcional; OPA-S01…S03 son funcionalmente satisfactorios en local.
+- El plan exige usar un ZIP alojado. Como el candidato corregido aún no fue publicado ni calificado por CI, los tres escenarios permanecen `BLOCKED`, Stage 1 no se contabiliza y Stage 2 no se ejecuta. El resultado local se conserva bajo `.tooling` y no se versionan DB, ZIP ni salida cruda.
+
+**Siguiente paso:** con autorización explícita, publicar la rama/crear el mecanismo de CI necesario para calificar `bd564cdba07b616337681c15801d22478824108b`, descargar el ZIP alojado y contrastarlo. Sólo entonces repetir la procedencia de Stage 1, cambiar a 1/8 y habilitar Stage 2.
