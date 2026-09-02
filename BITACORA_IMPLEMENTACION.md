@@ -2130,3 +2130,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Sólo se registra el acuerdo en esta bitácora con un commit local, sin push ni cambios en código, paquete o evidencia histórica. `verification-before-completion` guía el control documental; se mantiene 7/8, NOT_READY y PP-14 abierto. No se inicia el piloto real.
 
 **Siguiente paso:** cuando el usuario indique retomar, comprobar la cuota disponible y, si se renovó, ejecutar la CI del candidato exacto y verificar sus seis jobs y el artefacto alojado antes de cerrar 8/8.
+
+## 2026-09-02 — Cuota renovada; primer fallo real de macOS, 7/8
+
+- El usuario indicó «Creo que la cuota se ha renovado, procede». Navegación read-only del panel autenticado confirmó el período 1–30 de septiembre, Actions 0/2.000 minutos consumidos antes del reintento y 0/0,5 GB de almacenamiento. No se modificaron presupuesto, método de pago o plan.
+- Se verificaron autenticación `gh`, remoto `f4b34e591b13199d040ecf7d41a071e21bf63d37` y checkout local limpio inicialmente, con siete commits documentales por delante. El único reintento autorizado produjo el attempt 4 de la corrida `33137113781`; los seis jobs ejecutaron pasos reales, confirmando que el bloqueo de cuenta terminó.
+- Resultados terminales: ENOSPC `100339460169` PASS, dependencias `100339460408` PASS, GSP real/supervisado `100339460419` PASS, Ubuntu `100339460433` PASS y Windows/ZIP alojado `100339461179` PASS. macOS `100339460396` FAIL en `stdout_and_stderr_floods_stop_before_unbounded_capture`; las demás pruebas observadas antes de ese punto pasaron y los pasos posteriores se omitieron por el fallo.
+- `systematic-debugging` impide tratarlo como flake o reintentar a ciegas. El log sólo mostró la etiqueta `stdout`, sin la variante retornada por el supervisor. El mismo test pasó 20/20 en Windows y toda la suite pasó en Ubuntu, de modo que la evidencia delimita una diferencia macOS pero todavía no identifica si el resultado fue salida aceptada, timeout, I/O o cleanup.
+- Se aplicó instrumentación mínima únicamente al test: conserva la misma expectativa `OutputLimit` y añade el resultado observado al mensaje de aserción. La prueba focal y formato pasan localmente; esto no corrige ni modifica comportamiento de producción. Se prepara un commit diagnóstico para obtener la evidencia macOS antes de proponer una corrección.
+
+**Siguiente paso:** publicar la instrumentación, ejecutar macOS sin mantener trabajos redundantes y leer la variante real. Después formular una única hipótesis, reproducir RED/GREEN, ejecutar el gate completo y repetir los seis jobs antes de reevaluar 8/8.

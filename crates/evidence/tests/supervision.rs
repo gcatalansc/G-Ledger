@@ -80,12 +80,10 @@ fn stdout_and_stderr_floods_stop_before_unbounded_capture() {
     };
     for mode in ["stdout", "stderr", "both"] {
         let start = Instant::now();
+        let outcome = run(mode, &policy, &CancelToken::default());
         assert!(
-            matches!(
-                run(mode, &policy, &CancelToken::default()),
-                Err(SupervisionError::OutputLimit)
-            ),
-            "{mode}"
+            matches!(&outcome, Err(SupervisionError::OutputLimit)),
+            "{mode}: {outcome:?}"
         );
         assert!(start.elapsed() < Duration::from_secs(4));
     }
