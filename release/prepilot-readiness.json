@@ -1,23 +1,25 @@
 {
   "profile": "project-ledger-prepilot-readiness/1",
-  "status": "NOT_READY",
+  "status": "READY_FOR_CONTROLLED_PILOT",
   "baseline_commit": "dea208d294dfddc282b84dcb5a58b9d8d9887b91",
   "plan": "docs/superpowers/plans/2026-08-27-project-ledger-prepilot-readiness.md",
   "gap_matrix": "docs/PREPILOT_GAP_MATRIX.md",
   "total_stages": 8,
-  "completed_stages": [1, 2, 3, 4, 5, 6, 7],
+  "completed_stages": [1, 2, 3, 4, 5, 6, 7, 8],
   "historical_release_inventory_is_operational_coverage": false,
   "pilot_scope": ["windows", "ledger", "codex", "gsp-exact-2026.04.12"],
   "certified_compatibility": false,
   "real_project_pilot_performed": false,
   "github_deferral": {
-    "status": "DEFERRED_BY_USER",
-    "decision": "Dejemos pendiente github, avanza con lo siguiente del plan",
-    "automatic_queries_retries_and_pushes": false,
+    "status": "RESUMED_AND_COMPLETED",
+    "historical_decision": "Dejemos pendiente github, avanza con lo siguiente del plan",
+    "resumption": "Creo que la cuota se ha renovado, procede",
+    "quota_observed_renewed": true,
+    "automatic_queries_retries_and_pushes_during_deferral": false,
     "waives_stage_8_ci_requirement": false,
-    "continuation": "Local delivery documentation and disposable rehearsal within stage 8"
+    "continuation": "Hosted CI and artifact verification completed after explicit resumption"
   },
-  "open_gaps": ["PP-14"],
+  "open_gaps": [],
   "stage_evidence": [{
     "stage": 1,
     "kind": "OBSERVED_BASELINE_AND_TRACEABILITY",
@@ -71,10 +73,10 @@
   },
   "stage_8": {
     "implementation_status": "COMPLETE",
-    "verification_status": "LOCAL_PASS_HOSTED_DEFERRED",
+    "verification_status": "HOSTED_AND_PACKAGE_PASS",
     "evidence": "docs/PREPILOT_WINDOWS_DELIVERY.md",
-    "aggregate_local_gate": "70512 exit 0",
-    "windows_zip_verification": "52201 exit 0; extracted Unicode path; isolated core environment; exactly two full-flow harness cases passed",
+    "aggregate_local_gate": "exact-candidate fmt, workspace Clippy, supervision suite and extracted Windows ZIP PASS; full cross-platform gate is hosted on the same source SHA",
+    "windows_zip_verification": "downloaded hosted ZIP independently rechecked; extracted Unicode path; isolated core environment; exactly two full-flow harness cases passed",
     "windows_zip_recheck": {
       "verified_at": "2026-08-28T03:21:19Z",
       "session": "58849",
@@ -83,39 +85,49 @@
       "harness_cases_passed": 2,
       "scope": "same clean candidate ZIP; new external Unicode extraction; hashes, isolated core, Codex, portability/recovery/privacy and negative cases repeated; not a new full workspace or GSP runtime gate"
     },
-    "candidate_commit": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
+    "candidate_commit": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
     "candidate_tree_dirty": false,
-    "zip_path": "dist/project-ledger-0.2.0-windows-x86_64-clean.zip",
-    "zip_sha256": "0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c",
+    "zip_path": "dist/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
     "reviewed_resource_count": 448,
     "local_handoff": {
-      "status": "LOCAL_REHEARSAL_VERIFIED",
+      "status": "HISTORICAL_LOCAL_REHEARSAL_VERIFIED",
       "evidence": "release/prepilot-local-handoff.json",
       "guide": "docs/PREPILOT_LOCAL_HANDOFF.md",
       "delivery_directory": "dist/entrega-local-0.2.0-f4b34e5",
       "scope": "disposable local review only; not a real-project pilot or hosted CI waiver"
     },
     "hosted_ci": {
-      "run_id": 33137113781,
-      "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781",
-      "head_sha": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
-      "reported_conclusion": "failure",
-      "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
-      "jobs_with_zero_steps": [98739436754, 98739436756, 98739436757, 98739436787, 98739436805, 98739436808],
-      "annotation_confirmed_for_all_jobs": true,
-      "code_failure_observed": false,
-      "latest_recheck": {
-        "run_attempt": 3,
-        "checked_at": "2026-08-28T03:45:01Z",
-        "trigger": "explicit user request: Prueba ahora",
-        "reported_conclusion": "failure",
-        "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
-        "jobs_with_zero_steps": [98747749850, 98747749914, 98747749918, 98747749919, 98747749948, 98747750004],
-        "annotation_confirmed_for_all_jobs": true,
-        "code_failure_observed": false,
-        "further_retries_require_account_restriction_resolved": true
+      "run_id": 33664393505,
+      "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33664393505",
+      "head_sha": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
+      "run_attempt": 1,
+      "reported_conclusion": "success",
+      "classification": "EXACT_SHA_SIX_OF_SIX_PASS",
+      "jobs": {
+        "physical_disk_full_chaos": 100362429074,
+        "windows": 100362429340,
+        "live_gsp_sidecar_chaos": 100362429361,
+        "ubuntu": 100362429401,
+        "macos": 100362429417,
+        "dependency_policy": 100362429451
       },
-      "required_user_action": "Resolve GitHub Actions account payment/spending restriction, then rerun the candidate CI",
+      "artifact": {
+        "id": 9860800241,
+        "name": "project-ledger-windows-b171f51cb58c60ed8c8a99b60386117f9fed6822",
+        "zip_sha256": "a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
+        "verification_report_sha256": "91a7b1da712c664ba89ec40a3617494ee84e40f300ceff8be7e7cbe6c6e3770c",
+        "downloaded_and_independently_verified": true,
+        "expired_when_checked": false,
+        "reported_expiry": "2026-10-02T18:20:31Z"
+      },
+      "historical_blocked_run": {
+        "run_id": 33137113781,
+        "last_checked_attempt": 3,
+        "classification": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
+        "resolved_by_included_quota_renewal": true
+      },
+      "required_user_action": null,
       "billing_changes_performed": false,
       "repository_visibility_changed": false
     }

@@ -99,8 +99,8 @@
 - [x] RED/GREEN: recursos resueltos desde instalación o ruta explícita, no cwd; núcleo ejecutable sin toolchain/checkout/Python/red y requisitos GSP separados.
 - [x] Probar el ZIP fuera del repo, rutas con espacios/no ASCII, permisos, núcleo offline y recorridos completos. ZIP limpio 52201, SHA y evidencia en `docs/PREPILOT_WINDOWS_DELIVERY.md`.
 - [x] Gate local: formato, Clippy estricto, tests workspace, build locked, schemas/specs/integraciones, benchmark, dependencias, checksums y fallos Windows/GSP afectados. Evidencia 70512, 64399, 52201 y 56539; no sustituye ENOSPC físico ni CI del candidato en Linux/macOS.
-- [ ] CI exact-SHA con seis jobs y artefacto alojado: **aplazada por instrucción del usuario**, no dispensada ni aprobada.
-- [ ] Cerrar sólo sin brechas conocidas en alcance. Registrar implementación verificada, artefacto, CI y limitaciones; commit final documental conserva evidencia ya observada y no promete CI futura.
+- [x] CI exact-SHA con seis jobs y artefacto alojado: run `33664393505`, SHA `b171f51cb58c60ed8c8a99b60386117f9fed6822`, 6/6 PASS; artefacto `9860800241` descargado y revalidado.
+- [x] Cerrar sólo sin brechas conocidas en alcance. Implementación, artefacto, CI y limitaciones quedan registrados sin prometer certificación o GA.
 
 ### Entrega local mientras GitHub queda aplazado
 
@@ -119,8 +119,10 @@ Decisión del usuario del 2026-08-27: «Dejemos pendiente github, avanza con lo 
 
 Estado inicial: **0/8, NOT_READY**. Cada etapa se cierra con bitácora, prueba fresca y commit. Un hallazgo reabre su etapa; no amplía el alcance silenciosamente. Antes de compactar se registra el punto de continuación. La primera prueba con proyecto real exige el cierre 8/8 y la elección posterior de ese proyecto por el usuario.
 
-Estado de ejecución: **7/8, NOT_READY; GitHub aplazado por el usuario**. Stages 1–7 verificadas; etapa 8 implementada y verificada localmente, incluido ZIP limpio. Sólo PP-14 sigue abierto. Se continúa con la entrega local descrita arriba, sin consultas/reintentos/pushes a GitHub. Cuando el usuario lo retome, verificar CI del candidato exacto y su artefacto antes de cerrar 8/8. Sin cambios de facturación, visibilidad, contratos o proyecto real. No se declara apto para piloto todavía.
+Estado durante el aplazamiento: **7/8, NOT_READY; GitHub aplazado por el usuario**. Stages 1–7 verificadas; etapa 8 implementada y verificada localmente, incluido ZIP limpio. Sólo PP-14 seguía abierto. La actualización final de este documento registra su resolución posterior; no se reescribe esta evidencia histórica.
 
 Reanudación 2026-08-27 23:21 America/Santiago: el único reintento (attempt 2) confirmó la misma restricción en los seis jobs, todos sin pasos. La verificación local del ZIP se repitió en 58849, exit 0, conservando el SHA del candidato y dos recorridos completos aprobados. No hay cierre adicional: esperar confirmación del titular de que Actions está habilitado antes de otro reintento; no convertir el PASS local en CI alojada aprobada.
 
 Actualización 2026-08-28: entrega local preparada y ensayo de su guía verificado; no quedan pasos locales de implementación en este plan. Se conserva la CI como pendiente aplazado y no se agrega trabajo para sustituirla. El siguiente criterio de cierre 8/8 será verificar GitHub cuando el usuario lo retome; hasta entonces la carpeta local sirve para revisión/ensayo descartable, no piloto real.
+
+Actualización final 2026-09-02: el usuario retomó GitHub después de la renovación de cuota. Un fallo real de macOS reabrió la garantía de limpieza, se corrigió sin tolerar EPERM y la CI `33664393505` terminó 6/6 PASS sobre el SHA `b171f51cb58c60ed8c8a99b60386117f9fed6822`. El ZIP alojado fue descargado y repitió integridad, Codex y portabilidad/recuperación/privacidad con 0 fallos. **Estado final del plan: 8/8, APTO PARA PILOTO CONTROLADO; PP-01…PP-14 cerrados.** El siguiente paso requiere que el usuario elija un proyecto y autorice un piloto acotado; no se habilitan G-Skills/Radar, GA o certificación general.

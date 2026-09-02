@@ -1,6 +1,6 @@
 # Entrega local de Project Ledger 0.2.0
 
-Estado: **7/8 verificado; GitHub aplazado por el usuario; NOT_READY para piloto real**. Esta entrega permite revisar el paquete y ensayar con datos descartables. No declara CI aprobada, GA ni certificación. La decisión de aplazar GitHub no dispensa ese criterio del cierre 8/8.
+Estado histórico de esta entrega: **7/8; GitHub aplazado; NOT_READY**. La guía conserva deliberadamente el candidato `f4b34e5…` y su ensayo descartable; no representa el ZIP final. El estado actual 8/8 y el artefacto alojado aprobado están en [PREPILOT_WINDOWS_DELIVERY.md](PREPILOT_WINDOWS_DELIVERY.md). Esta copia histórica no declara GA ni certificación.
 
 ## Qué contiene y cómo identificarla
 

@@ -1,8 +1,8 @@
 {
   "profile": "project-ledger-package-verification/1",
   "status": "PASS",
-  "zip_sha256": "0f42c5b1d1f5a714ed790b078e2d463fb27bd19c38932a98d03c78c11be8996c",
-  "source_commit": "f4b34e591b13199d040ecf7d41a071e21bf63d37",
+  "zip_sha256": "a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
+  "source_commit": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
   "source_tree_dirty": false,
   "scenarios": [
     "compiled-resource-hashes",
@@ -35,10 +35,10 @@
       "passed": 1
     }
   ],
-  "scope": "LOCAL_WINDOWS_EXACT_CANDIDATE_ONLY",
+  "scope": "HOSTED_WINDOWS_EXACT_CANDIDATE_AND_INDEPENDENT_LOCAL_RECHECK",
   "latest_local_recheck": {
-    "verified_at": "2026-08-28T03:21:19Z",
-    "session": "58849",
+    "verified_at": "2026-09-02T18:22:35Z",
+    "session": "downloaded artifact 9860800241",
     "exit_code": 0,
     "status": "PASS",
     "same_zip_sha256": true,
@@ -46,7 +46,7 @@
     "harness_cases_passed": 2,
     "full_workspace_and_real_gsp_repeated": false
   },
-  "prepilot_readiness": "NOT_READY",
+  "prepilot_readiness": "READY_FOR_CONTROLLED_PILOT",
   "local_handoff_evidence": "release/prepilot-local-handoff.json",
   "real_gsp_opt_in_tests": {
     "passed": 6,
@@ -56,12 +56,30 @@
     "probe_origin": "RQ4 test-only instrumentation; actual pinned compiler"
   },
   "hosted_ci": {
-    "management_status": "DEFERRED_BY_USER",
+    "management_status": "COMPLETED",
+    "run_id": 33664393505,
+    "run_attempt": 1,
+    "checked_at": "2026-09-02T18:22:35Z",
+    "head_sha": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
+    "status": "SUCCESS",
+    "executed_jobs": 6,
+    "successful_jobs": 6,
+    "blocked_jobs": 0,
+    "job_ids": [100362429074, 100362429340, 100362429361, 100362429401, 100362429417, 100362429451],
+    "artifact_id": 9860800241,
+    "artifact_name": "project-ledger-windows-b171f51cb58c60ed8c8a99b60386117f9fed6822",
+    "artifact_verification_report_sha256": "91a7b1da712c664ba89ec40a3617494ee84e40f300ceff8be7e7cbe6c6e3770c",
+    "downloaded_and_independently_verified": true
+  },
+  "local_build_same_source": {
+    "zip_sha256": "03863c18d4aa748f2edc20e28af274b96e482f659b530137725b8141023cd800",
+    "status": "PASS",
+    "retained_separately_from_hosted_artifact": true
+  },
+  "historical_blocked_ci": {
     "run_id": 33137113781,
     "last_checked_attempt": 3,
-    "checked_at": "2026-08-28T03:45:01Z",
     "status": "NOT_STARTED_ACCOUNT_BILLING_OR_SPENDING_LIMIT",
-    "executed_jobs": 0,
-    "blocked_jobs": 6
+    "resolved_by_included_quota_renewal": true
   }
 }

@@ -1,6 +1,6 @@
 # Etapa 8 — entrega Windows y preparación para piloto
 
-Estado: implementación y verificación local terminadas; **7/8, NOT_READY; GitHub aplazado por el usuario**. El ZIP es un candidato limpio comprobado localmente, no una entrega apta para piloto hasta cerrar la CI pendiente. La [entrega local y guía descartable](PREPILOT_LOCAL_HANDOFF.md) permite avanzar en la revisión del paquete sin consultar GitHub ni cambiar sus criterios de cierre.
+Estado: **8/8, APTO PARA PILOTO CONTROLADO**. El ZIP de Windows del SHA `b171f51cb58c60ed8c8a99b60386117f9fed6822` pasó verificación local y alojada; la CI privada completó sus seis jobs y el artefacto descargado se revalidó fuera del runner. La [entrega local y guía descartable](PREPILOT_LOCAL_HANDOFF.md) se conserva como evidencia histórica del candidato anterior. No se ha ejecutado todavía un proyecto real.
 
 ## Distribución y recursos
 
@@ -53,10 +53,20 @@ Los harnesses de ensayo se compilan fuera del paquete; invocan el ejecutable ext
 
 Reintento expresamente solicitado por el usuario («Prueba ahora»): [intento 3](https://github.com/gcatalansc/G-Ledger/actions/runs/33137113781/attempts/3) del mismo candidato, observado a las 2026-08-28T03:45:01Z. Volvió a terminar failure antes de ejecutar pasos; las seis anotaciones coinciden en la restricción de pagos/límite de gasto. Jobs ENOSPC 98747749850, Ubuntu 98747749914, Windows 98747749918, dependencias 98747749919, macOS 98747749948 y GSP 98747750004. Sigue 7/8, NOT_READY; no hubo pruebas del código ni artefacto alojado nuevos. Las verificaciones locales anteriores conservan sus fechas, no se repitieron en este intento.
 
-El usuario decidió después dejar GitHub pendiente. Se suspenden consultas, reintentos y pushes hasta nueva instrucción; no se exige resolver la cuenta para revisar esta entrega local. Cuando se retome GitHub, habrá que observar los seis jobs del candidato y su artefacto antes del cierre 8/8. El estado de release de ingeniería y certified_compatibility=false permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.
+Históricamente, el usuario decidió dejar GitHub pendiente y se suspendieron consultas, reintentos y pushes hasta una nueva instrucción. Ese aplazamiento terminó el 2026-09-02, cuando el usuario solicitó proceder tras la renovación de cuota. El estado de release de ingeniería y `certified_compatibility=false` permanecen separados. G-Skills y Radar no se habilitan/certifican; no se amplían contratos v0.2 ni se materializa fork. La elección de un proyecto real sigue siendo posterior.
 
 ## Entrega local con CI aplazada
 
 Guía ejecutada en 67950 exit 0, 2026-08-28T03:57:29Z, a partir de la copia del ZIP en `dist/entrega-local-0.2.0-f4b34e5/`. Se ejecutaron sus cuatro bloques exactos: 19 invocaciones CLI, recursos/specs/contratos/release, init/nota/checkpoint/reconcile/resume, render/verify, backup/restore/replay y audit. Estado final v3, resultado durable idéntico al reconciliar la restauración, DUPLICATE_REPLAY, destino restore existente rechazado 2, cero findings. Hash incorrecto rechazado antes de extraer. Procesos sin PATH, extracción temporal externa con espacios/acentos; no SQLite directo, `--as-human` ni proyecto real.
 
 Se conserva el ZIP original byte por byte; los informes de entrega son externos al catálogo incorporado al binario. La carpeta local reúne ZIP, guía, informes, plan y matrices identificados mediante checksums. El registro sanitizado está en `release/prepilot-local-handoff.json`. Este ensayo nuevo no sustituye el gate completo anterior ni acredita GSP/ENOSPC o CI nuevos. No añade una etapa al plan ni convierte 7/8 en 8/8.
+
+## Cierre alojado del 2026-09-02
+
+- La cuota de Actions se observó renovada para el período de septiembre y los jobs volvieron a ejecutar pasos reales. El primer gate reveló, no ocultó, un fallo macOS: `killpg` devolvía EPERM cuando el proceso inundador ya era zombi. La corrección no tolera EPERM; cosecha el padre y exige un segundo ESRCH para confirmar que el grupo desapareció. Timeout, cancelación, límite de salida y descendientes conservaron sus pruebas negativas.
+- [CI 33664393505](https://github.com/gcatalansc/G-Ledger/actions/runs/33664393505), SHA exacto `b171f51cb58c60ed8c8a99b60386117f9fed6822`, attempt 1: seis jobs PASS. ENOSPC `100362429074`, Windows `100362429340`, GSP real/supervisado `100362429361`, Ubuntu `100362429401`, macOS `100362429417` y dependencias `100362429451`.
+- Artefacto alojado `project-ledger-windows-b171f51cb58c60ed8c8a99b60386117f9fed6822`, ID `9860800241`, no expirado al verificarlo y con retención informada hasta 2026-10-02. Contiene exactamente el ZIP y su informe. ZIP SHA-256 `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`; informe SHA-256 `91a7b1da712c664ba89ec40a3617494ee84e40f300ceff8be7e7cbe6c6e3770c`.
+- Tras descargarlo a un destino temporal nuevo, el verificador local repitió hashes/recursos, specs/contratos/release, imports PE, entorno sin PATH/toolchain, un recorrido Codex y uno portable/backup/restore/replay/privacidad: 2/2 harnesses, 0 fallos. La copia descargada es ahora `dist/project-ledger-0.2.0-windows-x86_64.zip`; el build local del mismo SHA se conserva aparte y no se confunde con el artefacto alojado.
+- PP-14 queda CLOSED y la etapa 8 queda verificada. No quedan defectos conocidos pendientes dentro del alcance pre-piloto acordado. Esto no certifica compatibilidad general, G-Skills/Radar, firma de código, GA, operación hostil aislada ni ausencia absoluta de errores.
+
+**Siguiente paso:** el usuario elige un proyecto descartable o una copia de uno actual y autoriza un piloto acotado `init/bind → resume → progress/evidence → gate → checkpoint → reconcile → resume`. No intervenir un proyecto real ni ampliar integraciones sin esa elección.

@@ -33,3 +33,9 @@ Las garantías demostradas corresponden a procesos propios autorizados, no a con
 La migración CLI con backup/restauración de estas reservas se cierra en etapa 5. Los canales Markdown/portable y el ZIP se comprueban al quedar disponibles en etapas 5/8. Ningún proyecto real fue intervenido.
 
 Dependencias de control revisadas desde su código publicado: [process-wrap 10.0.0](https://docs.rs/process-wrap/10.0.0/process_wrap/), [win32job 2.0.3](https://docs.rs/win32job/2.0.3/win32job/) y [ctrlc 3.5.2](https://docs.rs/ctrlc/3.5.2/ctrlc/). Cargo.lock fija los bytes resueltos; no se incorporó unsafe al código propio.
+
+## Revalidación macOS durante el cierre de etapa 8
+
+La primera CI ejecutable posterior a la renovación de cuota detectó que el caso de desbordamiento devolvía `Cleanup` en macOS. La instrumentación temporal demostró `killpg: PermissionDenied (EPERM)`; la [fuente XNU](https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/bsd/kern/kern_sig.c) explica que Darwin excluye zombis al recorrer el grupo y retorna EPERM en modo POSIX cuando no encuentra un miembro señalable. No se convirtió EPERM en éxito.
+
+La corrección final, en `b171f51cb58c60ed8c8a99b60386117f9fed6822`, intenta cosechar al padre mediante el wrapper de grupo y exige que un segundo intento devuelva ESRCH antes de considerar desaparecido el grupo. Si el padre sigue vivo, el grupo persiste, existe un descendiente no señalable o surge otro error, el resultado continúa siendo `Cleanup`. La CI `33664393505`, job macOS `100362429417`, pasó la suite completa; Windows `100362429340` y Ubuntu `100362429401` confirmaron regresión. Estado agregado posterior: **8/8, APTO PARA PILOTO CONTROLADO**, con los límites de certificación documentados en la entrega Windows.
