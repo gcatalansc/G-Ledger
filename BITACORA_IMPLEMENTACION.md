@@ -2211,3 +2211,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - El plan exige usar un ZIP alojado. Como el candidato corregido aún no fue publicado ni calificado por CI, los tres escenarios permanecen `BLOCKED`, Stage 1 no se contabiliza y Stage 2 no se ejecuta. El resultado local se conserva bajo `.tooling` y no se versionan DB, ZIP ni salida cruda.
 
 **Siguiente paso:** con autorización explícita, publicar la rama/crear el mecanismo de CI necesario para calificar `bd564cdba07b616337681c15801d22478824108b`, descargar el ZIP alojado y contrastarlo. Sólo entonces repetir la procedencia de Stage 1, cambiar a 1/8 y habilitar Stage 2.
+
+## 2026-09-02 — CI verde, artefacto hosted rechazado por procedencia, 0/8
+
+- Se publicó `codex/g-ledger-opa-candidate-bd564cd`; el remoto y el PR privado draft [#1](https://github.com/gcatalansc/G-Ledger/pull/1) confirman head exacto `bd564cdba07b616337681c15801d22478824108b`, base `main` y estado abierto. No se ejecutó merge ni se promovió release.
+- La [CI 33685095968](https://github.com/gcatalansc/G-Ledger/actions/runs/33685095968) terminó 6/6 PASS: dependencias `100430543317`, Windows `100430543398`, ENOSPC `100430543433`, macOS `100430543464`, GSP real/supervisado `100430543470` y Ubuntu `100430543503`.
+- Se descargó en un destino nuevo bajo `.tooling/g-ledger-operational-pilot/` el artefacto alojado `9868478955`. Su ZIP tiene SHA-256 `48efb4cb889333d160950a9a46ac7cd6b4ab601353b3b732936bf8b1c0e71748`; la reverificación externa pasó integridad, aislamiento, recursos, specs/contratos/release, tampering y 2/2 harnesses.
+- La procedencia falló: `package.json` declara `source_commit=0e4b013d348af5908011e8f834c187a2aadb333b`, el merge sintético creado por GitHub para el evento `pull_request`, en lugar de `bd564cdba07b616337681c15801d22478824108b`. Ambos commits tienen el mismo tree `6901619cc43d3c91f0255e5d350a9f7bcbb7a26c`, pero OPA-S01 exige que el commit fuente coincida; la equivalencia de contenido no autoriza reinterpretar ni dispensar ese requisito.
+- Se abre `OPA-DEFECT-002` como fallo crítico de identidad hosted, sin mutación del Ledger ni cambio contractual requerido. OPA-S01 queda `FAIL`; OPA-S02/S03 y Stage 1 permanecen `BLOCKED`. Avance: 0/8, 0 %. Stage 2 no se inició.
+
+**Siguiente paso:** autorizar un mecanismo CI auxiliar y acotado que ejecute desde GitHub pero haga checkout explícito del head `bd564cdba07b616337681c15801d22478824108b`. El ZIP resultante deberá descargarse en un destino nuevo, declarar ese mismo `source_commit`, pasar nuevamente la calificación y repetir Stage 1 antes de cualquier avance.

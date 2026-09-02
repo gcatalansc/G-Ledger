@@ -10,9 +10,11 @@
     "zip_path": ".tooling/candidates/bd564cd/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "19429f1a9cb4431ec6f9bb06d18f5c8b49310666e894763ec45228bd083d0884",
     "candidate_superseded": false,
-    "qualification": "LOCAL_PASS_HOSTED_PENDING",
-    "hosted_run": null,
-    "hosted_artifact_id": null
+    "qualification": "HOSTED_ARTIFACT_PROVENANCE_FAIL",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33685095968",
+    "hosted_artifact_id": 9868478955,
+    "observed_hosted_zip_sha256": "48efb4cb889333d160950a9a46ac7cd6b4ab601353b3b732936bf8b1c0e71748",
+    "observed_hosted_source_commit": "0e4b013d348af5908011e8f834c187a2aadb333b"
   },
   "scope": {
     "included": ["windows", "core-cli", "codex", "gskills-local-provider", "gskills-local-record-sink", "gsp-exact-2026.04.12"],
@@ -32,7 +34,7 @@
     "latest_checkpoint_freshness": null
   },
   "stages": [
-    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "BLOCKED", "evidence": ["report:defect:OPA-DEFECT-001", "local:.tooling/g-ledger-operational-pilot/evidence/stage-1-preflight.json"]},
+    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "BLOCKED", "evidence": ["report:defect:OPA-DEFECT-001", "report:defect:OPA-DEFECT-002", "docs/pilot/results/stage-1-hosted-provenance-failure.json", "local:.tooling/g-ledger-operational-pilot/evidence/stage-1-preflight.json"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "NOT_RUN", "evidence": []},
     {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "NOT_RUN", "evidence": []},
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
@@ -42,7 +44,7 @@
     {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
   ],
   "scenario_results": [
-    {"id":"OPA-S01","stage":1,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT_LOCAL","evidence":["local:.tooling/g-ledger-operational-pilot/evidence/stage-1-preflight.json"]},
+    {"id":"OPA-S01","stage":1,"critical":true,"status":"FAIL","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-provenance-failure.json"]},
     {"id":"OPA-S02","stage":1,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT_LOCAL","evidence":["local:.tooling/g-ledger-operational-pilot/evidence/stage-1-preflight.json"]},
     {"id":"OPA-S03","stage":1,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT_LOCAL","evidence":["local:.tooling/g-ledger-operational-pilot/evidence/stage-1-preflight.json"]},
     {"id":"OPA-S04","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -91,6 +93,20 @@
       "fix_commit": "bd564cdba07b616337681c15801d22478824108b",
       "local_candidate_zip_sha256": "sha256:19429f1a9cb4431ec6f9bb06d18f5c8b49310666e894763ec45228bd083d0884",
       "required_recovery": "obtain hosted qualification for the fixed exact-SHA candidate, then rerun stage 1 provenance checks before any later stage"
+    },
+    {
+      "id": "OPA-DEFECT-002",
+      "severity": "CRITICAL",
+      "status": "OPEN",
+      "stage": 1,
+      "summary": "Pull-request CI packaged a synthetic merge commit instead of recording the authorized head SHA",
+      "observed_behavior": "CI run 33685095968 passed 6/6 and the downloaded ZIP passed 2/2 external harnesses, but package.json declares source_commit 0e4b013d348af5908011e8f834c187a2aadb333b instead of bd564cdba07b616337681c15801d22478824108b",
+      "root_cause": "The pull_request workflow checks out GitHub's refs/pull/1/merge and build-windows-package records git rev-parse HEAD",
+      "mutation_observed": false,
+      "contract_change_required": false,
+      "candidate_head_tree_equals_merge_tree": true,
+      "rejected_hosted_zip_sha256": "sha256:48efb4cb889333d160950a9a46ac7cd6b4ab601353b3b732936bf8b1c0e71748",
+      "required_recovery": "run an authorized hosted qualifier that explicitly checks out bd564cdba07b616337681c15801d22478824108b and requalify its artifact; tree equivalence cannot waive OPA-S01"
     }
   ],
   "critical_waivers": [],
@@ -98,7 +114,7 @@
   "limitations": [
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
-    "The fixed candidate has local package qualification only; hosted provenance is still required by stage 1",
+    "The fixed candidate has local package qualification; the first hosted artifact was rejected because it identifies the synthetic PR merge commit rather than the authorized candidate head",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
 }
