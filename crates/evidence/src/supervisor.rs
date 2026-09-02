@@ -200,7 +200,11 @@ pub fn supervise(
         ))
         .wrap(process_wrap::std::JobObject)
         .wrap(windows_job::KillOnClose::new().map_err(|_| SupervisionError::Io)?);
-    #[cfg(unix)]
+    // A new session prevents macOS from rejecting a whole-group signal with
+    // EPERM when the inherited runner group contains processes from another uid.
+    #[cfg(target_os = "macos")]
+    command.wrap(process_wrap::std::ProcessSession);
+    #[cfg(all(unix, not(target_os = "macos")))]
     command.wrap(process_wrap::std::ProcessGroup::leader());
     let mut child = OwnedChild(command.spawn().map_err(|_| SupervisionError::Io)?, false);
     let exceeded = Arc::new(AtomicBool::new(false));
@@ -233,13 +237,6 @@ pub fn supervise(
     // Also terminate descendants after a successful parent exit: their inherited
     // pipes must not keep capture alive beyond the bounded cleanup deadline.
     let kill = child.0.start_kill();
-    if let Err(error) = &kill {
-        eprintln!(
-            "process cleanup diagnostic: stage=signal kind={:?} os={:?}",
-            error.kind(),
-            error.raw_os_error()
-        );
-    }
     #[cfg(unix)]
     let already_gone = kill
         .as_ref()
@@ -252,19 +249,13 @@ pub fn supervise(
     }
     child.1 = true;
     let cleanup_deadline = Instant::now() + Duration::from_secs(2);
-    while match child.0.try_wait() {
-        Ok(status) => status.is_none(),
-        Err(error) => {
-            eprintln!(
-                "process cleanup diagnostic: stage=wait kind={:?} os={:?}",
-                error.kind(),
-                error.raw_os_error()
-            );
-            return Err(SupervisionError::Cleanup);
-        }
-    } {
+    while child
+        .0
+        .try_wait()
+        .map_err(|_| SupervisionError::Cleanup)?
+        .is_none()
+    {
         if Instant::now() >= cleanup_deadline {
-            eprintln!("process cleanup diagnostic: stage=wait-deadline");
             return Err(SupervisionError::Cleanup);
         }
         thread::sleep(Duration::from_millis(10));
@@ -282,16 +273,10 @@ pub fn supervise(
     }
     let out = stdout
         .recv_timeout(cleanup_deadline.saturating_duration_since(Instant::now()))
-        .map_err(|error| {
-            eprintln!("process cleanup diagnostic: stage=stdout-receive error={error:?}");
-            SupervisionError::Cleanup
-        })?;
+        .map_err(|_| SupervisionError::Cleanup)?;
     let err = stderr
         .recv_timeout(cleanup_deadline.saturating_duration_since(Instant::now()))
-        .map_err(|error| {
-            eprintln!("process cleanup diagnostic: stage=stderr-receive error={error:?}");
-            SupervisionError::Cleanup
-        })?;
+        .map_err(|_| SupervisionError::Cleanup)?;
     Ok(ProcessOutput {
         exit_code: outcome?,
         stdout: out?,

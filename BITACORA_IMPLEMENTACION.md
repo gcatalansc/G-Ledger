@@ -2148,3 +2148,12 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - La expectativa funcional sigue siendo exactamente `OutputLimit`; no se relaja el test ni la garantía de terminar descendientes propios. El caso focal y formato pasan localmente en Windows. Este checkpoint es diagnóstico, no cierra PP-14 ni la etapa 8.
 
 **Siguiente paso:** obtener en un runner macOS la etapa interna y el error de sistema, retirar la instrumentación temporal al aplicar la corrección mínima y verificar RED/GREEN, regresión completa, seis jobs y artefacto alojado del mismo commit final.
+
+## 2026-09-02 — Causa macOS demostrada y corrección candidata, 7/8
+
+- La corrida diagnóstica `33661656101`, job macOS `100353383256`, registró exactamente `stage=signal kind=PermissionDenied os=Some(1)` antes de `Err(Cleanup)`. Se canceló el resto de esa corrida una vez obtenido el dato, evitando producir o conservar un ZIP que no podía ser candidato final.
+- Apple documenta que `killpg` devuelve EPERM y no envía la señal si uno o más procesos del grupo tienen otro usuario efectivo. No se reclasifica EPERM como salida normal. La hipótesis concreta es contaminación del grupo heredado en el runner; la corrección candidata crea una sesión y grupo nuevos con `ProcessSession` exclusivamente en macOS. Linux y otros Unix conservan `ProcessGroup::leader()`; Windows conserva su Job Object.
+- Se retiró toda la instrumentación temporal de producción. La prueba conserva el mensaje diagnóstico de su valor retornado sin cambiar la expectativa. Formato, Clippy del crate y los seis casos ejecutables de supervisión pasan localmente en Windows, incluidos timeout, cancelación, desbordamiento y descendientes propios.
+- Esto es una corrección candidata: todavía falta demostrar GREEN en macOS y repetir el gate completo del commit final. Etapa 8 y PP-14 permanecen abiertos.
+
+**Siguiente paso:** comprometer la corrección, ejecutar la regresión local completa y publicar el mismo SHA para comprobar los seis jobs. Si macOS confirma GREEN, reconstruir y verificar el ZIP final, conciliar documentos/evidencia y cerrar 8/8 mediante un commit de entrega independiente.
