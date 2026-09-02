@@ -941,6 +941,37 @@ fn repository_binding_and_authority_refresh_never_execute_locator_content() {
 }
 
 #[test]
+fn inline_signed_records_normalize_rfc3339_before_digesting() {
+    let p = Project::new();
+    let root = p.temporary.path().join("canonical timestamp repo");
+    fs::create_dir(&root).unwrap();
+
+    let output = p.run(&[
+        "repository",
+        "bind",
+        "--record-id",
+        "binding:canonical-timestamp",
+        "--root",
+        root.to_str().unwrap(),
+        "--remote",
+        "https://example.invalid/declared.git",
+        "--as-human",
+        "--actor-id",
+        "human:owner",
+        "--observed-at",
+        "2026-09-02T19:38:54.0820837+00:00",
+        "--expected-version",
+        "1",
+        "--idempotency-key",
+        "test:canonical-timestamp",
+    ]);
+
+    let result = value(&output, 0);
+    assert_eq!(result["status"], "ACCEPTED");
+    assert_eq!(result["new_state_version"], 2);
+}
+
+#[test]
 fn idempotency_identity_is_scoped_to_actor_and_trust_domain() {
     let p = Project::new();
     for (i, actor) in ["agent:first", "agent:second"].into_iter().enumerate() {

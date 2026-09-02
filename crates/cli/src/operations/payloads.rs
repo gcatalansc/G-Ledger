@@ -1,6 +1,7 @@
 use super::WriteArgs;
 use crate::errors::CliError;
 use project_ledger_canonical_json::{sha256_bytes, sha256_digest};
+use project_ledger_domain::LedgerTimestamp;
 use serde_json::{Value, json};
 use std::{fs, path::Path};
 
@@ -51,13 +52,16 @@ pub fn build(args: &WriteArgs, kind: &str) -> Result<Value, CliError> {
             )
         })
     };
-    let at = &args.observed_at;
+    let normalized_at = LedgerTimestamp::parse(&args.observed_at)
+        .map_err(CliError::input)?
+        .to_string();
+    let at = &normalized_at;
     let provenance = "urn:project-ledger:cli:local";
     match kind {
         "PAUSE_PROJECT" | "RESUME_PROJECT" | "ARCHIVE_PROJECT" => Ok(json!({"reason":args.reason})),
         "RECORD_NOTE" => Ok(json!({"kind":args.kind,"text":args.text,"scope_ref":args.phase})),
         "RECORD_WORK_PROGRESS" => {
-            let mut record = json!({"schema_version":"0.2.0","work_record_id":generated_id("work"),"summary":args.summary,"phase_ref":args.phase,"task_ref":null,"files_or_artifacts":args.files,"commit_refs":[],"claim_refs":[],"evidence_refs":[],"actor_ref":args.actor_id,"influence":null,"occurred_at":args.observed_at,"recorded_at":args.observed_at,"provenance_ref":"urn:project-ledger:cli:local"});
+            let mut record = json!({"schema_version":"0.2.0","work_record_id":generated_id("work"),"summary":args.summary,"phase_ref":args.phase,"task_ref":null,"files_or_artifacts":args.files,"commit_refs":[],"claim_refs":[],"evidence_refs":[],"actor_ref":args.actor_id,"influence":null,"occurred_at":at,"recorded_at":at,"provenance_ref":"urn:project-ledger:cli:local"});
             record["digest"] = json!(sha256_digest(&record).map_err(CliError::input)?);
             Ok(json!({"work_record":record}))
         }
