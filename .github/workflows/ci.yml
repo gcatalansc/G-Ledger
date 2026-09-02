@@ -11,6 +11,7 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: -Dwarnings
+  PROJECT_LEDGER_CANDIDATE_SHA: bd564cdba07b616337681c15801d22478824108b
 
 jobs:
   test:
@@ -24,6 +25,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.PROJECT_LEDGER_CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Verify exact candidate checkout
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $env:PROJECT_LEDGER_CANDIDATE_SHA) { throw "Candidate checkout mismatch: $actual" }
+          if (git status --porcelain) { throw 'Candidate checkout is not clean' }
       - uses: dtolnay/rust-toolchain@1.97.1
         with:
           components: rustfmt, clippy
@@ -46,7 +56,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: project-ledger-windows-${{ github.sha }}
+          name: project-ledger-windows-${{ env.PROJECT_LEDGER_CANDIDATE_SHA }}
           path: dist/*
           if-no-files-found: error
           retention-days: 30
@@ -55,6 +65,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.PROJECT_LEDGER_CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Verify exact candidate checkout
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $env:PROJECT_LEDGER_CANDIDATE_SHA) { throw "Candidate checkout mismatch: $actual" }
+          if (git status --porcelain) { throw 'Candidate checkout is not clean' }
       - uses: EmbarkStudios/cargo-deny-action@v2.1.1
         with:
           command: check
@@ -65,6 +84,15 @@ jobs:
       RUSTUP_TOOLCHAIN: 1.97.1
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.PROJECT_LEDGER_CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Verify exact candidate checkout
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $env:PROJECT_LEDGER_CANDIDATE_SHA) { throw "Candidate checkout mismatch: $actual" }
+          if (git status --porcelain) { throw 'Candidate checkout is not clean' }
       - uses: dtolnay/rust-toolchain@1.97.1
       - uses: Swatinem/rust-cache@v2.9.2
       - run: cargo fetch --locked
@@ -112,6 +140,15 @@ jobs:
       UV_LINK_MODE: copy
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ env.PROJECT_LEDGER_CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Verify exact candidate checkout
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $env:PROJECT_LEDGER_CANDIDATE_SHA) { throw "Candidate checkout mismatch: $actual" }
+          if (git status --porcelain) { throw 'Candidate checkout is not clean' }
       - uses: actions/checkout@v7.0.1
         with:
           repository: gcatalansc/gsp-gemma-compiler
