@@ -2140,3 +2140,11 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Se aplicó instrumentación mínima únicamente al test: conserva la misma expectativa `OutputLimit` y añade el resultado observado al mensaje de aserción. La prueba focal y formato pasan localmente; esto no corrige ni modifica comportamiento de producción. Se prepara un commit diagnóstico para obtener la evidencia macOS antes de proponer una corrección.
 
 **Siguiente paso:** publicar la instrumentación, ejecutar macOS sin mantener trabajos redundantes y leer la variante real. Después formular una única hipótesis, reproducir RED/GREEN, ejecutar el gate completo y repetir los seis jobs antes de reevaluar 8/8.
+
+## 2026-09-02 — Diagnóstico interno de limpieza macOS, 7/8
+
+- El commit diagnóstico `a409bed3cd14b4aaa71a64ab876c5c5787c535a6` se envió a `main`; la corrida `33660546167` reprodujo en macOS el mismo caso y precisó el resultado como `Err(Cleanup)`. No es una aceptación indebida de salida ni un timeout del proceso. Dependencias, ENOSPC, GSP real/supervisado y Ubuntu ya terminaron PASS en esa corrida; Windows permanecía ejecutándose al registrar este punto.
+- La causa aún debe localizarse dentro de la limpieza obligatoria. Se añade instrumentación temporal y libre de datos del proceso para identificar `signal`, `wait`, su deadline o la recepción de tuberías; sólo informa etapa, clase y código numérico del sistema. No registra ejecutable, argumentos, entorno ni salida.
+- La expectativa funcional sigue siendo exactamente `OutputLimit`; no se relaja el test ni la garantía de terminar descendientes propios. El caso focal y formato pasan localmente en Windows. Este checkpoint es diagnóstico, no cierra PP-14 ni la etapa 8.
+
+**Siguiente paso:** obtener en un runner macOS la etapa interna y el error de sistema, retirar la instrumentación temporal al aplicar la corrección mínima y verificar RED/GREEN, regresión completa, seis jobs y artefacto alojado del mismo commit final.
