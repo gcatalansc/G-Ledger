@@ -65,7 +65,7 @@ Clases permitidas:
 - `HISTORICAL_CONTEXT`: evidencia previa; nunca cierra por sí sola un escenario.
 - `EXCLUDED_BY_SCOPE`: capacidad expresamente no ejecutada; nunca equivale a PASS.
 
-Estados de escenario: `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, `REJECTED_AS_EXPECTED` y `EXCLUDED_BY_SCOPE`. Sólo `PASS` y, en negativos definidos, `REJECTED_AS_EXPECTED`, satisfacen cobertura ejecutada.
+Estados de escenario: `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, `INVALIDATED`, `REJECTED_AS_EXPECTED` y `EXCLUDED_BY_SCOPE`. `INVALIDATED` conserva el resultado histórico de un candidato sustituido, pero no aporta avance ni satisface un gate. Sólo `PASS` y, en negativos definidos, `REJECTED_AS_EXPECTED`, satisfacen cobertura ejecutada.
 
 ## 6. Requisitos transversales
 
@@ -88,7 +88,7 @@ Estados de escenario: `NOT_RUN`, `PASS`, `FAIL`, `BLOCKED`, `REJECTED_AS_EXPECTE
 
 ## 7. Roadmap y gates del piloto
 
-El roadmap contiene ocho fases ordenadas `phase:opa-01` a `phase:opa-08`. Cada fase tiene un gate requerido con waiver prohibido:
+Las ocho etapas de ejecución NO son ocho fases de lifecycle. El roadmap contiene una única fase, `phase:operational-acceptance`, que permanece activa durante todo el piloto y agrupa ocho gates requeridos con waiver prohibido. Esta separación evita fingir transiciones de fase antes de disponer de evidencia cualificada; la fase sólo puede completarse en la etapa 8.
 
 | Gate | Criterio de cierre |
 |---|---|
@@ -101,7 +101,7 @@ El roadmap contiene ocho fases ordenadas `phase:opa-01` a `phase:opa-08`. Cada f
 | `gate:opa-07-handoff` | Handoff ciego, provider/RecordSink local y GSP fijado |
 | `gate:opa-08-adoption` | Matriz completa, cero bloqueos críticos y decisión humana final |
 
-Un gate opcional separado, `gate:opa-waiver-exercise`, DEBE demostrar la ceremonia de waiver humano. Ese waiver NO cuenta para ninguno de los ocho gates requeridos.
+Un gate opcional separado, `gate:opa-waiver-exercise`, DEBE demostrar la ceremonia de waiver humano. Ese waiver NO cuenta para ninguno de los ocho gates requeridos. El contador de etapas proviene de los escenarios ejecutados y conciliados; el estado de la fase permanece `ACTIVE` hasta que los ocho gates requeridos y la decisión final satisfagan la fórmula de aceptación.
 
 ## 8. Escenarios obligatorios
 

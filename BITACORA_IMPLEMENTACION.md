@@ -2190,3 +2190,14 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - `writing-plans` estructura entregables rechazables; `test-driven-development` regirá el runner/cliente y `verification-before-completion` cada commit/cierre. No se ha invocado `--as-human`, creado DB del piloto ni atribuido PASS.
 
 **Siguiente paso:** validar esta autoridad documental, comprometer el baseline y comenzar Stage 1 con RED/GREEN del runner antes de inicializar el proyecto descartable.
+
+- Corrección de diseño previa a datos: las ocho etapas no se modelan como fases secuenciales. Un único `phase:operational-acceptance` contiene los ocho gates requeridos y permanece activo hasta la decisión final. Esto evita una dependencia circular entre cerrar Stage 1 y disponer del canal `VERIFIED_SOURCE` que se valida en Stage 4; no se elimina ni dispensa ningún gate.
+
+## 2026-09-02 — OPA-DEFECT-001 bloquea la etapa 1, 0/8
+
+- El primer RED del bootstrap con el ZIP alojado exacto verificó identidad y capacidades, pero `repository bind --remote` terminó exit 3 `INVALID_CONTRACT` antes de emitir eventos. El Ledger descartable no pudo completar su modelo gobernado; el hallazgo se conserva primero en el reporte externo sanitizado.
+- Reproducción aislada con el mismo binario: el instante `2026-09-02T19:38:54.0820837+00:00` falla y el equivalente canónico `2026-09-02T19:38:54Z` pasa. La CLI construía y firmaba records inline con el texto recibido, mientras `LedgerTimestamp` normalizaba ese texto antes de validar el record; el digest quedaba inconsistente.
+- La regresión `inline_signed_records_normalize_rfc3339_before_digesting` observó RED real. La corrección candidata normaliza en la frontera común de `payloads::build` y ya deja verdes esa regresión y el ensayo preexistente de binding/refresh. No cambia contratos, schemas ni autoridad.
+- Conforme al protocolo, el ZIP `a83624f2…963ad80` queda invalidado para este piloto aunque continúa siendo evidencia histórica prepiloto. Stage 1 queda `BLOCKED`, OPA-S01/S02 `INVALIDATED`, OPA-S03 `BLOCKED`, avance 0/8. Aún faltan gate integral, commit separado, candidato nuevo y recalificación exact-SHA.
+
+**Siguiente paso:** ejecutar el gate integral de la corrección, comprometerla aisladamente y generar/verificar un nuevo paquete. No reanudar Stage 1 contra el artefacto anterior ni presentar la corrección local como aceptación operativa.

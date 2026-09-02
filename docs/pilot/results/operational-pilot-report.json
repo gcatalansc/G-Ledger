@@ -1,15 +1,17 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "NOT_STARTED",
-  "started_at": null,
+  "status": "BLOCKED",
+  "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,
-  "documentation_baseline_commit": "1f607ae6bc375a87be45cba8788c118a73881854",
+  "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
   "subject": {
     "product_version": "0.2.0",
     "binary_source_commit": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
     "zip_path": "dist/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
-    "candidate_superseded": false
+    "candidate_superseded": true,
+    "replacement_candidate_commit": null,
+    "replacement_zip_sha256": null
   },
   "scope": {
     "included": ["windows", "core-cli", "codex", "gskills-local-provider", "gskills-local-record-sink", "gsp-exact-2026.04.12"],
@@ -29,7 +31,7 @@
     "latest_checkpoint_freshness": null
   },
   "stages": [
-    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "NOT_RUN", "evidence": []},
+    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "BLOCKED", "evidence": ["report:defect:OPA-DEFECT-001"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "NOT_RUN", "evidence": []},
     {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "NOT_RUN", "evidence": []},
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
@@ -39,9 +41,9 @@
     {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
   ],
   "scenario_results": [
-    {"id":"OPA-S01","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S02","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S03","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S01","stage":1,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["report:defect:OPA-DEFECT-001"]},
+    {"id":"OPA-S02","stage":1,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["report:defect:OPA-DEFECT-001"]},
+    {"id":"OPA-S03","stage":1,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT","evidence":["report:defect:OPA-DEFECT-001"]},
     {"id":"OPA-S04","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S05","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S06","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -72,7 +74,22 @@
     {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":[]},
     {"id":"OPA-S32","stage":8,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]}
   ],
-  "defects": [],
+  "defects": [
+    {
+      "id": "OPA-DEFECT-001",
+      "severity": "CRITICAL",
+      "status": "FIX_CANDIDATE_LOCAL",
+      "stage": 1,
+      "summary": "Inline signed records hash the raw RFC 3339 timestamp before domain normalization",
+      "observed_behavior": "repository bind returned exit 3 INVALID_CONTRACT and emitted zero events for a valid +00:00 timestamp with fractional seconds",
+      "root_cause": "payloads::build used WriteArgs.observed_at verbatim while command execution parsed and normalized the same instant before lifecycle validation",
+      "reproduction": "inline_signed_records_normalize_rfc3339_before_digesting",
+      "mutation_observed": false,
+      "contract_change_required": false,
+      "candidate_invalidated": "sha256:a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
+      "required_recovery": "qualify a new exact-SHA candidate, then rerun stage 1 and every later stage"
+    }
+  ],
   "critical_waivers": [],
   "owner_decision": null,
   "limitations": [
