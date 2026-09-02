@@ -2180,3 +2180,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Este cierre documental se compromete después de observar la evidencia y no cambia binario, contratos, recursos del ZIP o workflow del candidato calificado. Se publica con `[skip ci]` para no convertir el registro posterior de la evidencia en un candidato recursivo; el SHA calificado permanece `b171f51cb58c60ed8c8a99b60386117f9fed6822`. Todavía no se intervino ningún proyecto real.
 
 **Siguiente paso del plan:** elegir con el usuario un proyecto descartable nuevo o una copia descartable de uno actual y autorizar un piloto acotado. Ejecutar entonces `init/bind → resume → progress/evidence → gate → checkpoint → reconcile → resume`, conservando la opción de detenerse y restaurar; cualquier certificación o integración adicional será otro alcance.
+
+## 2026-09-02 — Piloto de aceptación operativa autorizado, 0/8
+
+- El usuario reemplaza el proyecto funcional de muestra por un metaproyecto descartable cuyo sujeto es G-Ledger 0.2.0. El objetivo es decidir alta operativa para el primer proyecto real, no GA ni certificación general.
+- Autoridad persistida en `docs/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_PILOT_SPEC_v1.0.0.md`; matriz integral por riesgos y reporte machine-readable comienzan `NOT_STARTED`, 0/8. La evidencia prepiloto queda sólo como contexto.
+- El sujeto fijado es el ZIP alojado SHA-256 `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`, fuente `b171f51cb58c60ed8c8a99b60386117f9fed6822`. `target/project-ledger.exe` no puede sustituirlo.
+- Scope: Core CLI, Codex, GSP fijado y provider/RecordSink locales; contraparte G-Skills, Radar, UI, daemon, GA y certificación universal excluidos. Los datos mutables vivirán en `.tooling/g-ledger-operational-pilot/`.
+- `writing-plans` estructura entregables rechazables; `test-driven-development` regirá el runner/cliente y `verification-before-completion` cada commit/cierre. No se ha invocado `--as-human`, creado DB del piloto ni atribuido PASS.
+
+**Siguiente paso:** validar esta autoridad documental, comprometer el baseline y comenzar Stage 1 con RED/GREEN del runner antes de inicializar el proyecto descartable.

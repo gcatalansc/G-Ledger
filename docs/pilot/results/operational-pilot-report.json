@@ -1,0 +1,83 @@
+{
+  "profile": "project-ledger-operational-pilot/1",
+  "status": "NOT_STARTED",
+  "started_at": null,
+  "completed_at": null,
+  "documentation_baseline_commit": "1f607ae6bc375a87be45cba8788c118a73881854",
+  "subject": {
+    "product_version": "0.2.0",
+    "binary_source_commit": "b171f51cb58c60ed8c8a99b60386117f9fed6822",
+    "zip_path": "dist/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80",
+    "candidate_superseded": false
+  },
+  "scope": {
+    "included": ["windows", "core-cli", "codex", "gskills-local-provider", "gskills-local-record-sink", "gsp-exact-2026.04.12"],
+    "excluded": ["gskills-external-counterpart", "project-radar-counterpart", "ui", "daemon", "general-availability", "universal-certification"],
+    "certified_compatibility": false
+  },
+  "progress": {
+    "total_stages": 8,
+    "completed_stages": [],
+    "percentage": 0
+  },
+  "project_identity": {
+    "project_ref": null,
+    "database_locator": null,
+    "latest_state_version": null,
+    "latest_checkpoint_ref": null,
+    "latest_checkpoint_freshness": null
+  },
+  "stages": [
+    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "NOT_RUN", "evidence": []},
+    {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "NOT_RUN", "evidence": []},
+    {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "NOT_RUN", "evidence": []},
+    {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
+    {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "NOT_RUN", "evidence": []},
+    {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "NOT_RUN", "evidence": []},
+    {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "NOT_RUN", "evidence": []},
+    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
+  ],
+  "scenario_results": [
+    {"id":"OPA-S01","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S02","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S03","stage":1,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S04","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S05","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S06","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S07","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S08","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S09","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S10","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S11","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S12","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S13","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S14","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S15","stage":4,"critical":false,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S16","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S17","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S18","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S19","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S20","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S21","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S22","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S23","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S24","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S25","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S26","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S27","stage":6,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S28","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S29","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S30","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":[]},
+    {"id":"OPA-S32","stage":8,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]}
+  ],
+  "defects": [],
+  "critical_waivers": [],
+  "owner_decision": null,
+  "limitations": [
+    "No external G-Skills counterpart or bilateral certification is claimed",
+    "Project Radar counterpart is excluded from the pilot",
+    "The pilot cannot establish General Availability or universal absence of defects"
+  ]
+}
