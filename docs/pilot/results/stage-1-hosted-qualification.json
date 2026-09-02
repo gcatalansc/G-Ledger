@@ -1,0 +1,68 @@
+{
+  "profile": "project-ledger-operational-pilot-evidence/1",
+  "recorded_at": "2026-09-02T22:30:51Z",
+  "stage": 1,
+  "status": "PASS",
+  "proof_class": "LIVE_PILOT_HOSTED",
+  "candidate": {
+    "product_version": "0.2.0",
+    "source_commit": "bd564cdba07b616337681c15801d22478824108b",
+    "source_tree_dirty": false,
+    "certified_compatibility": false,
+    "candidate_branch": "codex/g-ledger-opa-candidate-bd564cd",
+    "candidate_pull_request": "https://github.com/gcatalansc/G-Ledger/pull/1"
+  },
+  "hosted_qualifier": {
+    "branch": "codex/g-ledger-opa-exact-ci-qualifier",
+    "commit": "649e60bd842b1ad73d9b75572d27cd05fa57dab9",
+    "pull_request": "https://github.com/gcatalansc/G-Ledger/pull/2",
+    "merge_authorized": false,
+    "workflow_run_id": 33688474112,
+    "workflow_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33688474112",
+    "jobs": [
+      {"name":"physical-disk-full-chaos","job_id":100441457947,"status":"PASS","exact_checkout_verified":true},
+      {"name":"live-gsp-sidecar-chaos","job_id":100441458183,"status":"PASS","exact_checkout_verified":true},
+      {"name":"test-macos-latest","job_id":100441458207,"status":"PASS","exact_checkout_verified":true},
+      {"name":"test-ubuntu-latest","job_id":100441458229,"status":"PASS","exact_checkout_verified":true},
+      {"name":"test-windows-latest","job_id":100441458288,"status":"PASS","exact_checkout_verified":true},
+      {"name":"dependency-policy","job_id":100441458514,"status":"PASS","exact_checkout_verified":true}
+    ]
+  },
+  "artifact": {
+    "artifact_id": 9869765807,
+    "name": "project-ledger-windows-bd564cdba07b616337681c15801d22478824108b",
+    "archive_digest": "sha256:30401085722fffc5424ca25a440dbbfdc999bcd805aeca266e606145ff981bc3",
+    "zip_sha256": "sha256:cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
+    "expired_when_observed": false,
+    "external_reverification": {
+      "status": "PASS",
+      "harnesses_passed": 2,
+      "harnesses_failed": 0,
+      "scenario_count": 7,
+      "target_binary_used": false
+    }
+  },
+  "disposable_project": {
+    "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f",
+    "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/data/project-ledger/projects/01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f/ledger.db",
+    "state_version": 15,
+    "state_digest": "sha256:7c53a83b5cc5acabbc4c9b5a5d7f6b793bc2cf8ea4f764d81fb34aa73c7202cf",
+    "lifecycle_status": "ACTIVE",
+    "active_phase_ref": "phase:operational-acceptance",
+    "required_gate_count": 8,
+    "optional_gate_count": 1,
+    "authority_document_ref": "authority:opa-spec",
+    "specification_digest": "sha256:d7a233b14e90f2fc27e1349c6dedc1d75706d76d8242b9afecc769925b1a09d4"
+  },
+  "scenarios": [
+    {"id":"OPA-S01","status":"PASS"},
+    {"id":"OPA-S02","status":"PASS"},
+    {"id":"OPA-S03","status":"PASS"}
+  ],
+  "superseded_evidence": {
+    "rejected_workflow_run_id": 33685095968,
+    "rejected_artifact_id": 9868478955,
+    "rejected_zip_sha256": "sha256:48efb4cb889333d160950a9a46ac7cd6b4ab601353b3b732936bf8b1c0e71748",
+    "reason": "The package identified GitHub's synthetic pull-request merge commit instead of the authorized candidate head"
+  }
+}
