@@ -200,11 +200,7 @@ pub fn supervise(
         ))
         .wrap(process_wrap::std::JobObject)
         .wrap(windows_job::KillOnClose::new().map_err(|_| SupervisionError::Io)?);
-    // A new session prevents macOS from rejecting a whole-group signal with
-    // EPERM when the inherited runner group contains processes from another uid.
-    #[cfg(target_os = "macos")]
-    command.wrap(process_wrap::std::ProcessSession);
-    #[cfg(all(unix, not(target_os = "macos")))]
+    #[cfg(unix)]
     command.wrap(process_wrap::std::ProcessGroup::leader());
     let mut child = OwnedChild(command.spawn().map_err(|_| SupervisionError::Io)?, false);
     let exceeded = Arc::new(AtomicBool::new(false));
@@ -237,11 +233,40 @@ pub fn supervise(
     // Also terminate descendants after a successful parent exit: their inherited
     // pipes must not keep capture alive beyond the bounded cleanup deadline.
     let kill = child.0.start_kill();
-    #[cfg(unix)]
+    #[cfg(all(unix, not(target_os = "macos")))]
     let already_gone = kill
         .as_ref()
         .err()
         .is_some_and(|error| error.raw_os_error() == Some(3));
+    // Darwin's POSIX killpg returns EPERM when the group exists but contains
+    // only zombies. Reap the direct child, then require a second signal attempt
+    // to prove the process group itself has disappeared. Never accept EPERM.
+    #[cfg(target_os = "macos")]
+    let already_gone = if kill
+        .as_ref()
+        .err()
+        .is_some_and(|error| error.raw_os_error() == Some(3))
+    {
+        true
+    } else if kill
+        .as_ref()
+        .err()
+        .is_some_and(|error| error.kind() == std::io::ErrorKind::PermissionDenied)
+        && child
+            .0
+            .try_wait()
+            .map_err(|_| SupervisionError::Cleanup)?
+            .is_some()
+    {
+        child
+            .0
+            .start_kill()
+            .as_ref()
+            .err()
+            .is_some_and(|error| error.raw_os_error() == Some(3))
+    } else {
+        false
+    };
     #[cfg(not(unix))]
     let already_gone = false;
     if kill.is_err() && !already_gone {

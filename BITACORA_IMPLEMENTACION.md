@@ -2162,3 +2162,10 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - La corrida se cancela tras el resultado concluyente para evitar completar trabajos redundantes de un SHA que no compila en macOS. El gate completo local previo había pasado, pero Windows no compila ramas `cfg(macos)` y por ello no podía detectar esta omisión. El ZIP local de ese SHA pasó sus harnesses, pero queda descartado como candidato final.
 
 **Siguiente paso actualizado:** verificar manifiesto/lock y regresión local, comprometer la feature faltante y repetir la matriz alojada. La corrección de comportamiento seguirá pendiente hasta que el test de desbordamiento y descendientes pase realmente en macOS.
+
+- Resultado del segundo candidato: `3244ec7cd200a571cd564f21349d42e9cda08e06` compiló con la feature, pero la corrida `33663690533`, job macOS `100360095533`, volvió a producir `stdout: Err(Cleanup)` en 56 ms. La sesión nueva no resolvió el problema; se descarta esa hipótesis y se revierte tanto el wrapper como la feature adicional. Los demás jobs se cancelan tras el resultado concluyente.
+- La fuente oficial XNU muestra la diferencia determinante: Darwin excluye procesos `SZOMB` de `pgrp_iterate` y, en modo POSIX, retorna EPERM cuando `nfound == 0`; por eso un grupo cuyo único miembro acaba de convertirse en zombi no retorna ESRCH todavía. La documentación pública de `killpg` por sí sola no expone este matiz.
+- Nueva corrección candidata fail-closed: ante EPERM sólo en macOS, `ProcessGroupChild::try_wait` debe cosechar al padre y un segundo `start_kill` debe devolver ESRCH, demostrando que el grupo desapareció. EPERM nunca se acepta; un padre vivo, un grupo persistente, un descendiente no señalable o cualquier otro error siguen devolviendo `Cleanup`.
+- Formato, Clippy del workspace y la suite real de supervisión pasan localmente en Windows. El ZIP del candidato descartado se conservó como obsoleto y no forma parte de la entrega final.
+
+**Siguiente paso actualizado:** comprometer esta corrección acotada y obtener GREEN real en macOS. Sólo después completar los seis jobs, reconstruir el ZIP del SHA aprobado y conciliar el cierre documental 8/8.
