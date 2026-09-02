@@ -2231,3 +2231,13 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - `OPA-DEFECT-001` y `OPA-DEFECT-002` cambian a `FIXED_AND_REQUALIFIED`; el ZIP de merge sintético anterior permanece rechazado y trazable. Avance gobernado: **1/8, 12,5 %, IN_PROGRESS**. No se ha verificado ningún gate de adopción, cerrado la fase, cambiado `ENGINEERING_RELEASE_CANDIDATE`, fusionado PR ni concedido certificación.
 
 **Siguiente paso:** ejecutar Stage 2 sobre este Ledger descartable: demostrar lecturas no mutantes, rechazo de autoridad humana para agentes, sustitución trazable de autoridad auxiliar y ausencia de cierres implícitos. Stage 2 permanece `IN_PROGRESS` hasta disponer de evidencia fresca de OPA-S04…OPA-S07 y un commit independiente.
+
+## 2026-09-02 — Modelo gobernado verificado, 2/8
+
+- Stage 2 se implementó mediante RED real (`PILOT_STAGE_NOT_IMPLEMENTED`) y GREEN 4/4 del runner. El ensayo se ejecutó después sobre el Ledger exacto `project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f`; no creó otra base ni reutilizó el intento local invalidado.
+- Diez consultas públicas —status, doctor, authority/repository list, roadmap show, phase list, gate list/show, artifact list y audit— conservaron exactamente state version 15 y digest `sha256:7c53a83b…c7202cf`. Esto acredita separación lectura/escritura para el alcance observado, no una prueba universal de todas las rutas internas.
+- `agent:opa-stage2` intentó registrar autoridad sin `--as-human`: recibió exit 9, state delta cero y digest sin cambio. La acción no se reintentó elevando al agente. Bajo la autorización humana existente se registró/refrescó `authority:opa-aux-v1`, se registró `authority:opa-aux-v2` con `supersedes_ref` y se supersedió el original; ambos registros y sus digests permanecen consultables.
+- Un binding adicional apuntó a un fixture cerrado con canaries de hook y contenido. G-Ledger sólo registró el binding declarativo; ninguno se ejecutó. Un agente sí pudo registrar `artifact:opa-stage2-authority`, pero no adquirió autoridad de fase/proyecto.
+- Conciliación final: state version 21/digest `sha256:56bd0263…6e9a0f`, proyecto `ACTIVE`, fase `phase:operational-acceptance` activa, cero fases completadas y cero gates `VERIFIED`/`WAIVED`. `doctor` y `audit` informan integridad `ok`, cero findings. OPA-S04…OPA-S07 pasan como `LIVE_PILOT`; avance **2/8, 25 %, IN_PROGRESS**.
+
+**Siguiente paso:** solicitar autorización para Stage 3. Sólo entonces registrar progreso material, nota, claim, unknown, decisión, blocker, riesgo y próxima acción; resolver/superseder preservando historia y comprobar checkpoint/resume JSON/Codex. Stage 3 no está iniciado y no existe autorización final de adopción.

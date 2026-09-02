@@ -78,6 +78,355 @@ function Invoke-PilotLedgerJson {
     return $text | ConvertFrom-Json
 }
 
+function Get-PilotTextDigest {
+    param([string]$Text)
+
+    $bytes = [Text.Encoding]::UTF8.GetBytes($Text)
+    $hash = [Security.Cryptography.SHA256]::HashData($bytes)
+    return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
+}
+
+if ($Stage -eq 2) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $fixtureDirectory = Join-Path $resolvedPilotRoot 'fixtures'
+    $stageOneManifestPath = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+    $stageTwoManifestPath = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    foreach ($requiredPath in @($stageOneManifestPath, $locatorPath, $ledger, $packageManifestPath)) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_1_EVIDENCE_MISSING: $requiredPath"
+        }
+    }
+    if (Test-Path -LiteralPath $stageTwoManifestPath) {
+        throw "PILOT_STAGE_ALREADY_EXECUTED: $stageTwoManifestPath"
+    }
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    if ($actualZipHash -ne $ExpectedZipSha256.ToLowerInvariant()) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $($ExpectedZipSha256.ToLowerInvariant()); actual $actualZipHash"
+    }
+    $stageOneManifest = Get-Content -Raw -LiteralPath $stageOneManifestPath | ConvertFrom-Json
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    if ($stageOneManifest.status -ne 'PREFLIGHT_PASS' -or
+        $stageOneManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $packageManifest.source_commit -ne $ExpectedSourceCommit -or
+        $stageOneManifest.subject.source_commit -ne $ExpectedSourceCommit) {
+        throw 'PILOT_STAGE_1_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+        throw 'PILOT_DATABASE_MISSING'
+    }
+
+    $readQueries = @()
+    function Invoke-PilotReadQuery {
+        param([string]$Name, [string[]]$CommandArguments)
+
+        $value = Invoke-PilotLedgerJson $ledger $CommandArguments
+        $json = $value | ConvertTo-Json -Depth 20 -Compress
+        $script:readQueries += [ordered]@{
+            name = $Name
+            exit_code = 0
+            output_sha256 = Get-PilotTextDigest $json
+        }
+        return $value
+    }
+
+    $beforeState = Invoke-PilotReadQuery 'status' @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if ($beforeState.state_version -ne 15 -or $beforeState.project.lifecycle_status -ne 'ACTIVE') {
+        throw 'PILOT_STAGE_2_INITIAL_STATE_MISMATCH'
+    }
+    $null = Invoke-PilotReadQuery 'doctor' @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'authority.list' @(
+        'authority', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'repository.list' @(
+        'repository', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'roadmap.show' @(
+        'roadmap', 'show', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'phase.list' @(
+        'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'gate.list' @(
+        'gate', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'gate.show' @(
+        'gate', 'show', 'gate:opa-01', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'artifact.list' @(
+        'artifact', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $null = Invoke-PilotReadQuery 'audit' @(
+        'audit', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $afterReadState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if ($readQueries.Count -ne 10 -or $afterReadState.state_version -ne $beforeState.state_version -or
+        $afterReadState.state_digest -ne $beforeState.state_digest) {
+        throw 'PILOT_READ_ONLY_MUTATION_DETECTED'
+    }
+
+    $observedAt = [DateTimeOffset]::UtcNow.ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $agentFixture = Join-Path $fixtureDirectory 'agent-cannot-authorize.md'
+    [IO.File]::WriteAllText(
+        $agentFixture,
+        "# Agent authority attempt`n`nThis closed fixture must not acquire human authority.`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $agentDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $agentFixture).Hash.ToLowerInvariant()
+    $agentOutput = & $ledger authority add `
+        --database $database --project-ref $projectRef --uri $agentFixture --digest $agentDigest `
+        --record-id 'authority:opa-agent-forbidden' --expected-version '15' `
+        --idempotency-key 'opa:stage2:agent-authority-forbidden' --actor-id 'agent:opa-stage2' `
+        --observed-at $observedAt --json 2>&1
+    $agentExit = $LASTEXITCODE
+    $agentText = ($agentOutput | Out-String).Trim()
+    if ($agentExit -ne 9) {
+        throw "PILOT_AGENT_AUTHORITY_NOT_REJECTED: exit=$agentExit output=$agentText"
+    }
+    $agentErrorCode = $null
+    foreach ($line in @($agentText -split "`r?`n")) {
+        if ($line.TrimStart().StartsWith('{')) {
+            try {
+                $agentErrorCode = ($line | ConvertFrom-Json).error.code
+                break
+            } catch {
+                continue
+            }
+        }
+    }
+    $afterAgentState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if ($afterAgentState.state_version -ne $beforeState.state_version -or
+        $afterAgentState.state_digest -ne $beforeState.state_digest) {
+        throw 'PILOT_AGENT_AUTHORITY_MUTATED_STATE'
+    }
+
+    $auxV1Path = Join-Path $fixtureDirectory 'authority-aux-v1.md'
+    $auxV2Path = Join-Path $fixtureDirectory 'authority-aux-v2.md'
+    [IO.File]::WriteAllText(
+        $auxV1Path,
+        "# Disposable auxiliary authority v1`n`nStage 2 original.`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    [IO.File]::WriteAllText(
+        $auxV2Path,
+        "# Disposable auxiliary authority v2`n`nStage 2 replacement.`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $auxV1Digest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $auxV1Path).Hash.ToLowerInvariant()
+    $auxV2Digest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $auxV2Path).Hash.ToLowerInvariant()
+    $auxV2Uri = [Uri]::new($auxV2Path).AbsoluteUri
+    $stateVersion = 15
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'authority', 'add', '--database', $database, '--project-ref', $projectRef,
+        '--uri', $auxV1Path, '--digest', $auxV1Digest, '--record-id', 'authority:opa-aux-v1',
+        '--expected-version', [string]$stateVersion, '--idempotency-key', 'opa:stage2:authority:v1',
+        '--actor-id', 'human:owner', '--observed-at', $observedAt, '--as-human', '--json'
+    )
+    $stateVersion++
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'authority', 'refresh', 'authority:opa-aux-v1', '--database', $database, '--project-ref', $projectRef,
+        '--expected-version', [string]$stateVersion, '--idempotency-key', 'opa:stage2:authority:v1:refresh',
+        '--actor-id', 'human:owner', '--observed-at', $observedAt, '--as-human', '--json'
+    )
+    $stateVersion++
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'authority', 'add', '--database', $database, '--project-ref', $projectRef,
+        '--uri', $auxV2Path, '--digest', $auxV2Digest, '--record-id', 'authority:opa-aux-v2',
+        '--supersedes', 'authority:opa-aux-v1', '--expected-version', [string]$stateVersion,
+        '--idempotency-key', 'opa:stage2:authority:v2', '--actor-id', 'human:owner',
+        '--observed-at', $observedAt, '--as-human', '--json'
+    )
+    $stateVersion++
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'authority', 'supersede', 'authority:opa-aux-v1', '--database', $database,
+        '--project-ref', $projectRef, '--with', $auxV2Path, '--record-id', 'authority:opa-aux-v2',
+        '--expected-version', [string]$stateVersion, '--idempotency-key', 'opa:stage2:authority:supersede',
+        '--actor-id', 'human:owner', '--observed-at', $observedAt, '--as-human', '--json'
+    )
+    $stateVersion++
+
+    $closedRepository = Join-Path $fixtureDirectory 'repository-read-only-canary'
+    $hookDirectory = Join-Path $closedRepository '.git\hooks'
+    [IO.Directory]::CreateDirectory($hookDirectory) | Out-Null
+    $hookCanary = Join-Path $closedRepository '.git\hook-executed.txt'
+    $contentCanary = Join-Path $closedRepository 'content-executed.txt'
+    [IO.File]::WriteAllText(
+        (Join-Path $hookDirectory 'post-checkout'),
+        "#!/bin/sh`nprintf executed > '../hook-executed.txt'`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    [IO.File]::WriteAllText(
+        (Join-Path $closedRepository 'invoke-me.ps1'),
+        "Set-Content -LiteralPath 'content-executed.txt' -Value 'executed'`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'repository', 'bind', '--database', $database, '--project-ref', $projectRef,
+        '--root', $closedRepository, '--remote', 'https://invalid.example/closed-stage-2-fixture',
+        '--record-id', 'binding:opa-stage2-canary', '--expected-version', [string]$stateVersion,
+        '--idempotency-key', 'opa:stage2:repository:canary', '--actor-id', 'human:owner',
+        '--observed-at', $observedAt, '--as-human', '--json'
+    )
+    $stateVersion++
+    if ((Test-Path -LiteralPath $hookCanary -PathType Leaf) -or
+        (Test-Path -LiteralPath $contentCanary -PathType Leaf)) {
+        throw 'PILOT_REPOSITORY_CONTENT_EXECUTED'
+    }
+
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'artifact', 'add', '--database', $database, '--project-ref', $projectRef,
+        '--title', 'Stage 2 auxiliary authority replacement', '--kind', 'SPEC',
+        '--uri', $auxV2Uri, '--digest', $auxV2Digest, '--record-id', 'artifact:opa-stage2-authority',
+        '--expected-version', [string]$stateVersion, '--idempotency-key', 'opa:stage2:artifact:authority',
+        '--actor-id', 'agent:opa-harness', '--observed-at', $observedAt, '--json'
+    )
+    $stateVersion++
+
+    $finalState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $authorities = @(Invoke-PilotLedgerJson $ledger @(
+        'authority', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $repositories = @(Invoke-PilotLedgerJson $ledger @(
+        'repository', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $artifacts = @(Invoke-PilotLedgerJson $ledger @(
+        'artifact', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $gates = @(Invoke-PilotLedgerJson $ledger @(
+        'gate', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $auxV1 = $authorities | Where-Object { $_.document_id -eq 'authority:opa-aux-v1' }
+    $auxV2 = $authorities | Where-Object { $_.document_id -eq 'authority:opa-aux-v2' }
+    $repositoryBinding = $repositories | Where-Object {
+        $_.repository_binding_id -eq 'binding:opa-stage2-canary'
+    }
+    $artifactReference = $artifacts | Where-Object {
+        $_.artifact_ref_id -eq 'artifact:opa-stage2-authority'
+    }
+    $allGatesUnverified = @($gates | Where-Object {
+        $_.status -in @('VERIFIED', 'WAIVED')
+    }).Count -eq 0
+    if ($finalState.state_version -ne 21 -or $finalState.project.lifecycle_status -ne 'ACTIVE' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or -not $allGatesUnverified -or
+        @($auxV1).Count -ne 1 -or @($auxV2).Count -ne 1 -or
+        $auxV1.status -ne 'SUPERSEDED' -or $auxV2.status -ne 'CURRENT' -or
+        $auxV1.digest -ne $auxV1Digest -or $auxV2.supersedes_ref -ne 'authority:opa-aux-v1' -or
+        @($repositoryBinding).Count -ne 1 -or @($artifactReference).Count -ne 1) {
+        throw 'PILOT_STAGE_2_FINAL_STATE_MISMATCH'
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 2
+        status = 'GOVERNED_MODEL_PASS'
+        proof_class = 'LIVE_PILOT'
+        project_ref = $projectRef
+        read_only = [ordered]@{
+            before_state_version = $beforeState.state_version
+            after_state_version = $afterReadState.state_version
+            before_state_digest = $beforeState.state_digest
+            after_state_digest = $afterReadState.state_digest
+            queries = @($readQueries)
+        }
+        agent_authority_attempt = [ordered]@{
+            actor_id = 'agent:opa-stage2'
+            as_human_used = $false
+            exit_code = $agentExit
+            error_code = $agentErrorCode
+            state_version_delta = $afterAgentState.state_version - $beforeState.state_version
+            state_digest_unchanged = $afterAgentState.state_digest -eq $beforeState.state_digest
+        }
+        authority_history = [ordered]@{
+            original_document_ref = $auxV1.document_id
+            original_status = $auxV1.status
+            original_digest = $auxV1.digest
+            original_digest_preserved = $auxV1.digest -eq $auxV1Digest
+            refresh_performed = $true
+            replacement_document_ref = $auxV2.document_id
+            replacement_status = $auxV2.status
+            replacement_digest = $auxV2.digest
+            replacement_supersedes_original = $auxV2.supersedes_ref -eq $auxV1.document_id
+        }
+        repository_safety = [ordered]@{
+            binding_mode = 'DECLARATIVE_READ_ONLY'
+            binding_ref = 'binding:opa-stage2-canary'
+            binding_present = @($repositoryBinding).Count -eq 1
+            git_hook_canary_path = '.git/hook-executed.txt'
+            repository_content_canary_path = 'content-executed.txt'
+            canary_executed = (Test-Path -LiteralPath $hookCanary -PathType Leaf) -or
+                (Test-Path -LiteralPath $contentCanary -PathType Leaf)
+        }
+        artifact_reference = [ordered]@{
+            artifact_ref = 'artifact:opa-stage2-authority'
+            present = @($artifactReference).Count -eq 1
+            digest = $artifactReference.digest
+        }
+        lifecycle = [ordered]@{
+            state_version = $finalState.state_version
+            state_digest = $finalState.state_digest
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            completed_project_without_command = $finalState.project.lifecycle_status -eq 'COMPLETED'
+            all_gates_unverified = $allGatesUnverified
+        }
+        human_actions = [ordered]@{
+            actor_id = 'human:owner'
+            actions = @(
+                'REGISTER_AUXILIARY_AUTHORITY',
+                'REFRESH_AUXILIARY_AUTHORITY',
+                'REGISTER_REPLACEMENT_AUTHORITY',
+                'SUPERSEDE_AUXILIARY_AUTHORITY',
+                'BIND_CLOSED_REPOSITORY_FIXTURE'
+            )
+            scope = 'Disposable Stage 2 fixtures only'
+        }
+        scenarios = [ordered]@{
+            'OPA-S04' = 'PASS'
+            'OPA-S05' = 'PASS'
+            'OPA-S06' = 'PASS'
+            'OPA-S07' = 'PASS'
+        }
+    }
+    Write-PilotJson $stageTwoManifestPath $manifest
+
+    [pscustomobject]@{
+        stage = 2
+        status = 'GOVERNED_MODEL_PASS'
+        evidence = 'evidence/stage-2-governed-model.json'
+    }
+    return
+}
+
 if ($Stage -ne 1) {
     throw "PILOT_STAGE_NOT_IMPLEMENTED: stage $Stage"
 }

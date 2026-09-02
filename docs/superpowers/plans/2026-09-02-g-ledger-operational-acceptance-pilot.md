@@ -12,7 +12,7 @@
 
 - Autoridad de producto: `specs/PROJECT_LEDGER_SPEC_v0.2.0.md`.
 - Autoridad del piloto: `docs/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_PILOT_SPEC_v1.0.0.md`.
-- Sujeto inicial: ZIP SHA-256 `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`, fuente `b171f51cb58c60ed8c8a99b60386117f9fed6822`.
+- Sujeto invalidado inicial: ZIP SHA-256 `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`, fuente `b171f51cb58c60ed8c8a99b60386117f9fed6822`. Sujeto vigente recalificado: ZIP alojado `cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0`, fuente exacta `bd564cdba07b616337681c15801d22478824108b`.
 - No abrir SQLite, editar Markdown generado, reutilizar destinos, bajar gates, ampliar contratos ni atribuir autoridad a Codex/GSP.
 - Cada etapa termina con prueba fresca, reporte, bitácora y commit; un fallo detiene el contador.
 - Las ocho etapas comparten una fase Ledger `phase:operational-acceptance`; sus ocho gates se verifican progresivamente y la fase sólo se cierra en Task 8.
@@ -25,9 +25,9 @@
 
 **Produces:** estado `NOT_STARTED`, 0/8, sin evidencia del piloto atribuida.
 
-- [ ] Verificar checkout limpio, branch y hashes del artefacto.
-- [ ] Persistir autoridad, matriz y reporte JSON parseable.
-- [ ] Validar links, diff y consistencia 0/8; commit `docs: define operational acceptance pilot`.
+- [x] Verificar checkout limpio, branch y hashes del artefacto.
+- [x] Persistir autoridad, matriz y reporte JSON parseable.
+- [x] Validar links, diff y consistencia 0/8; commit `b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2`.
 
 ### Task 1: Runner — RED/GREEN y preflight
 
@@ -35,17 +35,17 @@
 
 **Interface:** `run-operational-pilot.ps1 -LedgerZip <zip> -PilotRoot <new-dir> -Stage <1..8> [-GspPython <exe> -GspSourceRoot <dir>]`.
 
-- [ ] RED: probar hash incorrecto, destino existente, ZIP sin binario, versión/capacidad ausente y evitar uso de `target`.
-- [ ] GREEN: implementar extracción nueva, entorno mínimo, captura sanitizada y manifest de evidencia.
-- [ ] Ejecutar Stage 1, inicializar y configurar el proyecto mediante CLI; validar S01…S03.
-- [ ] Actualizar 1/8 y commit `test: establish operational pilot identity`.
+- [x] RED/GREEN: probar hash incorrecto y destino existente; validar binario, versión/capacidades y evitar uso de `target` durante el preflight real.
+- [x] GREEN: implementar extracción nueva, entorno mínimo, captura sanitizada y manifest de evidencia.
+- [x] Ejecutar Stage 1 desde el ZIP hosted exacto, inicializar y configurar el proyecto mediante CLI; validar S01…S03.
+- [x] Actualizar 1/8 en el commit `fd92e43134b779ddd09613fb74924d82b3259937`.
 
 ### Task 2: Gobierno del proyecto
 
-- [ ] Ejecutar queries con tupla versión/digest antes/después.
-- [ ] Probar rechazo agente de acción humana y supersesión auxiliar humana autorizada.
-- [ ] Verificar que archivos/pruebas no cierran lifecycle; validar S04…S07.
-- [ ] Actualizar 2/8 y commit `test: validate governed project model`.
+- [x] Ejecutar diez queries con tupla versión/digest antes/después y delta cero.
+- [x] Probar `exit 9` y delta cero para un agente, más refresh/supersesión auxiliar humana autorizada con historia preservada.
+- [x] Vincular un repositorio-canary declarativamente, registrar artifact por agente y verificar que archivos/pruebas no cierran lifecycle; validar S04…S07.
+- [x] Actualizar 2/8 y registrar el cierre en el commit independiente de Stage 2.
 
 ### Task 3: Bitácora y continuidad
 

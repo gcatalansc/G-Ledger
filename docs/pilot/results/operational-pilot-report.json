@@ -23,19 +23,20 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1],
-    "percentage": 12.5
+    "completed_stages": [1, 2],
+    "percentage": 25
   },
   "project_identity": {
     "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f",
     "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/data/project-ledger/projects/01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f/ledger.db",
-    "latest_state_version": 15,
+    "latest_state_version": 21,
+    "latest_state_digest": "sha256:56bd02631f0b9eea64a98bad3635c8bf037a931c40921e56a2159e42fd6e9a0f",
     "latest_checkpoint_ref": null,
     "latest_checkpoint_freshness": null
   },
   "stages": [
     {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-1-hosted-qualification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
-    {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "IN_PROGRESS", "evidence": []},
+    {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-2-governed-model.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-2-governed-model.json"]},
     {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "NOT_RUN", "evidence": []},
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "NOT_RUN", "evidence": []},
@@ -47,10 +48,10 @@
     {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json"]},
     {"id":"OPA-S02","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
     {"id":"OPA-S03","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
-    {"id":"OPA-S04","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S05","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S06","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S07","stage":2,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S04","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
+    {"id":"OPA-S05","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
+    {"id":"OPA-S06","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
+    {"id":"OPA-S07","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
     {"id":"OPA-S08","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S09","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S10","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -119,7 +120,7 @@
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
     "The first hosted artifact remains rejected evidence; the replacement qualifier checked out and packaged the authorized candidate SHA exactly",
-    "Seven governed stages remain and no operational adoption decision has been made",
+    "Six governed stages remain and no operational adoption decision has been made",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
 }

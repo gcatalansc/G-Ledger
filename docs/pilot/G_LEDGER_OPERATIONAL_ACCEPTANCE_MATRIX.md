@@ -1,6 +1,6 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado inicial: `NOT_STARTED`, 0/8. Esta matriz asigna evidencia; no concede PASS antes de ejecutar escenarios.
+Estado actual: `IN_PROGRESS`, 2/8, 25 %. OPA-S01…OPA-S07 disponen de evidencia `LIVE_PILOT`; las etapas 3–8 permanecen sin ejecutar y esta matriz no concede adopción operativa.
 
 ## Principios P-01…P-10
 

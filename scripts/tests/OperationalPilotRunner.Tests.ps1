@@ -89,3 +89,70 @@ Describe 'Operational pilot runner Stage 1 preflight' {
         (Test-Path -LiteralPath (Join-Path $pilotRoot 'instalación con espacios')) | Should Be $false
     }
 }
+
+Describe 'Operational pilot runner Stage 2 governed model' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\bd564cd\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = '19429f1a9cb4431ec6f9bb06d18f5c8b49310666e894763ec45228bd083d0884'
+    $expectedSourceCommit = 'bd564cdba07b616337681c15801d22478824108b'
+
+    It 'proves read-only queries, authority boundaries, supersession history, and fail-closed lifecycle' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 2 á governed model'
+
+        $null = & $runner `
+            -Stage 1 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $repositoryRoot `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit
+
+        $result = & $runner `
+            -Stage 2 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $repositoryRoot `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-2-governed-model.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+
+        $manifest.profile | Should Be 'project-ledger-operational-pilot-stage/1'
+        $manifest.stage | Should Be 2
+        $manifest.status | Should Be 'GOVERNED_MODEL_PASS'
+        $manifest.read_only.before_state_version | Should Be 15
+        $manifest.read_only.after_state_version | Should Be 15
+        $manifest.read_only.before_state_digest | Should Be $manifest.read_only.after_state_digest
+        $manifest.read_only.queries.Count | Should Be 10
+        ($manifest.read_only.queries | Where-Object { $_.exit_code -ne 0 }).Count | Should Be 0
+        $manifest.agent_authority_attempt.exit_code | Should Be 9
+        $manifest.agent_authority_attempt.state_version_delta | Should Be 0
+        $manifest.agent_authority_attempt.state_digest_unchanged | Should Be $true
+        $manifest.authority_history.original_document_ref | Should Be 'authority:opa-aux-v1'
+        $manifest.authority_history.original_status | Should Be 'SUPERSEDED'
+        $manifest.authority_history.replacement_document_ref | Should Be 'authority:opa-aux-v2'
+        $manifest.authority_history.replacement_status | Should Be 'CURRENT'
+        $manifest.authority_history.original_digest_preserved | Should Be $true
+        $manifest.authority_history.replacement_supersedes_original | Should Be $true
+        $manifest.lifecycle.state_version | Should Be 21
+        $manifest.lifecycle.project_status | Should Be 'ACTIVE'
+        $manifest.lifecycle.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.lifecycle.completed_phase_count | Should Be 0
+        $manifest.lifecycle.completed_project_without_command | Should Be $false
+        $manifest.lifecycle.all_gates_unverified | Should Be $true
+        $manifest.repository_safety.binding_mode | Should Be 'DECLARATIVE_READ_ONLY'
+        $manifest.repository_safety.canary_executed | Should Be $false
+        $manifest.repository_safety.binding_present | Should Be $true
+        $manifest.artifact_reference.present | Should Be $true
+        $manifest.scenarios.'OPA-S04' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S05' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S06' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S07' | Should Be 'PASS'
+        $result.stage | Should Be 2
+        $result.status | Should Be 'GOVERNED_MODEL_PASS'
+    }
+}

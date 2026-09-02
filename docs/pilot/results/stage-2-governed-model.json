@@ -1,0 +1,81 @@
+{
+  "profile": "project-ledger-operational-pilot-evidence/1",
+  "recorded_at": "2026-09-02T22:42:25Z",
+  "stage": 2,
+  "status": "PASS",
+  "proof_class": "LIVE_PILOT",
+  "subject": {
+    "source_commit": "bd564cdba07b616337681c15801d22478824108b",
+    "zip_sha256": "sha256:cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
+    "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f"
+  },
+  "read_only_queries": {
+    "commands": ["status", "doctor", "authority.list", "repository.list", "roadmap.show", "phase.list", "gate.list", "gate.show", "artifact.list", "audit"],
+    "count": 10,
+    "failed": 0,
+    "before_state_version": 15,
+    "after_state_version": 15,
+    "before_state_digest": "sha256:7c53a83b5cc5acabbc4c9b5a5d7f6b793bc2cf8ea4f764d81fb34aa73c7202cf",
+    "after_state_digest": "sha256:7c53a83b5cc5acabbc4c9b5a5d7f6b793bc2cf8ea4f764d81fb34aa73c7202cf"
+  },
+  "authority_boundary": {
+    "actor_id": "agent:opa-stage2",
+    "attempted_action": "REGISTER_AUTHORITY_DOCUMENT",
+    "as_human_used": false,
+    "exit_code": 9,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true
+  },
+  "authority_history": {
+    "original": {
+      "document_ref": "authority:opa-aux-v1",
+      "status": "SUPERSEDED",
+      "digest": "sha256:6ddf740bbaa6ac9c7555bc7b10d28b48849bb4fae36b34148406632e0985622a",
+      "digest_preserved": true,
+      "refresh_performed": true
+    },
+    "replacement": {
+      "document_ref": "authority:opa-aux-v2",
+      "status": "CURRENT",
+      "digest": "sha256:c5cddecc47e5d6875feb8eec4781d07c81d0e19773ad5f960525ca32aed5fec7",
+      "supersedes_ref": "authority:opa-aux-v1"
+    }
+  },
+  "repository_binding": {
+    "binding_ref": "binding:opa-stage2-canary",
+    "mode": "DECLARATIVE_READ_ONLY",
+    "binding_present": true,
+    "git_hook_canary_executed": false,
+    "repository_content_canary_executed": false
+  },
+  "artifact_reference": {
+    "artifact_ref": "artifact:opa-stage2-authority",
+    "present": true,
+    "recorded_by": "agent:opa-harness",
+    "lifecycle_authority_acquired": false
+  },
+  "final_state": {
+    "state_version": 21,
+    "state_digest": "sha256:56bd02631f0b9eea64a98bad3635c8bf037a931c40921e56a2159e42fd6e9a0f",
+    "project_status": "ACTIVE",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "verified_gate_count": 0,
+    "waived_gate_count": 0,
+    "doctor_integrity": "ok",
+    "audit_integrity": "ok",
+    "audit_finding_count": 0
+  },
+  "scenarios": [
+    {"id":"OPA-S04","status":"PASS"},
+    {"id":"OPA-S05","status":"PASS"},
+    {"id":"OPA-S06","status":"PASS"},
+    {"id":"OPA-S07","status":"PASS"}
+  ],
+  "authorization": {
+    "human_actor": "human:owner",
+    "scope": "Disposable Stage 2 authority and repository fixtures only",
+    "general_availability_granted": false,
+    "external_certification_granted": false
+  }
+}
