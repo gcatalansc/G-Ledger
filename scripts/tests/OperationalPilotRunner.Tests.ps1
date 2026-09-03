@@ -225,3 +225,81 @@ Describe 'Operational pilot runner Stage 3 high-level continuity' {
         $result.status | Should Be 'HIGH_LEVEL_CONTINUITY_PASS'
     }
 }
+
+Describe 'Operational pilot runner Stage 4 evidence and lifecycle' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'keeps observed evidence incomplete, records one verified sink effect, and preserves lifecycle authority' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 4 á evidence lifecycle'
+
+        foreach ($stage in 1..4) {
+            $result = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-4-evidence-lifecycle.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+
+        $manifest.profile | Should Be 'project-ledger-operational-pilot-stage/1'
+        $manifest.stage | Should Be 4
+        $manifest.status | Should Be 'EVIDENCE_LIFECYCLE_PASS'
+        $manifest.proof_class | Should Be 'LIVE_PILOT'
+        $manifest.observed_evidence.status | Should Be 'OBSERVED'
+        $manifest.observed_evidence.execution_exit_code | Should Be 0
+        $manifest.observed_evidence.gate_evaluation_exit_code | Should Be 6
+        $manifest.observed_evidence.gate_verified | Should Be $false
+        $manifest.observed_evidence.phase_close_exit_code | Should Be 6
+        $manifest.observed_evidence.phase_remained_active | Should Be $true
+        $manifest.record_sink.validate_status | Should Be 'VALID'
+        $manifest.record_sink.submit_status | Should Be 'ACCEPTED'
+        $manifest.record_sink.replay_status | Should Be 'DUPLICATE_REPLAY'
+        $manifest.record_sink.status_lookup | Should Be 'FOUND'
+        $manifest.record_sink.reconcile_lookup | Should Be 'FOUND'
+        $manifest.record_sink.state_version_delta | Should Be 1
+        $manifest.record_sink.replay_state_version_delta | Should Be 0
+        $manifest.record_sink.evidence_status | Should Be 'VERIFIED_SOURCE'
+        $manifest.record_sink.raw_output_stored | Should Be $false
+        $manifest.lifecycle.gate_opa_04_after_verified_evidence | Should Be 'VERIFIED'
+        $manifest.lifecycle.phase_close_after_gate_exit_code | Should Be 6
+        $manifest.lifecycle.phase_status | Should Be 'ACTIVE'
+        $manifest.lifecycle.completed_phase_count | Should Be 0
+        $manifest.lifecycle.external_lifecycle_event_count | Should Be 0
+        $manifest.freshness.gate_status_after_authority_change | Should Be 'REVALIDATION_REQUIRED'
+        $manifest.freshness.checkpoint_after_authority_change | Should Be 'STALE_FOR_AUTHORITY'
+        $manifest.freshness.gate_status_after_revalidation | Should Be 'VERIFIED'
+        $manifest.freshness.replacement_checkpoint | Should Be 'CURRENT'
+        $manifest.waiver.optional_gate_status | Should Be 'WAIVED'
+        $manifest.waiver.critical_waiver_exit_code | Should Be 3
+        $manifest.waiver.critical_gate_status | Should Be 'PENDING'
+        $manifest.waiver.critical_attempt_state_version_delta | Should Be 0
+        $manifest.boundary.project_status | Should Be 'BLOCKED'
+        $manifest.boundary.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.boundary.open_blocker_ref | Should Be 'blocker:opa-stage5-transaction'
+        $manifest.boundary.next_action_ref | Should Be 'action:opa-stage5-transaction'
+        $manifest.boundary.stage_5_executed | Should Be $false
+        $manifest.boundary.merge_performed | Should Be $false
+        $manifest.boundary.release_performed | Should Be $false
+        $manifest.boundary.operational_acceptance_declared | Should Be $false
+        $manifest.lifecycle_authority.gate_engine_only | Should Be $true
+        $manifest.lifecycle_authority.phase_engine_only | Should Be $true
+        $manifest.lifecycle_authority.record_sink_claims_lifecycle_authority | Should Be $false
+        $manifest.scenarios.'OPA-S11' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S12' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S13' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S14' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S15' | Should Be 'PASS'
+        $result.stage | Should Be 4
+        $result.status | Should Be 'EVIDENCE_LIFECYCLE_PASS'
+    }
+}

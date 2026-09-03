@@ -1,6 +1,6 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado actual: `IN_PROGRESS`, 3/8, 37,5 %. OPA-S01…OPA-S10 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; las etapas 4–8 permanecen sin ejecutar y esta matriz no concede adopción operativa.
+Estado actual: `IN_PROGRESS`, 4/8, 50 %. OPA-S01…OPA-S15 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; las etapas 5–8 permanecen sin ejecutar y esta matriz no concede adopción operativa. Stage 4 dejó `gate:opa-04` verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa.
 
 ## Principios P-01…P-10
 

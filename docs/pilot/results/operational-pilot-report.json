@@ -23,22 +23,22 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2, 3],
-    "percentage": 37.5
+    "completed_stages": [1, 2, 3, 4],
+    "percentage": 50.0
   },
   "project_identity": {
     "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
     "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/data/project-ledger/projects/01a0697c-34b6-7042-a751-fbfb30a06a49/ledger.db",
-    "latest_state_version": 44,
-    "latest_state_digest": "sha256:21f807755ed2e2997de19350246bfc75c56c192a6e8aad07a73645ff709d2cb4",
-    "latest_checkpoint_ref": "checkpoint:db31ff0f-f10c-7fb8-abb0-bbd83a598f30",
+    "latest_state_version": 66,
+    "latest_state_digest": "sha256:5780053af5bcb8db14268170a825a5eaaf9cd0f38e6afb794ca64dd08aa85975",
+    "latest_checkpoint_ref": "checkpoint:74eefb11-ad42-7d14-ac57-b1efea643b4b",
     "latest_checkpoint_freshness": "CURRENT"
   },
   "stages": [
     {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-1-preflight.json"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
     {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
-    {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
+    {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "PASS", "evidence": ["docs/pilot/results/stage-4-evidence-lifecycle.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "NOT_RUN", "evidence": []},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "NOT_RUN", "evidence": []},
     {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "NOT_RUN", "evidence": []},
@@ -55,11 +55,11 @@
     {"id":"OPA-S08","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
     {"id":"OPA-S09","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
     {"id":"OPA-S10","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
-    {"id":"OPA-S11","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S12","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S13","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S14","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S15","stage":4,"critical":false,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S11","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S12","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S13","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S14","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S15","stage":4,"critical":false,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
     {"id":"OPA-S16","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S17","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S18","stage":5,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -141,8 +141,8 @@
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
     "The bd564cd artifact invalidated by OPA-DEFECT-003 and its blocked Stage 3 attempt remain historical evidence; the active subject is the hosted exact-SHA 99fdaab package",
-    "Five governed stages remain and no operational adoption decision has been made",
-    "The governed project is intentionally BLOCKED by the open Stage 4 blocker and material unknown; all nine gates remain unverified",
+    "Four governed stages remain and no operational adoption decision has been made",
+    "The governed project is intentionally BLOCKED by blocker:opa-stage5-transaction; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
 }

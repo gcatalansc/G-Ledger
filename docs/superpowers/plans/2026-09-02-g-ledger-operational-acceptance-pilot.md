@@ -59,10 +59,10 @@
 
 **Files:** cliente de ensayo no distribuido, fixtures exactos de policy/comando y tests de proceso real.
 
-- [ ] RED: el cliente aún ausente debe impedir demostrar validate/submit/status/reconcile sobre el ZIP.
-- [ ] GREEN: implementar framing Content-Length, digests canónicos y fixture dinámico sin acceso SQLite.
-- [ ] Probar OBSERVED incompleto, VERIFIED_SOURCE por sink, gate/phase, stale/revalidation y waiver opcional; validar S11…S15.
-- [ ] Actualizar 4/8 y commit `test: validate evidence and lifecycle boundaries`.
+- [x] RED: el cliente aún ausente debe impedir demostrar validate/submit/status/reconcile sobre el ZIP.
+- [x] GREEN: implementar framing Content-Length, digests canónicos y fixture dinámico sin acceso SQLite.
+- [x] Probar OBSERVED incompleto, VERIFIED_SOURCE por sink, gate/phase, stale/revalidation y waiver opcional; validar S11…S15.
+- [x] Actualizar 4/8 y commit `test: validate evidence and lifecycle boundaries`.
 
 ### Task 5: Idempotencia y reconciliación
 
@@ -96,3 +96,13 @@
 ## Failure protocol
 
 Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abrir blocker, aplicar `systematic-debugging`, reproducir RED y corregir sólo dentro de contratos v0.2. Un nuevo candidato invalida evidencia posterior del anterior. No hacer push ni release sin solicitud explícita.
+
+## 2026-09-03 — Stage 4 ejecutado y conciliado, 4/8
+
+- RED real: la suite falló con `PILOT_STAGE_NOT_IMPLEMENTED: stage 4`. El cliente no distribuido quedó separado en `scripts/invoke-record-sink-rpc.ps1`; usa framing `Content-Length` por bytes UTF-8 y emite exactamente un documento JSON.
+- GREEN: 6/6 pruebas PowerShell pasaron, incluido el recorrido completo Stage 1→4 sobre una copia temporal. Los errores intermedios del harness se aislaron con depuración sistemática y no exigieron modificar el producto, sus contratos, schemas, locks, 53 comandos ni 67 eventos.
+- Ejecución viva: el proyecto `project:01a0697c-34b6-7042-a751-fbfb30a06a49` y el ZIP alojado `e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851` pasaron OPA-S11…OPA-S15. `gate:opa-04` quedó `VERIFIED`; el gate opcional quedó `WAIVED`; el gate crítico `gate:opa-08` permaneció `PENDING` tras un rechazo exit 3/delta cero.
+- Cierre controlado: state version 66, digest `sha256:5780053af5bcb8db14268170a825a5eaaf9cd0f38e6afb794ca64dd08aa85975`, checkpoint `checkpoint:74eefb11-ad42-7d14-ac57-b1efea643b4b` `CURRENT`, fase activa y cero fases completadas. `doctor`, `verify` y `audit` informaron integridad `ok`, cero findings y cero submissions sin resolver.
+- Límite: `blocker:opa-stage5-transaction` mantiene el proyecto `BLOCKED`; `action:opa-stage5-transaction` sólo es `RECOMMENDED`. No se ejecutaron Stage 5, merge, release ni aceptación operativa.
+
+**Siguiente paso:** solicitar autorización humana explícita para Stage 5. Sin ella, no ejecutar replay/conflict/version/outcome-unknown del piloto ni cambiar el contador de 4/8.
