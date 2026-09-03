@@ -2252,3 +2252,11 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Se publicaron la rama candidata exacta `codex/g-ledger-opa-candidate-99fdaab` y la rama auxiliar `codex/g-ledger-opa-exact-ci-99fdaab`. El commit calificador `ff2590554bfdd9ed9078248cbe98e69af881f3fa` fija y comprueba checkout limpio de `99fdaab` en los cuatro jobs primarios y nombra el artefacto por ese SHA; el workflow parsea y su comprobación estática pasa. El PR privado draft aún no se ha creado, por lo que la CI hosted y la nueva evidencia siguen pendientes.
 
 **Siguiente paso:** tras confirmación humana en el punto de publicación, crear el PR privado draft del calificador, esperar 6/6, descargar/verificar su ZIP y repetir Stage 3 desde un destino nuevo. Sólo un resultado completo S08…S10 permitirá actualizar a 3/8; Stage 4 no está autorizado.
+
+## 2026-09-03 — Recalificación exacta de OPA-DEFECT-003 iniciada, continúa 2/8
+
+- Con autorización humana explícita se creó el PR privado draft [#3](https://github.com/gcatalansc/G-Ledger/pull/3), base `main`, head `codex/g-ledger-opa-exact-ci-99fdaab`. Su descripción fija el candidato `99fdaab52bcec7003bab02e4cfee45059a4bf737`, el calificador `ff2590554bfdd9ed9078248cbe98e69af881f3fa` y prohíbe merge, release, Stage 4, GA o certificación.
+- GitHub Actions activó el run [33813281940](https://github.com/gcatalansc/G-Ledger/actions/runs/33813281940) por `pull_request`. Al observarlo, `test-windows-latest`, `dependency-policy`, `physical-disk-full-chaos` y `live-gsp-sidecar-chaos` estaban en ejecución; `test-ubuntu-latest` y `test-macos-latest` permanecían en cola. La evidencia sanitizada del arranque está en `docs/pilot/results/stage-3-requalification-start.json`.
+- La apertura del PR es el vehículo de prueba hosted de G-Ledger, no una promoción. Todavía no existe resultado 6/6 ni ZIP hosted nuevo, por lo que `OPA-DEFECT-003` conserva `FIXED_LOCALLY_REQUALIFICATION_PENDING`, Stage 3 sigue `BLOCKED` y el avance oficial permanece **2/8, 25 %**.
+
+**Siguiente paso:** esperar la terminación del run `33813281940`; si concluye 6/6, descargar y verificar el ZIP exact-SHA en un destino nuevo y repetir Stage 3. No iniciar Stage 4 ni ejecutar merge o release.

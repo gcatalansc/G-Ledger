@@ -127,6 +127,9 @@
       "candidate_invalidated": "sha256:cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
       "fix_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
       "qualifier_commit": "ff2590554bfdd9ed9078248cbe98e69af881f3fa",
+      "qualifier_pr": "https://github.com/gcatalansc/G-Ledger/pull/3",
+      "requalification_run_id": 33813281940,
+      "requalification_status": "IN_PROGRESS",
       "requalification_evidence": "PENDING"
     }
   ],
@@ -135,7 +138,7 @@
   "limitations": [
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
-    "The previously qualified bd564cd artifact is invalidated by OPA-DEFECT-003; its Stage 1 and Stage 2 evidence remains historical while the fix candidate awaits hosted requalification",
+    "The previously qualified bd564cd artifact is invalidated by OPA-DEFECT-003; its Stage 1 and Stage 2 evidence remains historical while hosted run 33813281940 requalifies the exact fix candidate",
     "Six governed stages remain and no operational adoption decision has been made",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
