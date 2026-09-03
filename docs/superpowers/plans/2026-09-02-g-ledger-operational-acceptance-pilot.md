@@ -12,7 +12,7 @@
 
 - Autoridad de producto: `specs/PROJECT_LEDGER_SPEC_v0.2.0.md`.
 - Autoridad del piloto: `docs/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_PILOT_SPEC_v1.0.0.md`.
-- Sujeto invalidado inicial: ZIP SHA-256 `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`, fuente `b171f51cb58c60ed8c8a99b60386117f9fed6822`. Sujeto vigente recalificado: ZIP alojado `cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0`, fuente exacta `bd564cdba07b616337681c15801d22478824108b`.
+- Sujetos invalidados: ZIP inicial `a83624f2e795c8b8d3d9e15a316be38cce8999e437731b73f5f8c8964963ad80`, fuente `b171f51cb58c60ed8c8a99b60386117f9fed6822`; y ZIP `cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0`, fuente `bd564cdba07b616337681c15801d22478824108b`, invalidado por OPA-DEFECT-003. Sujeto vigente recalificado: ZIP alojado `e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851`, fuente exacta `99fdaab52bcec7003bab02e4cfee45059a4bf737`.
 - No abrir SQLite, editar Markdown generado, reutilizar destinos, bajar gates, ampliar contratos ni atribuir autoridad a Codex/GSP.
 - Cada etapa termina con prueba fresca, reporte, bitácora y commit; un fallo detiene el contador.
 - Las ocho etapas comparten una fase Ledger `phase:operational-acceptance`; sus ocho gates se verifican progresivamente y la fase sólo se cierra en Task 8.
@@ -49,10 +49,11 @@
 
 ### Task 3: Bitácora y continuidad
 
-- [ ] Registrar objetos materiales definidos por S08 con claves únicas y versiones frescas.
-- [ ] Resolver/mitigar/supersede y comprobar preservación mediante vistas.
-- [ ] Crear checkpoint, cerrar sesión y verificar resume JSON/Codex; validar S08…S10.
-- [ ] Actualizar 3/8 y commit `test: validate high-level continuity`.
+- [x] Registrar objetos materiales definidos por S08 con claves únicas y versiones frescas.
+- [x] Resolver/mitigar/supersede y comprobar preservación mediante vistas.
+- [x] Crear checkpoint, cerrar sesión y verificar resume JSON/Codex; validar S08…S10.
+- [x] Recalificar OPA-DEFECT-003 mediante CI alojada 6/6 y repetir Stage 1→3 desde el ZIP exacto en un proyecto nuevo.
+- [x] Actualizar 3/8 y commit independiente de cierre de continuidad.
 
 ### Task 4: Evidencia, gates y RecordSink
 

@@ -1,20 +1,20 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "BLOCKED",
+  "status": "IN_PROGRESS",
   "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,
   "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
   "subject": {
     "product_version": "0.2.0",
-    "binary_source_commit": "bd564cdba07b616337681c15801d22478824108b",
-    "zip_path": "github-actions://runs/33688474112/artifacts/9869765807/project-ledger-0.2.0-windows-x86_64.zip",
-    "zip_sha256": "cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
-    "candidate_superseded": true,
-    "qualification": "INVALIDATED_BY_STAGE_3_DEFECT",
-    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33688474112",
-    "hosted_artifact_id": 9869765807,
-    "hosted_archive_digest": "sha256:30401085722fffc5424ca25a440dbbfdc999bcd805aeca266e606145ff981bc3",
-    "hosted_source_commit": "bd564cdba07b616337681c15801d22478824108b"
+    "binary_source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "zip_path": "github-actions://runs/33813281940/artifacts/9916188037/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "candidate_superseded": false,
+    "qualification": "HOSTED_REQUALIFIED",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33813281940",
+    "hosted_artifact_id": 9916188037,
+    "hosted_archive_digest": "sha256:8d5e3b78f8edcebe6ba51b7135ec1f0a46f706f9b899138997117f146cd16e43",
+    "hosted_source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737"
   },
   "scope": {
     "included": ["windows", "core-cli", "codex", "gskills-local-provider", "gskills-local-record-sink", "gsp-exact-2026.04.12"],
@@ -23,21 +23,21 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2],
-    "percentage": 25
+    "completed_stages": [1, 2, 3],
+    "percentage": 37.5
   },
   "project_identity": {
-    "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f",
-    "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/data/project-ledger/projects/01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f/ledger.db",
+    "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+    "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/data/project-ledger/projects/01a0697c-34b6-7042-a751-fbfb30a06a49/ledger.db",
     "latest_state_version": 44,
-    "latest_state_digest": "sha256:d36a5993b54e9a11a69d73048359b1063872aac824b483ca66835926e8b70c22",
-    "latest_checkpoint_ref": "checkpoint:0e1a3d99-0af7-77c2-9e5c-6ec551745b4d",
-    "latest_checkpoint_freshness": "STALE_FOR_AUTHORITY"
+    "latest_state_digest": "sha256:21f807755ed2e2997de19350246bfc75c56c192a6e8aad07a73645ff709d2cb4",
+    "latest_checkpoint_ref": "checkpoint:db31ff0f-f10c-7fb8-abb0-bbd83a598f30",
+    "latest_checkpoint_freshness": "CURRENT"
   },
   "stages": [
-    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-1-hosted-qualification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
-    {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-2-governed-model.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-2-governed-model.json"]},
-    {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "BLOCKED", "evidence": ["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-3-high-level-continuity.json"]},
+    {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-1-preflight.json"]},
+    {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
+    {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "NOT_RUN", "evidence": []},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "NOT_RUN", "evidence": []},
@@ -45,16 +45,16 @@
     {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
   ],
   "scenario_results": [
-    {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json"]},
-    {"id":"OPA-S02","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
-    {"id":"OPA-S03","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-1-hosted-qualification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
-    {"id":"OPA-S04","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
-    {"id":"OPA-S05","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
-    {"id":"OPA-S06","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
-    {"id":"OPA-S07","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
-    {"id":"OPA-S08","stage":3,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
-    {"id":"OPA-S09","stage":3,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
-    {"id":"OPA-S10","stage":3,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
+    {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json"]},
+    {"id":"OPA-S02","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-1-preflight.json"]},
+    {"id":"OPA-S03","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-1-preflight.json"]},
+    {"id":"OPA-S04","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
+    {"id":"OPA-S05","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
+    {"id":"OPA-S06","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
+    {"id":"OPA-S07","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
+    {"id":"OPA-S08","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
+    {"id":"OPA-S09","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
+    {"id":"OPA-S10","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-3-high-level-continuity.json"]},
     {"id":"OPA-S11","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S12","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S13","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -116,7 +116,7 @@
     {
       "id": "OPA-DEFECT-003",
       "severity": "CRITICAL",
-      "status": "FIXED_LOCALLY_REQUALIFICATION_PENDING",
+      "status": "FIXED_AND_REQUALIFIED",
       "stage": 3,
       "summary": "A fresh checkpoint was classified STALE_FOR_AUTHORITY solely because valid SUPERSEDED authority history remained queryable",
       "observed_behavior": "Stage 3 reached state version 43, created checkpoint checkpoint:0e1a3d99-0af7-77c2-9e5c-6ec551745b4d and resume immediately reported STALE_FOR_AUTHORITY; the defect blocker advanced the governed project to version 44 and BLOCKED",
@@ -129,8 +129,10 @@
       "qualifier_commit": "ff2590554bfdd9ed9078248cbe98e69af881f3fa",
       "qualifier_pr": "https://github.com/gcatalansc/G-Ledger/pull/3",
       "requalification_run_id": 33813281940,
-      "requalification_status": "IN_PROGRESS",
-      "requalification_evidence": "PENDING"
+      "requalification_artifact_id": 9916188037,
+      "hosted_candidate_zip_sha256": "sha256:e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+      "requalification_status": "PASS",
+      "requalification_evidence": "docs/pilot/results/stage-3-hosted-requalification.json"
     }
   ],
   "critical_waivers": [],
@@ -138,8 +140,9 @@
   "limitations": [
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
-    "The previously qualified bd564cd artifact is invalidated by OPA-DEFECT-003; its Stage 1 and Stage 2 evidence remains historical while hosted run 33813281940 requalifies the exact fix candidate",
-    "Six governed stages remain and no operational adoption decision has been made",
+    "The bd564cd artifact invalidated by OPA-DEFECT-003 and its blocked Stage 3 attempt remain historical evidence; the active subject is the hosted exact-SHA 99fdaab package",
+    "Five governed stages remain and no operational adoption decision has been made",
+    "The governed project is intentionally BLOCKED by the open Stage 4 blocker and material unknown; all nine gates remain unverified",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
 }
