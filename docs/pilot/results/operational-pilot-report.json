@@ -1,6 +1,6 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "IN_PROGRESS",
+  "status": "BLOCKED",
   "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,
   "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
@@ -9,8 +9,8 @@
     "binary_source_commit": "bd564cdba07b616337681c15801d22478824108b",
     "zip_path": "github-actions://runs/33688474112/artifacts/9869765807/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
-    "candidate_superseded": false,
-    "qualification": "HOSTED_PASS",
+    "candidate_superseded": true,
+    "qualification": "INVALIDATED_BY_STAGE_3_DEFECT",
     "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33688474112",
     "hosted_artifact_id": 9869765807,
     "hosted_archive_digest": "sha256:30401085722fffc5424ca25a440dbbfdc999bcd805aeca266e606145ff981bc3",
@@ -29,15 +29,15 @@
   "project_identity": {
     "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f",
     "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/data/project-ledger/projects/01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f/ledger.db",
-    "latest_state_version": 21,
-    "latest_state_digest": "sha256:56bd02631f0b9eea64a98bad3635c8bf037a931c40921e56a2159e42fd6e9a0f",
-    "latest_checkpoint_ref": null,
-    "latest_checkpoint_freshness": null
+    "latest_state_version": 44,
+    "latest_state_digest": "sha256:d36a5993b54e9a11a69d73048359b1063872aac824b483ca66835926e8b70c22",
+    "latest_checkpoint_ref": "checkpoint:0e1a3d99-0af7-77c2-9e5c-6ec551745b4d",
+    "latest_checkpoint_freshness": "STALE_FOR_AUTHORITY"
   },
   "stages": [
     {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-1-hosted-qualification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-1-preflight.json"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-2-governed-model.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-2-governed-model.json"]},
-    {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "NOT_RUN", "evidence": []},
+    {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "BLOCKED", "evidence": ["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33688474112/evidence/stage-3-high-level-continuity.json"]},
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "NOT_RUN", "evidence": []},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "NOT_RUN", "evidence": []},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "NOT_RUN", "evidence": []},
@@ -52,9 +52,9 @@
     {"id":"OPA-S05","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
     {"id":"OPA-S06","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
     {"id":"OPA-S07","stage":2,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-2-governed-model.json"]},
-    {"id":"OPA-S08","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S09","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S10","stage":3,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
+    {"id":"OPA-S08","stage":3,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
+    {"id":"OPA-S09","stage":3,"critical":true,"status":"INVALIDATED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
+    {"id":"OPA-S10","stage":3,"critical":true,"status":"BLOCKED","proof_class":"LIVE_PILOT","evidence":["docs/pilot/results/stage-3-blocked-checkpoint-authority-history.json"]},
     {"id":"OPA-S11","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S12","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
     {"id":"OPA-S13","stage":4,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
@@ -112,6 +112,22 @@
       "requalification_run_id": 33688474112,
       "requalification_artifact_id": 9869765807,
       "requalification_evidence": "docs/pilot/results/stage-1-hosted-qualification.json"
+    },
+    {
+      "id": "OPA-DEFECT-003",
+      "severity": "CRITICAL",
+      "status": "FIXED_LOCALLY_REQUALIFICATION_PENDING",
+      "stage": 3,
+      "summary": "A fresh checkpoint was classified STALE_FOR_AUTHORITY solely because valid SUPERSEDED authority history remained queryable",
+      "observed_behavior": "Stage 3 reached state version 43, created checkpoint checkpoint:0e1a3d99-0af7-77c2-9e5c-6ec551745b4d and resume immediately reported STALE_FOR_AUTHORITY; the defect blocker advanced the governed project to version 44 and BLOCKED",
+      "root_cause": "initial_checkpoint_freshness treated every authority document not in CURRENT state as stale, including preserved SUPERSEDED history",
+      "reproduction": "checkpoint_created_after_authority_supersession_treats_preserved_history_as_current",
+      "mutation_observed": true,
+      "contract_change_required": false,
+      "candidate_invalidated": "sha256:cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
+      "fix_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+      "qualifier_commit": "ff2590554bfdd9ed9078248cbe98e69af881f3fa",
+      "requalification_evidence": "PENDING"
     }
   ],
   "critical_waivers": [],
@@ -119,7 +135,7 @@
   "limitations": [
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
-    "The first hosted artifact remains rejected evidence; the replacement qualifier checked out and packaged the authorized candidate SHA exactly",
+    "The previously qualified bd564cd artifact is invalidated by OPA-DEFECT-003; its Stage 1 and Stage 2 evidence remains historical while the fix candidate awaits hosted requalification",
     "Six governed stages remain and no operational adoption decision has been made",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]

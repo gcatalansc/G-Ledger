@@ -86,6 +86,526 @@ function Get-PilotTextDigest {
     return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
 }
 
+if ($Stage -eq 3) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $fixtureDirectory = Join-Path $resolvedPilotRoot 'fixtures'
+    $stageOneManifestPath = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+    $stageTwoManifestPath = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+    $stageThreeManifestPath = Join-Path $evidenceDirectory 'stage-3-high-level-continuity.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    foreach ($requiredPath in @(
+        $stageOneManifestPath,
+        $stageTwoManifestPath,
+        $locatorPath,
+        $ledger,
+        $packageManifestPath
+    )) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_2_EVIDENCE_MISSING: $requiredPath"
+        }
+    }
+    if (Test-Path -LiteralPath $stageThreeManifestPath) {
+        throw "PILOT_STAGE_ALREADY_EXECUTED: $stageThreeManifestPath"
+    }
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    if ($actualZipHash -ne $ExpectedZipSha256.ToLowerInvariant()) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $($ExpectedZipSha256.ToLowerInvariant()); actual $actualZipHash"
+    }
+    $stageOneManifest = Get-Content -Raw -LiteralPath $stageOneManifestPath | ConvertFrom-Json
+    $stageTwoManifest = Get-Content -Raw -LiteralPath $stageTwoManifestPath | ConvertFrom-Json
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    if ($stageOneManifest.status -ne 'PREFLIGHT_PASS' -or
+        $stageTwoManifest.status -ne 'GOVERNED_MODEL_PASS' -or
+        $stageOneManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageOneManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $packageManifest.source_commit -ne $ExpectedSourceCommit) {
+        throw 'PILOT_STAGE_2_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+        throw 'PILOT_DATABASE_MISSING'
+    }
+    $initialState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if ($initialState.state_version -ne 21 -or
+        $initialState.state_digest -ne $stageTwoManifest.lifecycle.state_digest -or
+        $initialState.project.lifecycle_status -ne 'ACTIVE' -or
+        $initialState.primary_active_phase_ref -ne 'phase:operational-acceptance') {
+        throw 'PILOT_STAGE_3_INITIAL_STATE_MISMATCH'
+    }
+
+    $observedAt = [DateTimeOffset]::UtcNow.ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $script:stageThreeStateVersion = 21
+    $script:stageThreeMutations = @()
+    function Invoke-StageThreeMutation {
+        param(
+            [string]$Name,
+            [string]$CommandType,
+            [string]$ActorId,
+            [bool]$AsHuman,
+            [string[]]$CommandArguments
+        )
+
+        $expectedVersion = $script:stageThreeStateVersion
+        $arguments = @($CommandArguments) + @(
+            '--database', $database,
+            '--project-ref', $projectRef,
+            '--expected-version', [string]$expectedVersion,
+            '--idempotency-key', ('opa:stage3:' + $Name),
+            '--actor-id', $ActorId,
+            '--observed-at', $observedAt
+        )
+        if ($AsHuman) { $arguments += '--as-human' }
+        $arguments += '--json'
+        $result = Invoke-PilotLedgerJson $ledger $arguments
+        if ($result.status -ne 'ACCEPTED' -or
+            [int64]$result.new_state_version -le $expectedVersion -or
+            @($result.emitted_event_refs).Count -eq 0) {
+            throw "PILOT_STAGE_3_MUTATION_RESULT_INVALID: $Name"
+        }
+        $script:stageThreeStateVersion = [int64]$result.new_state_version
+        $script:stageThreeMutations += [ordered]@{
+            name = $Name
+            command_type = $CommandType
+            actor_id = $ActorId
+            as_human = $AsHuman
+            expected_state_version = $expectedVersion
+            resulting_state_version = $script:stageThreeStateVersion
+            idempotency_key = 'opa:stage3:' + $Name
+            emitted_event_refs = @($result.emitted_event_refs)
+        }
+        return $result
+    }
+
+    function New-StageThreeDecision {
+        param(
+            [string]$DecisionId,
+            [string]$Title,
+            [string]$DecisionText,
+            [int]$Version,
+            [AllowNull()][object]$SupersedesRef
+        )
+
+        $normalizedSupersedesRef = if ([string]::IsNullOrWhiteSpace([string]$SupersedesRef)) {
+            $null
+        } else {
+            [string]$SupersedesRef
+        }
+        $withoutDigest = [ordered]@{
+            schema_version = '0.2.0'
+            decision_id = $DecisionId
+            title = $Title
+            domain = 'OPERATIONAL_PILOT_CONTINUITY'
+            scope = 'stage:3'
+            context = 'Validate high-level continuity without granting lifecycle completion.'
+            decision = $DecisionText
+            rationale = 'Keep the next stage explicit, bounded, and subject to separate human authority.'
+            alternatives = @('Advance automatically', 'Stop without a recorded next action')
+            status = 'PROPOSED'
+            version = $Version
+            authority_ref = $null
+            evidence_refs = @()
+            supersedes_ref = $normalizedSupersedesRef
+            created_at = $observedAt
+            accepted_at = $null
+            provenance_ref = 'urn:project-ledger:pilot:stage3'
+        }
+        $decision = [ordered]@{}
+        foreach ($key in $withoutDigest.Keys) { $decision[$key] = $withoutDigest[$key] }
+        $decision['digest'] = Get-PilotCanonicalDigest $withoutDigest
+        return $decision
+    }
+
+    $sessionPath = Join-Path $fixtureDirectory 'stage-3-session.json'
+    Write-PilotJson $sessionPath ([ordered]@{
+        schema_version = '0.2.0'
+        session_id = 'session:opa-stage3'
+        actor_ref = 'agent:opa-stage3'
+        host = 'windows-operational-pilot'
+        started_at = $observedAt
+        ended_at = $null
+        starting_checkpoint_ref = $null
+        ending_checkpoint_ref = $null
+    })
+    $null = Invoke-StageThreeMutation 'session:start' 'START_SESSION' 'agent:opa-stage3' $false @(
+        'session', 'start', '--file', $sessionPath
+    )
+    $null = Invoke-StageThreeMutation 'progress' 'RECORD_WORK_PROGRESS' 'agent:opa-stage3' $false @(
+        'record', 'progress', '--summary', 'Stage 3 records material continuity semantics against the exact hosted candidate.',
+        '--phase', 'phase:operational-acceptance', '--record-id', 'work:opa-stage3-progress'
+    )
+    $null = Invoke-StageThreeMutation 'note:limitation' 'RECORD_NOTE' 'agent:opa-stage3' $false @(
+        'record', 'note', '--kind', 'LIMITATION',
+        '--text', 'This pilot proves supported projections; it does not prove absence from every internal byte surface.',
+        '--phase', 'phase:operational-acceptance'
+    )
+    $null = Invoke-StageThreeMutation 'claim:asserted' 'RECORD_CLAIM' 'agent:opa-stage3' $false @(
+        'claim', 'record', '--statement', 'The hosted candidate preserves high-level project continuity.',
+        '--classification', 'ASSERTED', '--subject', $projectRef, '--record-id', 'claim:opa-stage3-continuity'
+    )
+    $null = Invoke-StageThreeMutation 'unknown:transition' 'RECORD_UNKNOWN' 'agent:opa-stage3' $false @(
+        'unknown', 'record', '--subject', $projectRef,
+        '--statement', 'The durable accepted replacement shape needed by decision supersession is not yet observed.',
+        '--criticality', 'MATERIAL', '--record-id', 'unknown:opa-stage3-replacement-shape'
+    )
+    $null = Invoke-StageThreeMutation 'unknown:open' 'RECORD_UNKNOWN' 'agent:opa-stage3' $false @(
+        'unknown', 'record', '--subject', $projectRef,
+        '--statement', 'Stage 4 RecordSink policy behavior has not yet been observed in LIVE_PILOT.',
+        '--criticality', 'MATERIAL', '--record-id', 'unknown:opa-stage4-provider-policy'
+    )
+
+    $decisionV1Path = Join-Path $fixtureDirectory 'stage-3-decision-v1.json'
+    $decisionV1 = New-StageThreeDecision `
+        'decision:opa-stage3-sequence-v1' `
+        'Require separate authority for Stage 4' `
+        'Do not execute Stage 4 without a separate human authorization.' `
+        1 `
+        $null
+    Write-PilotJson $decisionV1Path $decisionV1
+    $null = Invoke-StageThreeMutation 'decision:v1:propose' 'PROPOSE_DECISION' 'human:owner' $true @(
+        'decision', 'propose', '--file', $decisionV1Path
+    )
+    $null = Invoke-StageThreeMutation 'decision:v1:accept' 'ACCEPT_DECISION' 'human:owner' $true @(
+        'decision', 'accept', 'decision:opa-stage3-sequence-v1', '--authority', 'authority:opa-spec'
+    )
+
+    $decisionV2Path = Join-Path $fixtureDirectory 'stage-3-decision-v2.json'
+    $decisionV2 = New-StageThreeDecision `
+        'decision:opa-stage3-sequence-v2' `
+        'Prepare but do not execute Stage 4' `
+        'Prepare Stage 4 inputs, but require separate human authorization and a fresh preflight before execution.' `
+        2 `
+        'decision:opa-stage3-sequence-v1'
+    Write-PilotJson $decisionV2Path $decisionV2
+    $null = Invoke-StageThreeMutation 'decision:v2:propose' 'PROPOSE_DECISION' 'human:owner' $true @(
+        'decision', 'propose', '--file', $decisionV2Path
+    )
+    $null = Invoke-StageThreeMutation 'decision:v2:accept' 'ACCEPT_DECISION' 'human:owner' $true @(
+        'decision', 'accept', 'decision:opa-stage3-sequence-v2', '--authority', 'authority:opa-spec'
+    )
+    $acceptedReplacement = Invoke-PilotLedgerJson $ledger @(
+        'decision', 'show', 'decision:opa-stage3-sequence-v2',
+        '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    Write-PilotJson $decisionV2Path $acceptedReplacement
+
+    $null = Invoke-StageThreeMutation 'blocker:transition' 'OPEN_BLOCKER' 'human:owner' $true @(
+        'blocker', 'open', '--title', 'Accepted replacement snapshot not yet persisted',
+        '--summary', 'Decision supersession must use the exact accepted durable view.',
+        '--severity', 'MEDIUM', '--record-id', 'blocker:opa-stage3-replacement-snapshot'
+    )
+    $null = Invoke-StageThreeMutation 'blocker:open' 'OPEN_BLOCKER' 'human:owner' $true @(
+        'blocker', 'open', '--title', 'Stage 4 requires separate human authorization',
+        '--summary', 'The evidence and lifecycle stage remains outside the current authorization.',
+        '--severity', 'MEDIUM', '--record-id', 'blocker:opa-stage4-recordsink'
+    )
+    $null = Invoke-StageThreeMutation 'risk:open' 'OPEN_RISK' 'human:owner' $true @(
+        'risk', 'open', '--title', 'Bounded resume may omit required continuity semantics',
+        '--summary', 'A compact handoff could omit a phase, gate, decision, blocker, risk, unknown, checkpoint, or next action.',
+        '--severity', 'HIGH', '--record-id', 'risk:opa-stage3-continuity'
+    )
+    $null = Invoke-StageThreeMutation 'next:set' 'SET_NEXT_ACTION' 'human:owner' $true @(
+        'next', 'set', '--title', 'Request authorization for Stage 4 evidence and lifecycle validation',
+        '--summary', 'After Stage 3 closes, request explicit human authority before executing Stage 4.',
+        '--phase', 'phase:operational-acceptance', '--classification', 'PROPOSED',
+        '--record-id', 'action:opa-stage4-evidence'
+    )
+    $null = Invoke-StageThreeMutation 'unknown:resolve' 'RESOLVE_UNKNOWN' 'human:owner' $true @(
+        'unknown', 'resolve', 'unknown:opa-stage3-replacement-shape',
+        '--resolution', 'urn:project-ledger:pilot:stage3:accepted-replacement-view'
+    )
+    $null = Invoke-StageThreeMutation 'blocker:resolve' 'RESOLVE_BLOCKER' 'human:owner' $true @(
+        'blocker', 'resolve', 'blocker:opa-stage3-replacement-snapshot',
+        '--summary', 'The accepted replacement was queried and persisted as the exact supersession payload.'
+    )
+    $null = Invoke-StageThreeMutation 'risk:mitigate' 'MITIGATE_RISK' 'human:owner' $true @(
+        'risk', 'mitigate', 'risk:opa-stage3-continuity',
+        '--note', 'Require exact reference assertions in both structured JSON and bounded Codex resume output.'
+    )
+    $null = Invoke-StageThreeMutation 'decision:supersede' 'SUPERSEDE_DECISION' 'human:owner' $true @(
+        'decision', 'supersede', 'decision:opa-stage3-sequence-v1', '--with', $decisionV2Path
+    )
+
+    $null = Invoke-StageThreeMutation 'repository:revoke-canary' 'REVOKE_REPOSITORY_BINDING' 'human:owner' $true @(
+        'repository', 'revoke', 'binding:opa-stage2-canary',
+        '--reason', 'Stage 2 canary completed; retire auxiliary binding before continuity checkpoint.'
+    )
+    $repositoryHeadOutput = & git -C $resolvedRepository rev-parse HEAD 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "PILOT_REPOSITORY_HEAD_UNAVAILABLE: $(($repositoryHeadOutput | Out-String).Trim())"
+    }
+    $repositoryHead = ($repositoryHeadOutput | Out-String).Trim()
+    if ($repositoryHead -notmatch '^[0-9a-f]{40}$') {
+        throw "PILOT_REPOSITORY_HEAD_INVALID: $repositoryHead"
+    }
+    $repositorySnapshotDigest = Get-PilotTextDigest $repositoryHead
+    $null = Invoke-StageThreeMutation 'repository:refresh-main' 'REFRESH_REPOSITORY_BINDING' 'human:owner' $true @(
+        'repository', 'refresh', 'binding:opa-repository',
+        '--snapshot-ref', ('urn:git:commit:' + $repositoryHead), '--snapshot-digest', $repositorySnapshotDigest
+    )
+
+    $checkpointResult = Invoke-StageThreeMutation 'checkpoint:create' 'CREATE_CONTINUITY_CHECKPOINT' 'agent:opa-stage3' $false @(
+        'checkpoint', 'create', '--reason', 'Stage 3 high-level continuity handoff'
+    )
+    $checkpointResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    if ($checkpointResume.checkpoint_freshness -ne 'CURRENT') {
+        $defectResult = Invoke-StageThreeMutation 'defect:checkpoint-authority-history' 'OPEN_BLOCKER' 'human:owner' $true @(
+            'blocker', 'open', '--title', 'Fresh checkpoint is stale because superseded authority history exists',
+            '--summary', 'A checkpoint created after the authority replacement is classified stale instead of current.',
+            '--severity', 'CRITICAL', '--record-id', 'blocker:opa-defect-checkpoint-authority-history'
+        )
+        $blockedState = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $blockedManifest = [ordered]@{
+            profile = 'project-ledger-operational-pilot-stage/1'
+            stage = 3
+            status = 'BLOCKED'
+            proof_class = 'LIVE_PILOT'
+            project_ref = $projectRef
+            subject = [ordered]@{
+                zip_sha256 = $actualZipHash
+                source_commit = $ExpectedSourceCommit
+                version = $stageOneManifest.subject.version
+            }
+            lifecycle = [ordered]@{
+                initial_state_version = $initialState.state_version
+                final_state_version = $blockedState.state_version
+                final_state_digest = $blockedState.state_digest
+                project_status = $blockedState.project.lifecycle_status
+                active_phase_ref = $blockedState.primary_active_phase_ref
+            }
+            checkpoint = [ordered]@{
+                checkpoint_ref = $checkpointResume.checkpoint_ref
+                observed_freshness = $checkpointResume.checkpoint_freshness
+                expected_freshness = 'CURRENT'
+                session_closed = $false
+            }
+            defect = [ordered]@{
+                defect_id = 'OPA-DEFECT-003'
+                blocker_ref = 'blocker:opa-defect-checkpoint-authority-history'
+                severity = 'CRITICAL'
+                interpretation = 'A newly created checkpoint treats preserved SUPERSEDED authority history as stale authority.'
+                expected = 'Historical SUPERSEDED authority remains queryable but does not stale a checkpoint created after replacement.'
+                observed = $checkpointResume.checkpoint_freshness
+                command_result_state_version = $defectResult.new_state_version
+            }
+            mutations = @($script:stageThreeMutations)
+            scenarios = [ordered]@{
+                'OPA-S08' = 'PASS'
+                'OPA-S09' = 'PASS'
+                'OPA-S10' = 'BLOCKED'
+            }
+        }
+        Write-PilotJson $stageThreeManifestPath $blockedManifest
+        throw "PILOT_STAGE_3_BLOCKED: OPA-DEFECT-003 checkpoint freshness=$($checkpointResume.checkpoint_freshness)"
+    }
+
+    $endSessionPath = Join-Path $fixtureDirectory 'stage-3-end-session.json'
+    Write-PilotJson $endSessionPath ([ordered]@{
+        session_ref = 'session:opa-stage3'
+        create_checkpoint = $false
+    })
+    $sessionEndResult = Invoke-StageThreeMutation 'session:end' 'END_SESSION' 'agent:opa-stage3' $false @(
+        'session', 'end', '--file', $endSessionPath
+    )
+
+    $resumeJson = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $codexLines = & $ledger resume `
+        --database $database --project-ref $projectRef --format codex 2>&1
+    $codexExit = $LASTEXITCODE
+    $codexText = ($codexLines | Out-String).Trim()
+    if ($codexExit -ne 0 -or [string]::IsNullOrWhiteSpace($codexText)) {
+        throw "PILOT_STAGE_3_CODEX_RESUME_FAILED: exit=$codexExit"
+    }
+
+    $originalDecision = Invoke-PilotLedgerJson $ledger @(
+        'decision', 'show', 'decision:opa-stage3-sequence-v1',
+        '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $replacementDecision = Invoke-PilotLedgerJson $ledger @(
+        'decision', 'show', 'decision:opa-stage3-sequence-v2',
+        '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $renderPath = Join-Path $evidenceDirectory 'stage-3-continuity-view.md'
+    $renderRecord = Invoke-PilotLedgerJson $ledger @(
+        'render', '--database', $database, '--project-ref', $projectRef,
+        '--output', $renderPath, '--privacy', 'full-local', '--json'
+    )
+    $renderedText = Get-Content -Raw -LiteralPath $renderPath
+    $requiredTimelineEvents = @(
+        'UNKNOWN_RESOLVED',
+        'BLOCKER_RESOLVED',
+        'RISK_MITIGATED',
+        'DECISION_SUPERSEDED'
+    )
+    $timelineContains = @($requiredTimelineEvents | Where-Object { $renderedText.Contains($_) })
+
+    $finalState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $gates = @(Invoke-PilotLedgerJson $ledger @(
+        'gate', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $allGatesUnverified = @($gates | Where-Object { $_.status -in @('VERIFIED', 'WAIVED') }).Count -eq 0
+    $codexRequiredLabels = @(
+        '- Active:',
+        '- Decisions:',
+        '- Blockers:',
+        '- Risks:',
+        '- Gates:',
+        '- Progress:',
+        '- Next:',
+        '- Critical unknowns:',
+        '- Checkpoint:'
+    )
+    $codexSectionsPresent = @($codexRequiredLabels | Where-Object { $codexText.Contains($_) }).Count -eq
+        $codexRequiredLabels.Count
+    $resumeAssertions = [ordered]@{
+        active_phase_present = @($resumeJson.active_phase_refs) -contains 'phase:operational-acceptance'
+        pending_gates_present = @($resumeJson.pending_gate_refs).Count -eq 9
+        current_decision_present = @($resumeJson.current_decision_refs) -contains 'decision:opa-stage3-sequence-v2'
+        open_blocker_present = @($resumeJson.open_blocker_refs) -contains 'blocker:opa-stage4-recordsink'
+        open_risk_present = @($resumeJson.open_risk_refs) -contains 'risk:opa-stage3-continuity'
+        critical_unknown_present = @($resumeJson.critical_unknown_refs) -contains 'unknown:opa-stage4-provider-policy'
+        checkpoint_present = -not [string]::IsNullOrWhiteSpace([string]$resumeJson.checkpoint_ref)
+        next_action_present = $resumeJson.preferred_next_action_ref -eq 'action:opa-stage4-evidence'
+        progress_present = [string]$resumeJson.last_material_progress_summary -like 'Stage 3 records material*'
+    }
+    $resumePass = @($resumeAssertions.Values | Where-Object { $_ -ne $true }).Count -eq 0
+    if ($finalState.state_version -ne 44 -or
+        $finalState.project.lifecycle_status -ne 'BLOCKED' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or
+        -not $allGatesUnverified -or
+        $resumeJson.state_version -ne $finalState.state_version -or
+        $resumeJson.checkpoint_freshness -ne 'CURRENT' -or
+        -not $resumePass -or
+        -not $codexSectionsPresent -or
+        $originalDecision.status -ne 'SUPERSEDED' -or
+        $replacementDecision.status -ne 'ACCEPTED' -or
+        $replacementDecision.supersedes_ref -ne $originalDecision.decision_id -or
+        $timelineContains.Count -ne $requiredTimelineEvents.Count) {
+        throw 'PILOT_STAGE_3_FINAL_STATE_MISMATCH'
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 3
+        status = 'HIGH_LEVEL_CONTINUITY_PASS'
+        proof_class = 'LIVE_PILOT'
+        project_ref = $projectRef
+        subject = [ordered]@{
+            zip_sha256 = $actualZipHash
+            source_commit = $ExpectedSourceCommit
+            version = $stageOneManifest.subject.version
+        }
+        records = [ordered]@{
+            progress = [ordered]@{ record_ref = 'work:opa-stage3-progress'; material = $true }
+            note = [ordered]@{ kind = 'LIMITATION'; scope_ref = 'phase:operational-acceptance' }
+            claim = [ordered]@{ record_ref = 'claim:opa-stage3-continuity'; initial_classification = 'ASSERTED' }
+            open_unknown = [ordered]@{ record_ref = 'unknown:opa-stage4-provider-policy'; criticality = 'MATERIAL' }
+            open_blocker = [ordered]@{ record_ref = 'blocker:opa-stage4-recordsink'; severity = 'MEDIUM' }
+            mitigated_risk = [ordered]@{ record_ref = 'risk:opa-stage3-continuity'; status = 'MITIGATED' }
+            next_action = [ordered]@{ record_ref = 'action:opa-stage4-evidence'; classification = 'PROPOSED' }
+        }
+        transitions = [ordered]@{
+            unknown = [ordered]@{ record_ref = 'unknown:opa-stage3-replacement-shape'; status = 'RESOLVED' }
+            blocker = [ordered]@{ record_ref = 'blocker:opa-stage3-replacement-snapshot'; status = 'RESOLVED' }
+            risk = [ordered]@{ record_ref = 'risk:opa-stage3-continuity'; status = 'MITIGATED' }
+            decision = [ordered]@{
+                original_ref = $originalDecision.decision_id
+                original_status = $originalDecision.status
+                replacement_ref = $replacementDecision.decision_id
+                replacement_status = $replacementDecision.status
+                predecessor_preserved = $replacementDecision.supersedes_ref -eq $originalDecision.decision_id
+            }
+            timeline_contains_all = @($timelineContains)
+            rendered_view_ref = $renderRecord.generated_artifact_id
+            rendered_view_sha256 = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $renderPath).Hash.ToLowerInvariant()
+        }
+        repository_checkpoint_precondition = [ordered]@{
+            human_revoke_binding_ref = 'binding:opa-stage2-canary'
+            human_actor = 'human:owner'
+            main_binding_ref = 'binding:opa-repository'
+            snapshot_ref = 'urn:git:commit:' + $repositoryHead
+            snapshot_digest = $repositorySnapshotDigest
+        }
+        checkpoint = [ordered]@{
+            checkpoint_ref = $resumeJson.checkpoint_ref
+            freshness = $resumeJson.checkpoint_freshness
+            create_result_ref = $checkpointResult.command_ref
+            session_ref = 'session:opa-stage3'
+            session_closed = $sessionEndResult.status -eq 'ACCEPTED'
+        }
+        resume = [ordered]@{
+            json = [ordered]@{
+                state_version = $resumeJson.state_version
+                digest = $resumeJson.digest
+                active_phase_present = $resumeAssertions.active_phase_present
+                pending_gates_present = $resumeAssertions.pending_gates_present
+                current_decision_present = $resumeAssertions.current_decision_present
+                open_blocker_present = $resumeAssertions.open_blocker_present
+                open_risk_present = $resumeAssertions.open_risk_present
+                critical_unknown_present = $resumeAssertions.critical_unknown_present
+                checkpoint_present = $resumeAssertions.checkpoint_present
+                next_action_present = $resumeAssertions.next_action_present
+                progress_present = $resumeAssertions.progress_present
+            }
+            codex = [ordered]@{
+                output_sha256 = Get-PilotTextDigest $codexText
+                all_required_sections_present = $codexSectionsPresent
+                required_labels = $codexRequiredLabels
+            }
+        }
+        lifecycle = [ordered]@{
+            initial_state_version = $initialState.state_version
+            final_state_version = $finalState.state_version
+            final_state_digest = $finalState.state_digest
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            all_gates_unverified = $allGatesUnverified
+        }
+        mutations = @($script:stageThreeMutations)
+        scenarios = [ordered]@{
+            'OPA-S08' = 'PASS'
+            'OPA-S09' = 'PASS'
+            'OPA-S10' = 'PASS'
+        }
+    }
+    Write-PilotJson $stageThreeManifestPath $manifest
+
+    [pscustomobject]@{
+        stage = 3
+        status = 'HIGH_LEVEL_CONTINUITY_PASS'
+        evidence = 'evidence/stage-3-high-level-continuity.json'
+    }
+    return
+}
+
 if ($Stage -eq 2) {
     $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
     $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path

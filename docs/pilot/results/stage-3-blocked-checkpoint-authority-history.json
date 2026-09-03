@@ -1,0 +1,69 @@
+{
+  "profile": "project-ledger-operational-pilot-defect-evidence/1",
+  "captured_at": "2026-09-03T21:31:00Z",
+  "stage": 3,
+  "status": "BLOCKED",
+  "proof_class": "LIVE_PILOT",
+  "scenario_results": {
+    "OPA-S08": "INVALIDATED",
+    "OPA-S09": "INVALIDATED",
+    "OPA-S10": "BLOCKED"
+  },
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "bd564cdba07b616337681c15801d22478824108b",
+    "zip_sha256": "cf504e128386e782cc394c9c30bef699f94dd4be97ccd7e252402029bbfdcad0",
+    "hosted_run_id": 33688474112,
+    "hosted_artifact_id": 9869765807,
+    "candidate_invalidated": true
+  },
+  "project": {
+    "project_ref": "project:01a0643d-d2e8-7ec1-b3f0-eb6bf250bf8f",
+    "initial_state_version": 21,
+    "final_state_version": 44,
+    "final_state_digest": "sha256:d36a5993b54e9a11a69d73048359b1063872aac824b483ca66835926e8b70c22",
+    "lifecycle_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "session_closed": false
+  },
+  "checkpoint": {
+    "checkpoint_ref": "checkpoint:0e1a3d99-0af7-77c2-9e5c-6ec551745b4d",
+    "expected_freshness": "CURRENT",
+    "observed_freshness": "STALE_FOR_AUTHORITY"
+  },
+  "defect": {
+    "id": "OPA-DEFECT-003",
+    "severity": "CRITICAL",
+    "blocker_ref": "blocker:opa-defect-checkpoint-authority-history",
+    "summary": "A checkpoint created after an authority replacement is marked stale because preserved SUPERSEDED history is treated as a current authority defect",
+    "expected_behavior": "SUPERSEDED authority remains queryable as history but does not stale a checkpoint created after the replacement",
+    "observed_behavior": "resume returned STALE_FOR_AUTHORITY immediately after checkpoint creation",
+    "mutation_observed": true,
+    "safe_recording": true,
+    "contract_change_required": false,
+    "raw_manifest_provisional_id": "OPA-DEFECT-001",
+    "raw_manifest_provisional_id_note": "The first local capture reused an existing identifier; the harness now emits OPA-DEFECT-003 and this sanitized evidence is canonical."
+  },
+  "diagnosis": {
+    "red_test": "checkpoint_created_after_authority_supersession_treats_preserved_history_as_current",
+    "root_cause": "initial_checkpoint_freshness classified every non-CURRENT authority document as stale, including a valid SUPERSEDED historical document",
+    "fix_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "fix_scope": [
+      "crates/projection-engine/src/lifecycle.rs",
+      "crates/continuity/tests/checkpoint_engine.rs"
+    ],
+    "local_verification": "PASS; operational runner 5/5",
+    "local_candidate_zip_sha256": "sha256:b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc",
+    "local_stage_3_checkpoint_freshness": "CURRENT",
+    "local_stage_3_session_closed": true,
+    "local_stage_3_resume_state_version": 44,
+    "hosted_requalification": "PENDING"
+  },
+  "boundaries": {
+    "contracts_changed": false,
+    "schemas_changed": false,
+    "stage_count_advanced": false,
+    "operational_acceptance_claimed": false,
+    "certified_compatibility": false
+  }
+}

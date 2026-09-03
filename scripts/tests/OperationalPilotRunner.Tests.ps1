@@ -156,3 +156,72 @@ Describe 'Operational pilot runner Stage 2 governed model' {
         $result.status | Should Be 'GOVERNED_MODEL_PASS'
     }
 }
+
+Describe 'Operational pilot runner Stage 3 high-level continuity' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'records material semantics, preserves transitions, and resumes from a current checkpoint' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 3 á continuity'
+
+        foreach ($stage in 1..3) {
+            $result = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-3-high-level-continuity.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+
+        $manifest.profile | Should Be 'project-ledger-operational-pilot-stage/1'
+        $manifest.stage | Should Be 3
+        $manifest.status | Should Be 'HIGH_LEVEL_CONTINUITY_PASS'
+        $manifest.proof_class | Should Be 'LIVE_PILOT'
+        $manifest.lifecycle.initial_state_version | Should Be 21
+        $manifest.lifecycle.final_state_version | Should Be 44
+        $manifest.lifecycle.project_status | Should Be 'BLOCKED'
+        $manifest.lifecycle.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.lifecycle.completed_phase_count | Should Be 0
+        $manifest.lifecycle.all_gates_unverified | Should Be $true
+        $manifest.records.progress.record_ref | Should Be 'work:opa-stage3-progress'
+        $manifest.records.note.kind | Should Be 'LIMITATION'
+        $manifest.records.claim.initial_classification | Should Be 'ASSERTED'
+        $manifest.records.open_unknown.record_ref | Should Be 'unknown:opa-stage4-provider-policy'
+        $manifest.records.open_blocker.record_ref | Should Be 'blocker:opa-stage4-recordsink'
+        $manifest.records.mitigated_risk.record_ref | Should Be 'risk:opa-stage3-continuity'
+        $manifest.records.next_action.record_ref | Should Be 'action:opa-stage4-evidence'
+        $manifest.transitions.unknown.status | Should Be 'RESOLVED'
+        $manifest.transitions.blocker.status | Should Be 'RESOLVED'
+        $manifest.transitions.risk.status | Should Be 'MITIGATED'
+        $manifest.transitions.decision.original_status | Should Be 'SUPERSEDED'
+        $manifest.transitions.decision.replacement_status | Should Be 'ACCEPTED'
+        $manifest.transitions.decision.predecessor_preserved | Should Be $true
+        $manifest.transitions.timeline_contains_all.Count | Should Be 4
+        $manifest.checkpoint.freshness | Should Match '^CURRENT'
+        $manifest.checkpoint.session_closed | Should Be $true
+        $manifest.resume.json.state_version | Should Be 44
+        $manifest.resume.json.active_phase_present | Should Be $true
+        $manifest.resume.json.pending_gates_present | Should Be $true
+        $manifest.resume.json.current_decision_present | Should Be $true
+        $manifest.resume.json.open_blocker_present | Should Be $true
+        $manifest.resume.json.open_risk_present | Should Be $true
+        $manifest.resume.json.critical_unknown_present | Should Be $true
+        $manifest.resume.json.checkpoint_present | Should Be $true
+        $manifest.resume.json.next_action_present | Should Be $true
+        $manifest.resume.codex.all_required_sections_present | Should Be $true
+        $manifest.scenarios.'OPA-S08' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S09' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S10' | Should Be 'PASS'
+        $result.stage | Should Be 3
+        $result.status | Should Be 'HIGH_LEVEL_CONTINUITY_PASS'
+    }
+}
