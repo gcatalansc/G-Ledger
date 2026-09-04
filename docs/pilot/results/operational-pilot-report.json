@@ -23,15 +23,15 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2, 3, 4, 5, 6],
-    "percentage": 75.0
+    "completed_stages": [1, 2, 3, 4, 5, 6, 7],
+    "percentage": 87.5
   },
   "project_identity": {
     "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
     "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/data/project-ledger/projects/01a0697c-34b6-7042-a751-fbfb30a06a49/ledger.db",
-    "latest_state_version": 85,
-    "latest_state_digest": "sha256:a48d21a8d594bba4ebe9fa00b298c156726599a2359f46faa324d0bb0c7c9652",
-    "latest_checkpoint_ref": "checkpoint:624442ea-7360-77df-9f92-ddc4e73fde32",
+    "latest_state_version": 96,
+    "latest_state_digest": "sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a",
+    "latest_checkpoint_ref": "checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819",
     "latest_checkpoint_freshness": "CURRENT"
   },
   "stages": [
@@ -41,7 +41,7 @@
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "PASS", "evidence": ["docs/pilot/results/stage-4-evidence-lifecycle.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "PASS", "evidence": ["docs/pilot/results/stage-5-transactional-safety.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "PASS", "evidence": ["docs/pilot/results/stage-6-projections-privacy-recovery.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
-    {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "NOT_RUN", "evidence": []},
+    {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "PASS", "evidence": ["docs/pilot/results/stage-7-blind-handoff-integrations.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
     {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
   ],
   "scenario_results": [
@@ -72,10 +72,10 @@
     {"id":"OPA-S25","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-projections-privacy-recovery.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
     {"id":"OPA-S26","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-projections-privacy-recovery.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
     {"id":"OPA-S27","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-projections-privacy-recovery.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
-    {"id":"OPA-S28","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S29","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S30","stage":7,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]},
-    {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":[]},
+    {"id":"OPA-S28","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_HANDOFF","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S29","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S30","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S32","stage":8,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]}
   ],
   "defects": [
@@ -141,10 +141,12 @@
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
     "The bd564cd artifact invalidated by OPA-DEFECT-003 and its blocked Stage 3 attempt remain historical evidence; the active subject is the hosted exact-SHA 99fdaab package",
-    "Two governed stages remain and no operational adoption decision has been made",
+    "One governed stage remains and no operational adoption decision has been made",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The governed project is intentionally BLOCKED by blocker:opa-stage7-integrations; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending",
+    "The governed project is intentionally BLOCKED by blocker:opa-stage8-human-decision; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending",
+    "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
+    "G-Skills coverage is local provider/RecordSink only and the fixed GSP traversal preserves certified_compatibility=false",
     "The pilot cannot establish General Availability or universal absence of defects"
   ]
 }

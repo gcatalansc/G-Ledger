@@ -1,0 +1,187 @@
+{
+  "profile": "project-ledger-operational-pilot-stage/1",
+  "stage": 7,
+  "status": "BLIND_HANDOFF_INTEGRATIONS_PASS",
+  "proof_class": "LIVE_HANDOFF_AND_LOCAL_INTEGRATION",
+  "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+  "subject": {
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "version": "0.2.0"
+  },
+  "blind_handoff": {
+    "task_ref": "01a06a10-c398-7b22-b749-7515fe66efea",
+    "prompt_sha256": "sha256:417e20b77572d2c27fb91dce04454cf8a11c95efbfd6af0db5d5cb161d060668",
+    "input_count": 4,
+    "narrative_context_received": false,
+    "reported_state_version": 85,
+    "progress_status": "ACCEPTED",
+    "progress_state_version_delta": 1,
+    "checkpoint_status": "ACCEPTED",
+    "checkpoint_ref": "checkpoint:c309cff3-44a7-71b7-8b11-136e32b19ce0",
+    "checkpoint_freshness": "CURRENT",
+    "lifecycle_command_count": 0,
+    "as_human_used": false
+  },
+  "provider": {
+    "profile": "gskills-context-provider/0.3.0",
+    "runtime_status": "AVAILABLE",
+    "projection_state_version": 87,
+    "mutable_method_error_code": -32601,
+    "record_sink_capability_count": 0,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true
+  },
+  "record_sink": {
+    "profile": "gskills-context-provider/0.3.0",
+    "policy_digest": "sha256:587a904a5a737f5f85ef16cf18b3130c783e934e99b24e15374e950836a1956b",
+    "allowed_command_kinds": [
+      "RECORD_WORK_PROGRESS",
+      "RECORD_VERIFICATION_RESULT",
+      "REQUEST_GATE_EVALUATION",
+      "REQUEST_GATE_REVALIDATION",
+      "CREATE_CONTINUITY_CHECKPOINT"
+    ],
+    "claimed_authority_domain_count": 0,
+    "validate_status": "VALID",
+    "submit_status": "ACCEPTED",
+    "replay_status": "DUPLICATE_REPLAY",
+    "status_lookup": "FOUND",
+    "reconcile_lookup": "FOUND",
+    "first_submit_state_version_delta": 1,
+    "replay_state_version_delta": 0,
+    "lifecycle_authority_count": 0
+  },
+  "gsp": {
+    "implementation_commit": "7a43559c02417641691dbb5f2a6e79c13d74d1a1",
+    "contract_tag": "gsp-exact-2026.04.12",
+    "contract_commit": "004b14d7b64837025671970eac2469f092c49475",
+    "registry_contract_count": 28,
+    "schema_artifact_count": 31,
+    "export_state_version_delta": 0,
+    "compile_status": "COMPILED_UNLINKED",
+    "compile_state_version_delta": 0,
+    "validate_status": "VALIDATED_UNLINKED",
+    "validate_state_version_delta": 0,
+    "link_status": "ACCEPTED",
+    "link_state_version_delta": 1,
+    "replay_status": "DUPLICATE_REPLAY",
+    "replay_state_version_delta": 0,
+    "authority_elevation_count": 0,
+    "lifecycle_state_unchanged": true,
+    "phase_state_unchanged": true,
+    "certified_compatibility": false
+  },
+  "radar": {
+    "status": "EXCLUDED_BY_SCOPE",
+    "executed": false,
+    "pass_claimed": false
+  },
+  "integrity": {
+    "state_version": 96,
+    "state_digest": "sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_finding_count": 0
+  },
+  "lifecycle": {
+    "initial_state_version": 85,
+    "final_state_version": 96,
+    "final_state_digest": "sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a"
+  },
+  "boundary": {
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "open_blocker_ref": "blocker:opa-stage8-human-decision",
+    "next_action_ref": "action:opa-next-stage8-decision",
+    "checkpoint_ref": "checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819",
+    "checkpoint_freshness": "CURRENT",
+    "stage_8_executed": false,
+    "merge_performed": false,
+    "release_performed": false,
+    "operational_acceptance_declared": false
+  },
+  "mutations": [
+    {
+      "name": "blind-progress",
+      "command_type": "RECORD_WORK_PROGRESS",
+      "actor_id": "agent:codex-handoff",
+      "as_human": false,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:blind-progress"
+    },
+    {
+      "name": "blind-checkpoint",
+      "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+      "actor_id": "agent:codex-handoff",
+      "as_human": false,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:blind-checkpoint"
+    },
+    {
+      "name": "record-sink-progress",
+      "command_type": "RECORD_WORK_PROGRESS",
+      "actor_id": "integration:gskills-stage7",
+      "as_human": false,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:sink:progress"
+    },
+    {
+      "name": "gsp-link",
+      "command_type": "LINK_EXTERNAL_EVIDENCE",
+      "actor_id": "integration:gsp-stage7",
+      "as_human": false,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:gsp:link"
+    },
+    {
+      "name": "blocker-stage7-resolve",
+      "command_type": "RESOLVE_BLOCKER",
+      "actor_id": "human:owner",
+      "as_human": true,
+      "expected_state_version": 89,
+      "resulting_state_version": 92,
+      "state_version_delta": 3,
+      "idempotency_key": "opa:stage7:blocker-stage7-resolve"
+    },
+    {
+      "name": "next-stage8-set",
+      "command_type": "SET_NEXT_ACTION",
+      "actor_id": "human:owner",
+      "as_human": true,
+      "expected_state_version": 92,
+      "resulting_state_version": 93,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:next-stage8-set"
+    },
+    {
+      "name": "blocker-stage8-open",
+      "command_type": "OPEN_BLOCKER",
+      "actor_id": "human:owner",
+      "as_human": true,
+      "expected_state_version": 93,
+      "resulting_state_version": 95,
+      "state_version_delta": 2,
+      "idempotency_key": "opa:stage7:blocker-stage8-open"
+    },
+    {
+      "name": "checkpoint-final",
+      "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+      "actor_id": "agent:opa-stage7",
+      "as_human": false,
+      "expected_state_version": 95,
+      "resulting_state_version": 96,
+      "state_version_delta": 1,
+      "idempotency_key": "opa:stage7:checkpoint-final"
+    }
+  ],
+  "scenarios": {
+    "OPA-S28": "PASS",
+    "OPA-S29": "PASS",
+    "OPA-S30": "PASS",
+    "OPA-S31": "EXCLUDED_BY_SCOPE"
+  }
+}

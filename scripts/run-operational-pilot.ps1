@@ -15,7 +15,15 @@ param(
 
     [string]$ExpectedZipSha256 = '19429f1a9cb4431ec6f9bb06d18f5c8b49310666e894763ec45228bd083d0884',
 
-    [string]$ExpectedSourceCommit = 'bd564cdba07b616337681c15801d22478824108b'
+    [string]$ExpectedSourceCommit = 'bd564cdba07b616337681c15801d22478824108b',
+
+    [string]$BlindHandoffEvidence,
+
+    [string]$GspPython,
+
+    [string]$GspSourceRoot,
+
+    [string]$ExpectedGspCommit = '7a43559c02417641691dbb5f2a6e79c13d74d1a1'
 )
 
 Set-StrictMode -Version Latest
@@ -88,6 +96,858 @@ function Get-PilotTextDigest {
     $bytes = [Text.Encoding]::UTF8.GetBytes($Text)
     $hash = [Security.Cryptography.SHA256]::HashData($bytes)
     return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
+}
+
+if ($Stage -eq 7) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+    foreach ($requiredParameter in @(
+        @{ Name = 'BlindHandoffEvidence'; Value = $BlindHandoffEvidence },
+        @{ Name = 'GspPython'; Value = $GspPython },
+        @{ Name = 'GspSourceRoot'; Value = $GspSourceRoot }
+    )) {
+        if ([string]::IsNullOrWhiteSpace([string]$requiredParameter.Value)) {
+            throw "PILOT_STAGE_7_PARAMETER_REQUIRED: $($requiredParameter.Name)"
+        }
+    }
+
+    $resolvedBlindEvidence = (Resolve-Path -LiteralPath $BlindHandoffEvidence).Path
+    $resolvedGspPython = (Resolve-Path -LiteralPath $GspPython).Path
+    $resolvedGspSource = (Resolve-Path -LiteralPath $GspSourceRoot).Path
+    if (-not (Test-Path -LiteralPath $resolvedBlindEvidence -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $resolvedGspPython -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $resolvedGspSource -PathType Container)) {
+        throw 'PILOT_STAGE_7_INPUT_MISSING'
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $fixtureDirectory = Join-Path $resolvedPilotRoot 'fixtures'
+    $stageOneManifestPath = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+    $stageTwoManifestPath = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+    $stageThreeManifestPath = Join-Path $evidenceDirectory 'stage-3-high-level-continuity.json'
+    $stageFourManifestPath = Join-Path $evidenceDirectory 'stage-4-evidence-lifecycle.json'
+    $stageFiveManifestPath = Join-Path $evidenceDirectory 'stage-5-transactional-safety.json'
+    $stageSixManifestPath = Join-Path $evidenceDirectory 'stage-6-projections-privacy-recovery.json'
+    $stageSevenManifestPath = Join-Path $evidenceDirectory 'stage-7-blind-handoff-integrations.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    $recordSinkClient = Join-Path $resolvedRepository 'scripts\invoke-record-sink-rpc.ps1'
+    foreach ($requiredPath in @(
+        $stageOneManifestPath,
+        $stageTwoManifestPath,
+        $stageThreeManifestPath,
+        $stageFourManifestPath,
+        $stageFiveManifestPath,
+        $stageSixManifestPath,
+        $locatorPath,
+        $ledger,
+        $packageManifestPath,
+        $recordSinkClient
+    )) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_6_EVIDENCE_MISSING: $requiredPath"
+        }
+    }
+    if (Test-Path -LiteralPath $stageSevenManifestPath) {
+        throw "PILOT_STAGE_ALREADY_EXECUTED: $stageSevenManifestPath"
+    }
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    if ($actualZipHash -ne $ExpectedZipSha256.ToLowerInvariant()) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $($ExpectedZipSha256.ToLowerInvariant()); actual $actualZipHash"
+    }
+    $stageOneManifest = Get-Content -Raw -LiteralPath $stageOneManifestPath | ConvertFrom-Json
+    $stageSixManifest = Get-Content -Raw -LiteralPath $stageSixManifestPath | ConvertFrom-Json
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    if ($stageOneManifest.status -ne 'PREFLIGHT_PASS' -or
+        $stageSixManifest.status -ne 'RECOVERY_PRIVACY_PASS' -or
+        $stageOneManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageSixManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageOneManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $stageSixManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $packageManifest.source_commit -ne $ExpectedSourceCommit) {
+        throw 'PILOT_STAGE_7_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    $skillPath = Join-Path $installation 'resources\integrations\agent-skills\project-ledger-continuity\SKILL.md'
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $skillPath -PathType Leaf)) {
+        throw 'PILOT_STAGE_7_SUBJECT_MISSING'
+    }
+
+    $blind = Get-Content -Raw -LiteralPath $resolvedBlindEvidence | ConvertFrom-Json
+    $stageSixVersion = [int64]$stageSixManifest.lifecycle.final_state_version
+    $stageSixDigest = [string]$stageSixManifest.lifecycle.final_state_digest
+    if ($blind.profile -ne 'project-ledger-operational-pilot-blind-handoff/1' -or
+        $blind.task_kind -ne 'CODEX_NEW_BLIND' -or
+        $blind.inputs.executable -ne $ledger -or
+        $blind.inputs.database -ne $database -or
+        $blind.inputs.project_ref -ne $projectRef -or
+        $blind.inputs.skill -ne $skillPath -or
+        $blind.constraints.narrative_context_received -ne $false -or
+        $blind.constraints.direct_database_access -ne $false -or
+        $blind.constraints.repository_context_access -ne $false -or
+        $blind.constraints.git_access -ne $false -or
+        $blind.constraints.as_human_used -ne $false -or
+        $blind.constraints.stage_8_executed -ne $false -or
+        $blind.constraints.lifecycle_command_count -ne 0 -or
+        [int64]$blind.reported_state.state_version -ne $stageSixVersion -or
+        $blind.reported_state.state_digest -ne $stageSixDigest -or
+        $blind.reported_state.phase_ref -ne 'phase:operational-acceptance' -or
+        $blind.reported_state.next_action_ref -ne 'action:opa-stage-07-integrations' -or
+        $blind.reported_state.checkpoint_ref -ne $stageSixManifest.boundary.checkpoint_ref -or
+        $blind.reported_state.checkpoint_freshness -ne 'CURRENT' -or
+        @($blind.reported_state.open_blocker_refs) -notcontains 'blocker:opa-stage7-integrations' -or
+        @($blind.reported_state.current_decision_refs) -notcontains 'decision:opa-stage3-sequence-v2' -or
+        @($blind.reported_state.pending_gate_refs).Count -ne 7 -or
+        $blind.progress.actor_id -ne 'agent:codex-handoff' -or
+        $blind.progress.idempotency_key -ne 'opa:stage7:blind-progress' -or
+        $blind.progress.record_id -ne 'work:opa-stage7-blind-handoff' -or
+        $blind.progress.status -ne 'ACCEPTED' -or
+        $blind.checkpoint.actor_id -ne 'agent:codex-handoff' -or
+        $blind.checkpoint.idempotency_key -ne 'opa:stage7:blind-checkpoint' -or
+        $blind.checkpoint.status -ne 'ACCEPTED') {
+        throw 'PILOT_STAGE_7_BLIND_HANDOFF_RECEIPT_INVALID'
+    }
+
+    $blindProgressReconcile = Invoke-PilotLedgerJson $ledger @(
+        'reconcile', '--database', $database, '--project-ref', $projectRef,
+        '--command-type', 'RECORD_WORK_PROGRESS', '--actor-id', 'agent:codex-handoff',
+        '--trust-domain', 'TRUSTED_FOR_RECORDING', '--idempotency-key', 'opa:stage7:blind-progress', '--json'
+    )
+    $blindCheckpointReconcile = Invoke-PilotLedgerJson $ledger @(
+        'reconcile', '--database', $database, '--project-ref', $projectRef,
+        '--command-type', 'CREATE_CONTINUITY_CHECKPOINT', '--actor-id', 'agent:codex-handoff',
+        '--trust-domain', 'LOCAL_USER', '--idempotency-key', 'opa:stage7:blind-checkpoint', '--json'
+    )
+    $afterBlindState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $afterBlindResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    if ($blindProgressReconcile.outcome -ne 'RECONCILED' -or
+        $blindProgressReconcile.result.status -ne 'ACCEPTED' -or
+        [int64]$blindProgressReconcile.result.previous_state_version -ne $stageSixVersion -or
+        [int64]$blindProgressReconcile.result.new_state_version -ne ($stageSixVersion + 1) -or
+        $blindCheckpointReconcile.outcome -ne 'RECONCILED' -or
+        $blindCheckpointReconcile.result.status -ne 'ACCEPTED' -or
+        [int64]$blindCheckpointReconcile.result.previous_state_version -ne ($stageSixVersion + 1) -or
+        [int64]$blindCheckpointReconcile.result.new_state_version -ne ($stageSixVersion + 2) -or
+        [int64]$afterBlindState.state_version -ne ($stageSixVersion + 2) -or
+        $afterBlindState.project.lifecycle_status -ne 'BLOCKED' -or
+        $afterBlindState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($afterBlindState.completed_phase_refs).Count -ne 0 -or
+        @($afterBlindState.verified_gate_refs).Count -ne 1 -or
+        $afterBlindState.checkpoint_ref -ne $blind.checkpoint.checkpoint_ref -or
+        $afterBlindResume.checkpoint_freshness -ne 'CURRENT' -or
+        $afterBlindResume.last_material_progress_summary -ne $blind.progress.summary -or
+        $afterBlindResume.preferred_next_action_ref -ne 'action:opa-stage-07-integrations') {
+        throw 'PILOT_STAGE_7_BLIND_HANDOFF_STATE_INVALID'
+    }
+
+    $stageSevenRoot = Join-Path $resolvedPilotRoot 'stage-7-runtime'
+    if (Test-Path -LiteralPath $stageSevenRoot) {
+        throw "PILOT_STAGE_7_DESTINATION_EXISTS: $stageSevenRoot"
+    }
+    $null = New-Item -ItemType Directory -Path $stageSevenRoot
+    $observedAt = [DateTimeOffset]::UtcNow.ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $approvalExpiresAt = [DateTimeOffset]::UtcNow.AddMinutes(15).ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+
+    $phaseStartAuthority = @($afterBlindState.authority_documents | Where-Object {
+        $_.document_id -eq 'authority:opa-spec'
+    })
+    if ($phaseStartAuthority.Count -ne 1 -or
+        [string]::IsNullOrWhiteSpace([string]$phaseStartAuthority[0].effective_from)) {
+        throw 'PILOT_STAGE_7_PHASE_START_PROVENANCE_MISSING'
+    }
+    $phaseStartedAt = ([DateTimeOffset]$phaseStartAuthority[0].effective_from).ToUniversalTime().ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $phaseCatalogPath = Join-Path $stageSevenRoot 'phase-catalog.json'
+    Write-PilotJson $phaseCatalogPath @([ordered]@{
+        schema_version = '0.2.0'
+        phase_id = 'phase:operational-acceptance'
+        title = 'Operational acceptance'
+        ordinal = 1
+        kind = 'AUDIT'
+        status = 'ACTIVE'
+        required_gate_refs = @(1..8 | ForEach-Object { 'gate:opa-{0:D2}' -f $_ })
+        optional_gate_refs = @('gate:opa-waiver-exercise')
+        started_at = $phaseStartedAt
+        completed_at = $null
+        reopened_at = $null
+    })
+    $gskillsProjectRef = 'project:g-ledger-operational-pilot'
+    $repositoryBindings = @(Invoke-PilotLedgerJson $ledger @(
+        'repository', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $currentRepositoryBindings = @($repositoryBindings | Where-Object { $_.status -eq 'CURRENT' })
+    if ($currentRepositoryBindings.Count -ne 1) {
+        throw 'PILOT_STAGE_7_PROVIDER_REPOSITORY_IDENTITY_AMBIGUOUS'
+    }
+    $currentRepositoryBinding = $currentRepositoryBindings[0]
+    $providerRequestedFields = @(
+        'project_state_version', 'material_state_version', 'project_state_digest',
+        'authority_documents', 'active_phases', 'primary_active_phase_ref',
+        'verified_completed_phases', 'current_decisions', 'open_blockers', 'open_risks',
+        'pending_gates', 'revalidation_required_gates', 'stale_gates', 'next_actions',
+        'checkpoint', 'repository_binding', 'recent_material_events',
+        'last_material_activity_at', 'unknowns', 'conflicts'
+    )
+    $providerRequestWithoutDigest = [ordered]@{
+        schema_version = '0.3.0'
+        context_projection_request_id = 'projection-request:opa-stage7'
+        request_id = 'request:opa-stage7'
+        traceparent = '00-00000000000000000000000000000007-0000000000000007-01'
+        provider_id = 'project-ledger'
+        projection_kind = 'PROJECT_CONTINUITY'
+        stage = 'TASK_CONTEXT'
+        purpose = 'Validate bounded Stage 7 read-only continuity'
+        identity = [ordered]@{
+            project_ref = $gskillsProjectRef
+            repository_ref = [string]$currentRepositoryBinding.repository_ref
+            repository_snapshot_ref = [string]$currentRepositoryBinding.current_snapshot_ref
+            session_ref = 'session:opa-stage7-provider'
+            task_ref = 'task:opa-stage7-provider'
+        }
+        structural_scope = [ordered]@{ path_refs = @(); symbol_refs = @(); impact_ref = $null }
+        requested_fields = $providerRequestedFields
+        budget = [ordered]@{ max_items = 256; max_tokens = 4096; max_output_bytes = 1048576; timeout_ms = 5000 }
+        privacy = [ordered]@{
+            allowed_fields = @('ids', 'titles', 'statuses', 'digests', 'bounded_summaries')
+            source_bodies = $false
+            raw_events = $false
+        }
+        consistency = [ordered]@{
+            expected_project_state_version = [int64]$afterBlindState.state_version
+            expected_material_state_version = [int64]$afterBlindState.material_state_version
+            expected_project_state_digest = [string]$afterBlindState.state_digest
+            require_freshness = $true
+            allow_partial = $true
+        }
+        write_capability = 'NONE'
+        requested_at = $observedAt
+    }
+    $providerRequest = [ordered]@{}
+    foreach ($key in $providerRequestWithoutDigest.Keys) { $providerRequest[$key] = $providerRequestWithoutDigest[$key] }
+    $providerRequest['digest'] = Get-PilotCanonicalDigest $providerRequestWithoutDigest
+    $providerRequests = @(
+        [ordered]@{ jsonrpc = '2.0'; id = 1; method = 'ledger.manifest'; params = [ordered]@{} },
+        [ordered]@{ jsonrpc = '2.0'; id = 2; method = 'ledger.health'; params = [ordered]@{} },
+        [ordered]@{ jsonrpc = '2.0'; id = 3; method = 'ledger.project_continuity'; params = $providerRequest },
+        [ordered]@{ jsonrpc = '2.0'; id = 4; method = 'ledger.command_submit'; params = [ordered]@{} }
+    )
+    $providerRequestsPath = Join-Path $stageSevenRoot 'provider-requests.json'
+    Write-PilotJson $providerRequestsPath $providerRequests
+    $beforeProvider = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $providerRpcOutput = & $recordSinkClient `
+        -Executable $ledger `
+        -ProcessArguments @(
+            'serve', 'provider', '--stdio', '--profile', 'gskills-context-provider/0.3.0',
+            '--database', $database, '--project-ref', $projectRef,
+            '--gskills-project-ref', $gskillsProjectRef,
+            '--phase-catalog', $phaseCatalogPath, '--observed-at', $observedAt
+        ) `
+        -RequestsFile $providerRequestsPath
+    if ($LASTEXITCODE -ne 0) { throw "PILOT_STAGE_7_PROVIDER_CLIENT_FAILED: exit=$LASTEXITCODE" }
+    $providerResponses = @(($providerRpcOutput | Out-String).Trim() | ConvertFrom-Json)
+    $afterProvider = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $providerErrorResponses = @($providerResponses | Where-Object {
+        $null -ne $_.PSObject.Properties['error'] -and $null -ne $_.error
+    })
+    if ($providerResponses.Count -ne 4 -or
+        $providerErrorResponses.Count -ne 1 -or
+        [int]$providerErrorResponses[0].id -ne 4 -or
+        [int]$providerErrorResponses[0].error.code -ne -32601) {
+        throw "PILOT_STAGE_7_PROVIDER_RPC_SHAPE_INVALID: $($providerResponses | ConvertTo-Json -Compress -Depth 10)"
+    }
+    if (
+        $providerResponses[0].result.side_effect_contract.writes_supported -ne $false -or
+        @($providerResponses[0].result.record_sink_capabilities).Count -ne 0 -or
+        $providerResponses[1].result.runtime_status -ne 'AVAILABLE' -or
+        [int64]$providerResponses[2].result.projection.project.state_version -ne [int64]$beforeProvider.state_version -or
+        [int64]$afterProvider.state_version -ne [int64]$beforeProvider.state_version -or
+        $afterProvider.state_digest -ne $beforeProvider.state_digest) {
+        $providerInvariantDetails = [ordered]@{
+            response_count = $providerResponses.Count
+            error_count = $providerErrorResponses.Count
+            mutable_error_code = $providerErrorResponses[0].error.code
+            writes_supported = $providerResponses[0].result.side_effect_contract.writes_supported
+            record_sink_capabilities = @($providerResponses[0].result.record_sink_capabilities)
+            runtime_status = $providerResponses[1].result.runtime_status
+            projection_state_version = $providerResponses[2].result.projection.project.state_version
+            expected_state_version = $beforeProvider.state_version
+            after_state_version = $afterProvider.state_version
+            digest_unchanged = $afterProvider.state_digest -eq $beforeProvider.state_digest
+        }
+        throw "PILOT_STAGE_7_PROVIDER_INVARIANT_FAILED: $($providerInvariantDetails | ConvertTo-Json -Compress -Depth 5)"
+    }
+
+    $gskillsRoot = Join-Path $installation 'resources\integrations\gskills'
+    $providerManifestPath = Join-Path $gskillsRoot 'reports\record-sink-conformance.json'
+    $compatibilityLockPath = Join-Path $gskillsRoot 'profile-contract-lock.json'
+    $identityMapPath = Join-Path $gskillsRoot 'reports\record-sink-field-mapping.json'
+    foreach ($requiredPath in @($providerManifestPath, $compatibilityLockPath, $identityMapPath)) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_7_RECORD_SINK_RESOURCE_MISSING: $requiredPath"
+        }
+    }
+    $providerManifestDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $providerManifestPath).Hash.ToLowerInvariant()
+    $providerExecutableDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $ledger).Hash.ToLowerInvariant()
+    $compatibilityLockDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $compatibilityLockPath).Hash.ToLowerInvariant()
+    $identityMapDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $identityMapPath).Hash.ToLowerInvariant()
+    $externalProjectRef = 'project-ledger://projects/g-ledger-operational-pilot'
+    $actorTrustDomain = 'agent_harness:on_behalf_of_local_user'
+    $allowedSinkKinds = @(
+        'RECORD_WORK_PROGRESS', 'RECORD_VERIFICATION_RESULT', 'REQUEST_GATE_EVALUATION',
+        'REQUEST_GATE_REVALIDATION', 'CREATE_CONTINUITY_CHECKPOINT'
+    )
+    $sinkPolicyWithoutDigest = [ordered]@{
+        schema_version = '0.2.0'
+        policy_id = 'policy:opa-stage7-record-sink'
+        sink_id = 'project-ledger'
+        profile = 'gskills-context-provider/0.3.0'
+        gskills_project_ref = $gskillsProjectRef
+        external_project_ref = $externalProjectRef
+        native_project_ref = $projectRef
+        external_actor = [ordered]@{ type = 'agent_harness'; id = 'opa-stage7-client'; on_behalf_of = 'human:owner' }
+        native_actor = [ordered]@{
+            actor_id = 'integration:gskills-stage7'
+            actor_kind = 'INTEGRATION'
+            trust_level = 'TRUSTED_FOR_RECORDING'
+            display_name = 'G-Ledger OPA Stage 7 local RecordSink client'
+        }
+        actor_trust_domain = $actorTrustDomain
+        allowed_command_kinds = $allowedSinkKinds
+        approval_requirement = 'USER_OR_POLICY'
+        provider_manifest_digest = $providerManifestDigest
+        provider_executable_digest = $providerExecutableDigest
+        compatibility_lock_digest = $compatibilityLockDigest
+        identity_map_digest = $identityMapDigest
+        created_at = $observedAt
+    }
+    $sinkPolicy = [ordered]@{}
+    foreach ($key in $sinkPolicyWithoutDigest.Keys) { $sinkPolicy[$key] = $sinkPolicyWithoutDigest[$key] }
+    $sinkPolicy['digest'] = Get-PilotCanonicalDigest $sinkPolicyWithoutDigest
+    $sinkPolicyPath = Join-Path $stageSevenRoot 'record-sink-policy.json'
+    Write-PilotJson $sinkPolicyPath $sinkPolicy
+
+    $beforeSink = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $workRecordWithoutDigest = [ordered]@{
+        schema_version = '0.2.0'
+        work_record_id = 'work:opa-stage7-recordsink'
+        summary = 'Stage 7 local RecordSink recorded one explicitly authorized bounded progress effect.'
+        phase_ref = 'phase:operational-acceptance'
+        task_ref = 'task:opa-stage7-local-integration'
+        files_or_artifacts = @('gskills://local/opa-stage7')
+        commit_refs = @()
+        claim_refs = @()
+        evidence_refs = @()
+        actor_ref = 'integration:gskills-stage7'
+        influence = 'Local allowlisted RecordSink validation only'
+        occurred_at = $observedAt
+        recorded_at = $observedAt
+        provenance_ref = 'gskills://provenance/opa-stage7-recordsink'
+    }
+    $workRecord = [ordered]@{}
+    foreach ($key in $workRecordWithoutDigest.Keys) { $workRecord[$key] = $workRecordWithoutDigest[$key] }
+    $workRecord['digest'] = Get-PilotCanonicalDigest $workRecordWithoutDigest
+    $externalCommand = [ordered]@{
+        schema_version = '0.3.0'
+        external_record_command_id = 'external-command:019b7a00-0000-7000-8000-000000000007'
+        command_kind = 'RECORD_WORK_PROGRESS'
+        sink_id = 'project-ledger'
+        profile = 'gskills-context-provider/0.3.0'
+        project_ref = $gskillsProjectRef
+        external_project_ref = $externalProjectRef
+        actor = [ordered]@{ type = 'agent_harness'; id = 'opa-stage7-client'; on_behalf_of = 'human:owner' }
+        session_ref = 'session:opa-stage7-record-sink'
+        native_command = [ordered]@{
+            command_type = 'RECORD_WORK_PROGRESS'
+            command_schema_ref = 'urn:project-ledger:command:record-work-progress:0.2.0'
+            command_schema_ref_status = 'EXACT'
+            expected_state_version = [int64]$beforeSink.state_version
+        }
+        expected_state = [ordered]@{
+            project_state_version = [int64]$beforeSink.state_version
+            material_state_version = [int64]$beforeSink.material_state_version
+            project_state_digest = [string]$beforeSink.state_digest
+        }
+        payload = [ordered]@{ work_record = $workRecord }
+        idempotency_key = 'opa:stage7:sink:progress'
+        idempotency_scope = [ordered]@{
+            sink_id = 'project-ledger'
+            external_project_ref = $externalProjectRef
+            native_command_type = 'RECORD_WORK_PROGRESS'
+            actor_trust_domain = $actorTrustDomain
+        }
+        preparation = [ordered]@{
+            prepared_by = 'gskills'
+            prepared_at = $observedAt
+            prepared_command_digest = 'sha256:' + ('0' * 64)
+            preview_digest = 'sha256:' + ('0' * 64)
+            provider_manifest_digest = $providerManifestDigest
+            provider_executable_digest = $providerExecutableDigest
+            compatibility_lock_digest = $compatibilityLockDigest
+            policy_digest = $sinkPolicy.digest
+            identity_map_digest = $identityMapDigest
+            expected_state_digest = [string]$beforeSink.state_digest
+            approval_requirement = 'USER_OR_POLICY'
+            approval_expires_at = $approvalExpiresAt
+        }
+        privacy = [ordered]@{ raw_output_included = $false; evidence_refs_only = $true }
+        provenance_ref = 'gskills://provenance/opa-stage7-recordsink'
+        digest = 'sha256:' + ('0' * 64)
+    }
+    $preparedCore = $externalCommand | ConvertTo-Json -Depth 30 -Compress |
+        ConvertFrom-Json -AsHashtable -DateKind String
+    $preparedCore.Remove('digest')
+    foreach ($field in @(
+        'prepared_command_digest', 'preview_digest', 'provider_manifest_digest',
+        'provider_executable_digest', 'compatibility_lock_digest', 'policy_digest',
+        'identity_map_digest', 'expected_state_digest'
+    )) { $preparedCore.preparation.Remove($field) }
+    $preparedDigest = Get-PilotCanonicalDigest $preparedCore
+    $externalCommand.preparation.prepared_command_digest = $preparedDigest
+    $externalCommand.preparation.preview_digest = $preparedDigest
+    $commandWithoutDigest = $externalCommand | ConvertTo-Json -Depth 30 -Compress |
+        ConvertFrom-Json -AsHashtable -DateKind String
+    $commandWithoutDigest.Remove('digest')
+    $externalCommand.digest = Get-PilotCanonicalDigest $commandWithoutDigest
+    $sinkRequests = @(
+        [ordered]@{ jsonrpc = '2.0'; id = 1; method = 'ledger.manifest'; params = [ordered]@{} },
+        [ordered]@{ jsonrpc = '2.0'; id = 2; method = 'ledger.command_validate'; params = [ordered]@{ command = $externalCommand } },
+        [ordered]@{ jsonrpc = '2.0'; id = 3; method = 'ledger.command_submit'; params = [ordered]@{ command = $externalCommand } },
+        [ordered]@{ jsonrpc = '2.0'; id = 4; method = 'ledger.command_submit'; params = [ordered]@{ command = $externalCommand } },
+        [ordered]@{ jsonrpc = '2.0'; id = 5; method = 'ledger.command_status'; params = [ordered]@{ command = $externalCommand } },
+        [ordered]@{ jsonrpc = '2.0'; id = 6; method = 'ledger.command_reconcile'; params = [ordered]@{ command = $externalCommand } }
+    )
+    $sinkRequestsPath = Join-Path $stageSevenRoot 'record-sink-requests.json'
+    Write-PilotJson $sinkRequestsPath $sinkRequests
+    $sinkRpcOutput = & $recordSinkClient `
+        -Executable $ledger `
+        -ProcessArguments @(
+            'serve', 'sink', '--stdio', '--profile', 'gskills-context-provider/0.3.0',
+            '--database', $database, '--project-ref', $projectRef,
+            '--gskills-project-ref', $gskillsProjectRef, '--policy', $sinkPolicyPath,
+            '--observed-at', $observedAt
+        ) `
+        -RequestsFile $sinkRequestsPath
+    if ($LASTEXITCODE -ne 0) { throw "PILOT_STAGE_7_RECORD_SINK_CLIENT_FAILED: exit=$LASTEXITCODE" }
+    $sinkResponses = @(($sinkRpcOutput | Out-String).Trim() | ConvertFrom-Json)
+    $afterSink = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $sinkErrorResponses = @($sinkResponses | Where-Object {
+        $null -ne $_.PSObject.Properties['error'] -and $null -ne $_.error
+    })
+    if ($sinkResponses.Count -ne 6 -or
+        $sinkErrorResponses.Count -ne 0 -or
+        (@($sinkResponses[0].result.record_sink_capabilities) -join '|') -ne ($allowedSinkKinds -join '|') -or
+        @($sinkResponses[0].result.claimed_authority_domains).Count -ne 0 -or
+        $sinkResponses[0].result.side_effect_contract.writes_require_explicit_policy -ne $true -or
+        $sinkResponses[1].result.status -ne 'VALID' -or
+        $sinkResponses[2].result.status -ne 'ACCEPTED' -or
+        $sinkResponses[3].result.status -ne 'DUPLICATE_REPLAY' -or
+        $sinkResponses[4].result.status -ne 'FOUND' -or
+        $sinkResponses[5].result.status -ne 'FOUND' -or
+        [int64]$afterSink.state_version -ne ([int64]$beforeSink.state_version + 1)) {
+        throw 'PILOT_STAGE_7_RECORD_SINK_INVARIANT_FAILED'
+    }
+
+    $gspLockPath = Join-Path $installation 'resources\integrations\gsp\upstream-lock.json'
+    $gspLock = Get-Content -Raw -LiteralPath $gspLockPath | ConvertFrom-Json
+    if ($gspLock.implementation_commit -ne $ExpectedGspCommit -or
+        $gspLock.contract_tag -ne 'gsp-exact-2026.04.12' -or
+        $gspLock.contract_commit -ne '004b14d7b64837025671970eac2469f092c49475' -or
+        $gspLock.certified_compatibility -ne $false) {
+        throw 'PILOT_STAGE_7_GSP_LOCK_MISMATCH'
+    }
+    $gitSafeDirectory = $resolvedGspSource.Replace('\', '/')
+    $gspSourceHead = (& git -c "safe.directory=$gitSafeDirectory" -C $resolvedGspSource rev-parse HEAD 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or $gspSourceHead -ne $ExpectedGspCommit) {
+        throw "PILOT_STAGE_7_GSP_SOURCE_COMMIT_MISMATCH: $gspSourceHead"
+    }
+    $gspSourceStatus = (& git -c "safe.directory=$gitSafeDirectory" -C $resolvedGspSource status --porcelain --untracked-files=normal 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not [string]::IsNullOrWhiteSpace($gspSourceStatus)) {
+        throw 'PILOT_STAGE_7_GSP_SOURCE_NOT_CLEAN'
+    }
+    $gspRoot = Join-Path $stageSevenRoot 'gsp'
+    $null = New-Item -ItemType Directory -Path $gspRoot
+    $gspRequestPath = Join-Path $gspRoot 'request.json'
+    $gspCorpusPath = Join-Path $gspRoot 'corpus.json'
+    $gspResultPath = Join-Path $gspRoot 'result.json'
+    $gspRawResultPath = Join-Path $gspRoot 'raw-compilation-result.json'
+    $gspValidatedPath = Join-Path $gspRoot 'validated.json'
+    $gspReceiptPath = Join-Path $gspRoot 'receipt.json'
+    $gspPolicyPath = Join-Path $gspRoot 'policy.json'
+    $gspStateBefore = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    Write-PilotJson $gspRequestPath ([ordered]@{
+        query = 'What remains before controlled operational adoption of G-Ledger?'
+        project_ref = $projectRef
+        authority_refs = @('authority:opa-spec')
+        decision_refs = @('decision:opa-stage3-sequence-v2')
+        gate_refs = @('gate:opa-04')
+        checkpoint_refs = @([string]$afterBlindState.checkpoint_ref)
+        material_event_refs = @([string]$gspStateBefore.last_material_event_ref)
+        observed_at = $observedAt
+        budget = [ordered]@{ max_items = 5; max_text_bytes = 16384 }
+    })
+    $processEnvironment = [ordered]@{
+        PATH = [string]$env:Path
+        SYSTEMROOT = [string]$env:SystemRoot
+        TEMP = [string]$env:TEMP
+        TMP = [string]$env:TMP
+        PYTHONUTF8 = '1'
+        GIT_CONFIG_COUNT = '1'
+        GIT_CONFIG_KEY_0 = 'safe.directory'
+        GIT_CONFIG_VALUE_0 = $gitSafeDirectory
+    }
+    Write-PilotJson $gspPolicyPath ([ordered]@{
+        allowed_programs = @($resolvedGspPython)
+        process = [ordered]@{
+            timeout_ms = 60000
+            max_stdout_bytes = 1048576
+            max_stderr_bytes = 1048576
+            environment = $processEnvironment
+        }
+    })
+    $gspContracts = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'verify-contracts', '--json'
+    )
+    $beforeExport = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $gspExport = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'export-corpus', '--database', $database,
+        '--project-ref', $projectRef, '--request', $gspRequestPath, '--output', $gspCorpusPath, '--json'
+    )
+    $afterExport = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $gspCompile = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'compile', '--python', $resolvedGspPython,
+        '--source-root', $resolvedGspSource, '--input', $gspCorpusPath,
+        '--output', $gspResultPath, '--policy', $gspPolicyPath, '--cwd', $gspRoot, '--json'
+    )
+    $afterCompile = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $compiledGspOutput = Get-Content -Raw -LiteralPath $gspResultPath | ConvertFrom-Json
+    Write-PilotJson $gspRawResultPath $compiledGspOutput.result
+    $gspValidate = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'validate-result', '--evidence-bundle', $gspCorpusPath,
+        '--result', $gspRawResultPath, '--output', $gspValidatedPath, '--json'
+    )
+    $afterValidate = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $validatedGsp = Get-Content -Raw -LiteralPath $gspValidatedPath | ConvertFrom-Json
+    Write-PilotJson $gspReceiptPath $validatedGsp.receipt
+    $gspLinkExpectedVersion = [int64]$afterValidate.state_version
+    $gspLink = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'link-result', '--database', $database, '--project-ref', $projectRef,
+        '--receipt', $gspReceiptPath, '--receipt-uri', 'artifact://gsp/opa-stage7-validated.json',
+        '--expected-state-version', [string]$gspLinkExpectedVersion,
+        '--idempotency-key', 'opa:stage7:gsp:link', '--actor-id', 'integration:gsp-stage7',
+        '--observed-at', $observedAt, '--json'
+    )
+    $afterLink = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $gspReplay = Invoke-PilotLedgerJson $ledger @(
+        'integration', 'gsp', 'link-result', '--database', $database, '--project-ref', $projectRef,
+        '--receipt', $gspReceiptPath, '--receipt-uri', 'artifact://gsp/opa-stage7-validated.json',
+        '--expected-state-version', [string]$gspLinkExpectedVersion,
+        '--idempotency-key', 'opa:stage7:gsp:link', '--actor-id', 'integration:gsp-stage7',
+        '--observed-at', $observedAt, '--json'
+    )
+    $afterReplay = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    if (($gspContracts.output | Out-String).Trim() -ne 'gsp contracts MATCH registry=28 schemas=31 fixtures=140 profile=gsp-exact-2026.04.12' -or
+        [int64]$afterExport.state_version -ne [int64]$beforeExport.state_version -or
+        $afterExport.state_digest -ne $beforeExport.state_digest -or
+        [int64]$afterCompile.state_version -ne [int64]$afterExport.state_version -or
+        $afterCompile.state_digest -ne $afterExport.state_digest -or
+        [int64]$afterValidate.state_version -ne [int64]$afterCompile.state_version -or
+        $afterValidate.state_digest -ne $afterCompile.state_digest -or
+        $gspCompile.status -ne 'COMPILED_UNLINKED' -or
+        $gspCompile.ledger_event_delta -ne 0 -or
+        $gspCompile.authority_elevation_count -ne 0 -or
+        $gspCompile.certified_compatibility -ne $false -or
+        (($gspValidate.output | Out-String).Trim() -notmatch '^gsp result VALIDATED contracts=6 review=(true|false) output=') -or
+        $validatedGsp.receipt.receipt_digest -ne $compiledGspOutput.receipt.receipt_digest -or
+        $gspLink.status -ne 'ACCEPTED' -or
+        [int64]$afterLink.state_version -ne ($gspLinkExpectedVersion + 1) -or
+        $gspReplay.status -ne 'DUPLICATE_REPLAY' -or
+        [int64]$afterReplay.state_version -ne [int64]$afterLink.state_version -or
+        $afterReplay.state_digest -ne $afterLink.state_digest -or
+        $afterReplay.project.lifecycle_status -ne $gspStateBefore.project.lifecycle_status -or
+        $afterReplay.primary_active_phase_ref -ne $gspStateBefore.primary_active_phase_ref -or
+        (@($afterReplay.completed_phase_refs) -join '|') -ne (@($gspStateBefore.completed_phase_refs) -join '|') -or
+        (@($afterReplay.verified_gate_refs) -join '|') -ne (@($gspStateBefore.verified_gate_refs) -join '|')) {
+        throw 'PILOT_STAGE_7_GSP_INVARIANT_FAILED'
+    }
+
+    $script:stageSevenMutations = @()
+    function Invoke-StageSevenCommand {
+        param(
+            [string]$Name,
+            [string]$CommandType,
+            [string]$ActorId,
+            [bool]$AsHuman,
+            [string[]]$CommandArguments,
+            [int64]$ExpectedDelta
+        )
+        $before = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+        $arguments = @($CommandArguments) + @(
+            '--database', $database, '--project-ref', $projectRef,
+            '--expected-version', [string]$before.state_version,
+            '--idempotency-key', ('opa:stage7:' + $Name), '--actor-id', $ActorId,
+            '--observed-at', $observedAt
+        )
+        if ($AsHuman) { $arguments += '--as-human' }
+        $arguments += '--json'
+        $result = Invoke-PilotLedgerJson $ledger $arguments
+        $after = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+        $delta = [int64]$after.state_version - [int64]$before.state_version
+        if ($delta -ne $ExpectedDelta) {
+            throw "PILOT_STAGE_7_MUTATION_DELTA_INVALID: $Name expected=$ExpectedDelta actual=$delta"
+        }
+        $script:stageSevenMutations += [ordered]@{
+            name = $Name
+            command_type = $CommandType
+            actor_id = $ActorId
+            as_human = $AsHuman
+            expected_state_version = [int64]$before.state_version
+            resulting_state_version = [int64]$after.state_version
+            state_version_delta = $delta
+            idempotency_key = 'opa:stage7:' + $Name
+        }
+        return $result
+    }
+    $null = Invoke-StageSevenCommand `
+        'blocker-stage7-resolve' 'RESOLVE_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'resolve', 'blocker:opa-stage7-integrations',
+            '--summary', 'Blind Codex handoff and bounded local provider, RecordSink, and fixed GSP validations passed Stage 7.'
+        ) 3
+    $null = Invoke-StageSevenCommand `
+        'next-stage8-set' 'SET_NEXT_ACTION' 'human:owner' $true `
+        @(
+            'next', 'set', '--title', 'Request authorization for Stage 8 reconciliation and owner decision',
+            '--summary', 'Stage 8 remains outside the current authorization and operational acceptance requires a later separate owner decision.',
+            '--phase', 'phase:operational-acceptance', '--classification', 'ELIGIBLE',
+            '--record-id', 'action:opa-next-stage8-decision'
+        ) 1
+    $null = Invoke-StageSevenCommand `
+        'blocker-stage8-open' 'OPEN_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'open', '--title', 'Stage 8 requires separate human authorization and final owner decision',
+            '--summary', 'Final reconciliation and any operational acceptance decision are not authorized by Stage 7.',
+            '--severity', 'HIGH', '--record-id', 'blocker:opa-stage8-human-decision'
+        ) 2
+    $finalCheckpoint = Invoke-StageSevenCommand `
+        'checkpoint-final' 'CREATE_CONTINUITY_CHECKPOINT' 'agent:opa-stage7' $false `
+        @('checkpoint', 'create', '--reason', 'Stage 7 blind handoff and bounded integrations handoff') 1
+
+    $finalState = Invoke-PilotLedgerJson $ledger @('status', '--database', $database, '--project-ref', $projectRef, '--json')
+    $finalResume = Invoke-PilotLedgerJson $ledger @('resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json')
+    $finalDoctor = Invoke-PilotLedgerJson $ledger @('doctor', '--database', $database, '--project-ref', $projectRef, '--json')
+    $finalVerify = Invoke-PilotLedgerJson $ledger @('verify', '--database', $database, '--project-ref', $projectRef, '--json')
+    $finalAudit = Invoke-PilotLedgerJson $ledger @('audit', '--database', $database, '--project-ref', $projectRef, '--json')
+    $phaseList = @(Invoke-PilotLedgerJson $ledger @('phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'))
+    $activePhase = @($phaseList | Where-Object { $_.phase_ref -eq 'phase:operational-acceptance' })
+    if ($finalResume.checkpoint_freshness -ne 'CURRENT' -or
+        $finalState.project.lifecycle_status -ne 'BLOCKED' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or
+        $finalState.preferred_next_action_ref -ne 'action:opa-next-stage8-decision' -or
+        @($finalState.open_blocker_refs) -notcontains 'blocker:opa-stage8-human-decision' -or
+        @($finalState.open_blocker_refs) -contains 'blocker:opa-stage7-integrations' -or
+        $activePhase.Count -ne 1 -or $activePhase[0].status -ne 'ACTIVE' -or
+        $finalDoctor.integrity -ne 'ok' -or $finalVerify.integrity -ne 'ok' -or $finalAudit.integrity -ne 'ok' -or
+        @($finalVerify.findings).Count -ne 0 -or @($finalAudit.findings).Count -ne 0) {
+        $finalInvariantDetails = [ordered]@{
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_refs = @($finalState.completed_phase_refs)
+            preferred_next_action_ref = $finalState.preferred_next_action_ref
+            open_blocker_refs = @($finalState.open_blocker_refs)
+            active_phase_count = $activePhase.Count
+            active_phase_status = if ($activePhase.Count -eq 1) { $activePhase[0].status } else { $null }
+            doctor_integrity = $finalDoctor.integrity
+            verify_integrity = $finalVerify.integrity
+            audit_integrity = $finalAudit.integrity
+            verify_findings = @($finalVerify.findings)
+            audit_findings = @($finalAudit.findings)
+        }
+        throw "PILOT_STAGE_7_FINAL_INVARIANT_FAILED: $($finalInvariantDetails | ConvertTo-Json -Compress -Depth 10)"
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 7
+        status = 'BLIND_HANDOFF_INTEGRATIONS_PASS'
+        proof_class = 'LIVE_HANDOFF_AND_LOCAL_INTEGRATION'
+        project_ref = $projectRef
+        subject = [ordered]@{
+            zip_sha256 = $actualZipHash
+            source_commit = $ExpectedSourceCommit
+            version = '0.2.0'
+        }
+        blind_handoff = [ordered]@{
+            task_ref = $blind.task_ref
+            prompt_sha256 = $blind.prompt_sha256
+            input_count = 4
+            narrative_context_received = $false
+            reported_state_version = [int64]$blind.reported_state.state_version
+            progress_status = $blindProgressReconcile.result.status
+            progress_state_version_delta = 1
+            checkpoint_status = $blindCheckpointReconcile.result.status
+            checkpoint_ref = $afterBlindState.checkpoint_ref
+            checkpoint_freshness = $afterBlindResume.checkpoint_freshness
+            lifecycle_command_count = 0
+            as_human_used = $false
+        }
+        provider = [ordered]@{
+            profile = 'gskills-context-provider/0.3.0'
+            runtime_status = $providerResponses[1].result.runtime_status
+            projection_state_version = [int64]$providerResponses[2].result.projection.project.state_version
+            mutable_method_error_code = [int]$providerResponses[3].error.code
+            record_sink_capability_count = @($providerResponses[0].result.record_sink_capabilities).Count
+            state_version_delta = [int64]$afterProvider.state_version - [int64]$beforeProvider.state_version
+            state_digest_unchanged = $afterProvider.state_digest -eq $beforeProvider.state_digest
+        }
+        record_sink = [ordered]@{
+            profile = 'gskills-context-provider/0.3.0'
+            policy_digest = $sinkPolicy.digest
+            allowed_command_kinds = $allowedSinkKinds
+            claimed_authority_domain_count = @($sinkResponses[0].result.claimed_authority_domains).Count
+            validate_status = $sinkResponses[1].result.status
+            submit_status = $sinkResponses[2].result.status
+            replay_status = $sinkResponses[3].result.status
+            status_lookup = $sinkResponses[4].result.status
+            reconcile_lookup = $sinkResponses[5].result.status
+            first_submit_state_version_delta = [int64]$afterSink.state_version - [int64]$beforeSink.state_version
+            replay_state_version_delta = 0
+            lifecycle_authority_count = 0
+        }
+        gsp = [ordered]@{
+            implementation_commit = $gspSourceHead
+            contract_tag = $gspLock.contract_tag
+            contract_commit = $gspLock.contract_commit
+            registry_contract_count = $gspLock.registry_contract_count
+            schema_artifact_count = $gspLock.schema_artifact_count
+            export_state_version_delta = [int64]$afterExport.state_version - [int64]$beforeExport.state_version
+            compile_status = $gspCompile.status
+            compile_state_version_delta = [int64]$afterCompile.state_version - [int64]$afterExport.state_version
+            validate_status = 'VALIDATED_UNLINKED'
+            validate_state_version_delta = [int64]$afterValidate.state_version - [int64]$afterCompile.state_version
+            link_status = $gspLink.status
+            link_state_version_delta = [int64]$afterLink.state_version - [int64]$afterValidate.state_version
+            replay_status = $gspReplay.status
+            replay_state_version_delta = [int64]$afterReplay.state_version - [int64]$afterLink.state_version
+            authority_elevation_count = $gspCompile.authority_elevation_count
+            lifecycle_state_unchanged = $afterReplay.project.lifecycle_status -eq $gspStateBefore.project.lifecycle_status
+            phase_state_unchanged = $afterReplay.primary_active_phase_ref -eq $gspStateBefore.primary_active_phase_ref
+            certified_compatibility = $false
+        }
+        radar = [ordered]@{
+            status = 'EXCLUDED_BY_SCOPE'
+            executed = $false
+            pass_claimed = $false
+        }
+        integrity = [ordered]@{
+            state_version = [int64]$finalState.state_version
+            state_digest = $finalState.state_digest
+            doctor_integrity = $finalDoctor.integrity
+            verify_integrity = $finalVerify.integrity
+            audit_integrity = $finalAudit.integrity
+            verify_finding_count = @($finalVerify.findings).Count
+            audit_finding_count = @($finalAudit.findings).Count
+        }
+        lifecycle = [ordered]@{
+            initial_state_version = $stageSixVersion
+            final_state_version = [int64]$finalState.state_version
+            final_state_digest = $finalState.state_digest
+        }
+        boundary = [ordered]@{
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            open_blocker_ref = 'blocker:opa-stage8-human-decision'
+            next_action_ref = $finalState.preferred_next_action_ref
+            checkpoint_ref = $finalState.checkpoint_ref
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            stage_8_executed = $false
+            merge_performed = $false
+            release_performed = $false
+            operational_acceptance_declared = $false
+        }
+        mutations = @(
+            [ordered]@{
+                name = 'blind-progress'
+                command_type = 'RECORD_WORK_PROGRESS'
+                actor_id = 'agent:codex-handoff'
+                as_human = $false
+                state_version_delta = 1
+                idempotency_key = 'opa:stage7:blind-progress'
+            },
+            [ordered]@{
+                name = 'blind-checkpoint'
+                command_type = 'CREATE_CONTINUITY_CHECKPOINT'
+                actor_id = 'agent:codex-handoff'
+                as_human = $false
+                state_version_delta = 1
+                idempotency_key = 'opa:stage7:blind-checkpoint'
+            },
+            [ordered]@{
+                name = 'record-sink-progress'
+                command_type = 'RECORD_WORK_PROGRESS'
+                actor_id = 'integration:gskills-stage7'
+                as_human = $false
+                state_version_delta = 1
+                idempotency_key = 'opa:stage7:sink:progress'
+            },
+            [ordered]@{
+                name = 'gsp-link'
+                command_type = 'LINK_EXTERNAL_EVIDENCE'
+                actor_id = 'integration:gsp-stage7'
+                as_human = $false
+                state_version_delta = 1
+                idempotency_key = 'opa:stage7:gsp:link'
+            }
+        ) + @($script:stageSevenMutations)
+        scenarios = [ordered]@{
+            'OPA-S28' = 'PASS'
+            'OPA-S29' = 'PASS'
+            'OPA-S30' = 'PASS'
+            'OPA-S31' = 'EXCLUDED_BY_SCOPE'
+        }
+    }
+    Write-PilotJson $stageSevenManifestPath $manifest
+    [pscustomobject]@{
+        stage = 7
+        status = 'BLIND_HANDOFF_INTEGRATIONS_PASS'
+        evidence = 'evidence/stage-7-blind-handoff-integrations.json'
+    }
+    return
 }
 
 if ($Stage -eq 6) {

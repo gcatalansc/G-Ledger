@@ -1,6 +1,6 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado actual: `IN_PROGRESS`, 6/8, 75 %. OPA-S01…OPA-S27 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; las etapas 7–8 permanecen sin ejecutar y esta matriz no concede adopción operativa. Stage 6 confirmó regeneración de proyecciones, round-trip portable auxiliar, backup/restore de fidelidad completa, rechazo de corrupción/overwrite y privacidad fail-closed sobre las superficies soportadas. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage7-integrations` mantiene el proyecto bloqueado.
+Estado actual: `IN_PROGRESS`, 7/8, 87,5 %. OPA-S01…OPA-S30 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; OPA-S31 permanece `EXCLUDED_BY_SCOPE` y Stage 8 no se ha ejecutado. Stage 7 acreditó un handoff Codex ciego con cuatro insumos, provider G-Skills read-only, RecordSink local explícitamente autorizado y el recorrido GSP fijado; ninguno adquirió autoridad de lifecycle. Export/compile/validate fueron read-only, link produjo delta uno y replay delta cero. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage8-human-decision` mantiene el proyecto bloqueado. Esta matriz no concede adopción operativa ni certificación externa.
 
 ## Principios P-01…P-10
 

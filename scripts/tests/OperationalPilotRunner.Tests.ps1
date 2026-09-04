@@ -557,3 +557,188 @@ Describe 'Operational pilot runner Stage 6 projections privacy and recovery' {
         $manifest.boundary.stage_7_executed | Should Be $false
     }
 }
+
+Describe 'Operational pilot runner Stage 7 blind handoff and bounded integrations' -Tag 'Stage7' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'validates a blind handoff, bounded provider and RecordSink, and the fixed GSP runtime' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 7 blind integrations'
+        foreach ($stage in 1..6) {
+            $null = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $locator = Get-Content -Raw -LiteralPath (Join-Path $pilotRoot 'pilot-locator.json') | ConvertFrom-Json
+        $ledger = Join-Path $pilotRoot 'instalación con espacios\project-ledger.exe'
+        $skill = Join-Path $pilotRoot 'instalación con espacios\resources\integrations\agent-skills\project-ledger-continuity\SKILL.md'
+        $reported = & $ledger resume `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --format json | ConvertFrom-Json
+        $observedAt = [DateTimeOffset]::UtcNow.ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $progress = & $ledger record progress `
+            --summary 'A new blind Codex task reconstructed continuity and recorded this material handoff.' `
+            --phase 'phase:operational-acceptance' `
+            --record-id 'work:opa-stage7-blind-handoff' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --expected-version ([string]$reported.state_version) `
+            --idempotency-key 'opa:stage7:blind-progress' `
+            --actor-id 'agent:codex-handoff' `
+            --observed-at $observedAt `
+            --json | ConvertFrom-Json
+        $checkpoint = & $ledger checkpoint create `
+            --reason 'Blind Codex Stage 7 handoff' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --expected-version ([string]$progress.new_state_version) `
+            --idempotency-key 'opa:stage7:blind-checkpoint' `
+            --actor-id 'agent:codex-handoff' `
+            --observed-at $observedAt `
+            --json | ConvertFrom-Json
+        $handoffEvidence = [ordered]@{
+            profile = 'project-ledger-operational-pilot-blind-handoff/1'
+            task_kind = 'CODEX_NEW_BLIND'
+            task_ref = 'task:test-blind-codex'
+            prompt_sha256 = 'sha256:' + ('7' * 64)
+            inputs = [ordered]@{
+                executable = $ledger
+                database = [string]$locator.database
+                project_ref = [string]$locator.project_ref
+                skill = $skill
+            }
+            constraints = [ordered]@{
+                narrative_context_received = $false
+                direct_database_access = $false
+                repository_context_access = $false
+                git_access = $false
+                as_human_used = $false
+                stage_8_executed = $false
+                lifecycle_command_count = 0
+            }
+            reported_state = [ordered]@{
+                state_version = [int64]$reported.state_version
+                state_digest = [string]$reported.state_digest
+                phase_ref = [string]$reported.active_phase_refs[0]
+                pending_gate_refs = @($reported.pending_gate_refs)
+                open_blocker_refs = @($reported.open_blocker_refs)
+                current_decision_refs = @($reported.current_decision_refs)
+                next_action_ref = [string]$reported.preferred_next_action_ref
+                checkpoint_ref = [string]$reported.checkpoint_ref
+                checkpoint_freshness = [string]$reported.checkpoint_freshness
+            }
+            progress = [ordered]@{
+                actor_id = 'agent:codex-handoff'
+                idempotency_key = 'opa:stage7:blind-progress'
+                record_id = 'work:opa-stage7-blind-handoff'
+                summary = 'A new blind Codex task reconstructed continuity and recorded this material handoff.'
+                status = [string]$progress.status
+            }
+            checkpoint = [ordered]@{
+                actor_id = 'agent:codex-handoff'
+                idempotency_key = 'opa:stage7:blind-checkpoint'
+                checkpoint_ref = [string]$checkpoint.resulting_checkpoint_ref
+                status = [string]$checkpoint.status
+            }
+        }
+        $handoffPath = Join-Path $pilotRoot 'evidence\blind-codex-handoff-receipt.json'
+        [IO.File]::WriteAllText(
+            $handoffPath,
+            ($handoffEvidence | ConvertTo-Json -Depth 20) + [Environment]::NewLine,
+            [Text.UTF8Encoding]::new($false)
+        )
+        $gspPython = (Resolve-Path (Join-Path $repositoryRoot '..\G-GSP\gsp-gemma-compiler\.venv\Scripts\python.exe')).Path
+        $gspSource = (Resolve-Path (Join-Path $repositoryRoot '.tooling\g-ledger-operational-pilot\gsp-exact-7a43559')).Path
+
+        $result = & $runner `
+            -Stage 7 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $repositoryRoot `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit `
+            -BlindHandoffEvidence $handoffPath `
+            -GspPython $gspPython `
+            -GspSourceRoot $gspSource
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-7-blind-handoff-integrations.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+        $manifest.stage | Should Be 7
+        $manifest.status | Should Be 'BLIND_HANDOFF_INTEGRATIONS_PASS'
+        $manifest.proof_class | Should Be 'LIVE_HANDOFF_AND_LOCAL_INTEGRATION'
+        $manifest.blind_handoff.input_count | Should Be 4
+        $manifest.blind_handoff.narrative_context_received | Should Be $false
+        $manifest.blind_handoff.progress_status | Should Be 'ACCEPTED'
+        $manifest.blind_handoff.progress_state_version_delta | Should Be 1
+        $manifest.blind_handoff.checkpoint_status | Should Be 'ACCEPTED'
+        $manifest.blind_handoff.checkpoint_freshness | Should Be 'CURRENT'
+        $manifest.blind_handoff.lifecycle_command_count | Should Be 0
+        $manifest.blind_handoff.as_human_used | Should Be $false
+        $manifest.provider.runtime_status | Should Be 'AVAILABLE'
+        $manifest.provider.mutable_method_error_code | Should Be -32601
+        $manifest.provider.record_sink_capability_count | Should Be 0
+        $manifest.provider.state_version_delta | Should Be 0
+        $manifest.provider.state_digest_unchanged | Should Be $true
+        $manifest.record_sink.allowed_command_kinds.Count | Should Be 5
+        $manifest.record_sink.claimed_authority_domain_count | Should Be 0
+        $manifest.record_sink.validate_status | Should Be 'VALID'
+        $manifest.record_sink.submit_status | Should Be 'ACCEPTED'
+        $manifest.record_sink.replay_status | Should Be 'DUPLICATE_REPLAY'
+        $manifest.record_sink.first_submit_state_version_delta | Should Be 1
+        $manifest.record_sink.replay_state_version_delta | Should Be 0
+        $manifest.record_sink.lifecycle_authority_count | Should Be 0
+        $manifest.gsp.implementation_commit | Should Be '7a43559c02417641691dbb5f2a6e79c13d74d1a1'
+        $manifest.gsp.contract_tag | Should Be 'gsp-exact-2026.04.12'
+        $manifest.gsp.registry_contract_count | Should Be 28
+        $manifest.gsp.schema_artifact_count | Should Be 31
+        $manifest.gsp.export_state_version_delta | Should Be 0
+        $manifest.gsp.compile_status | Should Be 'COMPILED_UNLINKED'
+        $manifest.gsp.compile_state_version_delta | Should Be 0
+        $manifest.gsp.validate_status | Should Be 'VALIDATED_UNLINKED'
+        $manifest.gsp.validate_state_version_delta | Should Be 0
+        $manifest.gsp.link_status | Should Be 'ACCEPTED'
+        $manifest.gsp.link_state_version_delta | Should Be 1
+        $manifest.gsp.replay_status | Should Be 'DUPLICATE_REPLAY'
+        $manifest.gsp.replay_state_version_delta | Should Be 0
+        $manifest.gsp.authority_elevation_count | Should Be 0
+        $manifest.gsp.lifecycle_state_unchanged | Should Be $true
+        $manifest.gsp.phase_state_unchanged | Should Be $true
+        $manifest.gsp.certified_compatibility | Should Be $false
+        $manifest.radar.status | Should Be 'EXCLUDED_BY_SCOPE'
+        $manifest.radar.executed | Should Be $false
+        $manifest.radar.pass_claimed | Should Be $false
+        $manifest.integrity.doctor_integrity | Should Be 'ok'
+        $manifest.integrity.verify_integrity | Should Be 'ok'
+        $manifest.integrity.audit_integrity | Should Be 'ok'
+        $manifest.integrity.verify_finding_count | Should Be 0
+        $manifest.integrity.audit_finding_count | Should Be 0
+        $manifest.boundary.project_status | Should Be 'BLOCKED'
+        $manifest.boundary.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.boundary.completed_phase_count | Should Be 0
+        $manifest.boundary.open_blocker_ref | Should Be 'blocker:opa-stage8-human-decision'
+        $manifest.boundary.next_action_ref | Should Be 'action:opa-next-stage8-decision'
+        $manifest.boundary.checkpoint_freshness | Should Be 'CURRENT'
+        $manifest.boundary.stage_8_executed | Should Be $false
+        $manifest.boundary.operational_acceptance_declared | Should Be $false
+        $manifest.scenarios.'OPA-S28' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S29' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S30' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S31' | Should Be 'EXCLUDED_BY_SCOPE'
+        $result.stage | Should Be 7
+        $result.status | Should Be 'BLIND_HANDOFF_INTEGRATIONS_PASS'
+    }
+}

@@ -80,10 +80,10 @@
 
 ### Task 7: Handoff ciego e integraciones
 
-- [ ] Crear una tarea Codex nueva sólo con binario, database, project_ref y skill.
-- [ ] Verificar su resume, avance material y checkpoint sin contexto narrativo.
-- [ ] Ejecutar provider/RecordSink local y GSP fijado con deltas contractuales; registrar Radar excluido.
-- [ ] Validar S28…S31, actualizar 7/8 y commit `test: validate blind handoff and bounded integrations`.
+- [x] Crear una tarea Codex nueva sólo con binario, database, project_ref y skill.
+- [x] Verificar su resume, avance material y checkpoint sin contexto narrativo.
+- [x] Ejecutar provider/RecordSink local y GSP fijado con deltas contractuales; registrar Radar excluido.
+- [x] Validar S28…S31, actualizar 7/8 y commit `test: validate blind handoff and bounded integrations`.
 
 ### Task 8: Decisión de adopción
 
@@ -129,3 +129,15 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Límite: `blocker:opa-stage7-integrations` mantiene el proyecto `BLOCKED`; `action:opa-stage-07-integrations` es `ELIGIBLE`, no `AUTHORIZED`. No se ejecutaron Stage 7, merge, release ni aceptación operativa.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 7. Esa autorización deberá incluir la creación de una tarea Codex nueva y ciega, acotada al ejecutable, database, project_ref y skill. Sin ella, no iniciar el handoff ni las integraciones.
+
+## 2026-09-04 — Stage 7 ejecutado y conciliado, 7/8
+
+- RED/GREEN: Stage 7 comenzó con `PILOT_STAGE_NOT_IMPLEMENTED: stage 7`; la prueba dedicada terminó GREEN y cubre el handoff, provider/RecordSink, GSP exacto, Radar excluido y el cierre fail-closed hacia Stage 8.
+- Handoff ciego: la tarea Codex `01a06a10-c398-7b22-b749-7515fe66efea` recibió exactamente ejecutable, database, project_ref y skill. Sin relato previo, reconstruyó v85, fase, gates, blocker, decisión, acción y checkpoint; registró un progreso v85→v86 y un checkpoint v86→v87, ambos reconciliados con sus claves originales. No usó Git, SQLite directo, `--as-human` ni comandos de lifecycle.
+- Contención de orquestación: por visibilidad tardía del primer task se creó un reintento local redundante. Se abortó antes de mutar G-Ledger y se excluyó de la evidencia; no se reenvió ninguna clave ni se duplicó efecto durable.
+- Integraciones locales: el provider G-Skills rechazó una llamada mutante con JSON-RPC `-32601` y mantuvo delta cero. El RecordSink expuso sólo cinco command kinds, no reclamó autoridad, aceptó una mutación explícita, devolvió `DUPLICATE_REPLAY` y conservó status/reconcile `FOUND` con deltas uno/cero.
+- GSP fijado: commit `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, contrato `gsp-exact-2026.04.12` y commit contractual `004b14d7b64837025671970eac2469f092c49475`. Export/compile/validate/link/replay produjeron deltas 0/0/0/1/0; no hubo elevación de autoridad, cambio de fase ni certificación. Project Radar quedó `EXCLUDED_BY_SCOPE`, nunca PASS.
+- Cierre controlado: OPA-S28…OPA-S30 pasan; OPA-S31 conserva exclusión. Estado v96, digest `sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a`, checkpoint `checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819` `CURRENT`, fase activa y cero fases completadas. `doctor`, `verify` y `audit` quedaron `ok`, sin findings.
+- Límite: `blocker:opa-stage8-human-decision` mantiene el proyecto `BLOCKED`; `action:opa-next-stage8-decision` identifica el siguiente punto de control, pero no autoriza Stage 8. No hubo merge, release, aceptación operativa, GA ni certificación externa.
+
+**Siguiente paso:** solicitar autorización humana explícita para ejecutar la conciliación de Stage 8. La decisión final `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED` requerirá después una autorización humana separada basada en los resultados presentados.
