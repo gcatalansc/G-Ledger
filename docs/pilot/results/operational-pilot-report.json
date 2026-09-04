@@ -1,5 +1,6 @@
 {
   "profile": "project-ledger-operational-pilot/1",
+  "human_readable_report": "docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md",
   "status": "READY_FOR_OWNER_DECISION",
   "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,

@@ -253,3 +253,7 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Evidencia sanitizada: `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json`; manifiesto vivo SHA-256 `sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54`.
 
 **Siguiente paso:** presentar el informe final al propietario y esperar una decisión humana separada. Sólo esa nueva autoridad podrá habilitar la transacción final de gates/lifecycle; merge y release permanecen fuera de alcance.
+
+### Corrección del entregable para lectura humana
+
+El JSON `operational-pilot-report.json` conserva su función normativa machine-readable, pero no sustituye el informe para el propietario. Se añadió `docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md` como lectura principal, con dictamen ejecutivo, alcance, resultados por etapa, defectos, integridad, gates, límites y espacio de decisión sin prellenar. Esta corrección es exclusivamente documental y no muta el Ledger ni cambia `READY_FOR_OWNER_DECISION`.

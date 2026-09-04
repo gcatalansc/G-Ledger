@@ -2444,3 +2444,7 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Resultado vigente: **`READY_FOR_OWNER_DECISION`, 7/8, 87,5 %**. No se transfirió la decisión histórica, no se completó Stage 8 y no se declaró `OPERATIONALLY_ACCEPTED`. Evidencia: `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json` y manifiesto vivo `sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54`.
 
 **Siguiente paso:** presentar el informe final y esperar una decisión explícita posterior de `human:owner`. Sólo esa decisión separada podrá autorizar el registro final, la evaluación de gates y el cierre de fase; merge y release continúan no autorizados.
+
+### Corrección documental — informe final legible
+
+El archivo `operational-pilot-report.json` se reclasifica explícitamente como reporte machine-readable para runner, auditoría y trazabilidad; no es la lectura principal del propietario. Se creó `docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md`, que explica en lenguaje humano el dictamen, sujeto evaluado, propósito demostrado, resultado por etapa, cuatro defectos corregidos, gates pendientes, integridad, límites residuales y alternativas de decisión. El estado permanece `READY_FOR_OWNER_DECISION`, 7/8 y 87,5 %; no hubo mutación del Ledger, aceptación, merge ni release.

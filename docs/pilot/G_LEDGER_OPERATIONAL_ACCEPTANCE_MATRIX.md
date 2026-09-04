@@ -15,7 +15,8 @@ Estado vigente: **`READY_FOR_OWNER_DECISION`, 7/8, 87,5 %**. El candidato exacto
 | Lifecycle | fase activa; proyecto `BLOCKED` por decisión humana de Stage 8; 0 fases completadas |
 | Riesgo | `risk:opa-stage3-continuity` `CLOSED`; mitigación preservada; 0 `open_risk_refs` |
 | Autoridad | Decisión previa preservada como histórica; nueva decisión `human:owner` ausente y no prellenada |
-| Evidencia vigente | `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json` |
+| Lectura principal | `docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md` |
+| Evidencia técnica | `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json` y `operational-pilot-report.json` |
 
 G-Skills permanece en desarrollo y **no fue validado como producto**. Su superficie local se utilizó únicamente como contraparte de desarrollo para probar las fronteras de integración de G-Ledger; no hubo contraparte externa, certificación bilateral ni aceptación operativa de G-Skills.
 
