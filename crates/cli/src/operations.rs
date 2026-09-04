@@ -293,7 +293,7 @@ family!(ClaimCommand { Record => "RECORD_CLAIM", Status => "UPDATE_CLAIM_STATUS"
 family!(UnknownCommand { Record => "RECORD_UNKNOWN", Resolve => "RESOLVE_UNKNOWN" }; {});
 family!(DecisionCommand { Propose => "PROPOSE_DECISION", Accept => "ACCEPT_DECISION", Supersede => "SUPERSEDE_DECISION" }; { Show => "decision-show" });
 family!(BlockerCommand { Open => "OPEN_BLOCKER", Resolve => "RESOLVE_BLOCKER" }; {});
-family!(RiskCommand { Open => "OPEN_RISK", Mitigate => "MITIGATE_RISK" }; {});
+family!(RiskCommand { Open => "OPEN_RISK", Mitigate => "MITIGATE_RISK", Close => "CLOSE_RISK" }; {});
 family!(NextCommand { Set => "SET_NEXT_ACTION" }; {});
 family!(SessionCommand { Start => "START_SESSION", End => "END_SESSION" }; {});
 #[derive(Debug, Subcommand)]

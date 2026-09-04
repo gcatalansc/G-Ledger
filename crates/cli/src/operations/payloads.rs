@@ -191,7 +191,7 @@ pub fn build(args: &WriteArgs, kind: &str) -> Result<Value, CliError> {
         "RESOLVE_BLOCKER" => Ok(
             json!({"blocker_ref":args.id,"evidence_refs":args.evidence,"resolution_summary":args.summary.as_deref().unwrap_or("Resolved by explicit local action")}),
         ),
-        "MITIGATE_RISK" => {
+        "MITIGATE_RISK" | "CLOSE_RISK" => {
             Ok(json!({"risk_ref":args.id,"note":args.note,"evidence_refs":args.evidence}))
         }
         "BIND_REPOSITORY" => {
