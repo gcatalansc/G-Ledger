@@ -37,7 +37,7 @@
 - Consumes: especificación v0.2.0, ayuda real del CLI, informe OPA y documentos hash-locked existentes.
 - Produces: una ruta de lectura `README.md` → `docs/README.md` → inicio rápido/tutorial/operación/aseguramiento, sin exigir conocer la historia interna.
 
-- [ ] **Step 1: Write the failing documentation-structure test**
+- [x] **Step 1: Write the failing documentation-structure test**
 
 ```powershell
 It 'exposes one documentation home and the complete user path' {
@@ -52,27 +52,27 @@ It 'exposes one documentation home and the complete user path' {
 }
 ```
 
-- [ ] **Step 2: Run the test and verify RED**
+- [x] **Step 2: Run the test and verify RED**
 
 Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1 -Output Detailed`
 
 Expected: FAIL because `docs/README.md` and the curated guide files do not exist.
 
-- [ ] **Step 3: Write the documentation home, quickstart, tutorial, user guide, assurance map and source/build guide**
+- [x] **Step 3: Write the documentation home, quickstart, tutorial, user guide, assurance map and source/build guide**
 
 The documents must explicitly identify: supported Windows platform, checksum verification, extraction, `resources verify`, first disposable project, golden-path session, continuity/checkpoint/resume, backup versus portable export, privacy, support boundaries, operational acceptance, source provenance and build verification.
 
-- [ ] **Step 4: Replace the historical root README narrative with an official entrypoint**
+- [x] **Step 4: Replace the historical root README narrative with an official entrypoint**
 
 The root README must contain product purpose, exact status, five-minute start, documentation map, distribution contents, support boundary, source layout and verification commands; implementation chronology remains in `CHANGELOG.md`, the implementation ledger and assurance evidence.
 
-- [ ] **Step 5: Run the documentation test and verify GREEN**
+- [x] **Step 5: Run the documentation test and verify GREEN**
 
 Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1 -Output Detailed`
 
 Expected: PASS with all required documents present and every relative Markdown link from the curated document set resolving locally.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add README.md docs scripts/tests/OfficialDelivery.Tests.ps1
@@ -93,7 +93,7 @@ git commit -m "docs: consolidate official G-Ledger documentation"
 - Consumes: binario Windows static-CRT, catálogo incorporado, documentos curados y reportes de release/aceptación.
 - Produces: ZIP con `START_HERE.md`, `project-ledger.exe`, licencia, changelog, seguridad, `documentation/`, `assurance/`, `resources/`, `SBOM.spdx.json`, `CHECKSUMS.sha256` y `package.json`.
 
-- [ ] **Step 1: Extend the package regression and verify RED against the last package**
+- [x] **Step 1: Extend the package regression and verify RED against the last package**
 
 ```powershell
 $required = @(
@@ -110,11 +110,11 @@ foreach ($name in $required) { $names.Contains($name) | Should -BeTrue }
 
 Expected: the old ZIP fails because it only exposes the binary, license and internal resources at top level.
 
-- [ ] **Step 2: Implement an explicit delivery allowlist**
+- [x] **Step 2: Implement an explicit delivery allowlist**
 
 `package-windows.ps1` must copy only reviewed files, preserve document hierarchy under `documentation/`, place the final human and machine OPA reports under `assurance/`, generate a sorted `CHECKSUMS.sha256`, and include every file except `package.json` itself in the signed-by-manifest inventory.
 
-- [ ] **Step 3: Validate package completeness, integrity and exclusions**
+- [x] **Step 3: Validate package completeness, integrity and exclusions**
 
 The verifier must reject missing entrypoint/docs/SBOM/checksums, unlisted files, checksum drift, unsafe paths, databases, VCS metadata, `target`, `dist`, `.tooling`, secrets or a falsely certified compatibility marker.
 
@@ -124,7 +124,7 @@ Run: `pwsh -File scripts/build-windows-package.ps1 -Output <new-path>/project-le
 
 Expected: package verification PASS, documented entrypoint present, core scenarios pass from an extracted path with spaces and non-ASCII characters.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add docs/DELIVERY_CONTENTS.md scripts release/package-manifest.json
@@ -145,25 +145,25 @@ git commit -m "build: produce self-contained official Windows delivery"
 - Consumes: OPA final, package layout and exact CI evidence.
 - Produces: release notes legibles, artefacto preservado por CI y manifestación explícita de prerelease operacional.
 
-- [ ] **Step 1: Add a failing policy assertion**
+- [x] **Step 1: Add a failing policy assertion**
 
 The delivery test must require the release notes to say `OPERATIONALLY_ACCEPTED`, `ENGINEERING_RELEASE_CANDIDATE`, `certified_compatibility=false`, `prerelease`, and to exclude GA/external certification claims.
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1 -Output Detailed`
 
 Expected: FAIL because release notes do not yet exist.
 
-- [ ] **Step 3: Write release notes and metadata**
+- [x] **Step 3: Write release notes and metadata**
 
 Document the exact scope, platform, installation, artifact inventory, operational acceptance, limitations, known exclusions, rollback and support/verification route. CI must upload the ZIP and its verification report from Windows for the exact SHA.
 
-- [ ] **Step 4: Update changelog, implementation ledger and executable plan**
+- [x] **Step 4: Update changelog, implementation ledger and executable plan**
 
 Record the official delivery closure without rewriting prior pilot history and mark only actually completed checkboxes.
 
-- [ ] **Step 5: Run the focused test and verify GREEN**
+- [x] **Step 5: Run the focused test and verify GREEN**
 
 Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1 -Output Detailed`
 

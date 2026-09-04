@@ -2459,3 +2459,15 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Resultado formal: Stage 8 y OPA-S32 `PASS`; **8/8, 100 %, `OPERATIONALLY_ACCEPTED` para uso operativo controlado de G-Ledger**. G-Skills continúa fuera de la validación de producto, Radar `EXCLUDED_BY_SCOPE`, `certified_compatibility=false`, y no hubo merge, release ni GA.
 
 **Siguiente paso:** decidir separadamente cuál será el primer proyecto real y darle carpeta, Ledger, autoridad y gates propios. La aceptación del piloto no autoriza automáticamente esa alta, merge o release.
+
+## 2026-09-04 — Consolidación de la entrega oficial `v0.2.0-rc.1`
+
+- Autorización: el propietario ordenó completar Git, GitHub, release, portable y documentación como una entrega empresarial única, limpia y lista para compartir, excluyendo solamente la prueba posterior sobre un proyecto real.
+- Arquitectura documental: `README.md` pasó a ser la portada ejecutiva y `docs/README.md` el centro documental único. Inicio rápido, tutorial, guía de usuario, aseguramiento, contenido de entrega, procedencia y release notes forman una ruta de lectura continua. La evidencia y las rutas hash-locked no se movieron: el índice las clasifica sin invalidar trazabilidad.
+- Tutorial observado: un recorrido descartable real inicializó un proyecto, abrió sesión, registró progreso, creó checkpoint, cerró sesión, produjo `resume`, renderizó Markdown, pasó `doctor`/`verify`/`audit` y ejecutó backup/export con exit 0; terminó en v5.
+- TDD documental: `OfficialDelivery.Tests.ps1` falló RED por seis documentos ausentes y por no existir release notes; quedó GREEN 9/9 con rutas y enlaces relativos verificados.
+- TDD de paquete: el ZIP anterior falló RED por `Official delivery file missing: START_HERE.md`. El paquete nuevo incorpora entrada humana, ejecutable static-CRT, documentación versionada completa, autoridad, handoff, Agent Skill, manifests, evidencia OPA, SBOM y checksums; rechaza rutas inseguras, VCS/build data, bases, archivos no inventariados, drift y enlaces rotos.
+- TDD de release: los tests reprodujeron que el manifest generado y `release verify` aceptaban una entrega sin entrada humana/clasificación. El generador y el gate exigen ahora `START_HERE.md`, `OPERATIONALLY_ACCEPTED`, `ENGINEERING_RELEASE_CANDIDATE`, `certified_compatibility=false` y el inventario mínimo oficial.
+- Privacidad: se eliminó de un plan histórico la única ruta absoluta personal encontrada por el barrido de Markdown/JSON. El ZIP excluye `.git`, `target`, `dist`, `.tooling`, bases y sidecars.
+- Identidad de distribución: el tag objetivo es `v0.2.0-rc.1`, siempre como prerelease. La release debe usar exclusivamente el ZIP generado por CI de `main` para el mismo SHA del tag, publicar `.sha256`/verification/SBOM/manifests y verificar una descarga fresca.
+- Límites: no se promueve GA, no se certifican integraciones externas y no se consume ni sustituye la prueba posterior sobre un proyecto real.

@@ -1,6 +1,6 @@
-# Project Ledger — Windows portable
+# G-Ledger 0.2.0 — Windows portable
 
-El núcleo funciona localmente en Windows x86_64, sin instalar Cargo, Git, Python ni un servicio, y no necesita red. Extraer el ZIP completo en una carpeta propia (puede contener espacios/acentos). No separar `project-ledger.exe` de `resources/`. No instalar sobre una carpeta existente: conservar la versión previa para rollback.
+El núcleo funciona localmente en Windows x86_64, sin instalar Cargo, Git, Python ni un servicio, y no necesita red. Extraer el ZIP completo en una carpeta propia (puede contener espacios/acentos) y abrir primero `START_HERE.md`. No separar `project-ledger.exe` de `resources/`. No instalar sobre una carpeta existente: conservar la versión previa para rollback.
 
 Comprobar primero el SHA-256 del ZIP con el publicado en la entrega. `project-ledger.exe resources verify --json` comprueba los recursos contra hashes incorporados al binario. `resources list --json` muestra ese catálogo. Esto detecta corrupción; no es una firma ni autentica un binario reemplazado maliciosamente junto con su manifiesto.
 
@@ -20,4 +20,4 @@ GSP requiere por separado Python 3.12, Git y el entorno congelado del compiler `
 
 `integration gsp compile` exige Python, source-root, cwd y policy explícitos. La policy autoriza el ejecutable y cada variable necesaria (p. ej. PATH para Git, SystemRoot y GSPGEMMA_UPSTREAM_ROOT); no copiar todo el entorno. Límites iniciales: 60 segundos y 1 MiB por flujo. Corpus máximo 1 MiB; resultado máximo 8 MiB. El resultado validado es COMPILED_UNLINKED; enlazar requiere `link-result` separado y autorizado. La supervisión limita recursos de procesos propios, no es sandbox para código hostil arbitrario.
 
-G-Skills y Radar no están habilitados para este piloto. Los contratos vendorizados conservan pruebas de regresión, no activación ni certificación. La entrega es para piloto controlado, no GA, precisión semántica universal, aceptación bilateral ni ausencia absoluta de errores. La evidencia y el SHA concreto del ZIP están en el informe externo de entrega, no inferidos de este manual.
+G-Skills y Radar no están certificados por esta entrega. Los contratos vendorizados conservan pruebas de regresión, no activación ni certificación bilateral. La entrega está `OPERATIONALLY_ACCEPTED` para uso operativo controlado y se publica como prerelease `ENGINEERING_RELEASE_CANDIDATE`; no es GA, precisión semántica universal ni ausencia absoluta de errores. El SHA concreto del ZIP se publica como activo separado en la misma GitHub Release.
