@@ -2334,7 +2334,7 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 
 **Siguiente paso:** presentar el informe al propietario. La etapa conserva **7/8, 87,5 %, READY_FOR_OWNER_DECISION** hasta recibir una decisión humana separada que autorice expresamente el estado final y su transacción gobernada.
 
-## 2026-09-03 local / 2026-09-04 UTC — Aceptación operativa humana registrada, 8/8
+## 2026-09-03 local / 2026-09-04 UTC — Aceptación histórica 8/8, invalidada después por OPA-DEFECT-004
 
 - Decisión: tras revisar el informe final, `human:owner` emitió separadamente `OPERATIONALLY_ACCEPTED`. El Ledger registró `decision:opa-operational-acceptance-v1` como `ACCEPTED` bajo `authority:opa-spec`; esta transacción no se infirió de las pruebas ni se prellenó durante la conciliación.
 - RED/GREEN: la prueba Stage 8 falló inicialmente porque el runner no aceptaba una decisión humana. La implementación final conserva el recorrido read-only `READY_FOR_OWNER_DECISION` y añade un recorrido explícito `-OwnerDecision OPERATIONALLY_ACCEPTED` que exige la identidad exacta del candidato y el estado predecisión.
@@ -2342,8 +2342,21 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Rehearsal: se clonó el estado exacto v96 en `.tooling/g-ledger-operational-pilot/attempts/stage8-final-rehearsal-v96/` y se probó allí la transacción completa antes de tocar el proyecto autorizado. La copia se conserva como evidencia descartable y no se versiona.
 - Gates y evidencia: siete evidencias de etapa se registraron como `VERIFIED_SOURCE` mediante la superficie RecordSink local; cada submit produjo un efecto durable y cada replay devolvió `DUPLICATE_REPLAY` con delta cero. Gate Engine verificó los ocho gates requeridos. Permanecen cero gates requeridos pendientes y cero waivers requeridos; el único waiver es el ejercicio opcional de Stage 4.
 - Cierre vivo: el proyecto `project:01a0697c-34b6-7042-a751-fbfb30a06a49` terminó v134, digest `sha256:bf493e895aef07482f05513e5da89cdd3acaa8001c3971103bb7110ab835e882`, fase `phase:operational-acceptance` `COMPLETED`, proyecto `COMPLETED`, cero blockers y checkpoint `checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901` `CURRENT`. `doctor`, `verify` y `audit` informan integridad `ok` y cero findings. `risk:opa-stage3-continuity` permanece visible con historia `MITIGATED`; es residual, monitorizado y no bloqueante.
-- Resultado: OPA-S32 pasa como `LIVE_PILOT_HUMAN_DECISION`; el piloto alcanza **8/8, 100 %, `OPERATIONALLY_ACCEPTED`** y habilita exclusivamente el uso operativo controlado de G-Ledger. La evidencia sanitizada final está en `docs/pilot/results/stage-8-operational-acceptance.json`.
+- Resultado histórico, no vigente: OPA-S32 pasó como `LIVE_PILOT_HUMAN_DECISION`; el piloto alcanzó **8/8, 100 %, `OPERATIONALLY_ACCEPTED`** para el sujeto `99fdaab`/`e2509d48…a851`. OPA-DEFECT-004 invalidó después ese sujeto; la sección siguiente gobierna el estado actual. La evidencia histórica permanece en `docs/pilot/results/stage-8-operational-acceptance.json`.
 - Límite G-Skills: G-Skills continúa en desarrollo y **no fue validado como producto**. Provider y RecordSink locales sólo fueron contrapartes de desarrollo para someter a prueba las fronteras de integración, autoridad, idempotencia y lifecycle de G-Ledger; no existe certificación bilateral ni aceptación de G-Skills.
 - Límites restantes: Project Radar permanece `EXCLUDED_BY_SCOPE`; canary cubre superficies soportadas, no inexistencia universal en bytes; `certified_compatibility=false`; no hubo merge, push, release, GA ni certificación universal.
 
 **Siguiente paso:** seleccionar el primer proyecto real para uso operativo controlado y crearlo en una carpeta y un Ledger propios, con autoridad, alcance y gates específicos. Ese alta es una actuación separada y no forma parte del piloto ya cerrado.
+
+## 2026-09-04 — OPA-DEFECT-004 corregido localmente; recalificación Stage 3…8 pendiente
+
+- Interpretación corregida: un riesgo `MITIGATED` permanece legítimamente en `open_risk_refs` hasta recibir `CLOSE_RISK`; el problema no era la proyección, sino que el CLI público omitía el subcomando normativo `risk close`.
+- RED: la regresión `risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume` obtuvo exit 2 con `unrecognized subcommand 'close'` y confirmó cero mutaciones del Ledger.
+- GREEN de producto: el commit separado `138eabe715d209da5f527340a34492bff3f6fd1a` añadió `Close => CLOSE_RISK` y reutilizó el payload cerrado de mitigación/cierre. La prueba confirmó cierre v4, replay `DUPLICATE_REPLAY`, ausencia en `status`/`resume` y audit sin findings.
+- GREEN del piloto: el commit separado `3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe` actualizó Stage 3 para mitigar y cerrar, exige `RISK_MITIGATED` + `RISK_CLOSED`, final v45 y cero `open_risk_refs`; Stage 8 ahora trata cualquier riesgo abierto como fallo de conciliación.
+- Paquete local: el ZIP exacto de `138eabe` tiene SHA-256 `ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc`, `source_tree_dirty=false`, verificación de paquete PASS y 2/2 harness externos PASS. No sustituye al artefacto alojado requerido por el piloto.
+- Puerta integral: 11/11 Pester, formato, Clippy estricto, workspace completo, schemas, specs, contratos, build release locked, release check/verify y `cargo deny` pasaron. No se modificaron contratos, schemas, locks, comandos normativos ni eventos.
+- Estado gobernado: OPA-DEFECT-004 está `FIXED_LOCALLY_REQUALIFICATION_PENDING`. La aceptación de `99fdaab`/`e2509d48…a851` permanece como historia, pero quedó invalidada para uso vigente. El reporte activo pasa a **`BLOCKED`, 2/8, 25 %**; la decisión humana anterior no se transfiere.
+- Límites: no se hizo push, PR, merge, release ni mutación adicional del proyecto descartable aceptado. La evidencia sanitizada está en `docs/pilot/results/opa-defect-004-risk-close-cli.json`.
+
+**Siguiente paso:** solicitar autorización humana explícita para publicar la rama candidata exacta de `138eabe`, abrir un PR privado draft que active exclusivamente la CI, verificar el ZIP alojado y ejecutar Stage 3/8. Stage 4 y posteriores requerirán sus autorizaciones separadas; la aceptación final requerirá una nueva decisión humana.

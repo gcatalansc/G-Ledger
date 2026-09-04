@@ -153,7 +153,7 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 
 **Siguiente paso:** presentar este resultado al propietario. Sólo una decisión humana posterior y separada podrá autorizar la transacción final, resolver el blocker, evaluar gates, cerrar la fase y registrar `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED`.
 
-## 2026-09-03 local / 2026-09-04 UTC — Decisión humana registrada y piloto cerrado, 8/8
+## 2026-09-03 local / 2026-09-04 UTC — Cierre histórico 8/8, invalidado después por OPA-DEFECT-004
 
 - Autoridad: tras recibir el informe final, `human:owner` decidió separadamente `OPERATIONALLY_ACCEPTED` para G-Ledger. El runner exige esa decisión exacta mediante `-OwnerDecision`; otros valores no se interpretan ni se convierten implícitamente.
 - TDD y depuración: el RED inicial demostró que el runner carecía de la interfaz de decisión. Los fallos intermedios se localizaron en el harness —estado propuesto con autoridad prematura, colisión de `command_id`, selector de fase y cierre lifecycle de dos pasos— y se corrigieron sin modificar G-Ledger, sus 53 comandos, 67 eventos, contratos, schemas o locks.
@@ -163,4 +163,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Conciliación final: v134, digest `sha256:bf493e895aef07482f05513e5da89cdd3acaa8001c3971103bb7110ab835e882`, checkpoint `checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901` `CURRENT`, ocho gates requeridos verificados, cero pendientes, cero waivers requeridos, cero blockers y cero findings de `doctor`, `verify` y `audit`. `risk:opa-stage3-continuity` conserva su historia `MITIGATED` como riesgo residual monitorizado y no bloqueante. OPA-S32 pasa como `LIVE_PILOT_HUMAN_DECISION`.
 - Límite de producto: el producto bajo prueba y aceptado es exclusivamente G-Ledger. G-Skills permanece en desarrollo y no fue validado como producto; su superficie local sólo actuó como contraparte de desarrollo para probar las fronteras de integración de G-Ledger. Project Radar sigue `EXCLUDED_BY_SCOPE`, `certified_compatibility=false`, y no hubo merge, release ni declaración GA.
 
-**Resultado:** **8/8, 100 %, `OPERATIONALLY_ACCEPTED` para uso operativo controlado de G-Ledger**. El siguiente proyecto real debe disponer de su propia carpeta, Ledger y autoridad; su inicio no forma parte de este piloto.
+**Resultado histórico, no vigente:** **8/8, 100 %, `OPERATIONALLY_ACCEPTED` para uso operativo controlado de G-Ledger**. OPA-DEFECT-004 invalidó posteriormente este sujeto; la sección siguiente gobierna el estado actual.
+
+## 2026-09-04 — Reapertura gobernada por OPA-DEFECT-004, 2/8
+
+- Hallazgo: la permanencia de `risk:opa-stage3-continuity` en `open_risk_refs` era coherente con el estado `MITIGATED`, pero reveló una omisión del CLI público: el contrato v0.2, el lifecycle y la proyección ya soportaban `CLOSE_RISK`, mientras `risk` sólo exponía `open` y `mitigate`.
+- TDD: `risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume` reprodujo RED con exit 2 y `unrecognized subcommand 'close'`. El fix mínimo `138eabe715d209da5f527340a34492bff3f6fd1a` quedó GREEN: cierre aceptado, replay `DUPLICATE_REPLAY`, cero riesgos abiertos en `status`/`resume` y cero findings de audit.
+- Harness: `3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe` exige ahora la secuencia `OPEN_RISK` → `MITIGATE_RISK` → `CLOSE_RISK`, conserva ambos eventos y falla Stage 8 si existe cualquier `open_risk_ref`. La cadena local 1–8 pasó 11/11 sobre el paquete exacto local SHA-256 `ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc`.
+- Verificación: formato, Clippy estricto, workspace completo, schemas, specs, contratos, build locked, release check/verify, `cargo deny`, paquete Windows y dos harness externos pasaron. No cambiaron los 53 comandos normativos, 67 eventos, schemas, locks ni contratos v0.2.
+- Gobierno: el ZIP alojado `e2509d48…a851` queda invalidado como sujeto vigente. Su evidencia y la decisión humana anterior permanecen históricas, pero no se transfieren. El estado actual vuelve a **`BLOCKED`, 2/8, 25 %**; Stage 3…Stage 8 y la decisión humana final deben repetirse sobre un ZIP alojado exacto nuevo.
+
+**Siguiente paso:** solicitar autorización explícita para publicar una rama candidata exacta apuntando a `138eabe`, abrir un PR privado draft exclusivamente para activar la CI de recalificación, descargar/verificar su ZIP alojado y ejecutar Stage 3/8. No se autoriza implícitamente Stage 4, merge, release ni aceptación operativa.
