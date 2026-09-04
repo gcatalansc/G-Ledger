@@ -1,21 +1,21 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado vigente: **`IN_PROGRESS`, 6/8, 75 %**. El candidato exacto `138eabe`/`7160d31d…0162` continúa en `project:01a06adc-c603-7291-aabe-240d71809978`; Stage 1…6 y OPA-S01…OPA-S27 pasaron. Stage 6 demostró que Markdown es una vista regenerable, que portable y backup/restore conservan sus garantías contractuales, que corrupción, divergencia y destinos existentes fallan cerrados, y que los canaries no aparecen en las superficies soportadas sin convertirlo en una afirmación universal sobre bytes internos. Terminó v86 con checkpoint `CURRENT`, cero riesgos, cero unknowns críticos y cero findings. La evidencia 8/8 y la decisión anterior permanecen históricas, no se borran ni se transfieren. Stage 7 y Stage 8 aún requieren evidencia viva; OPA-S31 sigue `EXCLUDED_BY_SCOPE` y G-Skills queda fuera de la validación de producto. No hubo Stage 7, merge, release ni nueva aceptación.
+Estado vigente: **`IN_PROGRESS`, 7/8, 87,5 %**. El candidato exacto `138eabe`/`7160d31d…0162` continúa en `project:01a06adc-c603-7291-aabe-240d71809978`; Stage 1…7 y OPA-S01…OPA-S30 pasaron. Stage 7 acreditó el handoff Codex nuevo y ciego, provider local read-only, RecordSink allowlisted y recorrido GSP fijado sin elevación lifecycle; OPA-S31 conserva `EXCLUDED_BY_SCOPE`. Terminó v97 con checkpoint `CURRENT`, cero riesgos, cero unknowns críticos y cero findings. La evidencia 8/8 y la decisión anterior permanecen históricas, no se borran ni se transfieren. Stage 8 aún requiere evidencia viva y autorización separada; G-Skills queda fuera de la validación de producto. No hubo Stage 8, merge, release ni nueva aceptación.
 
 ## Recalificación vigente y cierre histórico conservado
 
 | Control | Resultado |
 |---|---|
-| Etapas | 1–6 acreditadas; 7–8 `REQUALIFICATION_REQUIRED` |
-| Escenarios | S01…S27 `PASS`; S28…S30 y S32 requieren recalificación; OPA-S31 `EXCLUDED_BY_SCOPE` |
+| Etapas | 1–7 acreditadas; 8 `REQUALIFICATION_REQUIRED` |
+| Escenarios | S01…S30 `PASS`; S32 requiere recalificación; OPA-S31 `EXCLUDED_BY_SCOPE` |
 | Defectos | 4 `FIXED_AND_REQUALIFIED`; OPA-DEFECT-004 pasó ejecución viva Stage 3 |
 | Integridad | `doctor`, `verify` y `audit`: `ok`, 0 findings, 0 submissions sin resolver |
-| Continuidad | v86; digest `sha256:63949449…872e45`; checkpoint `checkpoint:167b6373-8352-7747-ad36-042c618f295d` `CURRENT` |
+| Continuidad | v97; digest `sha256:044fa214…9eb350`; checkpoint `checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d` `CURRENT` |
 | Gates requeridos | `gate:opa-04` `VERIFIED`; 7 `PENDING`; 0 `WAIVED`; sólo gate opcional `WAIVED` |
-| Lifecycle | fase activa; proyecto `BLOCKED` por Stage 7; 0 fases completadas |
+| Lifecycle | fase activa; proyecto `BLOCKED` por decisión humana de Stage 8; 0 fases completadas |
 | Riesgo | `risk:opa-stage3-continuity` `CLOSED`; mitigación preservada; 0 `open_risk_refs` |
 | Autoridad | Decisión previa preservada como histórica; nueva decisión pendiente después de Stage 8 |
-| Evidencia vigente | `docs/pilot/results/stage-6-risk-close-hosted-requalification.json` |
+| Evidencia vigente | `docs/pilot/results/stage-7-risk-close-hosted-requalification.json` |
 
 G-Skills permanece en desarrollo y **no fue validado como producto**. Su superficie local se utilizó únicamente como contraparte de desarrollo para probar las fronteras de integración de G-Ledger; no hubo contraparte externa, certificación bilateral ni aceptación operativa de G-Skills.
 
@@ -97,4 +97,4 @@ G-Skills permanece en desarrollo y **no fue validado como producto**. Su superfi
 
 Una fila cubierta por evidencia histórica sigue pendiente hasta que su escenario `LIVE_PILOT`, `LIVE_HANDOFF` o `LIVE_LOCAL_INTEGRATION` correspondiente se ejecute. Los negativos sólo pasan cuando el rechazo y el delta cero coinciden con la especificación.
 
-La fórmula de cierre se satisfizo sólo para el candidato histórico invalidado. En la recalificación vigente aún no se satisface: OPA-S28…OPA-S30 y OPA-S32 requieren evidencia fresca, Stage 7 y Stage 8 permanecen pendientes, y no existe una nueva decisión humana transferible.
+La fórmula de cierre se satisfizo sólo para el candidato histórico invalidado. En la recalificación vigente aún no se satisface: OPA-S32 requiere evidencia fresca, Stage 8 permanece pendiente y no existe una nueva decisión humana transferible.

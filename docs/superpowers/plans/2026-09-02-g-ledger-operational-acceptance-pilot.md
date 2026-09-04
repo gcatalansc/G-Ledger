@@ -228,3 +228,16 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Resultado: OPA-S22…OPA-S27 `PASS`; avance **6/8, 75 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-6-risk-close-hosted-requalification.json`.
 
 **Siguiente paso:** obtener autorización explícita para Stage 7/8, incluida la tarea Codex nueva y ciega acotada al ejecutable, database, project_ref y skill, sobre este mismo proyecto y ZIP. Stage 8, merge, release y aceptación operativa permanecen fuera de alcance.
+
+## 2026-09-04 — Recalificación Stage 7 ejecutada y conciliada, 7/8
+
+- Autoridad: se ejecutó únicamente Stage 7 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`. Stage 8, merge, release y aceptación operativa permanecieron fuera de alcance.
+- Handoff ciego: la tarea Codex projectless `task:01a06c53-2603-7be0-b94b-c1f7a7eb57a7` recibió exactamente ejecutable, database, project_ref y skill. Sin relato previo reconstruyó v86, fase, siete gates pendientes, blocker, decisión, próximo paso y checkpoint; registró un progreso v86→v87 y un checkpoint v87→v88. No usó Git, SQLite directo, `--as-human` ni comandos lifecycle.
+- Integraciones locales: el provider `gskills-context-provider/0.3.0` fue estrictamente read-only, con método mutable rechazado `-32601` y delta cero. El RecordSink requirió política explícita de cinco capacidades, no reclamó autoridad, produjo un único efecto durable y su replay fue `DUPLICATE_REPLAY` con delta cero. Esto valida fronteras de G-Ledger, no el producto G-Skills ni una contraparte externa.
+- GSP fijado: implementación `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, contrato `gsp-exact-2026.04.12`/`004b14d7b64837025671970eac2469f092c49475`, 28 contratos y 31 schemas. Export/compile/validate/link/replay produjeron deltas `0/0/0/1/0`; no hubo elevación de autoridad, cambio lifecycle ni certificación. Project Radar quedó `EXCLUDED_BY_SCOPE`, sin ejecución ni PASS.
+- Cierre gobernado: los usos `--as-human` se limitaron a resolver el blocker de Stage 7, fijar la acción siguiente y abrir el blocker de autorización humana de Stage 8; no verificaron gates, no cerraron fase y no emitieron decisión operativa. El checkpoint final `checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d` quedó `CURRENT`.
+- Conciliación: estado v97, digest `sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350`, head `sha256:71b74a1d305dc7aa725c5662ca1b38b8a4d38aaf3fd0c501218860576e500769`, proyecto `BLOCKED` por `blocker:opa-stage8-human-decision`, fase activa y cero fases completadas. `doctor`, `verify` y `audit` quedaron `ok`, sin findings ni submissions sin resolver.
+- Verificación fresca: la regresión Pester etiquetada Stage 7 terminó 1/1 y `cargo xtask release check` confirmó 90 AC, 32 PL, 0 secretos, 9 métricas y 0 waivers explícitos.
+- Resultado: OPA-S28…OPA-S30 `PASS`; OPA-S31 `EXCLUDED_BY_SCOPE`; avance **7/8, 87,5 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-7-risk-close-hosted-requalification.json`.
+
+**Siguiente paso:** obtener autorización explícita para Stage 8/8, limitada a reconciliar y presentar el informe final. Cualquier nueva declaración `OPERATIONALLY_ACCEPTED` exige después una decisión humana separada; merge y release permanecen fuera de alcance.

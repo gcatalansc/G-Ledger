@@ -10,7 +10,7 @@
     "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
     "candidate_superseded": false,
-    "qualification": "HOSTED_STAGE_6_REQUALIFICATION_PASS",
+    "qualification": "HOSTED_STAGE_7_REQUALIFICATION_PASS",
     "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
     "hosted_artifact_id": 9924403634,
     "hosted_archive_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
@@ -27,15 +27,15 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2, 3, 4, 5, 6],
-    "percentage": 75.0
+    "completed_stages": [1, 2, 3, 4, 5, 6, 7],
+    "percentage": 87.5
   },
   "project_identity": {
     "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
     "database_locator": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á/data/project-ledger/projects/01a06adc-c603-7291-aabe-240d71809978/ledger.db",
-    "latest_state_version": 86,
-    "latest_state_digest": "sha256:639494490d93f7b406f20d4d15c289b67f99148986c29d01dd5d517df6872e45",
-    "latest_checkpoint_ref": "checkpoint:167b6373-8352-7747-ad36-042c618f295d",
+    "latest_state_version": 97,
+    "latest_state_digest": "sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350",
+    "latest_checkpoint_ref": "checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d",
     "latest_checkpoint_freshness": "CURRENT"
   },
   "historical_project_identity": {
@@ -84,13 +84,14 @@
     "evidence": ["docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]
   },
   "repository_verification": {
-    "status": "HOSTED_STAGE_6_REQUALIFICATION_PASS",
+    "status": "HOSTED_STAGE_7_REQUALIFICATION_PASS",
     "product_code_changed": true,
     "candidate_requalification_required": true,
     "checks": [
       {"command":"cargo test -p project-ledger-cli --test operations risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume -- --exact --nocapture","status":"PASS","result":"1 passed, 0 failed; RED previously reproduced exit 2 because risk close was absent"},
       {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1","status":"PASS","result":"11 passed, 0 failed against local exact-SHA 138eabe package"},
       {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1 -TestName '*Stage 6*' -Verbose","status":"PASS","result":"2 passed, 0 failed during hosted Stage 6 requalification closure"},
+      {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1 -Tag Stage7 -Verbose","status":"PASS","result":"1 passed, 0 failed during hosted Stage 7 requalification closure"},
       {"command":"cargo fmt --all -- --check","status":"PASS"},
       {"command":"cargo clippy --workspace --all-targets --all-features -- -D warnings","status":"PASS"},
       {"command":"cargo test --workspace --all-targets --all-features","status":"PASS"},
@@ -110,7 +111,7 @@
     {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-4-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-5-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-6-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-6-projections-privacy-recovery.json"]},
-    {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-7-blind-handoff-integrations.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "PASS", "proof_class": "LIVE_HANDOFF_AND_LOCAL_INTEGRATION", "evidence": ["docs/pilot/results/stage-7-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
     {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]}
   ],
   "scenario_results": [
@@ -141,10 +142,10 @@
     {"id":"OPA-S25","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-6-projections-privacy-recovery.json"]},
     {"id":"OPA-S26","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-6-projections-privacy-recovery.json"]},
     {"id":"OPA-S27","stage":6,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-6-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-6-projections-privacy-recovery.json"]},
-    {"id":"OPA-S28","stage":7,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_HANDOFF","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"id":"OPA-S29","stage":7,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"id":"OPA-S30","stage":7,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S28","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_HANDOFF","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S29","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S30","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
+    {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json"]},
     {"id":"OPA-S32","stage":8,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HUMAN_DECISION","evidence":["docs/pilot/results/stage-8-owner-decision-readiness.json","docs/pilot/results/stage-8-operational-acceptance.json"]}
   ],
   "defects": [
@@ -232,11 +233,11 @@
     }
   ],
   "current_requalification": {
-    "status": "IN_PROGRESS_STAGE_7_NOT_AUTHORIZED",
+    "status": "IN_PROGRESS_STAGE_8_NOT_AUTHORIZED",
     "trigger_defect": "OPA-DEFECT-004",
     "affected_stage": 3,
-    "completed_stages": [1, 2, 3, 4, 5, 6],
-    "required_stages": [7, 8],
+    "completed_stages": [1, 2, 3, 4, 5, 6, 7],
+    "required_stages": [8],
     "exact_source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
     "local_candidate_zip_sha256": "sha256:ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc",
     "hosted_candidate_zip_sha256": "sha256:7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
@@ -274,9 +275,23 @@
     "stage_6_checkpoint_freshness": "CURRENT",
     "stage_6_canary_match_count": 0,
     "stage_6_universal_byte_absence_claimed": false,
-    "stage_7_executed": false,
+    "stage_7_executed": true,
+    "stage_7_status": "PASS",
+    "stage_7_blind_task_ref": "task:01a06c53-2603-7be0-b94b-c1f7a7eb57a7",
+    "stage_7_blind_task_input_count": 4,
+    "stage_7_provider_state_version_delta": 0,
+    "stage_7_record_sink_first_submit_state_version_delta": 1,
+    "stage_7_record_sink_replay_state_version_delta": 0,
+    "stage_7_gsp_state_version_deltas": [0, 0, 0, 1, 0],
+    "stage_7_gsp_authority_elevation_count": 0,
+    "stage_7_project_radar_status": "EXCLUDED_BY_SCOPE",
+    "stage_7_final_state_version": 97,
+    "stage_7_final_state_digest": "sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350",
+    "stage_7_checkpoint_ref": "checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d",
+    "stage_7_checkpoint_freshness": "CURRENT",
+    "stage_8_executed": false,
     "previous_owner_decision_transferred": false,
-    "next_action": "Obtain explicit authorization to execute Stage 7 only, including the bounded blind Codex task, on the current disposable project and exact hosted ZIP. Stage 8 remains unauthorized."
+    "next_action": "Obtain explicit authorization to execute Stage 8 reconciliation and present the final report. Any new OPERATIONALLY_ACCEPTED declaration requires a later separate human decision; merge and release remain unauthorized."
   },
   "critical_waivers": [],
   "historical_owner_decision": {
@@ -293,9 +308,9 @@
     "The hosted exact-SHA 99fdaab package and its owner decision remain historical evidence but are not the active accepted subject after OPA-DEFECT-004 invalidated that candidate",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The exact-SHA 138eabe fix passed hosted CI, independent package verification and live Stage 1 through Stage 6 requalification; Stage 7 and Stage 8 remain required",
+    "The exact-SHA 138eabe fix passed hosted CI, independent package verification and live Stage 1 through Stage 7 requalification; Stage 8 remains required",
     "A discarded non-normative setup path produced SQLite WAL/SHM paths of 261 characters and failed before Ledger initialization; the normative Unicode-and-spaces destination passed at 222 characters, so Windows legacy long-path compatibility remains an explicit environmental limitation outside the Stage 1 scenario",
-    "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
+    "The current accredited blind task task:01a06c53-2603-7be0-b94b-c1f7a7eb57a7 received exactly executable, database, project_ref and skill; it had no repository, Git or direct SQLite access and issued no lifecycle command",
     "The fixed GSP traversal and local integration-boundary exercises preserve certified_compatibility=false",
     "No current OPERATIONALLY_ACCEPTED declaration is valid until hosted requalification and a new separate human decision; no merge or release is authorized"
   ]
