@@ -1,8 +1,8 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "READY_FOR_OWNER_DECISION",
+  "status": "OPERATIONALLY_ACCEPTED",
   "started_at": "2026-09-02T19:38:54Z",
-  "completed_at": null,
+  "completed_at": "2026-09-04T03:31:48Z",
   "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
   "subject": {
     "product_version": "0.2.0",
@@ -17,21 +17,25 @@
     "hosted_source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737"
   },
   "scope": {
-    "included": ["windows", "core-cli", "codex", "gskills-local-provider", "gskills-local-record-sink", "gsp-exact-2026.04.12"],
-    "excluded": ["gskills-external-counterpart", "project-radar-counterpart", "ui", "daemon", "general-availability", "universal-certification"],
+    "product_under_test": "G_LEDGER",
+    "included": ["windows", "core-cli", "codex", "local-integration-boundary-test", "gsp-exact-2026.04.12"],
+    "excluded": ["gskills-product-validation", "gskills-external-counterpart", "project-radar-counterpart", "ui", "daemon", "general-availability", "universal-certification"],
+    "gskills_under_development": true,
+    "gskills_product_validated": false,
+    "gskills_local_role": "LOCAL_DEVELOPMENT_COUNTERPART_USED_ONLY_TO_TEST_G_LEDGER_INTEGRATION_BOUNDARIES",
     "certified_compatibility": false
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2, 3, 4, 5, 6, 7],
-    "percentage": 87.5
+    "completed_stages": [1, 2, 3, 4, 5, 6, 7, 8],
+    "percentage": 100
   },
   "project_identity": {
     "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
     "database_locator": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/data/project-ledger/projects/01a0697c-34b6-7042-a751-fbfb30a06a49/ledger.db",
-    "latest_state_version": 96,
-    "latest_state_digest": "sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a",
-    "latest_checkpoint_ref": "checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819",
+    "latest_state_version": 134,
+    "latest_state_digest": "sha256:bf493e895aef07482f05513e5da89cdd3acaa8001c3971103bb7110ab835e882",
+    "latest_checkpoint_ref": "checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901",
     "latest_checkpoint_freshness": "CURRENT"
   },
   "predecision_reconciliation": {
@@ -51,6 +55,25 @@
     "verify_finding_count": 0,
     "audit_finding_count": 0,
     "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-owner-decision-readiness.json"]
+  },
+  "final_acceptance": {
+    "status": "PASS",
+    "proof_class": "LIVE_PILOT_HUMAN_DECISION",
+    "owner_decision_ref": "decision:opa-operational-acceptance-v1",
+    "owner_actor_id": "human:owner",
+    "accepted_at": "2026-09-04T03:31:48Z",
+    "verified_required_gate_count": 8,
+    "pending_required_gate_count": 0,
+    "waived_required_gate_count": 0,
+    "phase_status": "COMPLETED",
+    "project_status": "COMPLETED",
+    "open_blocker_count": 0,
+    "mitigated_open_risk_refs": ["risk:opa-stage3-continuity"],
+    "checkpoint_freshness": "CURRENT",
+    "doctor_finding_count": 0,
+    "verify_finding_count": 0,
+    "audit_finding_count": 0,
+    "evidence": ["docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]
   },
   "repository_verification": {
     "status": "PASS",
@@ -78,7 +101,7 @@
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "PASS", "evidence": ["docs/pilot/results/stage-5-transactional-safety.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "PASS", "evidence": ["docs/pilot/results/stage-6-projections-privacy-recovery.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
     {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "PASS", "evidence": ["docs/pilot/results/stage-7-blind-handoff-integrations.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "AWAITING_OWNER_DECISION", "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-owner-decision-readiness.json"]}
+    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "PASS", "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]}
   ],
   "scenario_results": [
     {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json"]},
@@ -112,7 +135,7 @@
     {"id":"OPA-S29","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S30","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json"]},
-    {"id":"OPA-S32","stage":8,"critical":true,"status":"AWAITING_OWNER_DECISION","proof_class":"LIVE_PILOT_PREDECISION","evidence":["docs/pilot/results/stage-8-owner-decision-readiness.json"]}
+    {"id":"OPA-S32","stage":8,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HUMAN_DECISION","evidence":["docs/pilot/results/stage-8-owner-decision-readiness.json","docs/pilot/results/stage-8-operational-acceptance.json"]}
   ],
   "defects": [
     {
@@ -172,17 +195,23 @@
     }
   ],
   "critical_waivers": [],
-  "owner_decision": null,
+  "owner_decision": {
+    "decision_ref": "decision:opa-operational-acceptance-v1",
+    "actor_id": "human:owner",
+    "value": "OPERATIONALLY_ACCEPTED",
+    "ledger_status": "ACCEPTED",
+    "authority_ref": "authority:opa-spec",
+    "accepted_at": "2026-09-04T03:31:48Z"
+  },
   "limitations": [
-    "No external G-Skills counterpart or bilateral certification is claimed",
+    "G-Skills remains under development and was not validated as a product; its local protocol surface was used only to test G-Ledger integration boundaries",
     "Project Radar counterpart is excluded from the pilot",
     "The bd564cd artifact invalidated by OPA-DEFECT-003 and its blocked Stage 3 attempt remain historical evidence; the active subject is the hosted exact-SHA 99fdaab package",
-    "All non-human Stage 8 reconciliation has passed, but the governed stage remains incomplete until the owner issues a separate decision",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The governed project is intentionally BLOCKED by blocker:opa-stage8-human-decision; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending until the separately authorized decision transaction",
+    "risk:opa-stage3-continuity remains visible in open_risk_refs with its Stage 3 MITIGATED history; it is monitored and non-blocking, not erased by acceptance",
     "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
-    "G-Skills coverage is local provider/RecordSink only and the fixed GSP traversal preserves certified_compatibility=false",
-    "The pilot cannot establish General Availability or universal absence of defects"
+    "The fixed GSP traversal and local integration-boundary exercises preserve certified_compatibility=false",
+    "OPERATIONALLY_ACCEPTED authorizes controlled use of G-Ledger only; it does not authorize merge or release and does not establish General Availability, universal certification, validation of G-Skills, or universal absence of defects"
   ]
 }

@@ -23,7 +23,9 @@ param(
 
     [string]$GspSourceRoot,
 
-    [string]$ExpectedGspCommit = '7a43559c02417641691dbb5f2a6e79c13d74d1a1'
+    [string]$ExpectedGspCommit = '7a43559c02417641691dbb5f2a6e79c13d74d1a1',
+
+    [string]$OwnerDecision
 )
 
 Set-StrictMode -Version Latest
@@ -99,6 +101,10 @@ function Get-PilotTextDigest {
 }
 
 if ($Stage -eq 8) {
+    $isDecisionRun = -not [string]::IsNullOrWhiteSpace($OwnerDecision)
+    if ($isDecisionRun -and $OwnerDecision -ne 'OPERATIONALLY_ACCEPTED') {
+        throw "PILOT_STAGE_8_UNSUPPORTED_OWNER_DECISION: $OwnerDecision"
+    }
     $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
     $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
     $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
@@ -191,8 +197,10 @@ if ($Stage -eq 8) {
     })
     $decisionStage = @($report.stages | Where-Object { [int]$_.stage -eq 8 })
     $openDefects = @($report.defects | Where-Object { $_.status -ne 'FIXED_AND_REQUALIFIED' })
+    $expectedReportStatus = if ($isDecisionRun) { 'READY_FOR_OWNER_DECISION' } else { 'IN_PROGRESS' }
+    $expectedDecisionStatus = if ($isDecisionRun) { 'AWAITING_OWNER_DECISION' } else { 'NOT_RUN' }
     if ($report.profile -ne 'project-ledger-operational-pilot/1' -or
-        $report.status -ne 'IN_PROGRESS' -or
+        $report.status -ne $expectedReportStatus -or
         $report.subject.product_version -ne '0.2.0' -or
         $report.subject.binary_source_commit -ne $ExpectedSourceCommit -or
         $report.subject.zip_sha256 -ne $expectedHash -or
@@ -205,13 +213,13 @@ if ($Stage -eq 8) {
         $priorStages.Count -ne 7 -or
         @($priorStages | Where-Object { $_.status -ne 'PASS' }).Count -ne 0 -or
         $decisionStage.Count -ne 1 -or
-        $decisionStage[0].status -ne 'NOT_RUN' -or
+        $decisionStage[0].status -ne $expectedDecisionStatus -or
         $priorScenarioResults.Count -ne 30 -or
         @($priorScenarioResults | Where-Object { $_.status -ne 'PASS' }).Count -ne 0 -or
         $excludedScenario.Count -ne 1 -or
         $excludedScenario[0].status -ne 'EXCLUDED_BY_SCOPE' -or
         $decisionScenario.Count -ne 1 -or
-        $decisionScenario[0].status -ne 'NOT_RUN' -or
+        $decisionScenario[0].status -ne $expectedDecisionStatus -or
         $openDefects.Count -ne 0 -or
         @($report.critical_waivers).Count -ne 0 -or
         $null -ne $report.owner_decision) {
@@ -285,6 +293,585 @@ if ($Stage -eq 8) {
         'gate', 'show', 'gate:opa-waiver-exercise',
         '--database', $database, '--project-ref', $projectRef, '--json'
     )
+
+    if ($isDecisionRun) {
+        $predecisionManifestPath = Join-Path $evidenceDirectory 'stage-8-owner-decision-readiness.json'
+        $recordSinkClient = Join-Path $resolvedRepository 'scripts\invoke-record-sink-rpc.ps1'
+        foreach ($requiredPath in @($predecisionManifestPath, $recordSinkClient)) {
+            if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+                throw "PILOT_STAGE_8_DECISION_INPUT_MISSING: $requiredPath"
+            }
+        }
+        $predecision = Get-Content -Raw -LiteralPath $predecisionManifestPath | ConvertFrom-Json
+        if ($predecision.status -ne 'READY_FOR_OWNER_DECISION' -or
+            $predecision.proof_class -ne 'LIVE_PILOT_PREDECISION' -or
+            $predecision.execution.read_only -ne $true -or
+            [int64]$predecision.execution.ledger_state_version_delta -ne 0 -or
+            $null -ne $predecision.boundary.owner_decision -or
+            $predecision.boundary.operational_acceptance_declared -ne $false -or
+            $predecision.subject.zip_sha256 -ne $expectedHash -or
+            $predecision.subject.source_commit -ne $ExpectedSourceCommit) {
+            throw 'PILOT_STAGE_8_PREDECISION_EVIDENCE_INVALID'
+        }
+
+        $observedAt = [DateTimeOffset]::UtcNow.ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $approvalExpiresAt = [DateTimeOffset]::UtcNow.AddMinutes(30).ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $script:stageEightDecisionVersion = [int64]$initialState.state_version
+        $decisionMutations = [System.Collections.Generic.List[object]]::new()
+        function Invoke-StageEightDecisionMutation {
+            param(
+                [string]$Name,
+                [string]$CommandType,
+                [string]$ActorId,
+                [bool]$AsHuman,
+                [string[]]$CommandArguments
+            )
+
+            $before = Invoke-PilotLedgerJson $ledger @(
+                'status', '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            if ([int64]$before.state_version -ne $script:stageEightDecisionVersion) {
+                throw "PILOT_STAGE_8_DECISION_VERSION_DRIFT: $Name"
+            }
+            $arguments = @($CommandArguments) + @(
+                '--database', $database,
+                '--project-ref', $projectRef,
+                '--expected-version', [string]$script:stageEightDecisionVersion,
+                '--idempotency-key', "opa:stage8:decision:$Name",
+                '--actor-id', $ActorId,
+                '--observed-at', $observedAt
+            )
+            if ($AsHuman) { $arguments += '--as-human' }
+            $arguments += '--json'
+            $result = Invoke-PilotLedgerJson $ledger $arguments
+            $after = Invoke-PilotLedgerJson $ledger @(
+                'status', '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            if ($result.status -ne 'ACCEPTED' -or
+                [int64]$after.state_version -le [int64]$before.state_version) {
+                throw "PILOT_STAGE_8_DECISION_MUTATION_FAILED: $Name"
+            }
+            $script:stageEightDecisionVersion = [int64]$after.state_version
+            $decisionMutations.Add([ordered]@{
+                name = $Name
+                command_type = $CommandType
+                actor_id = $ActorId
+                as_human = $AsHuman
+                initial_state_version = [int64]$before.state_version
+                final_state_version = [int64]$after.state_version
+                state_version_delta = [int64]$after.state_version - [int64]$before.state_version
+                idempotency_key = "opa:stage8:decision:$Name"
+            })
+            return $result
+        }
+
+        $decisionWithoutDigest = [ordered]@{
+            schema_version = '0.2.0'
+            decision_id = 'decision:opa-operational-acceptance-v1'
+            title = 'Accept G-Ledger for controlled operational use'
+            domain = 'G_LEDGER_OPERATIONAL_ACCEPTANCE'
+            context = 'Final owner decision after reconciliation of the disposable operational acceptance pilot.'
+            decision = 'OPERATIONALLY_ACCEPTED'
+            rationale = 'All non-human acceptance criteria passed; residual limitations remain explicit and do not constitute GA or external certification.'
+            alternatives = @('BLOCKED', 'REJECTED')
+            scope = 'G-Ledger 0.2.0 exact hosted candidate e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851'
+            authority_ref = $null
+            evidence_refs = @()
+            status = 'PROPOSED'
+            version = 1
+            supersedes_ref = $null
+            created_at = $observedAt
+            accepted_at = $null
+            provenance_ref = 'urn:project-ledger:pilot:stage8:human-owner-decision'
+        }
+        $decisionDocument = [ordered]@{}
+        foreach ($key in $decisionWithoutDigest.Keys) { $decisionDocument[$key] = $decisionWithoutDigest[$key] }
+        $decisionDocument['digest'] = Get-PilotCanonicalDigest $decisionWithoutDigest
+        $decisionPath = Join-Path $resolvedPilotRoot 'fixtures\stage-8-owner-decision.json'
+        Write-PilotJson $decisionPath $decisionDocument
+        $null = Invoke-StageEightDecisionMutation `
+            'owner-decision-propose' 'PROPOSE_DECISION' 'human:owner' $true `
+            @('decision', 'propose', '--file', $decisionPath)
+        $null = Invoke-StageEightDecisionMutation `
+            'owner-decision-accept' 'ACCEPT_DECISION' 'human:owner' $true `
+            @('decision', 'accept', 'decision:opa-operational-acceptance-v1', '--authority', 'authority:opa-spec')
+        $acceptedDecision = Invoke-PilotLedgerJson $ledger @(
+            'decision', 'show', 'decision:opa-operational-acceptance-v1',
+            '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        if ($acceptedDecision.status -ne 'ACCEPTED' -or
+            $acceptedDecision.decision -ne 'OPERATIONALLY_ACCEPTED' -or
+            $acceptedDecision.authority_ref -ne 'authority:opa-spec') {
+            throw 'PILOT_STAGE_8_OWNER_DECISION_NOT_ACCEPTED'
+        }
+
+        $gskillsRoot = Join-Path $installation 'resources\integrations\gskills'
+        $providerManifestPath = Join-Path $gskillsRoot 'reports\record-sink-conformance.json'
+        $compatibilityLockPath = Join-Path $gskillsRoot 'profile-contract-lock.json'
+        $identityMapPath = Join-Path $gskillsRoot 'reports\record-sink-field-mapping.json'
+        foreach ($requiredPath in @($providerManifestPath, $compatibilityLockPath, $identityMapPath)) {
+            if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+                throw "PILOT_STAGE_8_LOCAL_SINK_RESOURCE_MISSING: $requiredPath"
+            }
+        }
+        $providerManifestDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $providerManifestPath).Hash.ToLowerInvariant()
+        $providerExecutableDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $ledger).Hash.ToLowerInvariant()
+        $compatibilityLockDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $compatibilityLockPath).Hash.ToLowerInvariant()
+        $identityMapDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $identityMapPath).Hash.ToLowerInvariant()
+        $gskillsProjectRef = 'project:g-ledger-operational-pilot'
+        $externalProjectRef = 'project-ledger://projects/g-ledger-operational-pilot'
+        $actorTrustDomain = 'agent_harness:stage8_on_behalf_of_local_user'
+        $sinkPolicyWithoutDigest = [ordered]@{
+            schema_version = '0.2.0'
+            policy_id = 'policy:opa-stage8-final-record-sink'
+            sink_id = 'project-ledger'
+            profile = 'gskills-context-provider/0.3.0'
+            gskills_project_ref = $gskillsProjectRef
+            external_project_ref = $externalProjectRef
+            native_project_ref = $projectRef
+            external_actor = [ordered]@{
+                type = 'agent_harness'
+                id = 'opa-stage8-client'
+                on_behalf_of = 'human:owner'
+            }
+            native_actor = [ordered]@{
+                actor_id = 'integration:gskills-pilot'
+                actor_kind = 'INTEGRATION'
+                trust_level = 'TRUSTED_FOR_RECORDING'
+                display_name = 'G-Ledger OPA local protocol counterpart'
+            }
+            actor_trust_domain = $actorTrustDomain
+            allowed_command_kinds = @(
+                'RECORD_WORK_PROGRESS',
+                'RECORD_VERIFICATION_RESULT',
+                'REQUEST_GATE_EVALUATION',
+                'REQUEST_GATE_REVALIDATION',
+                'CREATE_CONTINUITY_CHECKPOINT'
+            )
+            approval_requirement = 'USER_OR_POLICY'
+            provider_manifest_digest = $providerManifestDigest
+            provider_executable_digest = $providerExecutableDigest
+            compatibility_lock_digest = $compatibilityLockDigest
+            identity_map_digest = $identityMapDigest
+            created_at = $observedAt
+        }
+        $sinkPolicy = [ordered]@{}
+        foreach ($key in $sinkPolicyWithoutDigest.Keys) { $sinkPolicy[$key] = $sinkPolicyWithoutDigest[$key] }
+        $sinkPolicy['digest'] = Get-PilotCanonicalDigest $sinkPolicyWithoutDigest
+        $sinkPolicyPath = Join-Path $resolvedPilotRoot 'fixtures\record-sink-policy-stage8.json'
+        Write-PilotJson $sinkPolicyPath $sinkPolicy
+
+        $sinkReceipts = [System.Collections.Generic.List[object]]::new()
+        foreach ($stageNumber in @(1, 2, 3, 5, 6, 7, 8)) {
+            $beforeSink = Invoke-PilotLedgerJson $ledger @(
+                'status', '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            if ([int64]$beforeSink.state_version -ne $script:stageEightDecisionVersion) {
+                throw "PILOT_STAGE_8_SINK_VERSION_DRIFT: stage=$stageNumber"
+            }
+            $artifactPath = if ($stageNumber -eq 8) {
+                $predecisionManifestPath
+            } else {
+                $stageManifestPaths[$stageNumber]
+            }
+            $artifactDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $artifactPath).Hash.ToLowerInvariant()
+            $evidenceId = 'evidence:opa-stage8-stage-{0:D2}-verified-source' -f $stageNumber
+            $verifiedEvidenceWithoutDigest = [ordered]@{
+                schema_version = '0.2.0'
+                evidence_id = $evidenceId
+                project_ref = $projectRef
+                kind = 'CUSTOM_DECLARATIVE'
+                status = 'VERIFIED_SOURCE'
+                source = [ordered]@{
+                    source_type = 'EXTERNAL_SYSTEM'
+                    tool = 'g-ledger-operational-pilot-finalizer'
+                    command_display = $null
+                    working_directory_ref = $null
+                    runner_version = 'project-ledger-operational-pilot/1'
+                }
+                result = [ordered]@{
+                    exit_code = 0
+                    duration_ms = 1
+                    metrics = [ordered]@{ passed = 1; failed = 0; skipped = 0; errors = 0 }
+                    summary = "G-Ledger operational pilot Stage $stageNumber evidence reconciled as PASS."
+                }
+                repository_binding = $null
+                artifacts = @([ordered]@{
+                    uri = [Uri]::new($artifactPath).AbsoluteUri
+                    digest = $artifactDigest
+                    persisted = $false
+                })
+                privacy = [ordered]@{ raw_output_stored = $false; redaction_applied = $true }
+                observed_at = $observedAt
+                provenance_ref = "urn:project-ledger:pilot:stage8:gate:$stageNumber"
+            }
+            $verifiedEvidence = [ordered]@{}
+            foreach ($key in $verifiedEvidenceWithoutDigest.Keys) { $verifiedEvidence[$key] = $verifiedEvidenceWithoutDigest[$key] }
+            $verifiedEvidence['payload_digest'] = Get-PilotCanonicalDigest $verifiedEvidenceWithoutDigest
+
+            $externalCommand = [ordered]@{
+                schema_version = '0.3.0'
+                external_record_command_id = ('external-command:019b7a00-0000-7000-8000-0000000080{0:D2}' -f $stageNumber)
+                command_kind = 'RECORD_VERIFICATION_RESULT'
+                sink_id = 'project-ledger'
+                profile = 'gskills-context-provider/0.3.0'
+                project_ref = $gskillsProjectRef
+                external_project_ref = $externalProjectRef
+                actor = [ordered]@{
+                    type = 'agent_harness'
+                    id = 'opa-stage8-client'
+                    on_behalf_of = 'human:owner'
+                }
+                session_ref = 'session:opa-stage8-final-record-sink'
+                native_command = [ordered]@{
+                    command_type = 'RECORD_VERIFICATION_RESULT'
+                    command_schema_ref = 'urn:project-ledger:command:record-verification-result:0.2.0'
+                    command_schema_ref_status = 'EXACT'
+                    expected_state_version = [int64]$beforeSink.state_version
+                }
+                expected_state = [ordered]@{
+                    project_state_version = [int64]$beforeSink.state_version
+                    material_state_version = [int64]$beforeSink.material_state_version
+                    project_state_digest = [string]$beforeSink.state_digest
+                }
+                payload = [ordered]@{ evidence = $verifiedEvidence }
+                idempotency_key = ('opa:stage8:sink:gate:{0:D2}' -f $stageNumber)
+                idempotency_scope = [ordered]@{
+                    sink_id = 'project-ledger'
+                    external_project_ref = $externalProjectRef
+                    native_command_type = 'RECORD_VERIFICATION_RESULT'
+                    actor_trust_domain = $actorTrustDomain
+                }
+                preparation = [ordered]@{
+                    prepared_by = 'gskills'
+                    prepared_at = $observedAt
+                    prepared_command_digest = 'sha256:' + ('0' * 64)
+                    preview_digest = 'sha256:' + ('0' * 64)
+                    provider_manifest_digest = $providerManifestDigest
+                    provider_executable_digest = $providerExecutableDigest
+                    compatibility_lock_digest = $compatibilityLockDigest
+                    policy_digest = $sinkPolicy.digest
+                    identity_map_digest = $identityMapDigest
+                    expected_state_digest = [string]$beforeSink.state_digest
+                    approval_requirement = 'USER_OR_POLICY'
+                    approval_expires_at = $approvalExpiresAt
+                }
+                privacy = [ordered]@{ raw_output_included = $false; evidence_refs_only = $true }
+                provenance_ref = "gskills://local-protocol-harness/opa-stage8/gate-$stageNumber"
+                digest = 'sha256:' + ('0' * 64)
+            }
+            $preparedCore = $externalCommand | ConvertTo-Json -Depth 30 -Compress |
+                ConvertFrom-Json -AsHashtable -DateKind String
+            $preparedCore.Remove('digest')
+            foreach ($field in @(
+                'prepared_command_digest', 'preview_digest', 'provider_manifest_digest',
+                'provider_executable_digest', 'compatibility_lock_digest', 'policy_digest',
+                'identity_map_digest', 'expected_state_digest'
+            )) { $preparedCore.preparation.Remove($field) }
+            $preparedDigest = Get-PilotCanonicalDigest $preparedCore
+            $externalCommand.preparation.prepared_command_digest = $preparedDigest
+            $externalCommand.preparation.preview_digest = $preparedDigest
+            $commandWithoutDigest = $externalCommand | ConvertTo-Json -Depth 30 -Compress |
+                ConvertFrom-Json -AsHashtable -DateKind String
+            $commandWithoutDigest.Remove('digest')
+            $externalCommand.digest = Get-PilotCanonicalDigest $commandWithoutDigest
+
+            $requestBase = $stageNumber * 10
+            $sinkRequests = @(
+                [ordered]@{ jsonrpc = '2.0'; id = $requestBase + 1; method = 'ledger.command_validate'; params = [ordered]@{ command = $externalCommand } },
+                [ordered]@{ jsonrpc = '2.0'; id = $requestBase + 2; method = 'ledger.command_submit'; params = [ordered]@{ command = $externalCommand } },
+                [ordered]@{ jsonrpc = '2.0'; id = $requestBase + 3; method = 'ledger.command_submit'; params = [ordered]@{ command = $externalCommand } },
+                [ordered]@{ jsonrpc = '2.0'; id = $requestBase + 4; method = 'ledger.command_status'; params = [ordered]@{ command = $externalCommand } },
+                [ordered]@{ jsonrpc = '2.0'; id = $requestBase + 5; method = 'ledger.command_reconcile'; params = [ordered]@{ command = $externalCommand } }
+            )
+            $sinkRequestsPath = Join-Path $resolvedPilotRoot ('fixtures\record-sink-requests-stage8-{0:D2}.json' -f $stageNumber)
+            Write-PilotJson $sinkRequestsPath $sinkRequests
+            $rpcOutput = & $recordSinkClient `
+                -Executable $ledger `
+                -ProcessArguments @(
+                    'serve', 'sink', '--stdio', '--profile', 'gskills-context-provider/0.3.0',
+                    '--database', $database, '--project-ref', $projectRef,
+                    '--gskills-project-ref', $gskillsProjectRef, '--policy', $sinkPolicyPath,
+                    '--observed-at', $observedAt
+                ) `
+                -RequestsFile $sinkRequestsPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "PILOT_STAGE_8_LOCAL_SINK_CLIENT_FAILED: stage=$stageNumber exit=$LASTEXITCODE"
+            }
+            $responses = @(($rpcOutput | Out-String).Trim() | ConvertFrom-Json)
+            $responseErrors = @($responses | Where-Object {
+                $null -ne $_.PSObject.Properties['error'] -and $null -ne $_.error
+            })
+            if ($responses.Count -ne 5 -or $responseErrors.Count -ne 0) {
+                throw "PILOT_STAGE_8_LOCAL_SINK_RESPONSE_INVALID: stage=$stageNumber"
+            }
+            $afterSink = Invoke-PilotLedgerJson $ledger @(
+                'status', '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            $evidenceView = Invoke-PilotLedgerJson $ledger @(
+                'evidence', 'show', $evidenceId,
+                '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            if ($responses[0].result.status -ne 'VALID' -or
+                $responses[1].result.status -ne 'ACCEPTED' -or
+                $responses[2].result.status -ne 'DUPLICATE_REPLAY' -or
+                $responses[3].result.status -ne 'FOUND' -or
+                $responses[4].result.status -ne 'FOUND' -or
+                ([int64]$afterSink.state_version - [int64]$beforeSink.state_version) -ne 1 -or
+                $evidenceView.status -ne 'VERIFIED_SOURCE' -or
+                $evidenceView.privacy.raw_output_stored -ne $false) {
+                throw "PILOT_STAGE_8_LOCAL_SINK_INVARIANT_FAILED: stage=$stageNumber"
+            }
+            $script:stageEightDecisionVersion = [int64]$afterSink.state_version
+            $sinkReceipts.Add([ordered]@{
+                stage = $stageNumber
+                gate_ref = 'gate:opa-{0:D2}' -f $stageNumber
+                evidence_ref = $evidenceId
+                evidence_status = $evidenceView.status
+                submit_status = $responses[1].result.status
+                replay_status = $responses[2].result.status
+                durable_effect_count = 1
+                replay_effect_count = 0
+                artifact_digest = $artifactDigest
+            })
+        }
+
+        foreach ($gateNumber in @(1, 2, 3, 5, 6, 7, 8)) {
+            $gateRef = 'gate:opa-{0:D2}' -f $gateNumber
+            $null = Invoke-StageEightDecisionMutation `
+                ("gate-{0:D2}-evaluate" -f $gateNumber) 'REQUEST_GATE_EVALUATION' 'agent:opa-stage8' $false `
+                @('gate', 'evaluate', $gateRef)
+            $gateView = Invoke-PilotLedgerJson $ledger @(
+                'gate', 'show', $gateRef,
+                '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+            if ($gateView.status -ne 'VERIFIED') {
+                throw "PILOT_STAGE_8_GATE_NOT_VERIFIED: $gateRef"
+            }
+        }
+
+        $null = Invoke-StageEightDecisionMutation `
+            'human-blocker-resolve' 'RESOLVE_BLOCKER' 'human:owner' $true `
+            @(
+                'blocker', 'resolve', 'blocker:opa-stage8-human-decision',
+                '--summary', 'The owner reviewed the final report and decided OPERATIONALLY_ACCEPTED for G-Ledger controlled operational use.'
+            )
+        $null = Invoke-StageEightDecisionMutation `
+            'next-controlled-use-set' 'SET_NEXT_ACTION' 'human:owner' $true `
+            @(
+                'next', 'set', '--title', 'Select the first controlled operational G-Ledger project',
+                '--summary', 'Operational acceptance permits controlled G-Ledger use; it does not authorize merge, release, GA, or validation of external products.',
+                '--phase', 'phase:operational-acceptance', '--classification', 'ELIGIBLE',
+                '--record-id', 'action:opa-first-controlled-project',
+                '--supersedes', 'action:opa-next-stage8-decision'
+            )
+        $null = Invoke-StageEightDecisionMutation `
+            'phase-ready-request' 'REQUEST_PHASE_COMPLETION' 'agent:opa-stage8' $false `
+            @('phase', 'request-close', 'phase:operational-acceptance')
+        $readyPhaseViews = @(Invoke-PilotLedgerJson $ledger @(
+            'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+        ))
+        $readyPhase = @($readyPhaseViews | Where-Object {
+            $_.phase_ref -eq 'phase:operational-acceptance'
+        })
+        if ($readyPhase.Count -ne 1 -or $readyPhase[0].status -ne 'READY_TO_CLOSE') {
+            throw 'PILOT_STAGE_8_PHASE_NOT_READY_FOR_HUMAN_CONFIRMATION'
+        }
+        $null = Invoke-StageEightDecisionMutation `
+            'phase-close-human-confirm' 'REQUEST_PHASE_COMPLETION' 'human:owner' $true `
+            @('phase', 'request-close', 'phase:operational-acceptance')
+        $null = Invoke-StageEightDecisionMutation `
+            'checkpoint-final' 'CREATE_CONTINUITY_CHECKPOINT' 'agent:opa-stage8' $false `
+            @('checkpoint', 'create', '--reason', 'Final G-Ledger operational acceptance decision')
+
+        $finalRequiredGates = foreach ($gateNumber in 1..8) {
+            Invoke-PilotLedgerJson $ledger @(
+                'gate', 'show', ('gate:opa-{0:D2}' -f $gateNumber),
+                '--database', $database, '--project-ref', $projectRef, '--json'
+            )
+        }
+        $finalPhases = @(Invoke-PilotLedgerJson $ledger @(
+            'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+        ))
+        $finalState = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $finalResume = Invoke-PilotLedgerJson $ledger @(
+            'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+        )
+        $finalDoctor = Invoke-PilotLedgerJson $ledger @(
+            'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $finalVerify = Invoke-PilotLedgerJson $ledger @(
+            'verify', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $finalAudit = Invoke-PilotLedgerJson $ledger @(
+            'audit', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $finalDoctorFindingCount = if ($null -ne $finalDoctor.PSObject.Properties['findings']) {
+            @($finalDoctor.findings).Count
+        } else {
+            0
+        }
+        $completedPhase = @($finalPhases | Where-Object { $_.phase_ref -eq 'phase:operational-acceptance' })
+        $terminalObservation = [ordered]@{
+            required_gate_statuses = @($finalRequiredGates | ForEach-Object {
+                [ordered]@{ gate_ref = $_.definition.gate_id; status = $_.status }
+            })
+            optional_gate_status = $optionalGateView.status
+            phase_views = @($finalPhases)
+            project_status = $finalState.project.lifecycle_status
+            primary_active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_refs = @($finalState.completed_phase_refs)
+            open_blocker_refs = @($finalState.open_blocker_refs)
+            verified_gate_refs = @($finalState.verified_gate_refs)
+            pending_gate_refs = @($finalState.pending_gate_refs)
+            checkpoint_ref = $finalResume.checkpoint_ref
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            conflict_refs = @($finalResume.conflict_refs)
+            critical_unknown_refs = @($finalResume.critical_unknown_refs)
+            doctor_integrity = $finalDoctor.integrity
+            verify_integrity = $finalVerify.integrity
+            audit_integrity = $finalAudit.integrity
+            doctor_finding_count = $finalDoctorFindingCount
+            verify_finding_count = @($finalVerify.findings).Count
+            audit_finding_count = @($finalAudit.findings).Count
+        }
+        $terminalObservationPath = Join-Path $evidenceDirectory 'stage-8-terminal-observation.json'
+        Write-PilotJson $terminalObservationPath $terminalObservation
+        if (@($finalRequiredGates | Where-Object { $_.status -ne 'VERIFIED' }).Count -ne 0 -or
+            @($finalRequiredGates | Where-Object { $_.status -eq 'WAIVED' }).Count -ne 0 -or
+            $optionalGateView.status -ne 'WAIVED' -or
+            $completedPhase.Count -ne 1 -or $completedPhase[0].status -ne 'COMPLETED' -or
+            $finalState.project.lifecycle_status -ne 'COMPLETED' -or
+            $null -ne $finalState.primary_active_phase_ref -or
+            (@($finalState.completed_phase_refs) -join ',') -ne 'phase:operational-acceptance' -or
+            @($finalState.open_blocker_refs).Count -ne 0 -or
+            (@($finalState.verified_gate_refs) -join ',') -ne 'gate:opa-01,gate:opa-02,gate:opa-03,gate:opa-04,gate:opa-05,gate:opa-06,gate:opa-07,gate:opa-08' -or
+            @($finalState.pending_gate_refs).Count -ne 0 -or
+            $finalResume.checkpoint_freshness -ne 'CURRENT' -or
+            $finalResume.checkpoint_ref -ne $finalState.checkpoint_ref -or
+            @($finalResume.conflict_refs).Count -ne 0 -or
+            @($finalResume.critical_unknown_refs).Count -ne 0 -or
+            $finalDoctor.integrity -ne 'ok' -or
+            $finalVerify.integrity -ne 'ok' -or
+            $finalAudit.integrity -ne 'ok' -or
+            $finalDoctorFindingCount -ne 0 -or
+            @($finalVerify.findings).Count -ne 0 -or
+            @($finalAudit.findings).Count -ne 0) {
+            $terminalSummary = $terminalObservation | ConvertTo-Json -Depth 8 -Compress
+            throw "PILOT_STAGE_8_OPERATIONAL_ACCEPTANCE_INVARIANT_FAILED: $terminalSummary"
+        }
+
+        $acceptanceManifest = [ordered]@{
+            profile = 'project-ledger-operational-pilot-stage/1'
+            stage = 8
+            status = 'OPERATIONALLY_ACCEPTED'
+            proof_class = 'LIVE_PILOT_HUMAN_DECISION'
+            project_ref = $projectRef
+            subject = [ordered]@{
+                product_under_test = 'G_LEDGER'
+                product_version = '0.2.0'
+                zip_sha256 = $actualZipHash
+                source_commit = $packageManifest.source_commit
+                certified_compatibility = $false
+            }
+            scope = [ordered]@{
+                gskills_product_validated = $false
+                gskills_role = 'LOCAL_DEVELOPMENT_COUNTERPART_USED_ONLY_TO_TEST_G_LEDGER_INTEGRATION_BOUNDARIES'
+                project_radar = 'EXCLUDED_BY_SCOPE'
+                general_availability = $false
+                universal_certification = $false
+            }
+            owner_decision = [ordered]@{
+                decision_ref = $acceptedDecision.decision_id
+                actor_id = 'human:owner'
+                value = $acceptedDecision.decision
+                ledger_status = $acceptedDecision.status
+                authority_ref = $acceptedDecision.authority_ref
+                accepted_at = $acceptedDecision.accepted_at
+            }
+            reconciled_inputs = [ordered]@{
+                predecision_evidence_digest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $predecisionManifestPath).Hash.ToLowerInvariant()
+                report_digest = $documentDigests.operational_report
+                matrix_digest = $documentDigests.traceability_matrix
+                prior_stage_pass_count = $priorStages.Count
+                prior_scenario_pass_count = $priorScenarioResults.Count
+                excluded_scenario_count = $excludedScenario.Count
+                fixed_and_requalified_defect_count = @($report.defects).Count
+                open_defect_count = $openDefects.Count
+                critical_waiver_count = @($report.critical_waivers).Count
+            }
+            evidence = [ordered]@{
+                local_protocol_profile = 'gskills-context-provider/0.3.0'
+                validates_gledger_only = $true
+                sink_policy_digest = $sinkPolicy.digest
+                gate_receipts = @($sinkReceipts)
+            }
+            gates = [ordered]@{
+                verified_required_gate_count = @($finalRequiredGates | Where-Object { $_.status -eq 'VERIFIED' }).Count
+                verified_required_gate_refs = @($finalRequiredGates.definition.gate_id)
+                pending_required_gate_count = @($finalRequiredGates | Where-Object { $_.status -eq 'PENDING' }).Count
+                waived_required_gate_count = @($finalRequiredGates | Where-Object { $_.status -eq 'WAIVED' }).Count
+                optional_exercise_gate_status = $optionalGateView.status
+            }
+            lifecycle = [ordered]@{
+                phase_ref = 'phase:operational-acceptance'
+                phase_status = $completedPhase[0].status
+                project_status = $finalState.project.lifecycle_status
+                open_blocker_count = @($finalState.open_blocker_refs).Count
+                next_action_ref = $finalState.preferred_next_action_ref
+            }
+            execution = [ordered]@{
+                initial_state_version = [int64]$initialState.state_version
+                final_state_version = [int64]$finalState.state_version
+                state_version_delta = [int64]$finalState.state_version - [int64]$initialState.state_version
+                mutations = @($decisionMutations)
+            }
+            integrity = [ordered]@{
+                state_version = [int64]$finalState.state_version
+                state_digest = [string]$finalState.state_digest
+                checkpoint_ref = [string]$finalResume.checkpoint_ref
+                checkpoint_freshness = [string]$finalResume.checkpoint_freshness
+                doctor_integrity = [string]$finalDoctor.integrity
+                verify_integrity = [string]$finalVerify.integrity
+                audit_integrity = [string]$finalAudit.integrity
+                doctor_finding_count = $finalDoctorFindingCount
+                verify_finding_count = @($finalVerify.findings).Count
+                audit_finding_count = @($finalAudit.findings).Count
+            }
+            scenarios = [ordered]@{ 'OPA-S32' = 'PASS' }
+            boundary = [ordered]@{
+                operational_use = 'CONTROLLED'
+                merge_performed = $false
+                release_performed = $false
+                general_availability_declared = $false
+                gskills_operational_acceptance_declared = $false
+            }
+            residual_limitations = @(
+                'G-Skills remains under development and was not validated as a product; its local protocol surface only exercised G-Ledger integration boundaries.',
+                'Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.',
+                'Canary checks cover supported surfaces and do not prove universal byte-level absence.',
+                'Operational acceptance is limited to controlled G-Ledger use and does not establish GA, release approval, universal certification, or absence of all defects.'
+            )
+        }
+        $acceptanceManifestPath = Join-Path $evidenceDirectory 'stage-8-operational-acceptance.json'
+        Write-PilotJson $acceptanceManifestPath $acceptanceManifest
+
+        [pscustomobject]@{
+            stage = 8
+            status = 'OPERATIONALLY_ACCEPTED'
+            evidence = 'evidence/stage-8-operational-acceptance.json'
+        }
+        return
+    }
+
     $verifiedRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'VERIFIED' })
     $pendingRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'PENDING' })
     $waivedRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'WAIVED' })

@@ -1,19 +1,23 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado actual: `READY_FOR_OWNER_DECISION`, 7/8, 87,5 %. OPA-S01…OPA-S30 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; OPA-S31 permanece `EXCLUDED_BY_SCOPE` y OPA-S32 está `AWAITING_OWNER_DECISION`. La conciliación predecisión de Stage 8 verificó en modo read-only la matriz, el reporte, las siete evidencias de etapa, `resume`, el checkpoint y `doctor`/`verify`/`audit`: versión 96, digest y checkpoint permanecieron inmutables, con cero findings, defectos abiertos, conflictos, unknowns críticos o waivers críticos. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage8-human-decision` mantiene el proyecto bloqueado. Esta matriz no concede adopción operativa, GA ni certificación externa.
+Estado final: `OPERATIONALLY_ACCEPTED`, 8/8, 100 %. OPA-S01…OPA-S30 y OPA-S32 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; OPA-S31 permanece `EXCLUDED_BY_SCOPE`. Tras la conciliación predecisión, `human:owner` emitió la decisión separada de aceptación. G-Ledger registró la decisión, verificó los ocho gates requeridos exclusivamente mediante Gate Engine, resolvió el blocker humano y completó la fase y el proyecto mediante Phase Engine. El estado final es v134, con checkpoint `CURRENT` y cero findings, defectos abiertos, conflictos, unknowns críticos, waivers críticos, gates requeridos pendientes o blockers abiertos. `risk:opa-stage3-continuity` conserva visibilidad e historia `MITIGATED` como riesgo residual monitorizado y no bloqueante. La aceptación habilita sólo el uso operativo controlado de G-Ledger; no concede merge, release, GA ni certificación externa.
 
-## Conciliación predecisión de Stage 8
+## Cierre de Stage 8
 
 | Control | Resultado |
 |---|---|
-| Etapas previas | 7 `PASS` |
-| Escenarios | OPA-S01…OPA-S30 `PASS`; OPA-S31 `EXCLUDED_BY_SCOPE`; OPA-S32 `AWAITING_OWNER_DECISION` |
+| Etapas | 8 `PASS` |
+| Escenarios | OPA-S01…OPA-S30 y OPA-S32 `PASS`; OPA-S31 `EXCLUDED_BY_SCOPE` |
 | Defectos | 3 `FIXED_AND_REQUALIFIED`; 0 abiertos |
 | Integridad | `doctor`, `verify` y `audit`: `ok`, 0 findings |
-| Continuidad | v96; digest `sha256:679f8497…b622a`; checkpoint `checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819` `CURRENT` |
-| Gates requeridos | 1 `VERIFIED`; 7 `PENDING`; 0 `WAIVED` |
-| Autoridad pendiente | Decisión separada de `human:owner` |
-| Evidencia | `docs/pilot/results/stage-8-owner-decision-readiness.json` |
+| Continuidad | v134; digest `sha256:bf493e89…835e882`; checkpoint `checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901` `CURRENT` |
+| Gates requeridos | 8 `VERIFIED`; 0 `PENDING`; 0 `WAIVED` |
+| Lifecycle | fase `COMPLETED`; proyecto `COMPLETED`; 0 blockers abiertos |
+| Riesgo residual | `risk:opa-stage3-continuity` visible, `MITIGATED`, no bloqueante |
+| Autoridad | `decision:opa-operational-acceptance-v1`, `human:owner`, `ACCEPTED` |
+| Evidencia | `docs/pilot/results/stage-8-operational-acceptance.json` |
+
+G-Skills permanece en desarrollo y **no fue validado como producto**. Su superficie local se utilizó únicamente como contraparte de desarrollo para probar las fronteras de integración de G-Ledger; no hubo contraparte externa, certificación bilateral ni aceptación operativa de G-Skills.
 
 ## Principios P-01…P-10
 
@@ -42,8 +46,8 @@ Estado actual: `READY_FOR_OWNER_DECISION`, 7/8, 87,5 %. OPA-S01…OPA-S30 dispon
 | UC-06 Reapertura | Ejecutada | S14 |
 | UC-07 Reanudación | Ejecutada | S10, S28 |
 | UC-08 Contradicción heredada | Ejecutada mediante registros y supersesión | S06, S09 |
-| UC-09 G-Skills consulta continuidad | Local acotada, sin counterpart | S29 |
-| UC-10 G-Skills registra resultado | Local acotada, sin counterpart | S12, S29 |
+| UC-09 G-Skills consulta continuidad | Frontera local de G-Ledger; no valida G-Skills | S29 |
+| UC-10 G-Skills registra resultado | Frontera local de G-Ledger; no valida G-Skills | S12, S29 |
 | UC-11 GSP aporta evidencia | Runtime fijado local | S30 |
 | UC-12 Radar importa overlay | Excluida | S31 |
 | UC-13 Radar recibe export stale | Excluida | S31 |
@@ -92,3 +96,5 @@ Estado actual: `READY_FOR_OWNER_DECISION`, 7/8, 87,5 %. OPA-S01…OPA-S30 dispon
 ## Regla de cierre
 
 Una fila cubierta por evidencia histórica sigue pendiente hasta que su escenario `LIVE_PILOT`, `LIVE_HANDOFF` o `LIVE_LOCAL_INTEGRATION` correspondiente se ejecute. Los negativos sólo pasan cuando el rechazo y el delta cero coinciden con la especificación.
+
+La fórmula de cierre quedó satisfecha: ningún escenario crítico está `FAIL`, `BLOCKED` o `NOT_RUN`; no existen conflictos ni unknowns críticos abiertos; no hay waivers sobre gates requeridos; y la decisión humana separada está aceptada en el stream.

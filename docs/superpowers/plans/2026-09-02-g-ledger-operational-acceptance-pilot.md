@@ -33,7 +33,7 @@
 
 **Files:** `scripts/run-operational-pilot.ps1`, pruebas PowerShell bajo `scripts/tests/` y fixtures del piloto.
 
-**Interface:** `run-operational-pilot.ps1 -LedgerZip <zip> -PilotRoot <new-dir> -Stage <1..8> [-GspPython <exe> -GspSourceRoot <dir>]`.
+**Interface:** `run-operational-pilot.ps1 -LedgerZip <zip> -PilotRoot <new-dir> -Stage <1..8> [-GspPython <exe> -GspSourceRoot <dir>] [-OwnerDecision OPERATIONALLY_ACCEPTED]`.
 
 - [x] RED/GREEN: probar hash incorrecto y destino existente; validar binario, versión/capacidades y evitar uso de `target` durante el preflight real.
 - [x] GREEN: implementar extracción nueva, entorno mínimo, captura sanitizada y manifest de evidencia.
@@ -89,9 +89,9 @@
 
 - [x] Ejecutar auditoría final, verificar freshness y conciliar todas las filas.
 - [x] Ejecutar el gate completo del repositorio si hubo cambios de código; ante corrección, recalificar artefacto y repetir etapas afectadas.
-- [ ] Presentar resultados al propietario sin prellenar aprobación.
-- [ ] Tras decisión humana explícita, registrar S32 y el estado correcto; actualizar 8/8 sólo si satisface la fórmula.
-- [ ] Commit final `docs: record operational pilot decision`.
+- [x] Presentar resultados al propietario sin prellenar aprobación.
+- [x] Tras decisión humana explícita, registrar S32 y el estado correcto; actualizar 8/8 sólo si satisface la fórmula.
+- [x] Commit final `docs: record operational pilot decision`.
 
 ## Failure protocol
 
@@ -152,3 +152,15 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Límite humano: OPA-S32 queda `AWAITING_OWNER_DECISION`; `blocker:opa-stage8-human-decision`, la fase activa, cero fases completadas, un gate verificado y siete gates pendientes se preservan. Avance oficial: **7/8, 87,5 %, READY_FOR_OWNER_DECISION**. No se declaró aceptación, merge, release, GA ni certificación externa.
 
 **Siguiente paso:** presentar este resultado al propietario. Sólo una decisión humana posterior y separada podrá autorizar la transacción final, resolver el blocker, evaluar gates, cerrar la fase y registrar `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED`.
+
+## 2026-09-03 local / 2026-09-04 UTC — Decisión humana registrada y piloto cerrado, 8/8
+
+- Autoridad: tras recibir el informe final, `human:owner` decidió separadamente `OPERATIONALLY_ACCEPTED` para G-Ledger. El runner exige esa decisión exacta mediante `-OwnerDecision`; otros valores no se interpretan ni se convierten implícitamente.
+- TDD y depuración: el RED inicial demostró que el runner carecía de la interfaz de decisión. Los fallos intermedios se localizaron en el harness —estado propuesto con autoridad prematura, colisión de `command_id`, selector de fase y cierre lifecycle de dos pasos— y se corrigieron sin modificar G-Ledger, sus 53 comandos, 67 eventos, contratos, schemas o locks.
+- Ensayo seguro: antes de mutar el proyecto autorizado se clonó el estado exacto v96 a un destino descartable y se ejecutó la transacción completa. El ensayo terminó `OPERATIONALLY_ACCEPTED`; luego la misma secuencia se ejecutó una sola vez sobre el proyecto gobernado.
+- Evidencia y gates: siete registros `VERIFIED_SOURCE` se enviaron mediante la superficie RecordSink local, cada uno con efecto durable uno y replay `DUPLICATE_REPLAY`/delta cero. Gate Engine verificó `gate:opa-01`…`gate:opa-08`; ningún gate requerido fue dispensado y el waiver se mantuvo limitado al gate opcional de ejercicio.
+- Lifecycle: la decisión `decision:opa-operational-acceptance-v1` quedó `ACCEPTED`; se resolvió `blocker:opa-stage8-human-decision`; la solicitud del agente dejó la fase `READY_TO_CLOSE` y la confirmación humana separada permitió a Phase Engine completar fase y proyecto. La próxima acción es `action:opa-first-controlled-project`.
+- Conciliación final: v134, digest `sha256:bf493e895aef07482f05513e5da89cdd3acaa8001c3971103bb7110ab835e882`, checkpoint `checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901` `CURRENT`, ocho gates requeridos verificados, cero pendientes, cero waivers requeridos, cero blockers y cero findings de `doctor`, `verify` y `audit`. `risk:opa-stage3-continuity` conserva su historia `MITIGATED` como riesgo residual monitorizado y no bloqueante. OPA-S32 pasa como `LIVE_PILOT_HUMAN_DECISION`.
+- Límite de producto: el producto bajo prueba y aceptado es exclusivamente G-Ledger. G-Skills permanece en desarrollo y no fue validado como producto; su superficie local sólo actuó como contraparte de desarrollo para probar las fronteras de integración de G-Ledger. Project Radar sigue `EXCLUDED_BY_SCOPE`, `certified_compatibility=false`, y no hubo merge, release ni declaración GA.
+
+**Resultado:** **8/8, 100 %, `OPERATIONALLY_ACCEPTED` para uso operativo controlado de G-Ledger**. El siguiente proyecto real debe disponer de su propia carpeta, Ledger y autoridad; su inicio no forma parte de este piloto.

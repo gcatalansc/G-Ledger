@@ -1005,5 +1005,87 @@ Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage
         (Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json).owner_decision | Should Be $null
         $result.stage | Should Be 8
         $result.status | Should Be 'READY_FOR_OWNER_DECISION'
+
+        $decisionReport = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        $decisionReport.status = 'READY_FOR_OWNER_DECISION'
+        $decisionReport.stages[7].status = 'AWAITING_OWNER_DECISION'
+        $decisionReport.scenario_results[31].status = 'AWAITING_OWNER_DECISION'
+        $decisionReport.scenario_results[31].proof_class = 'LIVE_PILOT_PREDECISION'
+        $decisionReport.scenario_results[31].evidence = @('fixture://stage-8-readiness')
+        [IO.File]::WriteAllText(
+            $reportPath,
+            ($decisionReport | ConvertTo-Json -Depth 20) + [Environment]::NewLine,
+            [Text.UTF8Encoding]::new($false)
+        )
+
+        $decisionOutput = @(& pwsh -NoProfile -File $runner `
+            -Stage 8 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $stageEightRepository `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit `
+            -OwnerDecision OPERATIONALLY_ACCEPTED 2>&1)
+        $decisionExit = $LASTEXITCODE
+
+        if ($decisionExit -ne 0) {
+            Write-Host (($decisionOutput | Out-String).Trim())
+        }
+        $decisionExit | Should Be 0
+        $acceptanceManifestPath = Join-Path $pilotRoot 'evidence\stage-8-operational-acceptance.json'
+        (Test-Path -LiteralPath $acceptanceManifestPath) | Should Be $true
+        $acceptance = Get-Content -Raw -LiteralPath $acceptanceManifestPath | ConvertFrom-Json
+        $acceptance.status | Should Be 'OPERATIONALLY_ACCEPTED'
+        $acceptance.proof_class | Should Be 'LIVE_PILOT_HUMAN_DECISION'
+        $acceptance.subject.product_under_test | Should Be 'G_LEDGER'
+        $acceptance.subject.certified_compatibility | Should Be $false
+        $acceptance.scope.gskills_product_validated | Should Be $false
+        $acceptance.owner_decision.actor_id | Should Be 'human:owner'
+        $acceptance.owner_decision.value | Should Be 'OPERATIONALLY_ACCEPTED'
+        $acceptance.owner_decision.ledger_status | Should Be 'ACCEPTED'
+        $acceptance.gates.verified_required_gate_count | Should Be 8
+        $acceptance.gates.pending_required_gate_count | Should Be 0
+        $acceptance.gates.waived_required_gate_count | Should Be 0
+        $acceptance.lifecycle.phase_status | Should Be 'COMPLETED'
+        $acceptance.lifecycle.project_status | Should Be 'COMPLETED'
+        $acceptance.lifecycle.open_blocker_count | Should Be 0
+        $acceptance.integrity.checkpoint_freshness | Should Be 'CURRENT'
+        $acceptance.integrity.doctor_finding_count | Should Be 0
+        $acceptance.integrity.verify_finding_count | Should Be 0
+        $acceptance.integrity.audit_finding_count | Should Be 0
+        $acceptance.scenarios.'OPA-S32' | Should Be 'PASS'
+        $acceptance.boundary.merge_performed | Should Be $false
+        $acceptance.boundary.release_performed | Should Be $false
+
+        $acceptedState = & $ledger status `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --json | ConvertFrom-Json
+        $acceptedState.project.lifecycle_status | Should Be 'COMPLETED'
+        $acceptedState.primary_active_phase_ref | Should Be $null
+        $acceptedState.completed_phase_refs | Should Be @('phase:operational-acceptance')
+        $acceptedState.open_blocker_refs.Count | Should Be 0
+        $acceptedState.verified_gate_refs | Should Be @(
+            'gate:opa-01',
+            'gate:opa-02',
+            'gate:opa-03',
+            'gate:opa-04',
+            'gate:opa-05',
+            'gate:opa-06',
+            'gate:opa-07',
+            'gate:opa-08'
+        )
+        $acceptedState.pending_gate_refs.Count | Should Be 0
+        $acceptedDecision = & $ledger decision show 'decision:opa-operational-acceptance-v1' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --json | ConvertFrom-Json
+        $acceptedDecision.status | Should Be 'ACCEPTED'
+        $acceptedDecision.decision | Should Be 'OPERATIONALLY_ACCEPTED'
+        $acceptedResume = & $ledger resume `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --format json | ConvertFrom-Json
+        $acceptedResume.checkpoint_freshness | Should Be 'CURRENT'
     }
 }
