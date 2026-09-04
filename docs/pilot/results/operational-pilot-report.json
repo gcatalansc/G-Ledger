@@ -1,6 +1,6 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "IN_PROGRESS",
+  "status": "READY_FOR_OWNER_DECISION",
   "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,
   "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
@@ -10,7 +10,7 @@
     "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
     "candidate_superseded": false,
-    "qualification": "HOSTED_STAGE_7_REQUALIFICATION_PASS",
+    "qualification": "HOSTED_STAGE_8_PREDECISION_RECONCILIATION_PASS",
     "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
     "hosted_artifact_id": 9924403634,
     "hosted_archive_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
@@ -84,7 +84,7 @@
     "evidence": ["docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]
   },
   "repository_verification": {
-    "status": "HOSTED_STAGE_7_REQUALIFICATION_PASS",
+    "status": "HOSTED_STAGE_8_PREDECISION_RECONCILIATION_PASS",
     "product_code_changed": true,
     "candidate_requalification_required": true,
     "checks": [
@@ -92,6 +92,7 @@
       {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1","status":"PASS","result":"11 passed, 0 failed against local exact-SHA 138eabe package"},
       {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1 -TestName '*Stage 6*' -Verbose","status":"PASS","result":"2 passed, 0 failed during hosted Stage 6 requalification closure"},
       {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1 -Tag Stage7 -Verbose","status":"PASS","result":"1 passed, 0 failed during hosted Stage 7 requalification closure"},
+      {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1 -Tag Stage8","status":"PASS","result":"1 passed, 0 failed; absent optional owner_decision is handled without weakening the human-decision boundary"},
       {"command":"cargo fmt --all -- --check","status":"PASS"},
       {"command":"cargo clippy --workspace --all-targets --all-features -- -D warnings","status":"PASS"},
       {"command":"cargo test --workspace --all-targets --all-features","status":"PASS"},
@@ -112,7 +113,7 @@
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-5-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-6-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-6-projections-privacy-recovery.json"]},
     {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "PASS", "proof_class": "LIVE_HANDOFF_AND_LOCAL_INTEGRATION", "evidence": ["docs/pilot/results/stage-7-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]}
+    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "AWAITING_OWNER_DECISION", "historical_status": "PASS", "proof_class": "LIVE_PILOT_PREDECISION", "evidence": ["docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-8-owner-decision-readiness.json", "docs/pilot/results/stage-8-owner-decision-readiness.json", "docs/pilot/results/stage-8-operational-acceptance.json"]}
   ],
   "scenario_results": [
     {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-1-preflight.json"]},
@@ -146,7 +147,7 @@
     {"id":"OPA-S29","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S30","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-risk-close-hosted-requalification.json"]},
-    {"id":"OPA-S32","stage":8,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HUMAN_DECISION","evidence":["docs/pilot/results/stage-8-owner-decision-readiness.json","docs/pilot/results/stage-8-operational-acceptance.json"]}
+    {"id":"OPA-S32","stage":8,"critical":true,"status":"AWAITING_OWNER_DECISION","historical_status":"PASS","proof_class":"LIVE_PILOT_PREDECISION","evidence":["docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-8-owner-decision-readiness.json"]}
   ],
   "defects": [
     {
@@ -233,7 +234,7 @@
     }
   ],
   "current_requalification": {
-    "status": "IN_PROGRESS_STAGE_8_NOT_AUTHORIZED",
+    "status": "READY_FOR_OWNER_DECISION",
     "trigger_defect": "OPA-DEFECT-004",
     "affected_stage": 3,
     "completed_stages": [1, 2, 3, 4, 5, 6, 7],
@@ -289,9 +290,17 @@
     "stage_7_final_state_digest": "sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350",
     "stage_7_checkpoint_ref": "checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d",
     "stage_7_checkpoint_freshness": "CURRENT",
-    "stage_8_executed": false,
+    "stage_8_reconciliation_executed": true,
+    "stage_8_decision_transaction_executed": false,
+    "stage_8_status": "AWAITING_OWNER_DECISION",
+    "stage_8_read_only": true,
+    "stage_8_state_version_delta": 0,
+    "stage_8_readiness_manifest_sha256": "sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54",
+    "stage_8_completed": false,
+    "stage_8_owner_decision": null,
+    "stage_8_operational_acceptance_declared": false,
     "previous_owner_decision_transferred": false,
-    "next_action": "Obtain explicit authorization to execute Stage 8 reconciliation and present the final report. Any new OPERATIONALLY_ACCEPTED declaration requires a later separate human decision; merge and release remain unauthorized."
+    "next_action": "Await a separate explicit human:owner decision after presentation of the final report. No OPERATIONALLY_ACCEPTED declaration, merge or release is authorized."
   },
   "critical_waivers": [],
   "historical_owner_decision": {
@@ -308,10 +317,11 @@
     "The hosted exact-SHA 99fdaab package and its owner decision remain historical evidence but are not the active accepted subject after OPA-DEFECT-004 invalidated that candidate",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The exact-SHA 138eabe fix passed hosted CI, independent package verification and live Stage 1 through Stage 7 requalification; Stage 8 remains required",
+    "The exact-SHA 138eabe fix passed hosted CI, independent package verification, live Stage 1 through Stage 7 and the read-only Stage 8 predecision reconciliation; the separate human:owner decision remains required",
     "A discarded non-normative setup path produced SQLite WAL/SHM paths of 261 characters and failed before Ledger initialization; the normative Unicode-and-spaces destination passed at 222 characters, so Windows legacy long-path compatibility remains an explicit environmental limitation outside the Stage 1 scenario",
     "The current accredited blind task task:01a06c53-2603-7be0-b94b-c1f7a7eb57a7 received exactly executable, database, project_ref and skill; it had no repository, Git or direct SQLite access and issued no lifecycle command",
     "The fixed GSP traversal and local integration-boundary exercises preserve certified_compatibility=false",
-    "No current OPERATIONALLY_ACCEPTED declaration is valid until hosted requalification and a new separate human decision; no merge or release is authorized"
+    "Seven required gates remain pending by design until the separately authorized final decision transaction; no required gate is waived",
+    "No current OPERATIONALLY_ACCEPTED declaration is valid until a new separate human decision is recorded; no merge or release is authorized"
   ]
 }

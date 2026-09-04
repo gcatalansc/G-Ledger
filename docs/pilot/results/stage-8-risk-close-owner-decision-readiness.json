@@ -1,0 +1,125 @@
+{
+  "profile": "project-ledger-operational-pilot-requalification/1",
+  "status": "READY_FOR_OWNER_DECISION",
+  "recorded_at": "2026-09-04T12:31:43Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "source_tree_dirty": false,
+    "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "github_artifact_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
+    "certified_compatibility": false
+  },
+  "execution": {
+    "proof_class": "LIVE_PILOT_PREDECISION",
+    "disposable_root": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á",
+    "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
+    "read_only": true,
+    "initial_state_version": 97,
+    "final_state_version": 97,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "checkpoint_unchanged": true,
+    "stage_manifest_sha256": "sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54",
+    "stage_8_completed": false,
+    "phase_close_attempted": false,
+    "merge_performed": false,
+    "release_performed": false,
+    "operational_acceptance_declared": false
+  },
+  "reconciled_inputs": {
+    "input_report_sha256": "sha256:7a82641226da0d2fd19b4faede6069cb012ae496c99976e53bc70c27fb75b0c9",
+    "input_matrix_sha256": "sha256:135f0e830ec0da2df8b0e429c5d161a8223afb28c773325ebbc49c15292712a8",
+    "stage_1_sha256": "sha256:4fbe4fcbfb03ef8d413e8e5fbd2b5207969c9cab4e755ecc3adfbed9f072e7ac",
+    "stage_2_sha256": "sha256:ed9d6de5c68221a6a29f3df5b00fd1fd0c086ee39f849c175293d03f8f79722b",
+    "stage_3_sha256": "sha256:13c0072ec34771eb9de7f4eaca54fdf9b62f337032d33175bd91484c8865c9dc",
+    "stage_4_sha256": "sha256:f38f230ed611fab19425a81abdedb990e5ef33d825bbdba0f1f4169b6ae1226c",
+    "stage_5_sha256": "sha256:5b4020d05adeaf93b1dfd807d88438a351d72a12e4c881dc8dd5ae31268a6021",
+    "stage_6_sha256": "sha256:bd7c73ce1d16b6f96a2b2d6728bbf7016d4ea502144fe437b99df8e7b5f00c19",
+    "stage_7_sha256": "sha256:36a7645a64243e026b4ebf7529c8f728707bfc801c161948662d88b931a2fb23"
+  },
+  "documentation_outputs": {
+    "operational_report_sha256": "sha256:c24963221c9dd233328d2831a16f95cfe7a54f7545812b6f7dfb8e90638e8381",
+    "matrix_sha256": "sha256:1a5303e7884bf2b316eabdf7c256b028aa6d1ad22d34c2874d2dfd3570f314d1",
+    "implementation_log_sha256": "sha256:3dd6871a6325c7f10ab4efefaa085d67e9c931daf99ffc657dcdc87a8a3378e2",
+    "readme_sha256": "sha256:1b313ec220dcb1fc2050a2f32b6d1a725eaddfa8630c381aa06a6446a5246124",
+    "executable_plan_sha256": "sha256:6d6a57e2a6fd04e4c160e81e3e0461edac785e65583d39fff52910e57f824e65"
+  },
+  "reconciliation": {
+    "prior_stage_pass_count": 7,
+    "prior_scenario_pass_count": 30,
+    "excluded_scenario_count": 1,
+    "fixed_and_requalified_defect_count": 4,
+    "open_defect_count": 0,
+    "conflict_count": 0,
+    "critical_unknown_count": 0,
+    "open_risk_count": 0,
+    "critical_waiver_count": 0,
+    "reconciliation_artifact_count": 9,
+    "scenario_opa_s32": "AWAITING_HUMAN_DECISION"
+  },
+  "gates": {
+    "verified_required_gate_refs": ["gate:opa-04"],
+    "pending_required_gate_refs": ["gate:opa-01", "gate:opa-02", "gate:opa-03", "gate:opa-05", "gate:opa-06", "gate:opa-07", "gate:opa-08"],
+    "waived_required_gate_count": 0,
+    "optional_waiver_gate_ref": "gate:opa-waiver-exercise",
+    "optional_waiver_gate_status": "WAIVED"
+  },
+  "integrity": {
+    "state_version": 97,
+    "state_digest": "sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350",
+    "head_event_digest": "sha256:71b74a1d305dc7aa725c5662ca1b38b8a4d38aaf3fd0c501218860576e500769",
+    "checkpoint_ref": "checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d",
+    "checkpoint_freshness": "CURRENT",
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "open_blocker_refs": ["blocker:opa-stage8-human-decision"],
+    "preferred_next_action_ref": "action:opa-next-stage8-decision",
+    "doctor_integrity": "ok",
+    "doctor_unresolved_submission_count": 0,
+    "verify_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_integrity": "ok",
+    "audit_finding_count": 0
+  },
+  "harness_regression": {
+    "status": "FIXED_AND_VERIFIED",
+    "product_defect": false,
+    "ledger_mutation_observed": false,
+    "summary": "PowerShell strict mode rejected an absent optional owner_decision property before reconciliation.",
+    "root_cause": "The Stage 8 report guard dereferenced the optional property directly while its test fixture always materialized it as null.",
+    "regression": "The Stage 8 fixture now omits owner_decision and the runner treats absence and explicit null equivalently.",
+    "red_result": "1 failed with PropertyNotFoundException",
+    "green_result": "1 passed, 0 failed",
+    "fix_commit": "0758f7c03a5a7735bd5c3167d6a816601531005b"
+  },
+  "scope": {
+    "product_under_test": "G_LEDGER",
+    "gskills_product_validated": false,
+    "gskills_role": "LOCAL_DEVELOPMENT_COUNTERPART_USED_ONLY_TO_TEST_G_LEDGER_INTEGRATION_BOUNDARIES",
+    "project_radar": "EXCLUDED_BY_SCOPE",
+    "general_availability": false,
+    "universal_certification": false
+  },
+  "residual_limitations": [
+    "The final human:owner decision is absent; Stage 8, OPA-S32, gate:opa-08 and phase completion remain pending.",
+    "Seven required gates remain pending until a separately authorized final decision transaction; no required gate is waived.",
+    "G-Skills was not validated as a product; only the local provider and RecordSink boundaries of G-Ledger were exercised.",
+    "Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.",
+    "Canary checks cover supported surfaces and do not establish universal byte-level absence.",
+    "Any later operational acceptance would remain controlled-use evidence, not GA, release, universal certification or proof of zero defects."
+  ],
+  "boundary": {
+    "owner_decision": null,
+    "maximum_status_without_owner_decision": "READY_FOR_OWNER_DECISION",
+    "historical_owner_decision_transferred": false,
+    "stage_8_completed": false,
+    "operational_acceptance_declared": false,
+    "merge_authorized": false,
+    "release_authorized": false,
+    "next_human_gate": "A separate explicit human:owner decision after review of the final report."
+  }
+}

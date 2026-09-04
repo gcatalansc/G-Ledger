@@ -241,3 +241,15 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Resultado: OPA-S28…OPA-S30 `PASS`; OPA-S31 `EXCLUDED_BY_SCOPE`; avance **7/8, 87,5 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-7-risk-close-hosted-requalification.json`.
 
 **Siguiente paso:** obtener autorización explícita para Stage 8/8, limitada a reconciliar y presentar el informe final. Cualquier nueva declaración `OPERATIONALLY_ACCEPTED` exige después una decisión humana separada; merge y release permanecen fuera de alcance.
+
+## 2026-09-04 — Recalificación Stage 8 conciliada para decisión, 7/8
+
+- Autoridad: se ejecutó Stage 8 únicamente para conciliar y presentar resultados sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`. No se autorizó registrar una decisión, cerrar la fase, hacer merge ni release.
+- Incidencia del harness: el primer intento se detuvo antes de leer el Ledger porque PowerShell strict mode accedía directamente a la propiedad opcional ausente `owner_decision`. La regresión se reprodujo RED (1 fallida), se corrigió en el commit separado `0758f7c` y terminó GREEN (1/1). No fue un defecto del producto, no mutó el Ledger y no alteró contratos ni el binario bajo prueba.
+- Conciliación viva: matriz, reporte, bitácora, siete manifiestos de etapa, `status`, `resume`, gates, checkpoint, `doctor`, `verify` y `audit` fueron reconciliados. Los siete manifiestos coinciden por SHA-256; Stage 1…7 y OPA-S01…OPA-S30 pasan; OPA-S31 permanece `EXCLUDED_BY_SCOPE`; cuatro defectos están `FIXED_AND_REQUALIFIED` y cero permanecen abiertos.
+- Resultado técnico: cero conflictos, unknowns críticos, riesgos abiertos, waivers críticos, findings o submissions sin resolver. `gate:opa-04` está `VERIFIED`; otros siete gates requeridos siguen `PENDING`, ninguno `WAIVED`; sólo el gate opcional de ejercicio conserva waiver.
+- Inmutabilidad y continuidad: la ejecución fue read-only, v97→v97, digest `sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350`, head `sha256:71b74a1d305dc7aa725c5662ca1b38b8a4d38aaf3fd0c501218860576e500769` y checkpoint `checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d` `CURRENT`. El proyecto continúa `BLOCKED`, la fase activa y cero fases completadas.
+- Frontera humana: OPA-S32 queda `AWAITING_OWNER_DECISION`; el máximo resultado es **`READY_FOR_OWNER_DECISION`, 7/8, 87,5 %**. La decisión histórica no se transfirió, Stage 8 no está completado y no se declaró `OPERATIONALLY_ACCEPTED`.
+- Evidencia sanitizada: `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json`; manifiesto vivo SHA-256 `sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54`.
+
+**Siguiente paso:** presentar el informe final al propietario y esperar una decisión humana separada. Sólo esa nueva autoridad podrá habilitar la transacción final de gates/lifecycle; merge y release permanecen fuera de alcance.

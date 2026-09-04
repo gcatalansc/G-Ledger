@@ -1,21 +1,21 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado vigente: **`IN_PROGRESS`, 7/8, 87,5 %**. El candidato exacto `138eabe`/`7160d31d…0162` continúa en `project:01a06adc-c603-7291-aabe-240d71809978`; Stage 1…7 y OPA-S01…OPA-S30 pasaron. Stage 7 acreditó el handoff Codex nuevo y ciego, provider local read-only, RecordSink allowlisted y recorrido GSP fijado sin elevación lifecycle; OPA-S31 conserva `EXCLUDED_BY_SCOPE`. Terminó v97 con checkpoint `CURRENT`, cero riesgos, cero unknowns críticos y cero findings. La evidencia 8/8 y la decisión anterior permanecen históricas, no se borran ni se transfieren. Stage 8 aún requiere evidencia viva y autorización separada; G-Skills queda fuera de la validación de producto. No hubo Stage 8, merge, release ni nueva aceptación.
+Estado vigente: **`READY_FOR_OWNER_DECISION`, 7/8, 87,5 %**. El candidato exacto `138eabe`/`7160d31d…0162` fue conciliado en `project:01a06adc-c603-7291-aabe-240d71809978`: Stage 1…7 y OPA-S01…OPA-S30 pasaron; OPA-S31 conserva `EXCLUDED_BY_SCOPE`; OPA-S32 espera una decisión humana separada. Stage 8 predecisión leyó matriz, reporte, bitácora, `resume`, checkpoint, gates, `doctor`, `verify`, `audit` y siete manifiestos de etapa sin mutar el Ledger: v97→v97, checkpoint `CURRENT`, cero riesgos, unknowns críticos, conflictos, defectos abiertos, waivers críticos o findings. La evidencia 8/8 y la decisión anteriores permanecen históricas, no se borran ni se transfieren. No hubo decisión nueva, cierre de fase, merge, release ni aceptación vigente; G-Skills queda fuera de la validación de producto.
 
 ## Recalificación vigente y cierre histórico conservado
 
 | Control | Resultado |
 |---|---|
-| Etapas | 1–7 acreditadas; 8 `REQUALIFICATION_REQUIRED` |
-| Escenarios | S01…S30 `PASS`; S32 requiere recalificación; OPA-S31 `EXCLUDED_BY_SCOPE` |
+| Etapas | 1–7 acreditadas; 8 `AWAITING_OWNER_DECISION` tras conciliación read-only |
+| Escenarios | S01…S30 `PASS`; S32 `AWAITING_OWNER_DECISION`; OPA-S31 `EXCLUDED_BY_SCOPE` |
 | Defectos | 4 `FIXED_AND_REQUALIFIED`; OPA-DEFECT-004 pasó ejecución viva Stage 3 |
 | Integridad | `doctor`, `verify` y `audit`: `ok`, 0 findings, 0 submissions sin resolver |
 | Continuidad | v97; digest `sha256:044fa214…9eb350`; checkpoint `checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d` `CURRENT` |
 | Gates requeridos | `gate:opa-04` `VERIFIED`; 7 `PENDING`; 0 `WAIVED`; sólo gate opcional `WAIVED` |
 | Lifecycle | fase activa; proyecto `BLOCKED` por decisión humana de Stage 8; 0 fases completadas |
 | Riesgo | `risk:opa-stage3-continuity` `CLOSED`; mitigación preservada; 0 `open_risk_refs` |
-| Autoridad | Decisión previa preservada como histórica; nueva decisión pendiente después de Stage 8 |
-| Evidencia vigente | `docs/pilot/results/stage-7-risk-close-hosted-requalification.json` |
+| Autoridad | Decisión previa preservada como histórica; nueva decisión `human:owner` ausente y no prellenada |
+| Evidencia vigente | `docs/pilot/results/stage-8-risk-close-owner-decision-readiness.json` |
 
 G-Skills permanece en desarrollo y **no fue validado como producto**. Su superficie local se utilizó únicamente como contraparte de desarrollo para probar las fronteras de integración de G-Ledger; no hubo contraparte externa, certificación bilateral ni aceptación operativa de G-Skills.
 
@@ -97,4 +97,4 @@ G-Skills permanece en desarrollo y **no fue validado como producto**. Su superfi
 
 Una fila cubierta por evidencia histórica sigue pendiente hasta que su escenario `LIVE_PILOT`, `LIVE_HANDOFF` o `LIVE_LOCAL_INTEGRATION` correspondiente se ejecute. Los negativos sólo pasan cuando el rechazo y el delta cero coinciden con la especificación.
 
-La fórmula de cierre se satisfizo sólo para el candidato histórico invalidado. En la recalificación vigente aún no se satisface: OPA-S32 requiere evidencia fresca, Stage 8 permanece pendiente y no existe una nueva decisión humana transferible.
+La conciliación técnica de la fórmula pasó para el sujeto vigente: 30 escenarios previos `PASS`, OPA-S31 excluido por alcance, cuatro defectos corregidos y recalificados, cero defectos abiertos, conflictos, unknowns críticos, riesgos abiertos, waivers críticos o findings. La fórmula completa aún **no** se satisface porque OPA-S32 y Stage 8 requieren una decisión humana nueva, explícita y no transferible. Hasta entonces el máximo resultado es `READY_FOR_OWNER_DECISION`, el contador permanece 7/8 y los siete gates requeridos pendientes no se suavizan.
