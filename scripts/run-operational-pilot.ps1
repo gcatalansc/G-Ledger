@@ -259,6 +259,7 @@ if ($Stage -eq 8) {
         (@($initialState.open_blocker_refs) -join ',') -ne 'blocker:opa-stage8-human-decision' -or
         @($initialResume.conflict_refs).Count -ne 0 -or
         @($initialResume.critical_unknown_refs).Count -ne 0 -or
+        @($initialResume.open_risk_refs).Count -ne 0 -or
         (@($initialState.verified_gate_refs) -join ',') -ne 'gate:opa-04' -or
         (@($initialState.pending_gate_refs) -join ',') -ne 'gate:opa-01,gate:opa-02,gate:opa-03,gate:opa-05,gate:opa-06,gate:opa-07,gate:opa-08' -or
         $initialDoctor.read_only -ne $true -or
@@ -736,6 +737,7 @@ if ($Stage -eq 8) {
             checkpoint_freshness = $finalResume.checkpoint_freshness
             conflict_refs = @($finalResume.conflict_refs)
             critical_unknown_refs = @($finalResume.critical_unknown_refs)
+            open_risk_refs = @($finalResume.open_risk_refs)
             doctor_integrity = $finalDoctor.integrity
             verify_integrity = $finalVerify.integrity
             audit_integrity = $finalAudit.integrity
@@ -759,6 +761,7 @@ if ($Stage -eq 8) {
             $finalResume.checkpoint_ref -ne $finalState.checkpoint_ref -or
             @($finalResume.conflict_refs).Count -ne 0 -or
             @($finalResume.critical_unknown_refs).Count -ne 0 -or
+            @($finalResume.open_risk_refs).Count -ne 0 -or
             $finalDoctor.integrity -ne 'ok' -or
             $finalVerify.integrity -ne 'ok' -or
             $finalAudit.integrity -ne 'ok' -or
@@ -839,6 +842,7 @@ if ($Stage -eq 8) {
                 state_digest = [string]$finalState.state_digest
                 checkpoint_ref = [string]$finalResume.checkpoint_ref
                 checkpoint_freshness = [string]$finalResume.checkpoint_freshness
+                open_risk_count = @($finalResume.open_risk_refs).Count
                 doctor_integrity = [string]$finalDoctor.integrity
                 verify_integrity = [string]$finalVerify.integrity
                 audit_integrity = [string]$finalAudit.integrity
@@ -913,6 +917,7 @@ if ($Stage -eq 8) {
         $finalResume.checkpoint_freshness -ne 'CURRENT' -or
         @($finalResume.conflict_refs).Count -ne 0 -or
         @($finalResume.critical_unknown_refs).Count -ne 0 -or
+        @($finalResume.open_risk_refs).Count -ne 0 -or
         $finalDoctor.integrity -ne 'ok' -or
         $finalVerify.integrity -ne 'ok' -or
         $finalAudit.integrity -ne 'ok' -or
@@ -947,6 +952,7 @@ if ($Stage -eq 8) {
             open_defect_count = $openDefects.Count
             conflict_count = @($finalResume.conflict_refs).Count
             critical_unknown_count = @($finalResume.critical_unknown_refs).Count
+            open_risk_count = @($finalResume.open_risk_refs).Count
             critical_waiver_count = @($report.critical_waivers).Count
             reconciliation_artifact_count = 9
         }
@@ -3306,7 +3312,7 @@ if ($Stage -eq 4) {
     $initialState = Invoke-PilotLedgerJson $ledger @(
         'status', '--database', $database, '--project-ref', $projectRef, '--json'
     )
-    if ($initialState.state_version -ne 44 -or
+    if ($initialState.state_version -ne 45 -or
         $initialState.state_digest -ne $stageThreeManifest.lifecycle.final_state_digest -or
         $initialState.project.lifecycle_status -ne 'BLOCKED' -or
         $initialState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
@@ -4215,6 +4221,10 @@ if ($Stage -eq 3) {
         'risk', 'mitigate', 'risk:opa-stage3-continuity',
         '--note', 'Require exact reference assertions in both structured JSON and bounded Codex resume output.'
     )
+    $null = Invoke-StageThreeMutation 'risk:close' 'CLOSE_RISK' 'human:owner' $true @(
+        'risk', 'close', 'risk:opa-stage3-continuity',
+        '--note', 'The mitigation was verified by exact JSON and Codex resume assertions; retire the risk without erasing its event history.'
+    )
     $null = Invoke-StageThreeMutation 'decision:supersede' 'SUPERSEDE_DECISION' 'human:owner' $true @(
         'decision', 'supersede', 'decision:opa-stage3-sequence-v1', '--with', $decisionV2Path
     )
@@ -4334,6 +4344,7 @@ if ($Stage -eq 3) {
         'UNKNOWN_RESOLVED',
         'BLOCKER_RESOLVED',
         'RISK_MITIGATED',
+        'RISK_CLOSED',
         'DECISION_SUPERSEDED'
     )
     $timelineContains = @($requiredTimelineEvents | Where-Object { $renderedText.Contains($_) })
@@ -4363,14 +4374,14 @@ if ($Stage -eq 3) {
         pending_gates_present = @($resumeJson.pending_gate_refs).Count -eq 9
         current_decision_present = @($resumeJson.current_decision_refs) -contains 'decision:opa-stage3-sequence-v2'
         open_blocker_present = @($resumeJson.open_blocker_refs) -contains 'blocker:opa-stage4-recordsink'
-        open_risk_present = @($resumeJson.open_risk_refs) -contains 'risk:opa-stage3-continuity'
+        open_risk_absent = @($resumeJson.open_risk_refs) -notcontains 'risk:opa-stage3-continuity'
         critical_unknown_present = @($resumeJson.critical_unknown_refs) -contains 'unknown:opa-stage4-provider-policy'
         checkpoint_present = -not [string]::IsNullOrWhiteSpace([string]$resumeJson.checkpoint_ref)
         next_action_present = $resumeJson.preferred_next_action_ref -eq 'action:opa-stage4-evidence'
         progress_present = [string]$resumeJson.last_material_progress_summary -like 'Stage 3 records material*'
     }
     $resumePass = @($resumeAssertions.Values | Where-Object { $_ -ne $true }).Count -eq 0
-    if ($finalState.state_version -ne 44 -or
+    if ($finalState.state_version -ne 45 -or
         $finalState.project.lifecycle_status -ne 'BLOCKED' -or
         $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
         @($finalState.completed_phase_refs).Count -ne 0 -or
@@ -4403,13 +4414,17 @@ if ($Stage -eq 3) {
             claim = [ordered]@{ record_ref = 'claim:opa-stage3-continuity'; initial_classification = 'ASSERTED' }
             open_unknown = [ordered]@{ record_ref = 'unknown:opa-stage4-provider-policy'; criticality = 'MATERIAL' }
             open_blocker = [ordered]@{ record_ref = 'blocker:opa-stage4-recordsink'; severity = 'MEDIUM' }
-            mitigated_risk = [ordered]@{ record_ref = 'risk:opa-stage3-continuity'; status = 'MITIGATED' }
+            closed_risk = [ordered]@{ record_ref = 'risk:opa-stage3-continuity'; status = 'CLOSED' }
             next_action = [ordered]@{ record_ref = 'action:opa-stage4-evidence'; classification = 'PROPOSED' }
         }
         transitions = [ordered]@{
             unknown = [ordered]@{ record_ref = 'unknown:opa-stage3-replacement-shape'; status = 'RESOLVED' }
             blocker = [ordered]@{ record_ref = 'blocker:opa-stage3-replacement-snapshot'; status = 'RESOLVED' }
-            risk = [ordered]@{ record_ref = 'risk:opa-stage3-continuity'; status = 'MITIGATED' }
+            risk = [ordered]@{
+                record_ref = 'risk:opa-stage3-continuity'
+                status = 'CLOSED'
+                mitigation_preserved = @($timelineContains) -contains 'RISK_MITIGATED'
+            }
             decision = [ordered]@{
                 original_ref = $originalDecision.decision_id
                 original_status = $originalDecision.status
@@ -4443,7 +4458,7 @@ if ($Stage -eq 3) {
                 pending_gates_present = $resumeAssertions.pending_gates_present
                 current_decision_present = $resumeAssertions.current_decision_present
                 open_blocker_present = $resumeAssertions.open_blocker_present
-                open_risk_present = $resumeAssertions.open_risk_present
+                open_risk_absent = $resumeAssertions.open_risk_absent
                 critical_unknown_present = $resumeAssertions.critical_unknown_present
                 checkpoint_present = $resumeAssertions.checkpoint_present
                 next_action_present = $resumeAssertions.next_action_present

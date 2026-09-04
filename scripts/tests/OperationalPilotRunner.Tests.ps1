@@ -160,9 +160,9 @@ Describe 'Operational pilot runner Stage 2 governed model' {
 Describe 'Operational pilot runner Stage 3 high-level continuity' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'records material semantics, preserves transitions, and resumes from a current checkpoint' {
         $pilotRoot = Join-Path $TestDrive 'Stage 3 á continuity'
@@ -187,7 +187,7 @@ Describe 'Operational pilot runner Stage 3 high-level continuity' {
         $manifest.status | Should Be 'HIGH_LEVEL_CONTINUITY_PASS'
         $manifest.proof_class | Should Be 'LIVE_PILOT'
         $manifest.lifecycle.initial_state_version | Should Be 21
-        $manifest.lifecycle.final_state_version | Should Be 44
+        $manifest.lifecycle.final_state_version | Should Be 45
         $manifest.lifecycle.project_status | Should Be 'BLOCKED'
         $manifest.lifecycle.active_phase_ref | Should Be 'phase:operational-acceptance'
         $manifest.lifecycle.completed_phase_count | Should Be 0
@@ -197,23 +197,25 @@ Describe 'Operational pilot runner Stage 3 high-level continuity' {
         $manifest.records.claim.initial_classification | Should Be 'ASSERTED'
         $manifest.records.open_unknown.record_ref | Should Be 'unknown:opa-stage4-provider-policy'
         $manifest.records.open_blocker.record_ref | Should Be 'blocker:opa-stage4-recordsink'
-        $manifest.records.mitigated_risk.record_ref | Should Be 'risk:opa-stage3-continuity'
+        $manifest.records.closed_risk.record_ref | Should Be 'risk:opa-stage3-continuity'
+        $manifest.records.closed_risk.status | Should Be 'CLOSED'
         $manifest.records.next_action.record_ref | Should Be 'action:opa-stage4-evidence'
         $manifest.transitions.unknown.status | Should Be 'RESOLVED'
         $manifest.transitions.blocker.status | Should Be 'RESOLVED'
-        $manifest.transitions.risk.status | Should Be 'MITIGATED'
+        $manifest.transitions.risk.status | Should Be 'CLOSED'
+        $manifest.transitions.risk.mitigation_preserved | Should Be $true
         $manifest.transitions.decision.original_status | Should Be 'SUPERSEDED'
         $manifest.transitions.decision.replacement_status | Should Be 'ACCEPTED'
         $manifest.transitions.decision.predecessor_preserved | Should Be $true
-        $manifest.transitions.timeline_contains_all.Count | Should Be 4
+        $manifest.transitions.timeline_contains_all.Count | Should Be 5
         $manifest.checkpoint.freshness | Should Match '^CURRENT'
         $manifest.checkpoint.session_closed | Should Be $true
-        $manifest.resume.json.state_version | Should Be 44
+        $manifest.resume.json.state_version | Should Be 45
         $manifest.resume.json.active_phase_present | Should Be $true
         $manifest.resume.json.pending_gates_present | Should Be $true
         $manifest.resume.json.current_decision_present | Should Be $true
         $manifest.resume.json.open_blocker_present | Should Be $true
-        $manifest.resume.json.open_risk_present | Should Be $true
+        $manifest.resume.json.open_risk_absent | Should Be $true
         $manifest.resume.json.critical_unknown_present | Should Be $true
         $manifest.resume.json.checkpoint_present | Should Be $true
         $manifest.resume.json.next_action_present | Should Be $true
@@ -229,9 +231,9 @@ Describe 'Operational pilot runner Stage 3 high-level continuity' {
 Describe 'Operational pilot runner Stage 4 evidence and lifecycle' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'keeps observed evidence incomplete, records one verified sink effect, and preserves lifecycle authority' {
         $pilotRoot = Join-Path $TestDrive 'Stage 4 á evidence lifecycle'
@@ -307,9 +309,9 @@ Describe 'Operational pilot runner Stage 4 evidence and lifecycle' {
 Describe 'Operational pilot runner Stage 5 transactional safety' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'proves replay, conflicts, authority denial, and unknown-outcome reconciliation without blind retry' {
         $pilotRoot = Join-Path $TestDrive 'Stage 5 á transactional safety'
@@ -391,9 +393,9 @@ Describe 'Operational pilot runner Stage 5 transactional safety' {
 Describe 'Operational pilot runner Stage 6 projections privacy and recovery' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'regenerates projections, roundtrips portable and backup state, rejects corruption, and excludes canaries' {
         $pilotRoot = Join-Path $TestDrive 'Stage 6 á recovery privacy'
@@ -561,9 +563,9 @@ Describe 'Operational pilot runner Stage 6 projections privacy and recovery' {
 Describe 'Operational pilot runner Stage 7 blind handoff and bounded integrations' -Tag 'Stage7' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'validates a blind handoff, bounded provider and RecordSink, and the fixed GSP runtime' {
         $pilotRoot = Join-Path $TestDrive 'Stage 7 blind integrations'
@@ -746,9 +748,9 @@ Describe 'Operational pilot runner Stage 7 blind handoff and bounded integration
 Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage8' {
     $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
     $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
-    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
-    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
-    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\138eabe\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc'
+    $expectedSourceCommit = '138eabe715d209da5f527340a34492bff3f6fd1a'
 
     It 'reconciles all available evidence read-only while preserving the final owner-decision boundary' {
         $pilotRoot = Join-Path $TestDrive 'Stage 8 predecision reconciliation'
