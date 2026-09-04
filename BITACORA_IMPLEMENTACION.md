@@ -2322,3 +2322,14 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - `blocker:opa-stage8-human-decision` mantiene el límite. No se ejecutaron Stage 8, merge, release, aceptación operativa, GA ni certificación externa. Avance oficial: **7/8, 87,5 %, IN_PROGRESS**.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 8/8 a fin de conciliar la evidencia y presentar los resultados. Cualquier cambio a `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED` requerirá una decisión humana final separada.
+
+## 2026-09-03 — Conciliación predecisión de aceptación operativa, 7/8
+
+- Stage 8 se desarrolló con TDD. El RED real fue `PILOT_STAGE_NOT_IMPLEMENTED: stage 8`; el test dedicado quedó GREEN y exige que la preparación para decisión sea read-only, conserve el límite humano y no cierre gates ni lifecycle.
+- La ejecución viva usó exclusivamente el ZIP alojado `e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851` y `project:01a0697c-34b6-7042-a751-fbfb30a06a49`. Conciliación: siete etapas `PASS`, OPA-S01…OPA-S30 `PASS`, OPA-S31 `EXCLUDED_BY_SCOPE`, tres defectos `FIXED_AND_REQUALIFIED`, y cero defectos abiertos, conflictos, unknowns críticos o waivers críticos.
+- `status`, `resume`, la inspección de gates, `doctor`, `verify` y `audit` se ejecutaron dos veces alrededor de la conciliación. Todos los controles de integridad quedaron `ok`, con cero findings; versión 96, digest `sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a` y checkpoint `checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819` `CURRENT` permanecieron sin cambios.
+- La verificación completa pasó: 11/11 pruebas del harness, `cargo fmt`, Clippy estricto, workspace completo, schemas, specs, contratos, build release locked, release check/verify y `cargo deny`. La política de dependencias informó sólo warnings no bloqueantes por versiones duplicadas ya presentes y concluyó `advisories ok, bans ok, licenses ok, sources ok`.
+- El resultado máximo permitido sin decisión del propietario es `READY_FOR_OWNER_DECISION`. OPA-S32 queda `AWAITING_OWNER_DECISION`; el proyecto permanece `BLOCKED` por `blocker:opa-stage8-human-decision`, con fase activa, cero fases completadas, `gate:opa-04` verificado y siete gates requeridos pendientes.
+- La evidencia sanitizada está en `docs/pilot/results/stage-8-owner-decision-readiness.json`. No hubo mutación de producto ni de contratos v0.2, schemas, locks, comandos o eventos; el candidato exacto no fue invalidado. No hubo merge, release, aceptación operativa, GA ni certificación externa.
+
+**Siguiente paso:** presentar el informe al propietario. La etapa conserva **7/8, 87,5 %, READY_FOR_OWNER_DECISION** hasta recibir una decisión humana separada que autorice expresamente el estado final y su transacción gobernada.

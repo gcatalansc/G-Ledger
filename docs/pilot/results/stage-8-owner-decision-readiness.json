@@ -1,0 +1,98 @@
+{
+  "profile": "project-ledger-operational-pilot-stage/1",
+  "stage": 8,
+  "status": "READY_FOR_OWNER_DECISION",
+  "proof_class": "LIVE_PILOT_PREDECISION",
+  "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+  "subject": {
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "version": "0.2.0",
+    "certified_compatibility": false
+  },
+  "documents": {
+    "reconciled_input_report_digest": "sha256:278bd714403d0001e142710466851e82906315c8b57de0eb934c88b718655360",
+    "reconciled_input_matrix_digest": "sha256:70c726637e886fc1195a84d39fa0e87a5d816eee522cba78701a9e69239de422",
+    "stage_evidence_digests": {
+      "stage_1": "sha256:c00b27eb32839808196ad3c690c643a91ea8f9dc3225784525f2c2d8988428ca",
+      "stage_2": "sha256:4bfe481724a5f5fac53e6b2e812d8605c3398769288491668e2c255ea5f80235",
+      "stage_3": "sha256:c3967123b66dd2068c5e87e5f121014300e4af397a1b89334b82c61d49216641",
+      "stage_4": "sha256:677b2b0f21aea752e6a32eb3a13b7638c6ae3a83e08ac59138188d2a39024404",
+      "stage_5": "sha256:7d4b4103d73cd3cbd522e8b868ebedc7022217e1aa6652f62b8fb0d6d73de1cc",
+      "stage_6": "sha256:94aff26c539c92e2055d7ef673e964e49e6fd083c0c2ef70649234564dc812eb",
+      "stage_7": "sha256:d19803f3ffd41755217bd29303c2187f06a106632f8dadd015247cbd62c2e9c7"
+    }
+  },
+  "reconciliation": {
+    "prior_stage_pass_count": 7,
+    "prior_scenario_pass_count": 30,
+    "excluded_scenario_count": 1,
+    "fixed_and_requalified_defect_count": 3,
+    "open_defect_count": 0,
+    "conflict_count": 0,
+    "critical_unknown_count": 0,
+    "critical_waiver_count": 0,
+    "reconciliation_artifact_count": 9
+  },
+  "execution": {
+    "read_only": true,
+    "ledger_initial_state_version": 96,
+    "ledger_final_state_version": 96,
+    "ledger_state_version_delta": 0,
+    "ledger_state_digest_unchanged": true,
+    "checkpoint_unchanged": true
+  },
+  "gates": {
+    "verified_required_gate_count": 1,
+    "verified_required_gate_refs": ["gate:opa-04"],
+    "pending_required_gate_refs": [
+      "gate:opa-01",
+      "gate:opa-02",
+      "gate:opa-03",
+      "gate:opa-05",
+      "gate:opa-06",
+      "gate:opa-07",
+      "gate:opa-08"
+    ],
+    "waived_required_gate_count": 0,
+    "optional_waiver_gate_ref": "gate:opa-waiver-exercise",
+    "optional_waiver_gate_status": "WAIVED"
+  },
+  "integrity": {
+    "state_version": 96,
+    "state_digest": "sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a",
+    "checkpoint_ref": "checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819",
+    "checkpoint_freshness": "CURRENT",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "doctor_finding_count": 0,
+    "verify_finding_count": 0,
+    "audit_finding_count": 0
+  },
+  "boundary": {
+    "owner_decision": null,
+    "maximum_status_without_owner_decision": "READY_FOR_OWNER_DECISION",
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "open_blocker_refs": ["blocker:opa-stage8-human-decision"],
+    "next_action_ref": "action:opa-next-stage8-decision",
+    "stage_8_completed": false,
+    "phase_close_attempted": false,
+    "operational_acceptance_declared": false,
+    "merge_performed": false,
+    "release_performed": false
+  },
+  "residual_limitations": [
+    "Final owner decision is absent; gate:opa-08 and phase completion remain pending.",
+    "Required gates other than gate:opa-04 remain pending until the separately authorized final decision transaction.",
+    "G-Skills evidence covers only the local provider and RecordSink, not an external counterpart.",
+    "Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.",
+    "Canary checks cover supported surfaces and do not prove universal byte-level absence.",
+    "Operational acceptance would not establish GA, universal certification, or absence of all defects."
+  ],
+  "scenarios": {
+    "OPA-S32": "AWAITING_HUMAN_DECISION"
+  }
+}

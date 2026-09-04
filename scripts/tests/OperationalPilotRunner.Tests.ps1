@@ -742,3 +742,268 @@ Describe 'Operational pilot runner Stage 7 blind handoff and bounded integration
         $result.status | Should Be 'BLIND_HANDOFF_INTEGRATIONS_PASS'
     }
 }
+
+Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage8' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'reconciles all available evidence read-only while preserving the final owner-decision boundary' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 8 predecision reconciliation'
+        foreach ($stage in 1..6) {
+            $null = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $locator = Get-Content -Raw -LiteralPath (Join-Path $pilotRoot 'pilot-locator.json') | ConvertFrom-Json
+        $ledger = Join-Path $pilotRoot 'instalación con espacios\project-ledger.exe'
+        $skill = Join-Path $pilotRoot 'instalación con espacios\resources\integrations\agent-skills\project-ledger-continuity\SKILL.md'
+        $reported = & $ledger resume `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --format json | ConvertFrom-Json
+        $observedAt = [DateTimeOffset]::UtcNow.ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $progress = & $ledger record progress `
+            --summary 'A new blind Codex task reconstructed continuity and recorded this material handoff.' `
+            --phase 'phase:operational-acceptance' `
+            --record-id 'work:opa-stage7-blind-handoff' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --expected-version ([string]$reported.state_version) `
+            --idempotency-key 'opa:stage7:blind-progress' `
+            --actor-id 'agent:codex-handoff' `
+            --observed-at $observedAt `
+            --json | ConvertFrom-Json
+        $checkpoint = & $ledger checkpoint create `
+            --reason 'Blind Codex Stage 7 handoff' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --expected-version ([string]$progress.new_state_version) `
+            --idempotency-key 'opa:stage7:blind-checkpoint' `
+            --actor-id 'agent:codex-handoff' `
+            --observed-at $observedAt `
+            --json | ConvertFrom-Json
+        $handoffEvidence = [ordered]@{
+            profile = 'project-ledger-operational-pilot-blind-handoff/1'
+            task_kind = 'CODEX_NEW_BLIND'
+            task_ref = 'task:test-stage8-blind-codex'
+            prompt_sha256 = 'sha256:' + ('8' * 64)
+            inputs = [ordered]@{
+                executable = $ledger
+                database = [string]$locator.database
+                project_ref = [string]$locator.project_ref
+                skill = $skill
+            }
+            constraints = [ordered]@{
+                narrative_context_received = $false
+                direct_database_access = $false
+                repository_context_access = $false
+                git_access = $false
+                as_human_used = $false
+                stage_8_executed = $false
+                lifecycle_command_count = 0
+            }
+            reported_state = [ordered]@{
+                state_version = [int64]$reported.state_version
+                state_digest = [string]$reported.state_digest
+                phase_ref = [string]$reported.active_phase_refs[0]
+                pending_gate_refs = @($reported.pending_gate_refs)
+                open_blocker_refs = @($reported.open_blocker_refs)
+                current_decision_refs = @($reported.current_decision_refs)
+                next_action_ref = [string]$reported.preferred_next_action_ref
+                checkpoint_ref = [string]$reported.checkpoint_ref
+                checkpoint_freshness = [string]$reported.checkpoint_freshness
+            }
+            progress = [ordered]@{
+                actor_id = 'agent:codex-handoff'
+                idempotency_key = 'opa:stage7:blind-progress'
+                record_id = 'work:opa-stage7-blind-handoff'
+                summary = 'A new blind Codex task reconstructed continuity and recorded this material handoff.'
+                status = [string]$progress.status
+            }
+            checkpoint = [ordered]@{
+                actor_id = 'agent:codex-handoff'
+                idempotency_key = 'opa:stage7:blind-checkpoint'
+                checkpoint_ref = [string]$checkpoint.resulting_checkpoint_ref
+                status = [string]$checkpoint.status
+            }
+        }
+        $handoffPath = Join-Path $pilotRoot 'evidence\blind-codex-handoff-receipt.json'
+        [IO.File]::WriteAllText(
+            $handoffPath,
+            ($handoffEvidence | ConvertTo-Json -Depth 20) + [Environment]::NewLine,
+            [Text.UTF8Encoding]::new($false)
+        )
+        $gspPython = (Resolve-Path (Join-Path $repositoryRoot '..\G-GSP\gsp-gemma-compiler\.venv\Scripts\python.exe')).Path
+        $gspSource = (Resolve-Path (Join-Path $repositoryRoot '.tooling\g-ledger-operational-pilot\gsp-exact-7a43559')).Path
+        $null = & $runner `
+            -Stage 7 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $repositoryRoot `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit `
+            -BlindHandoffEvidence $handoffPath `
+            -GspPython $gspPython `
+            -GspSourceRoot $gspSource
+
+        $stageSeven = Get-Content -Raw -LiteralPath (
+            Join-Path $pilotRoot 'evidence\stage-7-blind-handoff-integrations.json'
+        ) | ConvertFrom-Json
+        $stageEightRepository = Join-Path $TestDrive 'Stage 8 repository inputs'
+        $resultsDirectory = Join-Path $stageEightRepository 'docs\pilot\results'
+        $scriptsDirectory = Join-Path $stageEightRepository 'scripts'
+        $null = New-Item -ItemType Directory -Path $resultsDirectory -Force
+        $null = New-Item -ItemType Directory -Path $scriptsDirectory -Force
+        Copy-Item -LiteralPath (Join-Path $repositoryRoot 'scripts\invoke-record-sink-rpc.ps1') `
+            -Destination (Join-Path $scriptsDirectory 'invoke-record-sink-rpc.ps1')
+
+        $scenarioResults = @()
+        foreach ($number in 1..30) {
+            $scenarioResults += [ordered]@{
+                id = 'OPA-S{0:D2}' -f $number
+                stage = if ($number -le 3) { 1 } elseif ($number -le 7) { 2 } elseif ($number -le 10) { 3 } elseif ($number -le 15) { 4 } elseif ($number -le 21) { 5 } elseif ($number -le 27) { 6 } else { 7 }
+                critical = $number -ne 15
+                status = 'PASS'
+                proof_class = 'LIVE_PILOT'
+                evidence = @('fixture://stage-evidence')
+            }
+        }
+        $scenarioResults += [ordered]@{
+            id = 'OPA-S31'; stage = 7; critical = $false; status = 'EXCLUDED_BY_SCOPE'
+            proof_class = 'EXCLUDED_BY_SCOPE'; evidence = @('fixture://stage-7')
+        }
+        $scenarioResults += [ordered]@{
+            id = 'OPA-S32'; stage = 8; critical = $true; status = 'NOT_RUN'
+            proof_class = $null; evidence = @()
+        }
+        $stages = foreach ($number in 1..8) {
+            [ordered]@{
+                stage = $number
+                name = 'STAGE_{0}' -f $number
+                status = if ($number -eq 8) { 'NOT_RUN' } else { 'PASS' }
+                evidence = if ($number -eq 8) { @() } else { @('fixture://stage-evidence') }
+            }
+        }
+        $report = [ordered]@{
+            profile = 'project-ledger-operational-pilot/1'
+            status = 'IN_PROGRESS'
+            completed_at = $null
+            subject = [ordered]@{
+                product_version = '0.2.0'
+                binary_source_commit = $expectedSourceCommit
+                zip_sha256 = $expectedHash
+                qualification = 'HOSTED_REQUALIFIED'
+            }
+            scope = [ordered]@{ certified_compatibility = $false }
+            progress = [ordered]@{
+                total_stages = 8
+                completed_stages = @(1, 2, 3, 4, 5, 6, 7)
+                percentage = 87.5
+            }
+            project_identity = [ordered]@{
+                project_ref = [string]$locator.project_ref
+                latest_state_version = [int64]$stageSeven.lifecycle.final_state_version
+                latest_state_digest = [string]$stageSeven.lifecycle.final_state_digest
+                latest_checkpoint_ref = [string]$stageSeven.boundary.checkpoint_ref
+                latest_checkpoint_freshness = 'CURRENT'
+            }
+            stages = @($stages)
+            scenario_results = @($scenarioResults)
+            defects = @()
+            critical_waivers = @()
+            owner_decision = $null
+            limitations = @('No external certification is claimed')
+        }
+        $reportPath = Join-Path $resultsDirectory 'operational-pilot-report.json'
+        [IO.File]::WriteAllText(
+            $reportPath,
+            ($report | ConvertTo-Json -Depth 20) + [Environment]::NewLine,
+            [Text.UTF8Encoding]::new($false)
+        )
+        $matrixPath = Join-Path $stageEightRepository 'docs\pilot\G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md'
+        [IO.File]::WriteAllText(
+            $matrixPath,
+            "# Matrix fixture`n`n7/8 stages reconciled; final owner decision pending.`n",
+            [Text.UTF8Encoding]::new($false)
+        )
+
+        $result = & $runner `
+            -Stage 8 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $stageEightRepository `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-8-owner-decision-readiness.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+        $manifest.stage | Should Be 8
+        $manifest.status | Should Be 'READY_FOR_OWNER_DECISION'
+        $manifest.proof_class | Should Be 'LIVE_PILOT_PREDECISION'
+        $manifest.reconciliation.prior_scenario_pass_count | Should Be 30
+        $manifest.reconciliation.excluded_scenario_count | Should Be 1
+        $manifest.reconciliation.open_defect_count | Should Be 0
+        $manifest.reconciliation.critical_waiver_count | Should Be 0
+        $manifest.execution.read_only | Should Be $true
+        $manifest.execution.ledger_state_version_delta | Should Be 0
+        $manifest.gates.verified_required_gate_count | Should Be 1
+        $manifest.gates.pending_required_gate_refs | Should Be @(
+            'gate:opa-01',
+            'gate:opa-02',
+            'gate:opa-03',
+            'gate:opa-05',
+            'gate:opa-06',
+            'gate:opa-07',
+            'gate:opa-08'
+        )
+        $manifest.gates.waived_required_gate_count | Should Be 0
+        $manifest.integrity.checkpoint_freshness | Should Be 'CURRENT'
+        $manifest.integrity.doctor_finding_count | Should Be 0
+        $manifest.integrity.verify_finding_count | Should Be 0
+        $manifest.integrity.audit_finding_count | Should Be 0
+        $manifest.boundary.owner_decision | Should Be $null
+        $manifest.boundary.project_status | Should Be 'BLOCKED'
+        $manifest.boundary.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.boundary.completed_phase_count | Should Be 0
+        $manifest.boundary.open_blocker_refs | Should Be @('blocker:opa-stage8-human-decision')
+        $manifest.boundary.stage_8_completed | Should Be $false
+        $manifest.boundary.phase_close_attempted | Should Be $false
+        $manifest.boundary.operational_acceptance_declared | Should Be $false
+        $manifest.boundary.merge_performed | Should Be $false
+        $manifest.boundary.release_performed | Should Be $false
+        $manifest.scenarios.'OPA-S32' | Should Be 'AWAITING_HUMAN_DECISION'
+
+        $finalState = & $ledger status `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --json | ConvertFrom-Json
+        $finalState.project.lifecycle_status | Should Be 'BLOCKED'
+        $finalState.completed_phase_refs.Count | Should Be 0
+        $finalState.verified_gate_refs | Should Be @('gate:opa-04')
+        $finalState.pending_gate_refs | Should Be @(
+            'gate:opa-01',
+            'gate:opa-02',
+            'gate:opa-03',
+            'gate:opa-05',
+            'gate:opa-06',
+            'gate:opa-07',
+            'gate:opa-08'
+        )
+        (Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json).owner_decision | Should Be $null
+        $result.stage | Should Be 8
+        $result.status | Should Be 'READY_FOR_OWNER_DECISION'
+    }
+}

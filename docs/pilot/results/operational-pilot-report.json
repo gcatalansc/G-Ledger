@@ -1,6 +1,6 @@
 {
   "profile": "project-ledger-operational-pilot/1",
-  "status": "IN_PROGRESS",
+  "status": "READY_FOR_OWNER_DECISION",
   "started_at": "2026-09-02T19:38:54Z",
   "completed_at": null,
   "documentation_baseline_commit": "b4b0c64774bf2eb7fe79a8471e9b2f75b14a05a2",
@@ -34,6 +34,42 @@
     "latest_checkpoint_ref": "checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819",
     "latest_checkpoint_freshness": "CURRENT"
   },
+  "predecision_reconciliation": {
+    "status": "PASS",
+    "proof_class": "LIVE_PILOT_PREDECISION",
+    "read_only": true,
+    "ledger_state_version_delta": 0,
+    "prior_stage_pass_count": 7,
+    "prior_scenario_pass_count": 30,
+    "excluded_scenario_count": 1,
+    "fixed_and_requalified_defect_count": 3,
+    "open_defect_count": 0,
+    "conflict_count": 0,
+    "critical_unknown_count": 0,
+    "critical_waiver_count": 0,
+    "doctor_finding_count": 0,
+    "verify_finding_count": 0,
+    "audit_finding_count": 0,
+    "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-owner-decision-readiness.json"]
+  },
+  "repository_verification": {
+    "status": "PASS",
+    "product_code_changed": false,
+    "candidate_requalification_required": false,
+    "checks": [
+      {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1","status":"PASS","result":"11 passed, 0 failed"},
+      {"command":"cargo fmt --all -- --check","status":"PASS"},
+      {"command":"cargo clippy --workspace --all-targets --all-features -- -D warnings","status":"PASS"},
+      {"command":"cargo test --workspace --all-targets --all-features","status":"PASS"},
+      {"command":"cargo xtask schema check","status":"PASS"},
+      {"command":"cargo run -p project-ledger-cli -- specs verify","status":"PASS","result":"v0.1.0 and v0.2.0 MATCH"},
+      {"command":"cargo run -p project-ledger-cli -- contracts verify","status":"PASS","result":"46 schemas, 92 fixtures, 53 matrix rows"},
+      {"command":"cargo build --locked --release -p project-ledger-cli","status":"PASS"},
+      {"command":"cargo xtask release check","status":"PASS","result":"90 AC, 32 PL, 0 secrets, 0 explicit waivers"},
+      {"command":"cargo run -p project-ledger-cli -- release verify","status":"PASS","result":"0 blocked, 0 missing evidence, 0 waivers; certified compatibility remains false"},
+      {"command":"cargo deny check","status":"PASS","result":"advisories, bans, licenses and sources ok; non-blocking duplicate-version warnings only"}
+    ]
+  },
   "stages": [
     {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-1-preflight.json"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "evidence": ["docs/pilot/results/stage-3-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-2-governed-model.json"]},
@@ -42,7 +78,7 @@
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "PASS", "evidence": ["docs/pilot/results/stage-5-transactional-safety.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "PASS", "evidence": ["docs/pilot/results/stage-6-projections-privacy-recovery.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
     {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "PASS", "evidence": ["docs/pilot/results/stage-7-blind-handoff-integrations.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
-    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "NOT_RUN", "evidence": []}
+    {"stage": 8, "name": "OPERATIONAL_ADOPTION", "status": "AWAITING_OWNER_DECISION", "evidence": ["docs/pilot/results/stage-8-owner-decision-readiness.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-owner-decision-readiness.json"]}
   ],
   "scenario_results": [
     {"id":"OPA-S01","stage":1,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-hosted-requalification.json"]},
@@ -76,7 +112,7 @@
     {"id":"OPA-S29","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S30","stage":7,"critical":true,"status":"PASS","proof_class":"LIVE_LOCAL_INTEGRATION","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
     {"id":"OPA-S31","stage":7,"critical":false,"status":"EXCLUDED_BY_SCOPE","proof_class":"EXCLUDED_BY_SCOPE","evidence":["docs/pilot/results/stage-7-blind-handoff-integrations.json"]},
-    {"id":"OPA-S32","stage":8,"critical":true,"status":"NOT_RUN","proof_class":null,"evidence":[]}
+    {"id":"OPA-S32","stage":8,"critical":true,"status":"AWAITING_OWNER_DECISION","proof_class":"LIVE_PILOT_PREDECISION","evidence":["docs/pilot/results/stage-8-owner-decision-readiness.json"]}
   ],
   "defects": [
     {
@@ -141,10 +177,10 @@
     "No external G-Skills counterpart or bilateral certification is claimed",
     "Project Radar counterpart is excluded from the pilot",
     "The bd564cd artifact invalidated by OPA-DEFECT-003 and its blocked Stage 3 attempt remain historical evidence; the active subject is the hosted exact-SHA 99fdaab package",
-    "One governed stage remains and no operational adoption decision has been made",
+    "All non-human Stage 8 reconciliation has passed, but the governed stage remains incomplete until the owner issues a separate decision",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The governed project is intentionally BLOCKED by blocker:opa-stage8-human-decision; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending",
+    "The governed project is intentionally BLOCKED by blocker:opa-stage8-human-decision; gate:opa-04 is VERIFIED, the optional exercise gate is WAIVED, and seven required gates remain pending until the separately authorized decision transaction",
     "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
     "G-Skills coverage is local provider/RecordSink only and the fixed GSP traversal preserves certified_compatibility=false",
     "The pilot cannot establish General Availability or universal absence of defects"

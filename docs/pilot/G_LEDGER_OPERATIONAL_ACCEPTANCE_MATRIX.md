@@ -1,6 +1,19 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado actual: `IN_PROGRESS`, 7/8, 87,5 %. OPA-S01…OPA-S30 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; OPA-S31 permanece `EXCLUDED_BY_SCOPE` y Stage 8 no se ha ejecutado. Stage 7 acreditó un handoff Codex ciego con cuatro insumos, provider G-Skills read-only, RecordSink local explícitamente autorizado y el recorrido GSP fijado; ninguno adquirió autoridad de lifecycle. Export/compile/validate fueron read-only, link produjo delta uno y replay delta cero. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage8-human-decision` mantiene el proyecto bloqueado. Esta matriz no concede adopción operativa ni certificación externa.
+Estado actual: `READY_FOR_OWNER_DECISION`, 7/8, 87,5 %. OPA-S01…OPA-S30 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; OPA-S31 permanece `EXCLUDED_BY_SCOPE` y OPA-S32 está `AWAITING_OWNER_DECISION`. La conciliación predecisión de Stage 8 verificó en modo read-only la matriz, el reporte, las siete evidencias de etapa, `resume`, el checkpoint y `doctor`/`verify`/`audit`: versión 96, digest y checkpoint permanecieron inmutables, con cero findings, defectos abiertos, conflictos, unknowns críticos o waivers críticos. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage8-human-decision` mantiene el proyecto bloqueado. Esta matriz no concede adopción operativa, GA ni certificación externa.
+
+## Conciliación predecisión de Stage 8
+
+| Control | Resultado |
+|---|---|
+| Etapas previas | 7 `PASS` |
+| Escenarios | OPA-S01…OPA-S30 `PASS`; OPA-S31 `EXCLUDED_BY_SCOPE`; OPA-S32 `AWAITING_OWNER_DECISION` |
+| Defectos | 3 `FIXED_AND_REQUALIFIED`; 0 abiertos |
+| Integridad | `doctor`, `verify` y `audit`: `ok`, 0 findings |
+| Continuidad | v96; digest `sha256:679f8497…b622a`; checkpoint `checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819` `CURRENT` |
+| Gates requeridos | 1 `VERIFIED`; 7 `PENDING`; 0 `WAIVED` |
+| Autoridad pendiente | Decisión separada de `human:owner` |
+| Evidencia | `docs/pilot/results/stage-8-owner-decision-readiness.json` |
 
 ## Principios P-01…P-10
 

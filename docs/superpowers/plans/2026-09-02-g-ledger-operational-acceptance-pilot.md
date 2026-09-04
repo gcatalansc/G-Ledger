@@ -87,8 +87,8 @@
 
 ### Task 8: Decisión de adopción
 
-- [ ] Ejecutar auditoría final, verificar freshness y conciliar todas las filas.
-- [ ] Ejecutar el gate completo del repositorio si hubo cambios de código; ante corrección, recalificar artefacto y repetir etapas afectadas.
+- [x] Ejecutar auditoría final, verificar freshness y conciliar todas las filas.
+- [x] Ejecutar el gate completo del repositorio si hubo cambios de código; ante corrección, recalificar artefacto y repetir etapas afectadas.
 - [ ] Presentar resultados al propietario sin prellenar aprobación.
 - [ ] Tras decisión humana explícita, registrar S32 y el estado correcto; actualizar 8/8 sólo si satisface la fórmula.
 - [ ] Commit final `docs: record operational pilot decision`.
@@ -141,3 +141,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Límite: `blocker:opa-stage8-human-decision` mantiene el proyecto `BLOCKED`; `action:opa-next-stage8-decision` identifica el siguiente punto de control, pero no autoriza Stage 8. No hubo merge, release, aceptación operativa, GA ni certificación externa.
 
 **Siguiente paso:** solicitar autorización humana explícita para ejecutar la conciliación de Stage 8. La decisión final `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED` requerirá después una autorización humana separada basada en los resultados presentados.
+
+## 2026-09-03 — Stage 8 conciliado para decisión, 7/8
+
+- RED/GREEN: la prueba dedicada comenzó con `PILOT_STAGE_NOT_IMPLEMENTED: stage 8` y terminó GREEN. El runner exige sujeto, etapas, escenarios, defectos, identidad y límites exactos antes de emitir `READY_FOR_OWNER_DECISION`.
+- Ejecución viva: la conciliación usó exclusivamente el ZIP alojado `e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851` y `project:01a0697c-34b6-7042-a751-fbfb30a06a49`. Leyó la matriz, el reporte, las siete evidencias de etapa, `status`, `resume`, los gates, el checkpoint y `doctor`/`verify`/`audit`.
+- Resultado: siete etapas y OPA-S01…OPA-S30 están `PASS`; OPA-S31 continúa `EXCLUDED_BY_SCOPE`; los tres defectos están `FIXED_AND_REQUALIFIED`; hay cero defectos abiertos, conflictos, unknowns críticos, waivers críticos y findings.
+- Inmutabilidad: la reconciliación fue read-only y mantuvo versión 96, digest `sha256:679f8497e36101d6169353d9ddaac500331e8dbab98101ff7561e98ef96b622a` y checkpoint `checkpoint:5c1cd93b-dffe-7b92-878c-171e71602819` `CURRENT`, con delta cero.
+- Verificación del repositorio: 11/11 pruebas PowerShell, formato, Clippy, workspace completo, schemas, specs, contratos, build release locked, release check/verify y `cargo deny` pasaron. Sólo cambió el harness y la documentación; no hubo cambio de producto, contratos ni lock, por lo que el candidato exacto no requirió recalificación.
+- Límite humano: OPA-S32 queda `AWAITING_OWNER_DECISION`; `blocker:opa-stage8-human-decision`, la fase activa, cero fases completadas, un gate verificado y siete gates pendientes se preservan. Avance oficial: **7/8, 87,5 %, READY_FOR_OWNER_DECISION**. No se declaró aceptación, merge, release, GA ni certificación externa.
+
+**Siguiente paso:** presentar este resultado al propietario. Sólo una decisión humana posterior y separada podrá autorizar la transacción final, resolver el blocker, evaluar gates, cerrar la fase y registrar `OPERATIONALLY_ACCEPTED`, `BLOCKED` o `REJECTED`.

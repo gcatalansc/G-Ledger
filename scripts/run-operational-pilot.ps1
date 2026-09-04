@@ -98,6 +98,335 @@ function Get-PilotTextDigest {
     return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
 }
 
+if ($Stage -eq 8) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $reportPath = Join-Path $resolvedRepository 'docs\pilot\results\operational-pilot-report.json'
+    $matrixPath = Join-Path $resolvedRepository 'docs\pilot\G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md'
+    $stageManifestPaths = @{
+        1 = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+        2 = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+        3 = Join-Path $evidenceDirectory 'stage-3-high-level-continuity.json'
+        4 = Join-Path $evidenceDirectory 'stage-4-evidence-lifecycle.json'
+        5 = Join-Path $evidenceDirectory 'stage-5-transactional-safety.json'
+        6 = Join-Path $evidenceDirectory 'stage-6-projections-privacy-recovery.json'
+        7 = Join-Path $evidenceDirectory 'stage-7-blind-handoff-integrations.json'
+    }
+    foreach ($requiredPath in @(
+        $ledger,
+        $packageManifestPath,
+        $locatorPath,
+        $reportPath,
+        $matrixPath
+    ) + @($stageManifestPaths.Values)) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_8_INPUT_MISSING: $requiredPath"
+        }
+    }
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    $expectedHash = $ExpectedZipSha256.ToLowerInvariant()
+    if ($actualZipHash -ne $expectedHash) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $expectedHash; actual $actualZipHash"
+    }
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    $versionOutput = ((& $ledger --version 2>&1) | Out-String).Trim()
+    if ($packageManifest.source_commit -ne $ExpectedSourceCommit -or
+        $packageManifest.source_tree_dirty -ne $false -or
+        $packageManifest.certified_compatibility -ne $false -or
+        $versionOutput -ne 'project-ledger 0.2.0') {
+        throw 'PILOT_STAGE_8_SUBJECT_IDENTITY_MISMATCH'
+    }
+
+    $expectedStageStatuses = @{
+        1 = 'PREFLIGHT_PASS'
+        2 = 'GOVERNED_MODEL_PASS'
+        3 = 'HIGH_LEVEL_CONTINUITY_PASS'
+        4 = 'EVIDENCE_LIFECYCLE_PASS'
+        5 = 'TRANSACTIONAL_SAFETY_PASS'
+        6 = 'RECOVERY_PRIVACY_PASS'
+        7 = 'BLIND_HANDOFF_INTEGRATIONS_PASS'
+    }
+    $stageManifests = @{}
+    foreach ($stageNumber in 1..7) {
+        $manifest = Get-Content -Raw -LiteralPath $stageManifestPaths[$stageNumber] | ConvertFrom-Json
+        if ([int]$manifest.stage -ne $stageNumber -or
+            $manifest.status -ne $expectedStageStatuses[$stageNumber]) {
+            throw "PILOT_STAGE_8_PRIOR_STAGE_INVALID: stage=$stageNumber"
+        }
+        $stageManifests[$stageNumber] = $manifest
+    }
+    if ($stageManifests[7].subject.zip_sha256 -ne $expectedHash -or
+        $stageManifests[7].subject.source_commit -ne $ExpectedSourceCommit -or
+        $stageManifests[7].gsp.certified_compatibility -ne $false -or
+        $stageManifests[7].radar.status -ne 'EXCLUDED_BY_SCOPE') {
+        throw 'PILOT_STAGE_8_STAGE_7_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+        throw "PILOT_STAGE_8_DATABASE_MISSING: $database"
+    }
+
+    $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+    $priorScenarioResults = @($report.scenario_results | Where-Object {
+        $_.id -match '^OPA-S(0[1-9]|1[0-9]|2[0-9]|30)$'
+    })
+    $excludedScenario = @($report.scenario_results | Where-Object { $_.id -eq 'OPA-S31' })
+    $decisionScenario = @($report.scenario_results | Where-Object { $_.id -eq 'OPA-S32' })
+    $priorStages = @($report.stages | Where-Object {
+        [int]$_.stage -ge 1 -and [int]$_.stage -le 7
+    })
+    $decisionStage = @($report.stages | Where-Object { [int]$_.stage -eq 8 })
+    $openDefects = @($report.defects | Where-Object { $_.status -ne 'FIXED_AND_REQUALIFIED' })
+    if ($report.profile -ne 'project-ledger-operational-pilot/1' -or
+        $report.status -ne 'IN_PROGRESS' -or
+        $report.subject.product_version -ne '0.2.0' -or
+        $report.subject.binary_source_commit -ne $ExpectedSourceCommit -or
+        $report.subject.zip_sha256 -ne $expectedHash -or
+        $report.scope.certified_compatibility -ne $false -or
+        [int]$report.progress.total_stages -ne 8 -or
+        (@($report.progress.completed_stages) -join ',') -ne '1,2,3,4,5,6,7' -or
+        [double]$report.progress.percentage -ne 87.5 -or
+        $report.project_identity.project_ref -ne $projectRef -or
+        $report.project_identity.latest_checkpoint_freshness -ne 'CURRENT' -or
+        $priorStages.Count -ne 7 -or
+        @($priorStages | Where-Object { $_.status -ne 'PASS' }).Count -ne 0 -or
+        $decisionStage.Count -ne 1 -or
+        $decisionStage[0].status -ne 'NOT_RUN' -or
+        $priorScenarioResults.Count -ne 30 -or
+        @($priorScenarioResults | Where-Object { $_.status -ne 'PASS' }).Count -ne 0 -or
+        $excludedScenario.Count -ne 1 -or
+        $excludedScenario[0].status -ne 'EXCLUDED_BY_SCOPE' -or
+        $decisionScenario.Count -ne 1 -or
+        $decisionScenario[0].status -ne 'NOT_RUN' -or
+        $openDefects.Count -ne 0 -or
+        @($report.critical_waivers).Count -ne 0 -or
+        $null -ne $report.owner_decision) {
+        throw 'PILOT_STAGE_8_REPORT_NOT_READY'
+    }
+
+    $initialState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $initialResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $initialDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $initialVerify = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $initialAudit = Invoke-PilotLedgerJson $ledger @(
+        'audit', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $initialDoctorFindingCount = if ($null -ne $initialDoctor.PSObject.Properties['findings']) {
+        @($initialDoctor.findings).Count
+    } else {
+        0
+    }
+    if ([int64]$initialState.state_version -ne [int64]$stageManifests[7].lifecycle.final_state_version -or
+        $initialState.state_digest -ne $stageManifests[7].lifecycle.final_state_digest -or
+        [int64]$report.project_identity.latest_state_version -ne [int64]$initialState.state_version -or
+        $report.project_identity.latest_state_digest -ne $initialState.state_digest -or
+        $report.project_identity.latest_checkpoint_ref -ne $initialState.checkpoint_ref -or
+        $initialResume.checkpoint_ref -ne $initialState.checkpoint_ref -or
+        $initialResume.checkpoint_freshness -ne 'CURRENT' -or
+        $initialState.project.lifecycle_status -ne 'BLOCKED' -or
+        $initialState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($initialState.completed_phase_refs).Count -ne 0 -or
+        (@($initialState.open_blocker_refs) -join ',') -ne 'blocker:opa-stage8-human-decision' -or
+        @($initialResume.conflict_refs).Count -ne 0 -or
+        @($initialResume.critical_unknown_refs).Count -ne 0 -or
+        (@($initialState.verified_gate_refs) -join ',') -ne 'gate:opa-04' -or
+        (@($initialState.pending_gate_refs) -join ',') -ne 'gate:opa-01,gate:opa-02,gate:opa-03,gate:opa-05,gate:opa-06,gate:opa-07,gate:opa-08' -or
+        $initialDoctor.read_only -ne $true -or
+        $initialVerify.read_only -ne $true -or
+        $initialAudit.read_only -ne $true -or
+        $initialDoctor.integrity -ne 'ok' -or
+        $initialVerify.integrity -ne 'ok' -or
+        $initialAudit.integrity -ne 'ok' -or
+        $initialDoctorFindingCount -ne 0 -or
+        @($initialVerify.findings).Count -ne 0 -or
+        @($initialAudit.findings).Count -ne 0) {
+        throw 'PILOT_STAGE_8_INITIAL_RECONCILIATION_FAILED'
+    }
+
+    $documentDigests = [ordered]@{
+        operational_report = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $reportPath).Hash.ToLowerInvariant()
+        traceability_matrix = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $matrixPath).Hash.ToLowerInvariant()
+    }
+    $stageEvidenceDigests = [ordered]@{}
+    foreach ($stageNumber in 1..7) {
+        $stageEvidenceDigests["stage_$stageNumber"] =
+            'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $stageManifestPaths[$stageNumber]).Hash.ToLowerInvariant()
+    }
+
+    $requiredGateViews = foreach ($gateNumber in 1..8) {
+        Invoke-PilotLedgerJson $ledger @(
+            'gate', 'show', ('gate:opa-{0:D2}' -f $gateNumber),
+            '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+    }
+    $optionalGateView = Invoke-PilotLedgerJson $ledger @(
+        'gate', 'show', 'gate:opa-waiver-exercise',
+        '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $verifiedRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'VERIFIED' })
+    $pendingRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'PENDING' })
+    $waivedRequiredGates = @($requiredGateViews | Where-Object { $_.status -eq 'WAIVED' })
+
+    $finalState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $finalDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalVerify = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalAudit = Invoke-PilotLedgerJson $ledger @(
+        'audit', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalDoctorFindingCount = if ($null -ne $finalDoctor.PSObject.Properties['findings']) {
+        @($finalDoctor.findings).Count
+    } else {
+        0
+    }
+    if ($verifiedRequiredGates.Count -ne 1 -or
+        (@($verifiedRequiredGates.definition.gate_id) -join ',') -ne 'gate:opa-04' -or
+        $pendingRequiredGates.Count -ne 7 -or
+        (@($pendingRequiredGates.definition.gate_id) -join ',') -ne 'gate:opa-01,gate:opa-02,gate:opa-03,gate:opa-05,gate:opa-06,gate:opa-07,gate:opa-08' -or
+        $waivedRequiredGates.Count -ne 0 -or
+        $optionalGateView.status -ne 'WAIVED' -or
+        [int64]$finalState.state_version -ne [int64]$initialState.state_version -or
+        $finalState.state_digest -ne $initialState.state_digest -or
+        $finalState.checkpoint_ref -ne $initialState.checkpoint_ref -or
+        $finalState.project.lifecycle_status -ne 'BLOCKED' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or
+        (@($finalState.open_blocker_refs) -join ',') -ne 'blocker:opa-stage8-human-decision' -or
+        $finalResume.checkpoint_ref -ne $initialResume.checkpoint_ref -or
+        $finalResume.checkpoint_freshness -ne 'CURRENT' -or
+        @($finalResume.conflict_refs).Count -ne 0 -or
+        @($finalResume.critical_unknown_refs).Count -ne 0 -or
+        $finalDoctor.integrity -ne 'ok' -or
+        $finalVerify.integrity -ne 'ok' -or
+        $finalAudit.integrity -ne 'ok' -or
+        $finalDoctorFindingCount -ne 0 -or
+        @($finalVerify.findings).Count -ne 0 -or
+        @($finalAudit.findings).Count -ne 0) {
+        throw 'PILOT_STAGE_8_FINAL_RECONCILIATION_FAILED'
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 8
+        status = 'READY_FOR_OWNER_DECISION'
+        proof_class = 'LIVE_PILOT_PREDECISION'
+        project_ref = $projectRef
+        subject = [ordered]@{
+            zip_sha256 = $actualZipHash
+            source_commit = $packageManifest.source_commit
+            version = '0.2.0'
+            certified_compatibility = $false
+        }
+        documents = [ordered]@{
+            reconciled_input_report_digest = $documentDigests.operational_report
+            reconciled_input_matrix_digest = $documentDigests.traceability_matrix
+            stage_evidence_digests = $stageEvidenceDigests
+        }
+        reconciliation = [ordered]@{
+            prior_stage_pass_count = $priorStages.Count
+            prior_scenario_pass_count = $priorScenarioResults.Count
+            excluded_scenario_count = $excludedScenario.Count
+            fixed_and_requalified_defect_count = @($report.defects).Count
+            open_defect_count = $openDefects.Count
+            conflict_count = @($finalResume.conflict_refs).Count
+            critical_unknown_count = @($finalResume.critical_unknown_refs).Count
+            critical_waiver_count = @($report.critical_waivers).Count
+            reconciliation_artifact_count = 9
+        }
+        execution = [ordered]@{
+            read_only = $true
+            ledger_initial_state_version = [int64]$initialState.state_version
+            ledger_final_state_version = [int64]$finalState.state_version
+            ledger_state_version_delta = [int64]$finalState.state_version - [int64]$initialState.state_version
+            ledger_state_digest_unchanged = $finalState.state_digest -eq $initialState.state_digest
+            checkpoint_unchanged = $finalResume.checkpoint_ref -eq $initialResume.checkpoint_ref
+        }
+        gates = [ordered]@{
+            verified_required_gate_count = $verifiedRequiredGates.Count
+            verified_required_gate_refs = @($verifiedRequiredGates.definition.gate_id)
+            pending_required_gate_refs = @($pendingRequiredGates.definition.gate_id)
+            waived_required_gate_count = $waivedRequiredGates.Count
+            optional_waiver_gate_ref = 'gate:opa-waiver-exercise'
+            optional_waiver_gate_status = $optionalGateView.status
+        }
+        integrity = [ordered]@{
+            state_version = [int64]$finalState.state_version
+            state_digest = [string]$finalState.state_digest
+            checkpoint_ref = [string]$finalResume.checkpoint_ref
+            checkpoint_freshness = [string]$finalResume.checkpoint_freshness
+            doctor_integrity = [string]$finalDoctor.integrity
+            verify_integrity = [string]$finalVerify.integrity
+            audit_integrity = [string]$finalAudit.integrity
+            doctor_finding_count = $finalDoctorFindingCount
+            verify_finding_count = @($finalVerify.findings).Count
+            audit_finding_count = @($finalAudit.findings).Count
+        }
+        boundary = [ordered]@{
+            owner_decision = $null
+            maximum_status_without_owner_decision = 'READY_FOR_OWNER_DECISION'
+            project_status = [string]$finalState.project.lifecycle_status
+            active_phase_ref = [string]$finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            open_blocker_refs = @($finalState.open_blocker_refs)
+            next_action_ref = [string]$finalState.preferred_next_action_ref
+            stage_8_completed = $false
+            phase_close_attempted = $false
+            operational_acceptance_declared = $false
+            merge_performed = $false
+            release_performed = $false
+        }
+        residual_limitations = @(
+            'Final owner decision is absent; gate:opa-08 and phase completion remain pending.',
+            'Required gates other than gate:opa-04 remain pending until the separately authorized final decision transaction.',
+            'G-Skills evidence covers only the local provider and RecordSink, not an external counterpart.',
+            'Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.',
+            'Canary checks cover supported surfaces and do not prove universal byte-level absence.',
+            'Operational acceptance would not establish GA, universal certification, or absence of all defects.'
+        )
+        scenarios = [ordered]@{
+            'OPA-S32' = 'AWAITING_HUMAN_DECISION'
+        }
+    }
+    $stageEightManifestPath = Join-Path $evidenceDirectory 'stage-8-owner-decision-readiness.json'
+    Write-PilotJson $stageEightManifestPath $manifest
+
+    [pscustomobject]@{
+        stage = 8
+        status = 'READY_FOR_OWNER_DECISION'
+        evidence = 'evidence/stage-8-owner-decision-readiness.json'
+    }
+    return
+}
 if ($Stage -eq 7) {
     $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
     $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
