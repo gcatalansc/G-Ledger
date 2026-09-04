@@ -383,7 +383,7 @@ if ($Stage -eq 8) {
             decision = 'OPERATIONALLY_ACCEPTED'
             rationale = 'All non-human acceptance criteria passed; residual limitations remain explicit and do not constitute GA or external certification.'
             alternatives = @('BLOCKED', 'REJECTED')
-            scope = 'G-Ledger 0.2.0 exact hosted candidate e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851'
+            scope = "G-Ledger 0.2.0 exact hosted candidate $expectedHash"
             authority_ref = $null
             evidence_refs = @()
             status = 'PROPOSED'

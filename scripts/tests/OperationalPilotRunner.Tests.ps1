@@ -1084,6 +1084,7 @@ Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage
             --json | ConvertFrom-Json
         $acceptedDecision.status | Should Be 'ACCEPTED'
         $acceptedDecision.decision | Should Be 'OPERATIONALLY_ACCEPTED'
+        $acceptedDecision.scope | Should Be "G-Ledger 0.2.0 exact hosted candidate $expectedHash"
         $acceptedResume = & $ledger resume `
             --database $locator.database `
             --project-ref $locator.project_ref `
