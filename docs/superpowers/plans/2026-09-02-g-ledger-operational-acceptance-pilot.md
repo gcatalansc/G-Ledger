@@ -217,3 +217,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Resultado: OPA-S16…OPA-S21 `PASS`; avance **5/8, 62,5 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-5-risk-close-hosted-requalification.json`.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 6/8 sobre el mismo proyecto y ZIP alojado exacto. No iniciar Stage 7, merge, release ni aceptación operativa.
+
+## 2026-09-04 — Recalificación Stage 6 ejecutada y conciliada, 6/8
+
+- Autoridad: se ejecutó únicamente Stage 6 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`. Stage 7, merge, release y aceptación operativa permanecieron fuera de alcance.
+- Proyección: el render `SHAREABLE` fue verificado; una alteración de copia se detectó con exit 15 y la regeneración volvió a coincidir con la vista autoritativa. Un destino existente devolvió exit 2 sin overwrite. Render, verificación y regeneración conservaron versión y digest con delta cero; Markdown no adquirió autoridad.
+- Portabilidad y recuperación: el roundtrip portable se ejecutó sobre un proyecto auxiliar descartable y limpio de locators privados, conservó versión, digest, head, historia y `resume`; por contrato portable no restaura resultados de comando ni reservations. El backup/restore SQLite sí conservó resultados e idempotencia: reconcile `RECONCILED`/`ACCEPTED`, replay `DUPLICATE_REPLAY`, delta cero.
+- Fallo cerrado: checksum corrupto, cadena divergente y destinos existentes se rechazaron sin sobrescritura ni mutación del destino. Tras introducir dos canaries, `resume`, render, roundtrip limpio, rechazo portable posterior y manifiesto sanitizado registraron cero coincidencias; no se afirma inexistencia universal en bytes internos. La salida cruda no fue almacenada.
+- Cierre controlado: estado v86, digest `sha256:639494490d93f7b406f20d4d15c289b67f99148986c29d01dd5d517df6872e45`, head `sha256:0e47e907229130d160e760d5f4d8f8d6fc85522dba433f21af4fec6cc89b941c` y checkpoint `checkpoint:167b6373-8352-7747-ad36-042c618f295d` `CURRENT`. Proyecto `BLOCKED` por `blocker:opa-stage7-integrations`, fase activa, cero fases completadas, cero riesgos/unknowns críticos; `doctor`, `verify` y `audit` quedaron `ok`, sin findings ni submissions sin resolver.
+- Resultado: OPA-S22…OPA-S27 `PASS`; avance **6/8, 75 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-6-risk-close-hosted-requalification.json`.
+
+**Siguiente paso:** obtener autorización explícita para Stage 7/8, incluida la tarea Codex nueva y ciega acotada al ejecutable, database, project_ref y skill, sobre este mismo proyecto y ZIP. Stage 8, merge, release y aceptación operativa permanecen fuera de alcance.
