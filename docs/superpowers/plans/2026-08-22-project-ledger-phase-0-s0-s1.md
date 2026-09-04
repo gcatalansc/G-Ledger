@@ -48,7 +48,7 @@
 - [x] **Step 1: Verify the v0.1 source artifact before copying**
 
 ```powershell
-Get-FileHash -Algorithm SHA256 -LiteralPath "C:\Users\Alfredo\OneDrive\Documentos\Proyectos\Trading-Inversión\IA\Proyectos\5 - Projects Docs\G-Ledger Docs\PROJECT_LEDGER_SPEC_v0.1.0.md"
+Get-FileHash -Algorithm SHA256 -LiteralPath "<ruta-local-al-antecedente>\PROJECT_LEDGER_SPEC_v0.1.0.md"
 ```
 
 Expected digest: `772ea51780a5ed2881a786a198aa90dedb8b4ba619b6652d8f54ef4ca306d865`.

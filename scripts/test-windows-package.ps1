@@ -21,13 +21,46 @@ try {
     foreach ($entry in $archive.Entries) {
         $name = $entry.FullName.Replace('\','/')
         if ($name -match '(^/|^[A-Za-z]:|(^|/)\.\.(/|$)|:)' -or -not $names.Add($name)) { throw 'Unsafe or duplicate ZIP entry' }
+        if ($name -match '(^|/)(?:\.git|target|dist|\.tooling)(/|$)' -or $name -match '\.(?:db|db-shm|db-wal)$') { throw "Forbidden delivery entry: $name" }
         $total += $entry.Length
         if ($total -gt 536870912 -or $names.Count -gt 2048) { throw 'ZIP extraction budget exceeded' }
+    }
+    foreach ($required in @(
+        'START_HERE.md',
+        'project-ledger.exe',
+        'LICENSE',
+        'CHANGELOG.md',
+        'SECURITY.md',
+        'RELEASE_NOTES.md',
+        'SBOM.spdx.json',
+        'CHECKSUMS.sha256',
+        'package.json',
+        'documentation/README.md',
+        'documentation/getting-started/QUICKSTART.md',
+        'documentation/getting-started/TUTORIAL.md',
+        'documentation/operations/USER_GUIDE.md',
+        'documentation/CLI_OPERATIONS.md',
+        'documentation/WINDOWS_PORTABLE.md',
+        'assurance/README.md',
+        'assurance/operational-pilot-report.json',
+        'assurance/acceptance-report.json',
+        'assurance/compatibility-report.json',
+        'assurance/release-manifest.json',
+        'documentation/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md',
+        'documentation/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md',
+        'documentation/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_PILOT_SPEC_v1.0.0.md',
+        'SPEC.md',
+        'BITACORA_IMPLEMENTACION.md',
+        'specs/PROJECT_LEDGER_SPEC_v0.2.0.md',
+        'release/release-manifest.json'
+    )) {
+        if (-not $names.Contains($required)) { throw "Official delivery file missing: $required" }
     }
     [IO.Compression.ZipFileExtensions]::ExtractToDirectory($archive, $install)
 } finally { $archive.Dispose() }
 $manifest = Get-Content -LiteralPath (Join-Path $install 'package.json') -Raw | ConvertFrom-Json
 if ($manifest.profile -ne 'project-ledger-windows-zip/1' -or $manifest.certified_compatibility) { throw 'Invalid package profile' }
+if ($manifest.documentation_entrypoint -ne 'START_HERE.md' -or $manifest.release_status -ne 'ENGINEERING_RELEASE_CANDIDATE' -or $manifest.operational_acceptance -ne 'OPERATIONALLY_ACCEPTED') { throw 'Invalid delivery classification' }
 $listed = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($entry in $manifest.files) {
     $name = $entry.path
@@ -41,6 +74,41 @@ if (-not $listed.Contains('LICENSE')) { throw 'Project license missing from dist
 foreach ($item in Get-ChildItem -LiteralPath $install -File -Recurse -Force) {
     $name = [IO.Path]::GetRelativePath($install, $item.FullName).Replace('\','/')
     if (-not $listed.Contains($name)) { throw 'Unlisted package file' }
+}
+$markdownEntrypoints = @(
+    'START_HERE.md',
+    'documentation/README.md',
+    'documentation/getting-started/QUICKSTART.md',
+    'documentation/getting-started/TUTORIAL.md',
+    'documentation/operations/USER_GUIDE.md',
+    'documentation/SOURCE_AND_BUILD.md',
+    'assurance/README.md'
+)
+foreach ($relative in $markdownEntrypoints) {
+    $document = Join-Path $install $relative
+    $content = Get-Content -LiteralPath $document -Raw
+    foreach ($match in [regex]::Matches($content, '\[[^\]]+\]\((?<target>[^)]+)\)')) {
+        $target = $match.Groups['target'].Value.Trim('<', '>')
+        if ($target -match '^(?:https?://|mailto:|#)' -or [string]::IsNullOrWhiteSpace($target)) { continue }
+        $pathOnly = ($target -split '#', 2)[0]
+        $resolved = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $document) $pathOnly))
+        if (-not (Test-Path -LiteralPath $resolved)) { throw "Broken package documentation link: $relative -> $target" }
+    }
+}
+$checksumLines = @(Get-Content -LiteralPath (Join-Path $install 'CHECKSUMS.sha256') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+$checksumPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+foreach ($line in $checksumLines) {
+    if ($line -notmatch '^([0-9a-f]{64})  ([A-Za-z0-9_.\-/]+)$') { throw 'Invalid delivery checksum line' }
+    $expected = $Matches[1]
+    $name = $Matches[2]
+    if (-not $checksumPaths.Add($name) -or $name -eq 'package.json' -or $name -eq 'CHECKSUMS.sha256') { throw 'Invalid delivery checksum scope' }
+    $path = Join-Path $install $name
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw "Delivery checksum mismatch: $name" }
+}
+$expectedChecksumPaths = @($listed | Where-Object { $_ -notin @('package.json','CHECKSUMS.sha256') })
+if ($checksumPaths.Count -ne $expectedChecksumPaths.Count) { throw 'Delivery checksum inventory is incomplete' }
+foreach ($name in $expectedChecksumPaths) {
+    if (-not $checksumPaths.Contains($name)) { throw "Delivery checksum missing: $name" }
 }
 $binary = Join-Path $install 'project-ledger.exe'
 # Parse the PE import table: the portable core may import Windows system DLLs, not an MSVC redistributable.
@@ -125,7 +193,7 @@ $null = Invoke-Isolated @('resources','verify','--json')
 $result = [ordered]@{
     profile='project-ledger-package-verification/1'; status='PASS'; zip_sha256=$ExpectedSha256.ToLowerInvariant()
     source_commit=$manifest.source_commit; source_tree_dirty=$manifest.source_tree_dirty; extracted_directory=$install
-    scenarios=@('compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
+    scenarios=@('official-document-layout','documentation-links','delivery-checksums','compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
     runtime_environment='PATH absent; only SystemRoot/TEMP/TMP passed to Ledger; no Cargo/Git/Python/checkout required by core'
     imported_system_dlls=$imports.ToArray(); certified_compatibility=$false
     harness_results=$harnessResults.ToArray()

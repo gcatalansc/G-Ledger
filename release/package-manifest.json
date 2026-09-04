@@ -17,11 +17,26 @@
   "verification": "cargo xtask release check",
   "windows_distribution": {
     "build_and_verify": "pwsh -File scripts/build-windows-package.ps1 -Output <new.zip> -RequireClean",
+    "certified_compatibility": false,
+    "contents": [
+      "START_HERE.md",
+      "project-ledger.exe",
+      "curated documentation",
+      "operational acceptance evidence",
+      "SBOM.spdx.json",
+      "CHECKSUMS.sha256",
+      "package.json",
+      "verified runtime resources",
+      "license, security, changelog and release notes"
+    ],
     "core_requires_python": false,
     "core_requires_toolchain": false,
     "crt": "static",
+    "documentation_entrypoint": "START_HERE.md",
     "format": "ZIP",
+    "operational_acceptance": "OPERATIONALLY_ACCEPTED",
     "optional_gsp": "explicit pinned external environment, no automatic downloads",
+    "release_status": "ENGINEERING_RELEASE_CANDIDATE",
     "resources": "binary-locked resources/; explicit --resources override; never cwd discovery"
   }
 }

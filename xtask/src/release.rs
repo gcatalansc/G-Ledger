@@ -102,10 +102,25 @@ fn package_manifest() -> Result<Vec<u8>, String> {
         "windows_distribution": {
             "format": "ZIP",
             "build_and_verify": "pwsh -File scripts/build-windows-package.ps1 -Output <new.zip> -RequireClean",
+            "contents": [
+                "START_HERE.md",
+                "project-ledger.exe",
+                "curated documentation",
+                "operational acceptance evidence",
+                "SBOM.spdx.json",
+                "CHECKSUMS.sha256",
+                "package.json",
+                "verified runtime resources",
+                "license, security, changelog and release notes"
+            ],
             "resources": "binary-locked resources/; explicit --resources override; never cwd discovery",
             "crt": "static",
             "core_requires_toolchain": false,
             "core_requires_python": false,
+            "documentation_entrypoint": "START_HERE.md",
+            "operational_acceptance": "OPERATIONALLY_ACCEPTED",
+            "release_status": "ENGINEERING_RELEASE_CANDIDATE",
+            "certified_compatibility": false,
             "optional_gsp": "explicit pinned external environment, no automatic downloads"
         }
     }))
@@ -217,4 +232,34 @@ fn pretty_json(value: &Value) -> Result<Vec<u8>, String> {
     let mut bytes = serde_json::to_vec_pretty(value).map_err(|error| error.to_string())?;
     bytes.push(b'\n');
     Ok(bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn package_manifest_declares_the_official_bounded_delivery() {
+        let bytes = package_manifest().expect("package manifest");
+        let manifest: Value = serde_json::from_slice(&bytes).expect("valid JSON");
+        let windows = &manifest["windows_distribution"];
+
+        assert_eq!(windows["documentation_entrypoint"], "START_HERE.md");
+        assert_eq!(windows["operational_acceptance"], "OPERATIONALLY_ACCEPTED");
+        assert_eq!(windows["release_status"], "ENGINEERING_RELEASE_CANDIDATE");
+        assert_eq!(windows["certified_compatibility"], false);
+        let contents = windows["contents"].as_array().expect("delivery contents");
+        for required in [
+            "project-ledger.exe",
+            "curated documentation",
+            "operational acceptance evidence",
+            "SBOM.spdx.json",
+            "CHECKSUMS.sha256",
+        ] {
+            assert!(
+                contents.iter().any(|entry| entry == required),
+                "missing {required}"
+            );
+        }
+    }
 }

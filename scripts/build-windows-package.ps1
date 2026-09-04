@@ -3,6 +3,12 @@
 param([Parameter(Mandatory)][string]$Output, [switch]$RequireClean)
 $ErrorActionPreference = 'Stop'
 $packageRoot = Split-Path -Parent $PSScriptRoot
+$zipPath = [IO.Path]::GetFullPath($Output)
+$verificationPath = $zipPath + '.verification.json'
+$checksumPath = $zipPath + '.sha256'
+foreach ($destination in @($zipPath,$verificationPath,$checksumPath)) {
+    if (Test-Path -LiteralPath $destination) { throw "Delivery destination already exists: $destination" }
+}
 Push-Location -LiteralPath $packageRoot
 try {
     $previousFlags = $env:RUSTFLAGS
@@ -19,7 +25,8 @@ try {
     if (-not $codex -or -not $portable) { throw 'Expected test executable missing' }
     $binary = Join-Path $packageRoot 'target/windows-portable/x86_64-pc-windows-msvc/release/project-ledger.exe'
     & (Join-Path $PSScriptRoot 'package-windows.ps1') -Binary $binary -Output $Output -SourceRoot $packageRoot -RequireClean:$RequireClean
-    $zipPath = [IO.Path]::GetFullPath($Output)
     $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash
-    & (Join-Path $PSScriptRoot 'test-windows-package.ps1') -Zip $zipPath -ExpectedSha256 $hash -CodexTest $codex -PortableTest $portable -Report ($zipPath + '.verification.json')
+    "$($hash.ToLowerInvariant())  $([IO.Path]::GetFileName($zipPath))" | Set-Content -LiteralPath $checksumPath -Encoding ascii
+    & (Join-Path $PSScriptRoot 'test-windows-package.ps1') -Zip $zipPath -ExpectedSha256 $hash -CodexTest $codex -PortableTest $portable -Report $verificationPath
+    if ($LASTEXITCODE -ne 0) { throw 'Official Windows package verification failed' }
 } finally { Pop-Location }

@@ -12,26 +12,28 @@ G-Ledger 0.2.0/
 ├── CHANGELOG.md
 ├── SECURITY.md
 ├── RELEASE_NOTES.md
+├── SPEC.md
+├── CONTRIBUTING.md
+├── BITACORA_IMPLEMENTACION.md
 ├── SBOM.spdx.json
 ├── CHECKSUMS.sha256
 ├── package.json
 ├── documentation/
-│   ├── README.md
-│   ├── SOURCE_AND_BUILD.md
-│   ├── getting-started/
-│   │   ├── QUICKSTART.md
-│   │   └── TUTORIAL.md
-│   ├── operations/
-│   │   ├── USER_GUIDE.md
-│   │   └── CLI_OPERATIONS.md
-│   └── WINDOWS_PORTABLE.md
+│   └── centro documental completo y ordenado de `docs/`
 ├── assurance/
-│   ├── G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md
+│   ├── README.md
 │   ├── operational-pilot-report.json
-│   ├── G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md
 │   ├── acceptance-report.json
 │   ├── compatibility-report.json
 │   └── release-manifest.json
+├── specs/
+│   └── especificación normativa, historia y perfiles de compatibilidad
+├── referencias/
+│   └── handoff contractual de la versión
+├── integrations/agent-skills/
+│   └── skill local de continuidad y sus contratos
+├── release/
+│   └── manifiestos y evidencia completa de ingeniería
 └── resources/
     └── inventario contractual verificado por el ejecutable
 ```
@@ -42,8 +44,10 @@ G-Ledger 0.2.0/
 |---|---|
 | `START_HERE.md` | Entrada humana y secuencia de verificación |
 | `project-ledger.exe` | Producto ejecutable |
-| `documentation/` | Instalación, tutorial, uso, operación y build |
-| `assurance/` | Resultado humano y evidencia machine-readable |
+| `documentation/` | Centro documental completo: instalación, tutorial, uso, operación, aseguramiento e historia |
+| `assurance/` | Entrada directa al resultado humano y evidencia machine-readable principal |
+| `specs/` y `referencias/` | Autoridad normativa y handoff contractual |
+| `release/` | SBOM, manifests, compatibilidad, privacidad y evidencia de release |
 | `resources/` | Schemas, contratos, locks y evidencia incorporada requerida por verificadores |
 | `package.json` | Inventario exacto, tamaños, hashes, target y source commit |
 | `CHECKSUMS.sha256` | Hash legible de todos los archivos inventariados |
@@ -60,4 +64,3 @@ G-Ledger 0.2.0/
 - una declaración de GA o compatibilidad externa certificada.
 
 El código fuente completo se obtiene mediante los archivos fuente del mismo tag en GitHub. El ZIP portable contiene el ejecutable y todo lo necesario para operar y evaluar el núcleo sin un checkout.
-

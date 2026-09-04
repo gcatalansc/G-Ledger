@@ -465,6 +465,19 @@ fn verify_benchmark(root: &Path) -> Result<(), ReleaseError> {
 
 fn verify_package(root: &Path) -> Result<(), ReleaseError> {
     let package: serde_json::Value = read_json(root, "release/package-manifest.json")?;
+    let windows = &package["windows_distribution"];
+    let required_contents = [
+        "project-ledger.exe",
+        "curated documentation",
+        "operational acceptance evidence",
+        "SBOM.spdx.json",
+        "CHECKSUMS.sha256",
+    ];
+    let complete_contents = windows["contents"].as_array().is_some_and(|contents| {
+        required_contents
+            .iter()
+            .all(|required| contents.iter().any(|entry| entry == required))
+    });
     if package["profile"] != "project-ledger-package/0.2.0"
         || package["default_profile"]["binary"] != "project-ledger"
         || package["default_profile"]["single_binary"] != true
@@ -475,6 +488,14 @@ fn verify_package(root: &Path) -> Result<(), ReleaseError> {
             .is_none_or(|targets| targets.len() != 4)
     {
         return invalid("default package is not the locked offline single-binary profile");
+    }
+    if windows["documentation_entrypoint"] != "START_HERE.md"
+        || windows["operational_acceptance"] != "OPERATIONALLY_ACCEPTED"
+        || windows["release_status"] != "ENGINEERING_RELEASE_CANDIDATE"
+        || windows["certified_compatibility"] != false
+        || !complete_contents
+    {
+        return invalid("official Windows delivery identity or contents are incomplete");
     }
     Ok(())
 }
