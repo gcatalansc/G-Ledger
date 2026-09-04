@@ -1458,12 +1458,12 @@ impl ProjectStateProjection {
         }) {
             return Ok(CheckpointFreshnessStatus::Conflicted);
         }
-        if self
-            .state
-            .authority_documents
-            .iter()
-            .any(|document| document.status != AuthorityDocumentStatus::Current)
-        {
+        if self.state.authority_documents.iter().any(|document| {
+            !matches!(
+                document.status,
+                AuthorityDocumentStatus::Current | AuthorityDocumentStatus::Superseded
+            )
+        }) {
             return Ok(CheckpointFreshnessStatus::StaleForAuthority);
         }
         let current = self

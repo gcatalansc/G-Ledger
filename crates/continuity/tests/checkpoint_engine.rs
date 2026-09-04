@@ -2,13 +2,14 @@ use project_ledger_canonical_json::{Sha256Digest, sha256_digest};
 use project_ledger_continuity::{ContinuityEngine, ContinuityError};
 use project_ledger_domain::{
     Actor, ActorKind, AuthorityDocument, AuthorityDocumentRegisteredEvent, AuthorityDocumentStatus,
-    AuthorityPolicy, BindRepositoryPayload, Command, CommandEnvelope, CommandId, ConflictKind,
-    ConflictOpenedEvent, ConflictRecord, ConflictStatus, CreateContinuityCheckpointPayload,
-    CreateProjectPayload, Event, EventId, LedgerTimestamp, Project, ProjectCreatedEvent, ProjectId,
-    ProjectLifecycleStatus, RecordNotePayload, RecordUnknownPayload,
-    RegisterAuthorityDocumentPayload, RepositoryBinding, RepositoryBindingStatus,
-    RepositoryBoundEvent, RepositoryIdentityMethod, ResourceRef, SchemaVersion, Severity, StableId,
-    StorageProfile, TrustLevel, UnknownCriticality, UnknownRecord, UnknownStatus,
+    AuthorityDocumentSupersededEvent, AuthorityPolicy, BindRepositoryPayload, Command,
+    CommandEnvelope, CommandId, ConflictKind, ConflictOpenedEvent, ConflictRecord, ConflictStatus,
+    CreateContinuityCheckpointPayload, CreateProjectPayload, Event, EventId, LedgerTimestamp,
+    Project, ProjectCreatedEvent, ProjectId, ProjectLifecycleStatus, RecordNotePayload,
+    RecordUnknownPayload, RegisterAuthorityDocumentPayload, RepositoryBinding,
+    RepositoryBindingStatus, RepositoryBoundEvent, RepositoryIdentityMethod, ResourceRef,
+    SchemaVersion, Severity, StableId, StorageProfile, SupersedeAuthorityDocumentPayload,
+    TrustLevel, UnknownCriticality, UnknownRecord, UnknownStatus,
 };
 use project_ledger_event_store::{CommandDraft, EventDraft, build_event, prepare_command};
 use serde::Serialize;
@@ -192,6 +193,97 @@ fn checkpoint_preserves_one_repository_snapshot_and_rejects_ambiguous_current_bi
         ContinuityEngine::handle(&rejected, &ambiguous),
         Err(ContinuityError::InvalidCommand { .. })
     ));
+}
+
+#[test]
+fn checkpoint_created_after_authority_supersession_treats_preserved_history_as_current() {
+    let mut stream = genesis();
+    let original = authority_document("original", None, 2);
+    let replacement = authority_document("replacement", Some(original.document_id.clone()), 3);
+
+    let register_original = command(
+        2,
+        stream.len() as u64,
+        Command::RegisterAuthorityDocument(RegisterAuthorityDocumentPayload {
+            document: original.clone(),
+        }),
+    );
+    append(
+        &mut stream,
+        &register_original,
+        vec![draft(
+            2,
+            Event::AuthorityDocumentRegistered(AuthorityDocumentRegisteredEvent {
+                document: original.clone(),
+            }),
+        )],
+    );
+
+    let register_replacement = command(
+        3,
+        stream.len() as u64,
+        Command::RegisterAuthorityDocument(RegisterAuthorityDocumentPayload {
+            document: replacement.clone(),
+        }),
+    );
+    append(
+        &mut stream,
+        &register_replacement,
+        vec![draft(
+            3,
+            Event::AuthorityDocumentRegistered(AuthorityDocumentRegisteredEvent {
+                document: replacement.clone(),
+            }),
+        )],
+    );
+
+    let supersede = command(
+        4,
+        stream.len() as u64,
+        Command::SupersedeAuthorityDocument(SupersedeAuthorityDocumentPayload {
+            document_ref: original.document_id.clone(),
+            replacement,
+        }),
+    );
+    append(
+        &mut stream,
+        &supersede,
+        vec![draft(
+            4,
+            Event::AuthorityDocumentSuperseded(AuthorityDocumentSupersededEvent {
+                document_ref: original.document_id,
+                replacement_ref: id("authority:replacement"),
+            }),
+        )],
+    );
+    append_binding(&mut stream, 5, binding("main", 1));
+
+    let create = command(
+        6,
+        stream.len() as u64,
+        Command::CreateContinuityCheckpoint(CreateContinuityCheckpointPayload {
+            reason: "handoff after authority replacement".to_owned(),
+        }),
+    );
+    let drafts = ContinuityEngine::handle(&create, &stream).unwrap();
+    append(&mut stream, &create, drafts);
+    let projection =
+        project_ledger_projection_engine::ProjectStateProjection::rebuild(&stream).unwrap();
+
+    assert_eq!(
+        projection
+            .state()
+            .authority_documents
+            .iter()
+            .find(|document| document.document_id == id("authority:original"))
+            .unwrap()
+            .status,
+        AuthorityDocumentStatus::Superseded
+    );
+    assert_eq!(
+        projection.checkpoint_freshness(projection.state().checkpoint_ref.as_ref().unwrap()),
+        Some(project_ledger_domain::CheckpointFreshnessStatus::Current)
+    );
 }
 
 #[test]
@@ -405,6 +497,24 @@ fn binding(name: &str, digest_byte: u8) -> RepositoryBinding {
         },
         |value, digest| value.digest = digest,
     )
+}
+
+fn authority_document(
+    name: &str,
+    supersedes_ref: Option<StableId>,
+    timestamp_number: u64,
+) -> AuthorityDocument {
+    AuthorityDocument {
+        schema_version: SchemaVersion::V0_2_0,
+        document_id: id(&format!("authority:{name}")),
+        uri: ResourceRef::parse(&format!("file:///authority/{name}.md")).unwrap(),
+        digest: Sha256Digest::from([u8::try_from(timestamp_number).unwrap(); 32]),
+        version: "1.0.0".to_owned(),
+        status: AuthorityDocumentStatus::Current,
+        authority_rank: 1,
+        effective_from: timestamp(timestamp_number),
+        supersedes_ref,
+    }
 }
 
 fn genesis() -> Vec<project_ledger_domain::EventEnvelope> {

@@ -59,7 +59,7 @@
     },
     {
       "path": "release/package-manifest.json",
-      "sha256": "3d18b39c77ad9d933ac721a82b8f592a366020a8bbb0eb49ae0c8742edaf07a0"
+      "sha256": "d246812edc17f436b9c2cf87d61a6df44473f3696a73ef0d62ecef0647dae91d"
     },
     {
       "path": "release/sbom.spdx.json",

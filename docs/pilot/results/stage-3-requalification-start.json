@@ -1,0 +1,39 @@
+{
+  "profile": "project-ledger-operational-pilot-ci-observation/1",
+  "observed_at": "2026-09-03T22:29:54Z",
+  "stage": 3,
+  "pilot_status": "BLOCKED",
+  "official_progress": {
+    "completed_stages": 2,
+    "total_stages": 8,
+    "percentage": 25
+  },
+  "pull_request": {
+    "number": 3,
+    "url": "https://github.com/gcatalansc/G-Ledger/pull/3",
+    "state": "DRAFT",
+    "base": "main",
+    "head": "codex/g-ledger-opa-exact-ci-99fdaab"
+  },
+  "subject": {
+    "candidate_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "qualifier_commit": "ff2590554bfdd9ed9078248cbe98e69af881f3fa",
+    "certified_compatibility": false
+  },
+  "workflow_run": {
+    "id": 33813281940,
+    "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33813281940",
+    "event": "pull_request",
+    "status": "IN_PROGRESS",
+    "jobs_observed": [
+      {"name": "test-windows-latest", "job_id": 100839773225, "status": "IN_PROGRESS"},
+      {"name": "test-ubuntu-latest", "job_id": 100839773204, "status": "QUEUED"},
+      {"name": "test-macos-latest", "job_id": 100839772941, "status": "QUEUED"},
+      {"name": "dependency-policy", "job_id": 100839773146, "status": "IN_PROGRESS"},
+      {"name": "physical-disk-full-chaos", "job_id": 100839773086, "status": "IN_PROGRESS"},
+      {"name": "live-gsp-sidecar-chaos", "job_id": 100839773085, "status": "IN_PROGRESS"}
+    ]
+  },
+  "interpretation": "The hosted exact-SHA requalification has started. This is not evidence of successful requalification and does not close Stage 3.",
+  "prohibited_actions": ["merge", "release", "stage-4", "ga", "compatibility-certification"]
+}

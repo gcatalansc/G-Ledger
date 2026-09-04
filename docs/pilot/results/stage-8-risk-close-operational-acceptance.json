@@ -1,0 +1,112 @@
+{
+  "profile": "project-ledger-operational-pilot-requalification/1",
+  "status": "OPERATIONALLY_ACCEPTED",
+  "recorded_at": "2026-09-04T13:42:09Z",
+  "proof_class": "LIVE_PILOT_HUMAN_DECISION",
+  "subject": {
+    "product_under_test": "G_LEDGER",
+    "product_version": "0.2.0",
+    "source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "source_tree_dirty": false,
+    "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "github_artifact_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
+    "certified_compatibility": false
+  },
+  "execution": {
+    "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
+    "initial_state_version": 97,
+    "final_state_version": 135,
+    "state_version_delta": 38,
+    "live_manifest_sha256": "sha256:0e5c9a28068c3693280cbe291a5fd11a78583f6cf8788a721789e9de225edb22",
+    "predecision_manifest_sha256": "sha256:2931eaa54df4847a9983b56b73981bc83e296f49473d1abfd3e1163b79f9ac54",
+    "merge_performed": false,
+    "release_performed": false,
+    "general_availability_declared": false
+  },
+  "owner_decision": {
+    "decision_ref": "decision:opa-operational-acceptance-v1",
+    "actor_id": "human:owner",
+    "value": "OPERATIONALLY_ACCEPTED",
+    "ledger_status": "ACCEPTED",
+    "authority_ref": "authority:opa-spec",
+    "accepted_at": "2026-09-04T13:42:09Z",
+    "scope": "G-Ledger 0.2.0 exact hosted candidate 7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "historical_owner_decision_transferred": false
+  },
+  "reconciliation": {
+    "stage_pass_count": 8,
+    "scenario_pass_count": 31,
+    "excluded_scenario_count": 1,
+    "excluded_scenario_ref": "OPA-S31",
+    "fixed_and_requalified_defect_count": 4,
+    "open_defect_count": 0,
+    "conflict_count": 0,
+    "critical_unknown_count": 0,
+    "open_risk_count": 0,
+    "critical_waiver_count": 0
+  },
+  "evidence_and_gates": {
+    "record_sink_profile": "gskills-context-provider/0.3.0",
+    "validates_gledger_only": true,
+    "verified_source_receipt_count": 7,
+    "durable_effect_count": 7,
+    "replay_status": "DUPLICATE_REPLAY",
+    "replay_effect_count": 0,
+    "verified_required_gate_refs": ["gate:opa-01", "gate:opa-02", "gate:opa-03", "gate:opa-04", "gate:opa-05", "gate:opa-06", "gate:opa-07", "gate:opa-08"],
+    "pending_required_gate_count": 0,
+    "waived_required_gate_count": 0,
+    "optional_exercise_gate_status": "WAIVED"
+  },
+  "lifecycle": {
+    "phase_ref": "phase:operational-acceptance",
+    "phase_status": "COMPLETED",
+    "project_status": "COMPLETED",
+    "open_blocker_count": 0,
+    "next_action_ref": "action:opa-first-controlled-project"
+  },
+  "integrity": {
+    "state_version": 135,
+    "state_digest": "sha256:3ecb9ec015c64b0256a18959a35c11d050e0067be865548eb9b55e56da457022",
+    "head_event_digest": "sha256:a0f76396b258546f2d91ccd6373ed6a5ec5136ffec48f7e086af2a68c2b1431f",
+    "checkpoint_ref": "checkpoint:606c14cc-8f7c-709e-9ced-ff6bc0152434",
+    "checkpoint_freshness": "CURRENT",
+    "doctor_integrity": "ok",
+    "doctor_unresolved_submission_count": 0,
+    "verify_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_integrity": "ok",
+    "audit_finding_count": 0
+  },
+  "harness_identity_guard": {
+    "status": "FIXED_AND_VERIFIED_BEFORE_LIVE_MUTATION",
+    "product_defect": false,
+    "ledger_mutation_observed_before_fix": false,
+    "summary": "The Stage 8 decision fixture retained a historical candidate hash instead of binding to the validated runner input.",
+    "red_result": "Expected the runner-supplied candidate hash but observed the historical e2509d48 candidate.",
+    "green_result": "1 passed, 0 failed; the accepted decision scope equals the runner-supplied exact hash.",
+    "fix_commit": "5554152bee7e0510c5ef881e11b01ffa1a36c5e2"
+  },
+  "documentation_outputs": {
+    "operational_report_sha256": "sha256:6f5720028c927276cf166f3708f84065eec6753872982eb29783d1b12191dee4",
+    "matrix_sha256": "sha256:7bd500c25d8c38b57c64dfa47cc7cfb6ee2b5560e4a18414640e0b673d58e12a",
+    "implementation_log_sha256": "sha256:d24be05ff61ca7f1fcf6f60259df71be6b900007d40be47314ec274c32c683cd",
+    "readme_sha256": "sha256:8d66ba9bd0113fde5aec45463a3d2c2e9816bd6b0132c79c115f672450ffc274",
+    "executable_plan_sha256": "sha256:c074138db875f96bbeff0abd271625c4670ccaf9e87702b153a0b175f1bfe788",
+    "human_readable_report_sha256": "sha256:418c163bc21653c02860c2156bc10f8a470f52097f3ba33211fb66f2c5ad7911"
+  },
+  "residual_limitations": [
+    "G-Skills remains under development and was not validated as a product; its local protocol surface only exercised G-Ledger integration boundaries.",
+    "Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.",
+    "Canary checks cover supported surfaces and do not prove universal byte-level absence.",
+    "Operational acceptance is limited to controlled G-Ledger use and does not establish GA, release approval, universal certification or absence of all defects."
+  ],
+  "boundary": {
+    "operational_use": "CONTROLLED",
+    "gskills_operational_acceptance_declared": false,
+    "project_radar_pass_claimed": false,
+    "merge_authorized": false,
+    "release_authorized": false,
+    "general_availability_declared": false
+  }
+}

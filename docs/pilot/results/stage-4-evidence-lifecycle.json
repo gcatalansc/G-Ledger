@@ -1,0 +1,119 @@
+{
+  "profile": "project-ledger-operational-pilot-stage-closure/1",
+  "stage": 4,
+  "status": "PASS",
+  "proof_class": "LIVE_PILOT_HOSTED",
+  "observed_at": "2026-09-03T23:44:54Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "hosted_run_id": 33813281940,
+    "hosted_artifact_id": 9916188037,
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+    "certified_compatibility": false
+  },
+  "harness": {
+    "runner": "scripts/run-operational-pilot.ps1",
+    "runner_sha256": "cec3034dffa93a5e01998444b445a72799721147cb7e7bc0a1786680cdf8c6aa",
+    "record_sink_client": "scripts/invoke-record-sink-rpc.ps1",
+    "record_sink_client_sha256": "6bd7619554e45a03b68801206846c608c1d96982f78cf6c8478a226cde4133be",
+    "test": "scripts/tests/OperationalPilotRunner.Tests.ps1",
+    "test_sha256": "452865cf332a3b90e6190ea522a0aab609fff89af616ffe0fa875e2eb537678b",
+    "red_condition": "PILOT_STAGE_NOT_IMPLEMENTED: stage 4",
+    "green_total": 6,
+    "green_passed": 6,
+    "green_failed": 0,
+    "mutable_fixture_root": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/",
+    "raw_output_versioned": false
+  },
+  "live_manifest": {
+    "locator": "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json",
+    "sha256": "677b2b0f21aea752e6a32eb3a13b7638c6ae3a83e08ac59138188d2a39024404"
+  },
+  "observed_evidence": {
+    "evidence_ref": "evidence:c93d627301633ad9d379bb76433bb39bae35e8db1a7a70d445fcda9d978b33fe",
+    "status": "OBSERVED",
+    "execution_exit_code": 0,
+    "gate_evaluation_exit_code": 6,
+    "gate_verified": false,
+    "phase_close_exit_code": 6,
+    "phase_remained_active": true
+  },
+  "record_sink": {
+    "mode": "LOCAL_STDIO_EXPLICIT_POLICY",
+    "profile": "gskills-context-provider/0.3.0",
+    "policy_digest": "sha256:f7213e1fe890a1766560c1854fa2a5ad60f154e7514c09efe2cb733cd2ac505d",
+    "validate_status": "VALID",
+    "submit_status": "ACCEPTED",
+    "replay_status": "DUPLICATE_REPLAY",
+    "status_lookup": "FOUND",
+    "reconcile_lookup": "FOUND",
+    "state_version_delta": 1,
+    "replay_state_version_delta": 0,
+    "evidence_ref": "evidence:opa-stage4-verified-source",
+    "evidence_status": "VERIFIED_SOURCE",
+    "raw_output_stored": false,
+    "native_result_digest": "sha256:0b7afb3327a4bbd5bad2193e200cd420f444e99745a010f9b73fa438b8810490",
+    "external_counterpart_used": false,
+    "bilateral_certification_claimed": false
+  },
+  "lifecycle": {
+    "gate_ref": "gate:opa-04",
+    "gate_status_after_verified_evidence": "VERIFIED",
+    "phase_close_after_gate_exit_code": 6,
+    "phase_status": "ACTIVE",
+    "completed_phase_count": 0,
+    "record_sink_lifecycle_event_count": 0,
+    "gate_engine_only": true,
+    "phase_engine_only": true
+  },
+  "freshness": {
+    "auxiliary_authority_ref": "authority:opa-stage4-material-change",
+    "auxiliary_authority_digest": "sha256:34deba82a59ad0996ab24422aa88865840c1cb7a5837221fa00902974d7314a7",
+    "gate_status_after_authority_change": "REVALIDATION_REQUIRED",
+    "prior_checkpoint_after_authority_change": "STALE_FOR_AUTHORITY",
+    "gate_status_after_explicit_revalidation": "VERIFIED",
+    "replacement_checkpoint_ref": "checkpoint:74eefb11-ad42-7d14-ac57-b1efea643b4b",
+    "replacement_checkpoint_freshness": "CURRENT"
+  },
+  "waiver": {
+    "optional_gate_ref": "gate:opa-waiver-exercise",
+    "optional_gate_status": "WAIVED",
+    "critical_gate_ref": "gate:opa-08",
+    "critical_gate_status": "PENDING",
+    "critical_attempt_exit_code": 3,
+    "critical_attempt_state_version_delta": 0,
+    "critical_waiver_count": 0
+  },
+  "reconciliation": {
+    "state_version": 66,
+    "state_digest": "sha256:5780053af5bcb8db14268170a825a5eaaf9cd0f38e6afb794ca64dd08aa85975",
+    "head_digest": "sha256:9dda0c54585350520edd90fe284d15d3cf21f6a20feb14ee16b8b8e5511f444a",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_finding_count": 0,
+    "unresolved_submission_count": 0,
+    "checkpoint_freshness": "CURRENT"
+  },
+  "scenarios": [
+    {"id":"OPA-S11","status":"PASS"},
+    {"id":"OPA-S12","status":"PASS"},
+    {"id":"OPA-S13","status":"PASS"},
+    {"id":"OPA-S14","status":"PASS"},
+    {"id":"OPA-S15","status":"PASS"}
+  ],
+  "boundaries": {
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "open_blocker_ref": "blocker:opa-stage5-transaction",
+    "next_action_ref": "action:opa-stage5-transaction",
+    "stage_5_executed": false,
+    "pull_request_merged": false,
+    "release_published": false,
+    "operational_adoption_granted": false,
+    "general_availability_claimed": false
+  }
+}

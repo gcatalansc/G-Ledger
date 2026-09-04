@@ -1,0 +1,110 @@
+{
+  "profile": "project-ledger-operational-pilot-requalification/1",
+  "status": "STAGE_3_REQUALIFIED",
+  "recorded_at": "2026-09-04T05:23:10Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "source_tree_dirty": false,
+    "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "github_artifact_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
+    "certified_compatibility": false
+  },
+  "execution": {
+    "proof_class": "LIVE_PILOT_HOSTED",
+    "disposable_root": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á",
+    "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
+    "database_locator": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á/data/project-ledger/projects/01a06adc-c603-7291-aabe-240d71809978/ledger.db",
+    "documented_human_ceremonies_used": true,
+    "stage_4_executed": false,
+    "merge_performed": false,
+    "release_performed": false,
+    "operational_acceptance_declared": false
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "status": "PREFLIGHT_PASS",
+      "scenario_results": ["OPA-S01:PASS", "OPA-S02:PASS", "OPA-S03:PASS"],
+      "final_state_version": 15,
+      "final_state_digest": "sha256:633172117be595f21070e9fa48b37322c255785c5db6a50b93d027fa0dfec512",
+      "evidence_sha256": "sha256:4fbe4fcbfb03ef8d413e8e5fbd2b5207969c9cab4e755ecc3adfbed9f072e7ac"
+    },
+    {
+      "stage": 2,
+      "status": "GOVERNED_MODEL_PASS",
+      "scenario_results": ["OPA-S04:PASS", "OPA-S05:PASS", "OPA-S06:PASS", "OPA-S07:PASS"],
+      "final_state_version": 21,
+      "final_state_digest": "sha256:4fe7fb6bd88b6b3c742fdf6368ca9082bca947ceb92931219ba2358db1f1d758",
+      "read_only_query_state_delta": 0,
+      "evidence_sha256": "sha256:ed9d6de5c68221a6a29f3df5b00fd1fd0c086ee39f849c175293d03f8f79722b"
+    },
+    {
+      "stage": 3,
+      "status": "HIGH_LEVEL_CONTINUITY_PASS",
+      "scenario_results": ["OPA-S08:PASS", "OPA-S09:PASS", "OPA-S10:PASS"],
+      "initial_state_version": 21,
+      "final_state_version": 45,
+      "final_state_digest": "sha256:0772e8fb5304647c51e65e6e55e4168f5bc91c7cb54c0c0b8f6ae2effc337445",
+      "checkpoint_ref": "checkpoint:843caa1c-1721-7d35-abe7-1590596b1824",
+      "checkpoint_freshness": "CURRENT",
+      "session_closed": true,
+      "risk_ref": "risk:opa-stage3-continuity",
+      "risk_final_status": "CLOSED",
+      "risk_mitigation_preserved": true,
+      "open_risk_count": 0,
+      "evidence_sha256": "sha256:13c0072ec34771eb9de7f4eaca54fdf9b62f337032d33175bd91484c8865c9dc"
+    }
+  ],
+  "independent_reconciliation": {
+    "commands": ["status", "doctor", "verify", "audit", "resume:json", "resume:codex", "status"],
+    "read_only": true,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "state_version": 45,
+    "state_digest": "sha256:0772e8fb5304647c51e65e6e55e4168f5bc91c7cb54c0c0b8f6ae2effc337445",
+    "checkpoint_freshness": "CURRENT",
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "verified_gate_count": 0,
+    "pending_gate_count": 9,
+    "open_risk_refs": [],
+    "open_blocker_refs": ["blocker:opa-stage4-recordsink"],
+    "critical_unknown_refs": ["unknown:opa-stage4-provider-policy"],
+    "preferred_next_action_ref": "action:opa-stage4-evidence",
+    "doctor_integrity": "ok",
+    "doctor_finding_count": 0,
+    "verify_integrity": "ok",
+    "verify_finding_count": 1,
+    "audit_integrity": "ok",
+    "audit_finding_count": 1,
+    "finding_codes": ["CriticalUnknownOpen"],
+    "finding_interpretation": "Expected fail-closed Stage 4 precondition; it is neither a Stage 3 defect nor a completed Stage 4 result."
+  },
+  "environmental_observation": {
+    "classification": "NON_NORMATIVE_SETUP_PATH_LIMIT",
+    "status": "EXCLUDED_FROM_STAGE_RESULT",
+    "summary": "A discarded first destination made ledger.db 257 characters and WAL/SHM sidecars 261 characters; SQLite failed before Ledger initialization with exit 11.",
+    "normative_requirement": "Fresh destination with spaces and non-ASCII characters; no path length greater than the legacy Win32 limit is required.",
+    "successful_destination_database_path_length": 218,
+    "successful_destination_wal_path_length": 222,
+    "zero_byte_database_file_created": true,
+    "ledger_initialized_in_failed_attempt": false,
+    "failed_attempt_reused": false
+  },
+  "defect": {
+    "id": "OPA-DEFECT-004",
+    "status": "FIXED_AND_REQUALIFIED",
+    "reproduction": "risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume",
+    "observed_fix": "The public CLI accepted CLOSE_RISK; timeline preserved RISK_MITIGATED and RISK_CLOSED; status and resume contain no open risk reference."
+  },
+  "boundary": {
+    "stage_4_authorized": false,
+    "remaining_requalification_stages": [4, 5, 6, 7, 8],
+    "historical_owner_decision_transferred": false,
+    "next_human_gate": "Explicit authorization for Stage 4/8 on this disposable project and exact hosted ZIP."
+  }
+}

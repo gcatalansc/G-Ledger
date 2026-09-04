@@ -1,0 +1,162 @@
+{
+  "profile": "project-ledger-operational-pilot-stage-closure/1",
+  "stage": 6,
+  "status": "PASS",
+  "proof_class": "LIVE_PILOT_HOSTED",
+  "observed_at": "2026-09-04T00:47:50Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "hosted_run_id": 33813281940,
+    "hosted_artifact_id": 9916188037,
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+    "certified_compatibility": false
+  },
+  "harness": {
+    "runner": "scripts/run-operational-pilot.ps1",
+    "runner_sha256": "dd6248669823752e591bc9b9f3689da25ff9e26b3440502590b81d7759550194",
+    "test": "scripts/tests/OperationalPilotRunner.Tests.ps1",
+    "test_sha256": "28993ba54b767f8705dca656d9a4ab5da8dab42ddd8fa0bb46fc1209ea6f7b77",
+    "red_condition": "PILOT_STAGE_NOT_IMPLEMENTED: stage 6",
+    "green_total": 9,
+    "green_passed": 9,
+    "green_failed": 0,
+    "partial_attempt_reconciled": true,
+    "partial_runtime_preserved": true,
+    "raw_output_versioned": false
+  },
+  "live_manifest": {
+    "locator": "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json",
+    "sha256": "94aff26c539c92e2055d7ef673e964e49e6fd083c0c2ef70649234564dc812eb"
+  },
+  "projection": {
+    "privacy_profile": "SHAREABLE",
+    "initial_render_verified": true,
+    "divergence_exit_code": 15,
+    "divergence_detected": true,
+    "regenerated_matches_authoritative_render": true,
+    "existing_output_exit_code": 2,
+    "existing_output_unchanged": true,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "markdown_is_authority": false
+  },
+  "portable": {
+    "format": "project-ledger-portable-bundle/1",
+    "scope": "AUXILIARY_DISPOSABLE_PROJECT",
+    "project_ref": "project:01a069e2-bd81-73b1-a654-719bb6444e3d",
+    "source_state_version": 2,
+    "export_state_version_delta": 0,
+    "import_disposition": "NEW_PROJECT",
+    "state_version_matches": true,
+    "state_digest_matches": true,
+    "history_head_digest_matches": true,
+    "resume_matches": true,
+    "restores_command_results": false,
+    "restores_execution_reservations": false,
+    "identical_chain_disposition": "IDENTICAL_CHAIN",
+    "identical_chain_state_version_delta": 0,
+    "existing_export_exit_code": 2,
+    "existing_export_unchanged": true,
+    "checksum_corruption_exit_code": 15,
+    "corrupt_destination_created": false,
+    "divergence_exit_code": 15,
+    "divergent_target_unchanged": true
+  },
+  "backup_restore": {
+    "format": "project-ledger-sqlite-backup/1",
+    "source_state_version": 77,
+    "backup_state_version_delta": 0,
+    "restore_state_version_matches": true,
+    "restore_state_digest_matches": true,
+    "restore_head_digest_matches": true,
+    "reconcile_outcome": "RECONCILED",
+    "reconciled_status": "ACCEPTED",
+    "replay_status": "DUPLICATE_REPLAY",
+    "replay_state_version_delta": 0,
+    "existing_backup_exit_code": 2,
+    "existing_backup_unchanged": true,
+    "existing_restore_exit_code": 2,
+    "existing_restore_unchanged": true,
+    "checksum_corruption_exit_code": 15,
+    "corrupt_destination_created": false
+  },
+  "privacy": {
+    "canary_count": 2,
+    "evidence_execution_exit_code": 3,
+    "evidence_record_status": "ACCEPTED",
+    "raw_output_stored": false,
+    "surfaces_checked": [
+      "resume-json",
+      "render-shareable-post-canary",
+      "portable-export-clean-roundtrip",
+      "portable-export-post-canary-fail-closed",
+      "sanitized-stage-report"
+    ],
+    "canary_match_count": 0,
+    "post_canary_render_verified": true,
+    "portable_export_exit_code": 13,
+    "portable_export_rejected": true,
+    "portable_destination_created": false,
+    "universal_byte_absence_claimed": false
+  },
+  "recovery_of_interrupted_attempt": {
+    "failure_class": "HARNESS_PATH_LENGTH",
+    "product_defect": false,
+    "accepted_progress_reconciled": true,
+    "blind_resubmission_performed": false,
+    "history_rewritten": false,
+    "failed_runtime_preserved": true,
+    "recovery_test_added": true
+  },
+  "human_actions": {
+    "actor_id": "human:owner",
+    "as_human_use_count": 3,
+    "actions": [
+      "RESOLVE_STAGE_6_BLOCKER",
+      "SET_STAGE_7_AS_ELIGIBLE_FOR_AUTHORIZATION",
+      "OPEN_STAGE_7_AUTHORIZATION_BLOCKER"
+    ],
+    "scope": "Stage 6 closure boundary only; no Stage 7 execution authority"
+  },
+  "reconciliation": {
+    "state_version": 85,
+    "state_digest": "sha256:a48d21a8d594bba4ebe9fa00b298c156726599a2359f46faa324d0bb0c7c9652",
+    "head_digest": "sha256:1e6854daebda895e97e2c6138a69d6cfa7061c04bc31aeeafdecba7b65c76342",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_finding_count": 0,
+    "unresolved_submission_count": 0,
+    "checkpoint_ref": "checkpoint:624442ea-7360-77df-9f92-ddc4e73fde32",
+    "checkpoint_freshness": "CURRENT"
+  },
+  "scenarios": [
+    {"id": "OPA-S22", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"},
+    {"id": "OPA-S23", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"},
+    {"id": "OPA-S24", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"},
+    {"id": "OPA-S25", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"},
+    {"id": "OPA-S26", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"},
+    {"id": "OPA-S27", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED"}
+  ],
+  "boundary": {
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "verified_required_gate_refs": ["gate:opa-04"],
+    "pending_required_gate_count": 7,
+    "open_blocker_ref": "blocker:opa-stage7-integrations",
+    "next_action_ref": "action:opa-stage-07-integrations",
+    "stage_7_executed": false,
+    "merge_performed": false,
+    "release_performed": false,
+    "operational_acceptance_declared": false
+  },
+  "limitations": [
+    "The portable roundtrip uses an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
+    "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
+    "No external counterpart, Stage 7, merge, release, General Availability, or operational acceptance is claimed"
+  ]
+}

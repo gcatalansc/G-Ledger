@@ -4,8 +4,14 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ## [Unreleased]
 
+## [0.2.0-rc.1] - 2026-09-04
+
 ### Added
 
+- Centro documental único con inicio rápido, tutorial ejecutado, guía de usuario, mapa de aseguramiento, procedencia de fuente/build y notas de release.
+- Entrega Windows autocontenida con `START_HERE.md`, documentación completa, evidencia de aceptación, SBOM SPDX 2.3, checksums internos y manifiesto de contenido.
+- Verificación fail-closed de estructura documental, enlaces locales, clasificación de release, contenido del ZIP, exclusiones privadas y checksums de cada archivo.
+- Publicación como prerelease operativo: `OPERATIONALLY_ACCEPTED`, `ENGINEERING_RELEASE_CANDIDATE`, no GA y `certified_compatibility=false`.
 - Baseline documental v0.2.0 y preservación verificable de v0.1.0.
 - Plan de implementación de la primera fase contractual S0 + S1.
 - Esqueleto del workspace Rust, CI y políticas del repositorio.

@@ -367,6 +367,66 @@ fn normative_families_persist_and_replay_through_the_binary() {
 }
 
 #[test]
+fn risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume() {
+    let p = Project::new();
+    let opened = value(
+        &p.write(
+            &["risk", "open"],
+            json!({"risk":record("risk",json!({"status":"OPEN"}))}),
+            1,
+            "risk:open",
+        ),
+        0,
+    );
+    assert_eq!(opened["new_state_version"], 2);
+    let mitigated = value(
+        &p.write(
+            &["risk", "mitigate"],
+            json!({"risk_ref":"risk:01","note":"control applied","evidence_refs":[]}),
+            2,
+            "risk:mitigate",
+        ),
+        0,
+    );
+    assert_eq!(mitigated["new_state_version"], 3);
+    assert_eq!(
+        value(&p.run(&["status"]), 0)["open_risk_refs"],
+        json!(["risk:01"])
+    );
+
+    let close = [
+        "risk",
+        "close",
+        "risk:01",
+        "--note",
+        "risk retired after verified mitigation",
+        "--expected-version",
+        "3",
+        "--idempotency-key",
+        "risk:close",
+        "--actor-id",
+        "human:owner",
+        "--as-human",
+        "--observed-at",
+        "2026-09-03T23:55:00-04:00",
+    ];
+    let closed = value(&p.run(&close), 0);
+    assert_eq!(closed["new_state_version"], 4);
+    assert_eq!(value(&p.run(&close), 0)["status"], "DUPLICATE_REPLAY");
+    assert_eq!(value(&p.run(&["status"]), 0)["open_risk_refs"], json!([]));
+
+    let resume = Command::cargo_bin("project-ledger")
+        .unwrap()
+        .args(["resume", "--database"])
+        .arg(&p.database)
+        .args(["--project-ref", &p.id, "--format", "json"])
+        .output()
+        .unwrap();
+    assert_eq!(value(&resume, 0)["open_risk_refs"], json!([]));
+    assert_eq!(value(&p.run(&["audit"]), 0)["findings"], json!([]));
+}
+
+#[test]
 fn ergonomic_note_and_progress_preserve_payload_and_actor() {
     let p = Project::new();
     let common = [
@@ -938,6 +998,37 @@ fn repository_binding_and_authority_refresh_never_execute_locator_content() {
     }
     assert_eq!(fs::read(&spec).unwrap(), b"Canonical disposable spec");
     assert_eq!(fs::read_dir(&root).unwrap().count(), 1);
+}
+
+#[test]
+fn inline_signed_records_normalize_rfc3339_before_digesting() {
+    let p = Project::new();
+    let root = p.temporary.path().join("canonical timestamp repo");
+    fs::create_dir(&root).unwrap();
+
+    let output = p.run(&[
+        "repository",
+        "bind",
+        "--record-id",
+        "binding:canonical-timestamp",
+        "--root",
+        root.to_str().unwrap(),
+        "--remote",
+        "https://example.invalid/declared.git",
+        "--as-human",
+        "--actor-id",
+        "human:owner",
+        "--observed-at",
+        "2026-09-02T19:38:54.0820837+00:00",
+        "--expected-version",
+        "1",
+        "--idempotency-key",
+        "test:canonical-timestamp",
+    ]);
+
+    let result = value(&output, 0);
+    assert_eq!(result["status"], "ACCEPTED");
+    assert_eq!(result["new_state_version"], 2);
 }
 
 #[test]

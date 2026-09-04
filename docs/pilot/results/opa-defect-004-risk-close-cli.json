@@ -1,0 +1,70 @@
+{
+  "profile": "project-ledger-operational-pilot-defect/1",
+  "defect_id": "OPA-DEFECT-004",
+  "status": "FIXED_HOSTED_CANDIDATE_QUALIFIED_STAGE_3_PENDING_AUTHORITY",
+  "recorded_at": "2026-09-04T00:21:12-04:00",
+  "affected_stage": 3,
+  "severity": "CRITICAL",
+  "scope": {
+    "product_under_test": "G_LEDGER",
+    "contract_version": "0.2.0",
+    "contract_change_required": false,
+    "external_product_validation": false
+  },
+  "finding": {
+    "expected": "The public risk CLI family can invoke the normative CLOSE_RISK command after mitigation, preserve history, and remove the closed risk from open_risk_refs.",
+    "observed": "The domain accepted CLOSE_RISK, but the public CLI rejected risk close as an unrecognized subcommand with exit 2.",
+    "root_cause": "RiskCommand and the ergonomic payload builder omitted CLOSE_RISK even though the v0.2 domain command, event, lifecycle handler, and projection already existed.",
+    "unexpected_ledger_mutation": false
+  },
+  "tdd": {
+    "regression_test": "risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume",
+    "red": "FAIL: error: unrecognized subcommand 'close'; expected exit 0, observed exit 2",
+    "green": "PASS: close accepted, identical replay returned DUPLICATE_REPLAY, status and resume returned zero open_risk_refs, audit returned zero findings"
+  },
+  "fix": {
+    "product_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "pilot_qualifier_commit": "3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe",
+    "ci_qualifier_commit": "97507a39cb70e0f6bc044123a9d7cefcf64ab412",
+    "behavior": "Stage 3 now executes OPEN_RISK, MITIGATE_RISK, and CLOSE_RISK; its rendered timeline must preserve RISK_MITIGATED and RISK_CLOSED while resume must omit the closed risk.",
+    "public_api_added": false,
+    "contract_modified": false
+  },
+  "local_candidate": {
+    "source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "zip_sha256": "ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc",
+    "source_tree_dirty": false,
+    "package_verification": "PASS",
+    "external_harnesses": "2 passed, 0 failed"
+  },
+  "verification": [
+    {"command":"cargo test -p project-ledger-cli --test operations risk_close_is_public_idempotent_and_removes_a_mitigated_risk_from_resume -- --exact --nocapture","status":"PASS","result":"1 passed, 0 failed"},
+    {"command":"cargo test -p project-ledger-cli --test operations","status":"PASS","result":"22 passed, 0 failed, 1 ignored"},
+    {"command":"Invoke-Pester scripts/tests/OperationalPilotRunner.Tests.ps1","status":"PASS","result":"11 passed, 0 failed against local exact-SHA 138eabe package"},
+    {"command":"cargo fmt --all -- --check","status":"PASS"},
+    {"command":"cargo clippy --workspace --all-targets --all-features -- -D warnings","status":"PASS"},
+    {"command":"cargo test --workspace --all-targets --all-features","status":"PASS"},
+    {"command":"cargo xtask schema check","status":"PASS"},
+    {"command":"cargo run -p project-ledger-cli -- specs verify","status":"PASS","result":"v0.1.0 and v0.2.0 MATCH"},
+    {"command":"cargo run -p project-ledger-cli -- contracts verify","status":"PASS","result":"46 schemas, 92 fixtures, 53 matrix rows"},
+    {"command":"cargo build --locked --release -p project-ledger-cli","status":"PASS"},
+    {"command":"cargo xtask release check","status":"PASS","result":"90 AC, 32 PL, 0 secrets, 0 explicit waivers"},
+    {"command":"cargo run -p project-ledger-cli -- release verify","status":"PASS","result":"0 blocked, 0 missing evidence, 0 waivers; certified compatibility remains false"},
+    {"command":"cargo deny check","status":"PASS","result":"advisories, bans, licenses and sources ok; non-blocking duplicate-version warnings only"}
+  ],
+  "governance": {
+    "invalidated_hosted_zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "current_pilot_status": "BLOCKED_ON_FRESH_STAGE_1_2_BOOTSTRAP_AUTHORITY",
+    "credited_stages": [1, 2],
+    "required_rerun_stages": [3, 4, 5, 6, 7, 8],
+    "hosted_exact_sha_verified": true,
+    "hosted_workflow_run_id": 33838359314,
+    "hosted_artifact_id": 9924403634,
+    "hosted_product_zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "stage_3_execution_performed": false,
+    "stage_3_ledger_mutation_count": 0,
+    "previous_owner_decision_transferred": false,
+    "merge_authorized": false,
+    "release_authorized": false
+  }
+}

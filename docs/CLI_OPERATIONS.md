@@ -1,6 +1,6 @@
 # Operación local de la CLI
 
-Estado de preparación: consultar `release/prepilot-readiness.json`. La disponibilidad de estos comandos no certifica todavía procesos supervisados, recuperación, GSP completo ni el ZIP Windows.
+Estado vigente: G-Ledger 0.2.0 está `OPERATIONALLY_ACCEPTED` para uso operativo controlado y se distribuye como `ENGINEERING_RELEASE_CANDIDATE`. La disponibilidad de un comando no certifica una integración externa, no promueve General Availability y mantiene `certified_compatibility=false`.
 
 ## Selección e identidad
 

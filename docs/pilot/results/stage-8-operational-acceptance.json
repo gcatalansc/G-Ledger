@@ -1,0 +1,109 @@
+{
+  "profile": "project-ledger-operational-pilot-stage/1",
+  "stage": 8,
+  "status": "OPERATIONALLY_ACCEPTED",
+  "proof_class": "LIVE_PILOT_HUMAN_DECISION",
+  "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+  "subject": {
+    "product_under_test": "G_LEDGER",
+    "product_version": "0.2.0",
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "certified_compatibility": false
+  },
+  "scope": {
+    "gskills_product_validated": false,
+    "gskills_role": "LOCAL_DEVELOPMENT_COUNTERPART_USED_ONLY_TO_TEST_G_LEDGER_INTEGRATION_BOUNDARIES",
+    "project_radar": "EXCLUDED_BY_SCOPE",
+    "general_availability": false,
+    "universal_certification": false
+  },
+  "owner_decision": {
+    "decision_ref": "decision:opa-operational-acceptance-v1",
+    "actor_id": "human:owner",
+    "value": "OPERATIONALLY_ACCEPTED",
+    "ledger_status": "ACCEPTED",
+    "authority_ref": "authority:opa-spec",
+    "accepted_at": "2026-09-04T03:31:48Z"
+  },
+  "reconciled_inputs": {
+    "predecision_evidence_digest": "sha256:7fadafa132b15092f6acaab5a0bcb58cb7ffad7db2c7527f9fceb024d20db86f",
+    "report_digest": "sha256:fc637bbf011ddb9ab143a76842fa4bd7fd125fe758eac6a28d2f571bdc353a78",
+    "matrix_digest": "sha256:d8941864f74ad31450b790e199dd396b99b5eeebdb786851236f1ef457467617",
+    "prior_stage_pass_count": 7,
+    "prior_scenario_pass_count": 30,
+    "excluded_scenario_count": 1,
+    "fixed_and_requalified_defect_count": 3,
+    "open_defect_count": 0,
+    "critical_waiver_count": 0
+  },
+  "evidence": {
+    "local_protocol_profile": "gskills-context-provider/0.3.0",
+    "validates_gledger_only": true,
+    "sink_policy_digest": "sha256:080e6ca8a059f5dbdf658edf939c69bab1487b5c88d999f14dbef08f541f20a3",
+    "gate_receipts": [
+      {"stage":1,"gate_ref":"gate:opa-01","evidence_ref":"evidence:opa-stage8-stage-01-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:c00b27eb32839808196ad3c690c643a91ea8f9dc3225784525f2c2d8988428ca"},
+      {"stage":2,"gate_ref":"gate:opa-02","evidence_ref":"evidence:opa-stage8-stage-02-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:4bfe481724a5f5fac53e6b2e812d8605c3398769288491668e2c255ea5f80235"},
+      {"stage":3,"gate_ref":"gate:opa-03","evidence_ref":"evidence:opa-stage8-stage-03-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:c3967123b66dd2068c5e87e5f121014300e4af397a1b89334b82c61d49216641"},
+      {"stage":5,"gate_ref":"gate:opa-05","evidence_ref":"evidence:opa-stage8-stage-05-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:7d4b4103d73cd3cbd522e8b868ebedc7022217e1aa6652f62b8fb0d6d73de1cc"},
+      {"stage":6,"gate_ref":"gate:opa-06","evidence_ref":"evidence:opa-stage8-stage-06-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:94aff26c539c92e2055d7ef673e964e49e6fd083c0c2ef70649234564dc812eb"},
+      {"stage":7,"gate_ref":"gate:opa-07","evidence_ref":"evidence:opa-stage8-stage-07-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:d19803f3ffd41755217bd29303c2187f06a106632f8dadd015247cbd62c2e9c7"},
+      {"stage":8,"gate_ref":"gate:opa-08","evidence_ref":"evidence:opa-stage8-stage-08-verified-source","evidence_status":"VERIFIED_SOURCE","submit_status":"ACCEPTED","replay_status":"DUPLICATE_REPLAY","durable_effect_count":1,"replay_effect_count":0,"artifact_digest":"sha256:7fadafa132b15092f6acaab5a0bcb58cb7ffad7db2c7527f9fceb024d20db86f"}
+    ]
+  },
+  "gates": {
+    "verified_required_gate_count": 8,
+    "verified_required_gate_refs": ["gate:opa-01", "gate:opa-02", "gate:opa-03", "gate:opa-04", "gate:opa-05", "gate:opa-06", "gate:opa-07", "gate:opa-08"],
+    "pending_required_gate_count": 0,
+    "waived_required_gate_count": 0,
+    "optional_exercise_gate_status": "WAIVED"
+  },
+  "lifecycle": {
+    "phase_ref": "phase:operational-acceptance",
+    "phase_status": "COMPLETED",
+    "project_status": "COMPLETED",
+    "open_blocker_count": 0,
+    "mitigated_open_risk_refs": ["risk:opa-stage3-continuity"],
+    "next_action_ref": "action:opa-first-controlled-project"
+  },
+  "execution": {
+    "initial_state_version": 96,
+    "final_state_version": 134,
+    "state_version_delta": 38,
+    "recorded_mutation_count": 14,
+    "human_command_count": 5,
+    "agent_command_count": 9,
+    "blind_retry_count": 0,
+    "required_gate_evidence_effect_count": 7,
+    "required_gate_evidence_replay_effect_count": 0
+  },
+  "integrity": {
+    "state_version": 134,
+    "state_digest": "sha256:bf493e895aef07482f05513e5da89cdd3acaa8001c3971103bb7110ab835e882",
+    "checkpoint_ref": "checkpoint:69e46f7b-15dc-7ca3-b89a-bc3a259ca901",
+    "checkpoint_freshness": "CURRENT",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "doctor_finding_count": 0,
+    "verify_finding_count": 0,
+    "audit_finding_count": 0
+  },
+  "scenarios": {
+    "OPA-S32": "PASS"
+  },
+  "boundary": {
+    "operational_use": "CONTROLLED",
+    "merge_performed": false,
+    "release_performed": false,
+    "general_availability_declared": false,
+    "gskills_operational_acceptance_declared": false
+  },
+  "residual_limitations": [
+    "G-Skills remains under development and was not validated as a product; its local protocol surface only exercised G-Ledger integration boundaries.",
+    "Project Radar remains EXCLUDED_BY_SCOPE and cannot be inferred as compatible.",
+    "Canary checks cover supported surfaces and do not prove universal byte-level absence.",
+    "risk:opa-stage3-continuity remains visible with its MITIGATED history as a monitored, non-blocking residual risk.",
+    "Operational acceptance is limited to controlled G-Ledger use and does not establish GA, release approval, universal certification, or absence of all defects."
+  ]
+}

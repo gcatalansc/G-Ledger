@@ -1,0 +1,59 @@
+{
+  "profile": "project-ledger-operational-pilot-evidence/1",
+  "recorded_at": "2026-09-02T21:49:28Z",
+  "stage": 1,
+  "status": "FAIL",
+  "scenario": "OPA-S01",
+  "expected": {
+    "source_commit": "bd564cdba07b616337681c15801d22478824108b",
+    "source_tree": "6901619cc43d3c91f0255e5d350a9f7bcbb7a26c"
+  },
+  "publication": {
+    "repository_visibility": "PRIVATE",
+    "branch": "codex/g-ledger-opa-candidate-bd564cd",
+    "branch_head": "bd564cdba07b616337681c15801d22478824108b",
+    "pull_request": "https://github.com/gcatalansc/G-Ledger/pull/1",
+    "pull_request_state": "OPEN_DRAFT"
+  },
+  "ci": {
+    "run_id": 33685095968,
+    "url": "https://github.com/gcatalansc/G-Ledger/actions/runs/33685095968",
+    "event": "pull_request",
+    "head_sha": "bd564cdba07b616337681c15801d22478824108b",
+    "conclusion": "success",
+    "jobs": [
+      {"id": 100430543317, "name": "dependency-policy", "conclusion": "success"},
+      {"id": 100430543398, "name": "test-windows-latest", "conclusion": "success"},
+      {"id": 100430543433, "name": "physical-disk-full-chaos", "conclusion": "success"},
+      {"id": 100430543464, "name": "test-macos-latest", "conclusion": "success"},
+      {"id": 100430543470, "name": "live-gsp-sidecar-chaos", "conclusion": "success"},
+      {"id": 100430543503, "name": "test-ubuntu-latest", "conclusion": "success"}
+    ]
+  },
+  "hosted_artifact": {
+    "id": 9868478955,
+    "name": "project-ledger-windows-0e4b013d348af5908011e8f834c187a2aadb333b",
+    "expired_when_observed": false,
+    "artifact_archive_digest": "sha256:46206514d6fb3338e9d289f458012a8a12bc0ba4689fc66bc9f6e67576f813aa",
+    "delivery_zip_sha256": "48efb4cb889333d160950a9a46ac7cd6b4ab601353b3b732936bf8b1c0e71748",
+    "manifest_source_commit": "0e4b013d348af5908011e8f834c187a2aadb333b",
+    "manifest_source_tree": "6901619cc43d3c91f0255e5d350a9f7bcbb7a26c",
+    "source_tree_dirty": false,
+    "certified_compatibility": false
+  },
+  "local_reverification": {
+    "package_verification_status": "PASS",
+    "harnesses_passed": 2,
+    "harnesses_failed": 0,
+    "isolated_runtime": true,
+    "tamper_rejection": true
+  },
+  "finding": {
+    "id": "OPA-DEFECT-002",
+    "summary": "The pull-request workflow packaged GitHub's synthetic merge commit instead of recording the authorized candidate head as source_commit",
+    "interpretation": "The source trees are identical, but OPA-S01 requires the source commit itself to match; tree equivalence does not satisfy or waive exact identity.",
+    "mutation_observed": false,
+    "contract_change_required": false,
+    "required_recovery": "Produce a hosted run that checks out and packages the explicit candidate head SHA, then download and requalify its new ZIP before rerunning Stage 1."
+  }
+}

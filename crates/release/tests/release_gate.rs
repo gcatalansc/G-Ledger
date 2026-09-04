@@ -184,6 +184,34 @@ fn ac_090_compatibility_report_never_overclaims_pending_certification() {
 }
 
 #[test]
+fn official_windows_delivery_cannot_omit_its_human_entrypoint_or_bounded_status() {
+    for field in [
+        "documentation_entrypoint",
+        "operational_acceptance",
+        "release_status",
+        "certified_compatibility",
+        "contents",
+    ] {
+        let directory = chaos_fixture();
+        let path = directory.path().join("release/package-manifest.json");
+        let mut package: serde_json::Value =
+            serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        package["windows_distribution"]
+            .as_object_mut()
+            .unwrap()
+            .remove(field);
+        write_pretty_json(&path, &package);
+        lock_artifact_digest(directory.path(), "release/package-manifest.json");
+
+        let result = verify_release(directory.path());
+        assert!(
+            matches!(&result, Err(ReleaseError::Invalid { message }) if message.contains("official Windows delivery")),
+            "missing {field} was accepted: {result:?}"
+        );
+    }
+}
+
+#[test]
 fn release_gate_rejects_one_byte_drift_before_accepting_report_semantics() {
     let directory = tempdir().unwrap();
     copy_tree(
@@ -274,9 +302,13 @@ fn copy_file_into_fixture(root: &Path, relative: &str) {
 }
 
 fn lock_chaos_digest(root: &Path) {
-    let chaos = fs::read(root.join("release/chaos-report.json")).unwrap();
+    lock_artifact_digest(root, "release/chaos-report.json");
+}
+
+fn lock_artifact_digest(root: &Path, relative_path: &str) {
+    let artifact = fs::read(root.join(relative_path)).unwrap();
     let digest =
-        Sha256::digest(chaos)
+        Sha256::digest(artifact)
             .iter()
             .fold(String::with_capacity(64), |mut output, byte| {
                 write!(output, "{byte:02x}").unwrap();
@@ -289,7 +321,7 @@ fn lock_chaos_digest(root: &Path) {
         .as_array_mut()
         .unwrap()
         .iter_mut()
-        .find(|entry| entry["path"] == "release/chaos-report.json")
+        .find(|entry| entry["path"] == relative_path)
         .unwrap();
     entry["sha256"] = serde_json::Value::String(digest);
     write_pretty_json(&path, &manifest);
