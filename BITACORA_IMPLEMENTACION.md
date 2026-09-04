@@ -2372,3 +2372,15 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Evidencia sanitizada: `docs/pilot/results/stage-3-risk-close-hosted-qualification.json`.
 
 **Siguiente paso:** solicitar autorización explícita para ejecutar Stage 1 y Stage 2 sólo como bootstrap fresco del candidato alojado `7160d31d…0162`, con sus usos documentados de `--as-human`, y ejecutar luego Stage 3/8. No autoriza Stage 4, merge, release ni aceptación operativa.
+
+## 2026-09-04 — OPA-DEFECT-004 recalificado en Stage 3, 3/8
+
+- Alcance autorizado: Stage 1 y Stage 2 únicamente como bootstrap fresco, seguidos de Stage 3, incluidos los usos documentados de `--as-human`. No se ejecutó Stage 4 ni se realizó merge, release o nueva aceptación operativa.
+- Sujeto: ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`, fuente `138eabe715d209da5f527340a34492bff3f6fd1a`, árbol limpio y `certified_compatibility=false`.
+- Entorno descartable: `.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/`, separado del código versionado. El proyecto fresco es `project:01a06adc-c603-7291-aabe-240d71809978`. Stage 1 terminó `PREFLIGHT_PASS` v15/digest `sha256:633172117be595f21070e9fa48b37322c255785c5db6a50b93d027fa0dfec512`; Stage 2 terminó `GOVERNED_MODEL_PASS` v21/digest `sha256:4fe7fb6bd88b6b3c742fdf6368ca9082bca947ceb92931219ba2358db1f1d758`.
+- Stage 3 terminó `HIGH_LEVEL_CONTINUITY_PASS` v45/digest `sha256:0772e8fb5304647c51e65e6e55e4168f5bc91c7cb54c0c0b8f6ae2effc337445`. El checkpoint `checkpoint:843caa1c-1721-7d35-abe7-1590596b1824` está `CURRENT`, la sesión está cerrada, el timeline contiene `RISK_MITIGATED` y `RISK_CLOSED`, y tanto `status` como `resume` informan cero riesgos abiertos.
+- Reconciliación read-only: `status`, `doctor`, `verify`, `audit`, `resume` JSON/Codex y `status` final produjeron delta cero. Los tres verificadores informan integridad `ok`; su único finding es `CriticalUnknownOpen` para `unknown:opa-stage4-provider-policy`, esperado mientras Stage 4 permanece pendiente. El proyecto está `BLOCKED`, la fase sigue activa, hay cero fases completadas, cero gates verificados y nueve pendientes contando el gate opcional.
+- Incidencia de preparación: el primer nombre de destino resultó excesivamente largo; `ledger.db` alcanzó 257 caracteres y los sidecars WAL/SHM 261, por lo que SQLite devolvió exit 11 tras crear un archivo de 0 bytes y antes de inicializar el Ledger. Ese intento no se reutilizó ni se contabilizó. El segundo destino mantiene espacios/Unicode y reduce el sidecar a 222 caracteres. Se registra como limitación ambiental Win32 fuera del requisito normativo de Stage 1.
+- Evidencia: `docs/pilot/results/stage-3-risk-close-hosted-requalification.json`; OPA-S01…OPA-S10 están `PASS` y OPA-DEFECT-004 cambia a `FIXED_AND_REQUALIFIED`. Avance oficial: **3/8, 37,5 %, `IN_PROGRESS`**.
+
+**Siguiente paso:** obtener autorización explícita para ejecutar Stage 4/8 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado `7160d31d…0162`. Stage 5, merge, release y aceptación operativa siguen fuera de alcance.
