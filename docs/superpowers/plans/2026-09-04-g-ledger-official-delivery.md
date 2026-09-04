@@ -118,7 +118,7 @@ Expected: the old ZIP fails because it only exposes the binary, license and inte
 
 The verifier must reject missing entrypoint/docs/SBOM/checksums, unlisted files, checksum drift, unsafe paths, databases, VCS metadata, `target`, `dist`, `.tooling`, secrets or a falsely certified compatibility marker.
 
-- [ ] **Step 4: Build and exercise a new package from a clean commit**
+- [x] **Step 4: Build and exercise a new package from a clean commit**
 
 Run: `pwsh -File scripts/build-windows-package.ps1 -Output <new-path>/project-ledger-0.2.0-windows-x86_64.zip -RequireClean`
 
@@ -169,7 +169,7 @@ Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1 -Output Detailed`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add CHANGELOG.md release docs .github/workflows/ci.yml BITACORA_IMPLEMENTACION.md
@@ -185,11 +185,11 @@ git commit -m "docs: prepare operational candidate release"
 - Consumes: final clean candidate commit.
 - Produces: fresh local evidence for formatting, lint, tests, contracts, release, dependency policy and Windows package.
 
-- [ ] **Step 1: Run documentation and package-focused tests**
+- [x] **Step 1: Run documentation and package-focused tests**
 
 Run: `Invoke-Pester scripts/tests/OfficialDelivery.Tests.ps1,scripts/tests/OperationalPilotRunner.Tests.ps1 -Output Detailed`
 
-- [ ] **Step 2: Run the full Rust/spec/release gate**
+- [x] **Step 2: Run the full Rust/spec/release gate**
 
 ```powershell
 cargo fmt --all -- --check
@@ -206,11 +206,11 @@ cargo deny check
 git diff --check
 ```
 
-- [ ] **Step 3: Build and verify the official ZIP from the clean candidate**
+- [x] **Step 3: Build and verify the official ZIP from the clean candidate**
 
 Run the Windows package builder into a new `dist/` destination and retain the reported SHA-256 and verification JSON.
 
-- [ ] **Step 4: Commit only evidence/document corrections, then repeat the full gate**
+- [x] **Step 4: Commit only evidence/document corrections, then repeat the full gate**
 
 No completion statement is permitted until the last full run exits zero on a clean tree.
 
