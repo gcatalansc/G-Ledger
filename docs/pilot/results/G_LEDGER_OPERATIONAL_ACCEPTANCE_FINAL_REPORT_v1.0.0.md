@@ -6,9 +6,9 @@
 |---|---|
 | Fecha de corte | 4 de septiembre de 2026 |
 | Producto evaluado | G-Ledger 0.2.0 |
-| Estado formal | `READY_FOR_OWNER_DECISION` |
-| Avance formal | 7/8 etapas, 87,5 % |
-| Decisión humana vigente | Pendiente |
+| Estado formal | `OPERATIONALLY_ACCEPTED` |
+| Avance formal | 8/8 etapas, 100 % |
+| Decisión humana vigente | Aprobada por `human:owner` |
 | Uso evaluado | Adopción operativa controlada; no General Availability |
 
 ---
@@ -19,9 +19,9 @@ G-Ledger demostró que puede cumplir su propósito principal: actuar como una bi
 
 La recalificación técnica concluyó satisfactoriamente para el binario exacto evaluado. Las siete etapas técnicas están acreditadas, los treinta escenarios ejecutables previos a la decisión final pasaron y los cuatro defectos de producto encontrados durante el piloto fueron corregidos y recalificados. No quedan defectos abiertos, riesgos abiertos, conflictos, incógnitas críticas, dispensas críticas ni hallazgos de integridad.
 
-El resultado todavía **no es `OPERATIONALLY_ACCEPTED`**. La etapa 8 comprende también la decisión soberana del propietario y la transacción gobernada que, si se autoriza, evalúa los gates finales y cierra la fase. Como esa decisión no ha sido emitida, el estado correcto es `READY_FOR_OWNER_DECISION`, con 7/8 etapas y 87,5 %.
+Tras revisar este informe, `human:owner` emitió la aprobación. La decisión se registró como `OPERATIONALLY_ACCEPTED`, quedó ligada al ZIP exacto evaluado y habilitó la transacción gobernada final. Gate Engine verificó los ocho gates requeridos y Phase Engine completó la fase y el proyecto.
 
-**Recomendación técnica:** aprobar G-Ledger para uso operativo controlado, sujeto a los límites y exclusiones indicados en este informe. Esta recomendación no sustituye la decisión de `human:owner`.
+**Dictamen final:** G-Ledger queda aceptado para uso operativo controlado, sujeto a los límites y exclusiones indicados en este informe. Esta aceptación no autoriza General Availability, merge ni release.
 
 ## 2. Qué se evaluó exactamente
 
@@ -70,13 +70,13 @@ El binario se ejecutó desde una carpeta descartable separada del código fuente
 | 5 | Seguridad transaccional | `PASS` | Replay, conflictos, versión obsoleta, autoridad insuficiente y resultado incierto fallaron o reconciliaron correctamente. |
 | 6 | Proyecciones y recuperación | `PASS` | Markdown, portabilidad, backup/restore, corrupción y privacidad se comportaron de forma fail-closed. |
 | 7 | Handoff e integraciones | `PASS` | Un agente ciego reconstruyó continuidad; provider, RecordSink y GSP mantuvieron límites y deltas esperados. |
-| 8 | Conciliación y decisión | `AWAITING_OWNER_DECISION` | La conciliación técnica pasó sin mutaciones; falta la decisión humana separada. |
+| 8 | Conciliación y decisión | `PASS` | La decisión humana fue aceptada, los gates se verificaron y la fase se cerró mediante los motores autorizados. |
 
 ### Escenarios
 
 - OPA-S01 a OPA-S30: `PASS`.
 - OPA-S31, Project Radar: `EXCLUDED_BY_SCOPE`; no se presenta como aprobado.
-- OPA-S32, decisión de adopción: `AWAITING_OWNER_DECISION`.
+- OPA-S32, decisión de adopción: `PASS` con evidencia `LIVE_PILOT_HUMAN_DECISION`.
 
 ## 5. Estado de integridad y gobierno
 
@@ -84,33 +84,34 @@ La conciliación final fue completamente de lectura y conservó el estado exacto
 
 | Control | Resultado |
 |---|---|
-| Versión antes/después | 97 → 97 |
-| Digest de estado | `sha256:044fa21419743f9b81305b734192304c47733467a30cc33b516176f7219eb350` |
-| Digest del último evento | `sha256:71b74a1d305dc7aa725c5662ca1b38b8a4d38aaf3fd0c501218860576e500769` |
-| Checkpoint | `checkpoint:c85fb171-02ec-76d4-9990-366c3ac6f21d` |
+| Versión antes/después de la decisión | 97 → 135 |
+| Digest de estado final | `sha256:3ecb9ec015c64b0256a18959a35c11d050e0067be865548eb9b55e56da457022` |
+| Digest del último evento | `sha256:a0f76396b258546f2d91ccd6373ed6a5ec5136ffec48f7e086af2a68c2b1431f` |
+| Checkpoint | `checkpoint:606c14cc-8f7c-709e-9ced-ff6bc0152434` |
 | Frescura del checkpoint | `CURRENT` |
-| Estado del proyecto | `BLOCKED` a la espera de decisión humana |
-| Fase | `phase:operational-acceptance`, activa |
-| Fases completadas | 0 |
+| Estado del proyecto | `COMPLETED` |
+| Fase | `phase:operational-acceptance`, `COMPLETED` |
+| Fases completadas | 1 |
 | Riesgos abiertos | 0 |
 | Unknowns críticos | 0 |
 | Conflictos | 0 |
 | Submissions sin resolver | 0 |
 | `doctor` / `verify` / `audit` | `ok`, sin findings |
 
-El blocker vigente es `blocker:opa-stage8-human-decision`. La siguiente acción registrada es `action:opa-next-stage8-decision`.
+No quedan blockers abiertos. La siguiente acción registrada es `action:opa-first-controlled-project`.
 
-## 6. Gates y motivo del 7/8
+## 6. Gates y cierre 8/8
 
-`gate:opa-04` está verificado. Los otros siete gates requeridos permanecen pendientes y ninguno fue dispensado. El único waiver pertenece a un gate opcional creado expresamente para probar esa funcionalidad.
+Los ocho gates requeridos están `VERIFIED`; ninguno fue dispensado. El único waiver pertenece a un gate opcional creado expresamente para probar esa funcionalidad.
 
-Este estado no representa siete fallos técnicos. Es una frontera deliberada: la transacción final sólo puede iniciarse después de una decisión humana explícita. Hasta entonces:
+La secuencia de cierre respetó la frontera de autoridad:
 
-- Stage 8 no está completado;
-- OPA-S32 no puede pasar;
-- la fase no puede cerrarse;
-- el proyecto debe permanecer `BLOCKED`;
-- el máximo estado permitido es `READY_FOR_OWNER_DECISION`.
+- `human:owner` propuso y aceptó la decisión;
+- RecordSink registró evidencia verificada con replay idempotente;
+- el agente solicitó, pero no decidió, la evaluación de gates;
+- Gate Engine verificó los gates;
+- el agente preparó la fase para cierre;
+- `human:owner` confirmó y Phase Engine completó la fase.
 
 ## 7. Defectos encontrados y resolución
 
@@ -123,7 +124,7 @@ El piloto encontró cuatro defectos relevantes. Encontrarlos no invalida el valo
 | OPA-DEFECT-003 | Un checkpoint nuevo podía quedar stale por conservar historia de autoridad supersedida. | Corrección de la evaluación de frescura y repetición desde Stage 3. | `FIXED_AND_REQUALIFIED` |
 | OPA-DEFECT-004 | El contrato soportaba cerrar riesgos, pero el CLI público no exponía `risk close`. | Se añadió la superficie CLI, se probó cierre/replay y se repitieron Stage 1–8. | `FIXED_AND_REQUALIFIED` |
 
-Durante Stage 8 se detectó además una incidencia del **harness**, no del producto: PowerShell strict mode no toleraba que el reporte omitiera la propiedad opcional `owner_decision`. Se corrigió con una prueba de regresión en el commit `0758f7c03a5a7735bd5c3167d6a816601531005b`. El fallo ocurrió antes de leer o mutar el Ledger.
+Durante Stage 8 se detectaron dos incidencias del **harness**, no del producto. PowerShell strict mode no toleraba que el reporte omitiera la propiedad opcional `owner_decision`; se corrigió en `0758f7c03a5a7735bd5c3167d6a816601531005b`. Antes de ejecutar la aprobación también se detectó que el fixture conservaba el hash del candidato histórico; una regresión RED/GREEN obligó a ligarlo al hash exacto suministrado al runner en `5554152bee7e0510c5ef881e11b01ffa1a36c5e2`. Ambas desviaciones se detuvieron antes de mutar el proyecto vigente.
 
 ## 8. Evidencia de calidad
 
@@ -157,26 +158,21 @@ La puerta de repositorio informó 90 criterios de aceptación, 32 límites de pr
 6. Una aceptación operativa no equivaldrá a General Availability, release, certificación universal ni autorización para cualquier integración futura.
 7. El PR privado continúa draft; este piloto no autoriza merge ni release.
 
-## 10. Decisión solicitada al propietario
+## 10. Decisión del propietario
 
-Con la evidencia disponible, el propietario puede adoptar una de estas decisiones:
-
-| Decisión | Significado |
+| Control | Resultado |
 |---|---|
-| `OPERATIONALLY_ACCEPTED` | Autoriza el uso operativo controlado de este sujeto exacto y la transacción final prevista por Stage 8. |
-| `BLOCKED` | Mantiene el piloto abierto e identifica una condición adicional que debe satisfacerse. |
-| `REJECTED` | Determina que el sujeto no debe darse de alta para uso operativo. |
+| Actor | `human:owner` |
+| Decisión | `OPERATIONALLY_ACCEPTED` |
+| Estado del registro | `ACCEPTED` |
+| Autoridad | `authority:opa-spec` |
+| Fecha de aceptación | `2026-09-04T13:42:09Z` |
+| Alcance | Uso operativo controlado de G-Ledger 0.2.0 |
+| ZIP ligado a la decisión | `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162` |
 
 La decisión histórica emitida para un candidato anterior fue preservada como historia, pero quedó invalidada por OPA-DEFECT-004 y no se transfirió a esta recalificación.
 
-### Registro de decisión
-
-| Campo | Valor |
-|---|---|
-| Actor autorizado | `human:owner` |
-| Decisión | Pendiente |
-| Fecha | Pendiente |
-| Observaciones del propietario | Pendiente |
+La aprobación no se transfiere a builds distintos ni amplía por inferencia el alcance hacia G-Skills, Project Radar, GA, merge o release.
 
 ## 11. Documentos de respaldo
 
@@ -184,6 +180,7 @@ La decisión histórica emitida para un candidato anterior fue preservada como h
 - [Matriz de cobertura](../G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md)
 - [Reporte machine-readable](operational-pilot-report.json)
 - [Evidencia sanitizada de Stage 8](stage-8-risk-close-owner-decision-readiness.json)
+- [Acta sanitizada de aceptación](stage-8-risk-close-operational-acceptance.json)
 - [Plan ejecutable](../../superpowers/plans/2026-09-02-g-ledger-operational-acceptance-pilot.md)
 - [Bitácora de implementación](../../../BITACORA_IMPLEMENTACION.md)
 
@@ -191,6 +188,6 @@ La decisión histórica emitida para un candidato anterior fue preservada como h
 
 ## Conclusión
 
-La evidencia técnica respalda que G-Ledger 0.2.0, en el sujeto exacto identificado, está preparado para una decisión favorable de adopción operativa controlada. El sistema demostró su filosofía de bitácora automatizada de alto nivel y mantuvo una separación efectiva entre evidencia, autoridad, proyecciones, integraciones y lifecycle.
+La evidencia técnica y la decisión de `human:owner` establecen que G-Ledger 0.2.0, en el sujeto exacto identificado, está **`OPERATIONALLY_ACCEPTED` para uso operativo controlado**. El sistema demostró su filosofía de bitácora automatizada de alto nivel y mantuvo una separación efectiva entre evidencia, autoridad, proyecciones, integraciones y lifecycle.
 
-El estado seguirá siendo `READY_FOR_OWNER_DECISION`, 7/8 y 87,5 % hasta que `human:owner` emita una decisión nueva y separada. Este informe no prellena ni ejecuta esa decisión.
+El cierre alcanza 8/8 y 100 %. Se conservan `certified_compatibility=false`, las exclusiones y los límites residuales; no hubo merge, release ni declaración de General Availability.

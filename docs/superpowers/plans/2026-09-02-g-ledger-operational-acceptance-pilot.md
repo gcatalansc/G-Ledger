@@ -257,3 +257,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 ### Corrección del entregable para lectura humana
 
 El JSON `operational-pilot-report.json` conserva su función normativa machine-readable, pero no sustituye el informe para el propietario. Se añadió `docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md` como lectura principal, con dictamen ejecutivo, alcance, resultados por etapa, defectos, integridad, gates, límites y espacio de decisión sin prellenar. Esta corrección es exclusivamente documental y no muta el Ledger ni cambia `READY_FOR_OWNER_DECISION`.
+
+## 2026-09-04 — Decisión humana registrada y recalificación cerrada, 8/8
+
+- Autoridad: tras recibir el informe legible, `human:owner` respondió “Apruebo”. La respuesta se interpretó dentro del punto de decisión solicitado como `OPERATIONALLY_ACCEPTED` exclusivamente para el sujeto exacto ya presentado; no amplía alcance a merge, release, GA ni productos externos.
+- Control de identidad previo: antes de mutar el Ledger se detectó que el fixture de decisión conservaba el hash histórico `e2509d48…`. La prueba añadida reprodujo RED contra el hash suministrado al runner; el commit separado `5554152bee7e0510c5ef881e11b01ffa1a36c5e2` eliminó el literal y terminó GREEN 1/1. El proyecto vigente permaneció v97 durante la corrección.
+- Decisión viva: `decision:opa-operational-acceptance-v1` quedó `ACCEPTED` por `human:owner`/`authority:opa-spec` y ligada al ZIP `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`.
+- Gates y lifecycle: siete evidencias adicionales se registraron mediante RecordSink con un efecto durable por submit y replay `DUPLICATE_REPLAY`; Gate Engine dejó los ocho gates requeridos `VERIFIED`, cero pendientes y cero dispensados. Se resolvió el blocker, el agente dejó la fase `READY_TO_CLOSE` y la confirmación humana permitió a Phase Engine completar fase y proyecto.
+- Cierre: v135, digest `sha256:3ecb9ec015c64b0256a18959a35c11d050e0067be865548eb9b55e56da457022`, head `sha256:a0f76396b258546f2d91ccd6373ed6a5ec5136ffec48f7e086af2a68c2b1431f` y checkpoint `checkpoint:606c14cc-8f7c-709e-9ced-ff6bc0152434` `CURRENT`. Cero blockers, riesgos, unknowns críticos, conflictos, submissions sin resolver o findings de `doctor`/`verify`/`audit`.
+- Resultado: OPA-S32 `PASS`, Stage 8 `PASS`, **8/8, 100 %, `OPERATIONALLY_ACCEPTED` para uso operativo controlado**. `certified_compatibility=false`; G-Skills no fue validado, Radar sigue excluido y no hubo merge ni release.
+
+**Siguiente paso:** seleccionar y especificar separadamente el primer proyecto real que utilizará G-Ledger, con carpeta, Ledger, autoridad y gates propios. El piloto queda cerrado y no autoriza por sí mismo esa alta ni una release.
