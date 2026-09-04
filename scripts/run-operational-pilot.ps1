@@ -197,6 +197,8 @@ if ($Stage -eq 8) {
     })
     $decisionStage = @($report.stages | Where-Object { [int]$_.stage -eq 8 })
     $openDefects = @($report.defects | Where-Object { $_.status -ne 'FIXED_AND_REQUALIFIED' })
+    $ownerDecisionProperty = $report.PSObject.Properties['owner_decision']
+    $reportedOwnerDecision = if ($null -eq $ownerDecisionProperty) { $null } else { $ownerDecisionProperty.Value }
     $expectedReportStatus = if ($isDecisionRun) { 'READY_FOR_OWNER_DECISION' } else { 'IN_PROGRESS' }
     $expectedDecisionStatus = if ($isDecisionRun) { 'AWAITING_OWNER_DECISION' } else { 'NOT_RUN' }
     if ($report.profile -ne 'project-ledger-operational-pilot/1' -or
@@ -222,7 +224,7 @@ if ($Stage -eq 8) {
         $decisionScenario[0].status -ne $expectedDecisionStatus -or
         $openDefects.Count -ne 0 -or
         @($report.critical_waivers).Count -ne 0 -or
-        $null -ne $report.owner_decision) {
+        $null -ne $reportedOwnerDecision) {
         throw 'PILOT_STAGE_8_REPORT_NOT_READY'
     }
 

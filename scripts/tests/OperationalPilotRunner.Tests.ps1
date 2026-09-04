@@ -924,7 +924,6 @@ Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage
             scenario_results = @($scenarioResults)
             defects = @()
             critical_waivers = @()
-            owner_decision = $null
             limitations = @('No external certification is claimed')
         }
         $reportPath = Join-Path $resultsDirectory 'operational-pilot-report.json'
@@ -1004,7 +1003,8 @@ Describe 'Operational pilot runner Stage 8 owner-decision readiness' -Tag 'Stage
             'gate:opa-07',
             'gate:opa-08'
         )
-        (Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json).owner_decision | Should Be $null
+        $predecisionReport = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        ($predecisionReport.PSObject.Properties.Name -contains 'owner_decision') | Should Be $false
         $result.stage | Should Be 8
         $result.status | Should Be 'READY_FOR_OWNER_DECISION'
 
