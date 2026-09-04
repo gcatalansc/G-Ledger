@@ -206,3 +206,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Resultado: OPA-S11…OPA-S15 `PASS`; avance **4/8, 50 %, `IN_PROGRESS`**. La evidencia sanitizada está en `docs/pilot/results/stage-4-risk-close-hosted-requalification.json`.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 5/8 sobre el mismo proyecto y ZIP alojado exacto. No iniciar Stage 6, merge, release ni aceptación operativa.
+
+## 2026-09-04 — Recalificación Stage 5 ejecutada y conciliada, 5/8
+
+- Autoridad: se ejecutó únicamente Stage 5 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`. Stage 6, merge, release y aceptación operativa permanecieron fuera de alcance.
+- Idempotencia: el primer `RECORD_PROGRESS` fue `ACCEPTED`; la repetición idéntica devolvió `DUPLICATE_REPLAY`, mismo `command_result_id`, delta cero y digest sin cambio. La misma clave con intención distinta devolvió exit 10/`IDEMPOTENCY_CONFLICT`, también con delta cero.
+- Concurrencia y autoridad: una versión obsoleta devolvió exit 5/`VERSION_CONFLICT`; luego de `resume`, el comando fue replanificado con expected version 68 y clave nueva, y fue aceptado. El intento de registrar autoridad por un agente devolvió exit 9/`POLICY_DENIED`; no se añadió `--as-human` y no hubo mutación.
+- Resultado incierto: la respuesta de un checkpoint se descartó deliberadamente tras un único envío. La reconciliación con actor, tipo, trust domain y clave originales devolvió `RECONCILED`/`ACCEPTED` y delta cero. Una clave inexistente devolvió exit 12/`OUTCOME_UNKNOWN`, sin reenvío ciego.
+- Cierre controlado: v77, digest `sha256:de544dfb9aa6e1a7e79d9bc1b5af0f0e446de53233e8cebc08e540ce60dba3a0`, head `sha256:777eac22e45058b0817dd85953d4feda7bf6829dc4782e2d85ce4b16ecdd07fc` y checkpoint `checkpoint:55d95cec-d39a-748c-b53f-0107d6618c84` `CURRENT`. Proyecto `BLOCKED`, fase activa, cero fases completadas, cero riesgos/unknowns críticos; `doctor`, `verify` y `audit` quedaron `ok`, sin findings ni submissions sin resolver.
+- Resultado: OPA-S16…OPA-S21 `PASS`; avance **5/8, 62,5 %, `IN_PROGRESS`**. Evidencia sanitizada: `docs/pilot/results/stage-5-risk-close-hosted-requalification.json`.
+
+**Siguiente paso:** solicitar autorización humana explícita para Stage 6/8 sobre el mismo proyecto y ZIP alojado exacto. No iniciar Stage 7, merge, release ni aceptación operativa.

@@ -2396,3 +2396,14 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Evidencia sanitizada: `docs/pilot/results/stage-4-risk-close-hosted-requalification.json`. OPA-S11…OPA-S15 pasan y el avance oficial queda **4/8, 50 %, `IN_PROGRESS`**.
 
 **Siguiente paso:** obtener autorización explícita para Stage 5/8 sobre este mismo proyecto y ZIP. Stage 6, merge, release y aceptación operativa permanecen fuera de alcance.
+
+## 2026-09-04 — Stage 5 recalificado: idempotencia, concurrencia y reconciliación, 5/8
+
+- Alcance: ejecución exclusiva de Stage 5 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`; no se ejecutó Stage 6 ni hubo merge, release o aceptación.
+- Replay/conflicto: `RECORD_PROGRESS` avanzó v67→v68; su repetición idéntica devolvió `DUPLICATE_REPLAY`, el mismo `command_result_id` y delta cero. La misma clave con payload distinto devolvió exit 10/`IDEMPOTENCY_CONFLICT`, sin cambio de versión ni digest.
+- Versión/autoridad: expected version obsoleta devolvió exit 5/`VERSION_CONFLICT`, delta cero; `resume` permitió replanificar con versión 68 y clave nueva, aceptada en v69. Un agente intentó registrar autoridad y obtuvo exit 9/`POLICY_DENIED`, sin `--as-human` ni mutación.
+- Resultado incierto: el checkpoint `opa:stage5:checkpoint-outcome` se envió una sola vez y su stdout se descartó. Reconcile con identidad original devolvió `RECONCILED`/`ACCEPTED` y delta cero; no hubo resubmission. Una clave inexistente produjo exit 12/`OUTCOME_UNKNOWN` y tampoco se reintentó.
+- Conciliación: v77/digest `sha256:de544dfb9aa6e1a7e79d9bc1b5af0f0e446de53233e8cebc08e540ce60dba3a0`, head `sha256:777eac22e45058b0817dd85953d4feda7bf6829dc4782e2d85ce4b16ecdd07fc`, checkpoint `checkpoint:55d95cec-d39a-748c-b53f-0107d6618c84` `CURRENT`. Proyecto `BLOCKED` por `blocker:opa-stage6-recovery`, fase activa, cero fases completadas, `gate:opa-04` verificado, siete gates requeridos pendientes, cero riesgos y cero unknowns críticos. `doctor`, `verify` y `audit` informaron `ok`, cero findings y cero submissions sin resolver; la reconciliación read-only mantuvo delta cero.
+- Evidencia sanitizada: `docs/pilot/results/stage-5-risk-close-hosted-requalification.json`. OPA-S16…OPA-S21 pasan y el avance oficial queda **5/8, 62,5 %, `IN_PROGRESS`**.
+
+**Siguiente paso:** obtener autorización explícita para Stage 6/8 sobre este mismo proyecto y ZIP. Stage 7, merge, release y aceptación operativa permanecen fuera de alcance.

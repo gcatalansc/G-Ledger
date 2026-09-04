@@ -1,0 +1,123 @@
+{
+  "profile": "project-ledger-operational-pilot-requalification/1",
+  "status": "STAGE_5_REQUALIFIED",
+  "recorded_at": "2026-09-04T05:46:36Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
+    "source_tree_dirty": false,
+    "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
+    "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "github_artifact_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
+    "certified_compatibility": false
+  },
+  "execution": {
+    "proof_class": "LIVE_PILOT_HOSTED",
+    "disposable_root": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á",
+    "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
+    "initial_state_version": 67,
+    "final_state_version": 77,
+    "final_state_digest": "sha256:de544dfb9aa6e1a7e79d9bc1b5af0f0e446de53233e8cebc08e540ce60dba3a0",
+    "final_head_event_digest": "sha256:777eac22e45058b0817dd85953d4feda7bf6829dc4782e2d85ce4b16ecdd07fc",
+    "stage_manifest_sha256": "sha256:5b4020d05adeaf93b1dfd807d88438a351d72a12e4c881dc8dd5ae31268a6021",
+    "stage_6_executed": false,
+    "merge_performed": false,
+    "release_performed": false,
+    "operational_acceptance_declared": false
+  },
+  "scenarios": {
+    "OPA-S16": "PASS",
+    "OPA-S17": "PASS",
+    "OPA-S18": "PASS",
+    "OPA-S19": "PASS",
+    "OPA-S20": "PASS",
+    "OPA-S21": "PASS"
+  },
+  "idempotency_replay": {
+    "command_type": "RECORD_PROGRESS",
+    "actor_id": "agent:opa-stage5",
+    "trust_domain": "TRUSTED_FOR_RECORDING",
+    "idempotency_key": "opa:stage5:replay",
+    "first_status": "ACCEPTED",
+    "replay_status": "DUPLICATE_REPLAY",
+    "same_command_result_id": true,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true
+  },
+  "idempotency_conflict": {
+    "exit_code": 10,
+    "error_code": "IDEMPOTENCY_CONFLICT",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true
+  },
+  "version_conflict": {
+    "exit_code": 5,
+    "status": "VERSION_CONFLICT",
+    "state_version_delta": 0,
+    "resume_observed": true,
+    "replanned_expected_version": 68,
+    "replanned_status": "ACCEPTED",
+    "original_key_reused": false
+  },
+  "authority_denial": {
+    "exit_code": 9,
+    "status": "POLICY_DENIED",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "as_human_added": false
+  },
+  "uncertain_checkpoint": {
+    "stdout_discarded": true,
+    "command_attempt_count": 1,
+    "idempotency_key": "opa:stage5:checkpoint-outcome",
+    "actor_id": "agent:opa-stage5",
+    "actor_kind": "AGENT",
+    "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+    "trust_domain": "LOCAL_USER",
+    "initial_state_version_delta": 1,
+    "reconcile_outcome": "RECONCILED",
+    "reconciled_status": "ACCEPTED",
+    "reconcile_state_version_delta": 0,
+    "blind_resubmission_performed": false
+  },
+  "missing_result": {
+    "exit_code": 12,
+    "error_code": "OUTCOME_UNKNOWN",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "blind_retry_performed": false
+  },
+  "independent_reconciliation": {
+    "commands": ["status", "doctor", "verify", "audit", "resume:json", "resume:codex", "status"],
+    "read_only": true,
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "state_version": 77,
+    "state_digest": "sha256:de544dfb9aa6e1a7e79d9bc1b5af0f0e446de53233e8cebc08e540ce60dba3a0",
+    "checkpoint_ref": "checkpoint:55d95cec-d39a-748c-b53f-0107d6618c84",
+    "checkpoint_freshness": "CURRENT",
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "verified_gate_refs": ["gate:opa-04"],
+    "pending_required_gate_refs": ["gate:opa-01", "gate:opa-02", "gate:opa-03", "gate:opa-05", "gate:opa-06", "gate:opa-07", "gate:opa-08"],
+    "open_risk_refs": [],
+    "open_blocker_refs": ["blocker:opa-stage6-recovery"],
+    "critical_unknown_refs": [],
+    "preferred_next_action_ref": "action:opa-stage6-recovery",
+    "doctor_integrity": "ok",
+    "doctor_unresolved_submission_count": 0,
+    "verify_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_integrity": "ok",
+    "audit_finding_count": 0,
+    "codex_required_sections_present": true
+  },
+  "boundary": {
+    "stage_6_authorized": false,
+    "remaining_requalification_stages": [6, 7, 8],
+    "historical_owner_decision_transferred": false,
+    "next_human_gate": "Explicit authorization for Stage 6/8 on this disposable project and exact hosted ZIP."
+  }
+}
