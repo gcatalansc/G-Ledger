@@ -62,7 +62,7 @@ function Get-PilotCanonicalDigest {
 
 function Write-PilotJson {
     param([string]$Path, $Value)
-    $json = $Value | ConvertTo-Json -Depth 20
+    $json = ConvertTo-Json -InputObject $Value -Depth 20
     [IO.File]::WriteAllText($Path, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 }
 
@@ -88,6 +88,927 @@ function Get-PilotTextDigest {
     $bytes = [Text.Encoding]::UTF8.GetBytes($Text)
     $hash = [Security.Cryptography.SHA256]::HashData($bytes)
     return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
+}
+
+if ($Stage -eq 6) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $fixtureDirectory = Join-Path $resolvedPilotRoot 'fixtures'
+    $stageOneManifestPath = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+    $stageTwoManifestPath = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+    $stageThreeManifestPath = Join-Path $evidenceDirectory 'stage-3-high-level-continuity.json'
+    $stageFourManifestPath = Join-Path $evidenceDirectory 'stage-4-evidence-lifecycle.json'
+    $stageFiveManifestPath = Join-Path $evidenceDirectory 'stage-5-transactional-safety.json'
+    $stageSixManifestPath = Join-Path $evidenceDirectory 'stage-6-projections-privacy-recovery.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    foreach ($requiredPath in @(
+        $stageOneManifestPath,
+        $stageTwoManifestPath,
+        $stageThreeManifestPath,
+        $stageFourManifestPath,
+        $stageFiveManifestPath,
+        $locatorPath,
+        $ledger,
+        $packageManifestPath
+    )) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_5_EVIDENCE_MISSING: $requiredPath"
+        }
+    }
+    if (Test-Path -LiteralPath $stageSixManifestPath) {
+        throw "PILOT_STAGE_ALREADY_EXECUTED: $stageSixManifestPath"
+    }
+
+    $stageSixRoot = Join-Path $resolvedPilotRoot 'stage-6-runtime'
+    $stageSixRootExistedBefore = Test-Path -LiteralPath $stageSixRoot
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    if ($actualZipHash -ne $ExpectedZipSha256.ToLowerInvariant()) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $($ExpectedZipSha256.ToLowerInvariant()); actual $actualZipHash"
+    }
+    $stageOneManifest = Get-Content -Raw -LiteralPath $stageOneManifestPath | ConvertFrom-Json
+    $stageTwoManifest = Get-Content -Raw -LiteralPath $stageTwoManifestPath | ConvertFrom-Json
+    $stageThreeManifest = Get-Content -Raw -LiteralPath $stageThreeManifestPath | ConvertFrom-Json
+    $stageFourManifest = Get-Content -Raw -LiteralPath $stageFourManifestPath | ConvertFrom-Json
+    $stageFiveManifest = Get-Content -Raw -LiteralPath $stageFiveManifestPath | ConvertFrom-Json
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    if ($stageOneManifest.status -ne 'PREFLIGHT_PASS' -or
+        $stageTwoManifest.status -ne 'GOVERNED_MODEL_PASS' -or
+        $stageThreeManifest.status -ne 'HIGH_LEVEL_CONTINUITY_PASS' -or
+        $stageFourManifest.status -ne 'EVIDENCE_LIFECYCLE_PASS' -or
+        $stageFiveManifest.status -ne 'TRANSACTIONAL_SAFETY_PASS' -or
+        $stageOneManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageFiveManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageOneManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $stageFiveManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $packageManifest.source_commit -ne $ExpectedSourceCommit) {
+        throw 'PILOT_STAGE_5_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+        throw 'PILOT_DATABASE_MISSING'
+    }
+    $initialState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $stageFiveFinalVersion = [int64]$stageFiveManifest.lifecycle.final_state_version
+    $stageSixResumed = $false
+    $stageSixProgressReconciliation = $null
+    if ([int64]$initialState.state_version -eq $stageFiveFinalVersion) {
+        if ($initialState.state_digest -ne $stageFiveManifest.lifecycle.final_state_digest) {
+            throw 'PILOT_STAGE_6_INITIAL_STATE_DIGEST_MISMATCH'
+        }
+    } elseif ([int64]$initialState.state_version -eq ($stageFiveFinalVersion + 1)) {
+        $stageSixProgressReconciliation = Invoke-PilotLedgerJson $ledger @(
+            'reconcile', '--database', $database, '--project-ref', $projectRef,
+            '--command-type', 'RECORD_WORK_PROGRESS', '--actor-id', 'agent:opa-stage6',
+            '--trust-domain', 'TRUSTED_FOR_RECORDING', '--idempotency-key', 'opa:stage6:progress', '--json'
+        )
+        if ($stageSixProgressReconciliation.outcome -ne 'RECONCILED' -or
+            $stageSixProgressReconciliation.result.status -ne 'ACCEPTED' -or
+            [int64]$stageSixProgressReconciliation.result.previous_state_version -ne $stageFiveFinalVersion -or
+            [int64]$stageSixProgressReconciliation.result.new_state_version -ne [int64]$initialState.state_version -or
+            @($stageSixProgressReconciliation.result.emitted_event_refs) -notcontains $initialState.last_material_event_ref) {
+            throw 'PILOT_STAGE_6_PARTIAL_PROGRESS_RECONCILIATION_FAILED'
+        }
+        $stageSixResumed = $true
+    } else {
+        throw 'PILOT_STAGE_6_INITIAL_STATE_VERSION_MISMATCH'
+    }
+    if ($initialState.project.lifecycle_status -ne 'BLOCKED' -or
+        $initialState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($initialState.completed_phase_refs).Count -ne 0 -or
+        $initialState.preferred_next_action_ref -ne 'action:opa-stage6-recovery' -or
+        @($initialState.open_blocker_refs) -notcontains 'blocker:opa-stage6-recovery' -or
+        $initialState.checkpoint_ref -ne $stageFiveManifest.boundary.checkpoint_ref) {
+        throw 'PILOT_STAGE_6_INITIAL_STATE_MISMATCH'
+    }
+
+    if ($stageSixRootExistedBefore) {
+        if (-not $stageSixResumed) {
+            throw "PILOT_STAGE_6_DESTINATION_EXISTS: $stageSixRoot"
+        }
+        $resumeIndex = 1
+        do {
+            $stageSixRoot = Join-Path $resolvedPilotRoot ("stage-6-runtime-resume-$resumeIndex")
+            $resumeIndex++
+        } while (Test-Path -LiteralPath $stageSixRoot)
+    }
+
+    $null = New-Item -ItemType Directory -Path $stageSixRoot
+    $projectionRoot = Join-Path $stageSixRoot 'projections'
+    $portableRoot = Join-Path $stageSixRoot 'portable'
+    $backupRoot = Join-Path $stageSixRoot 'backup'
+    foreach ($directory in @($projectionRoot, $portableRoot, $backupRoot)) {
+        $null = New-Item -ItemType Directory -Path $directory
+    }
+
+    function Get-StageSixDirectoryDigest {
+        param([string]$Path)
+
+        $entries = foreach ($file in @(Get-ChildItem -LiteralPath $Path -Recurse -File | Sort-Object FullName)) {
+            $relative = [IO.Path]::GetRelativePath($Path, $file.FullName).Replace('\', '/')
+            $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToLowerInvariant()
+            "$relative=$digest"
+        }
+        return Get-PilotTextDigest ($entries -join "`n")
+    }
+
+    $observedAt = [DateTimeOffset]::UtcNow.ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $script:stageSixStateVersion = [int64]$initialState.state_version
+    $script:stageSixMutations = @()
+
+    function Invoke-StageSixCommand {
+        param(
+            [string]$Name,
+            [string]$CommandType,
+            [string]$ActorId,
+            [bool]$AsHuman,
+            [string[]]$CommandArguments,
+            [int]$ExpectedExitCode,
+            [int64]$ExpectedDelta
+        )
+
+        $before = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $expectedVersion = [int64]$before.state_version
+        $delimiterIndex = [Array]::IndexOf([string[]]$CommandArguments, '--')
+        $operationArguments = if ($delimiterIndex -ge 0) {
+            @($CommandArguments[0..($delimiterIndex - 1)])
+        } else {
+            @($CommandArguments)
+        }
+        $childArguments = if ($delimiterIndex -ge 0 -and $delimiterIndex -lt $CommandArguments.Count - 1) {
+            @($CommandArguments[($delimiterIndex + 1)..($CommandArguments.Count - 1)])
+        } else {
+            @()
+        }
+        $arguments = @($operationArguments) + @(
+            '--database', $database,
+            '--project-ref', $projectRef,
+            '--expected-version', [string]$expectedVersion,
+            '--idempotency-key', ('opa:stage6:' + $Name),
+            '--actor-id', $ActorId,
+            '--observed-at', $observedAt
+        )
+        if ($AsHuman) { $arguments += '--as-human' }
+        $arguments += '--json'
+        if ($delimiterIndex -ge 0) {
+            $arguments += '--'
+            $arguments += $childArguments
+        }
+        $result = Invoke-PilotLedgerJson `
+            -Executable $ledger `
+            -Arguments $arguments `
+            -ExpectedExitCodes @($ExpectedExitCode)
+        $after = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $delta = [int64]$after.state_version - [int64]$before.state_version
+        if ($delta -ne $ExpectedDelta) {
+            throw "PILOT_STAGE_6_MUTATION_DELTA_INVALID: $Name expected=$ExpectedDelta actual=$delta"
+        }
+        if ($ExpectedDelta -eq 0 -and $after.state_digest -ne $before.state_digest) {
+            throw "PILOT_STAGE_6_ZERO_DELTA_DIGEST_CHANGED: $Name"
+        }
+        $script:stageSixStateVersion = [int64]$after.state_version
+        $script:stageSixMutations += [ordered]@{
+            name = $Name
+            command_type = $CommandType
+            actor_id = $ActorId
+            as_human = $AsHuman
+            expected_exit_code = $ExpectedExitCode
+            observed_exit_code = $ExpectedExitCode
+            expected_state_version = $expectedVersion
+            resulting_state_version = [int64]$after.state_version
+            state_version_delta = $delta
+            idempotency_key = 'opa:stage6:' + $Name
+        }
+        return [ordered]@{ result = $result; before = $before; state = $after; delta = $delta }
+    }
+
+    $canaries = @(
+        'token=OPA_STAGE6_PROCESS_CANARY_8173',
+        'password=OPA_STAGE6_PROCESS_CANARY_9261'
+    )
+    $canaryPolicyPath = Join-Path $fixtureDirectory 'stage-6-canary-evidence-policy.json'
+    Write-PilotJson $canaryPolicyPath ([ordered]@{
+        allowed_programs = @($ledger)
+        redactions = @()
+        max_summary_bytes = 4096
+        process = [ordered]@{
+            timeout_ms = 10000
+            environment = [ordered]@{}
+        }
+    })
+
+    $progressExpectedVersion = $stageFiveFinalVersion
+    $progressObservedAt = $observedAt
+    $progressArguments = @(
+        'record', 'progress',
+        '--summary', 'Stage 6 validates projections, privacy, portable recovery, and SQLite backup restore.',
+        '--phase', 'phase:operational-acceptance',
+        '--record-id', 'work:opa-stage6-recovery'
+    )
+    if ($stageSixResumed) {
+        $progressObservedAt = ([DateTimeOffset]$stageSixProgressReconciliation.result.processed_at).ToUniversalTime().ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $progress = [ordered]@{
+            result = $stageSixProgressReconciliation.result
+            before = $null
+            state = $initialState
+            delta = 1
+        }
+        $script:stageSixMutations += [ordered]@{
+            name = 'progress'
+            command_type = 'RECORD_WORK_PROGRESS'
+            actor_id = 'agent:opa-stage6'
+            as_human = $false
+            expected_exit_code = 0
+            observed_exit_code = 0
+            expected_state_version = $stageFiveFinalVersion
+            resulting_state_version = [int64]$initialState.state_version
+            state_version_delta = 1
+            idempotency_key = 'opa:stage6:progress'
+            recovered_by_reconciliation = $true
+        }
+    } else {
+        $progress = Invoke-StageSixCommand `
+            'progress' 'RECORD_WORK_PROGRESS' 'agent:opa-stage6' $false `
+            $progressArguments 0 1
+    }
+    if ($progress.result.status -ne 'ACCEPTED') {
+        throw 'PILOT_STAGE_6_PROGRESS_NOT_ACCEPTED'
+    }
+
+    $sourceState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $sourceResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $sourceDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $phaseCatalogPath = Join-Path $fixtureDirectory 'stage-6-phase-catalog.json'
+    $phaseStatuses = @(Invoke-PilotLedgerJson $ledger @(
+        'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $operationalPhaseStatus = @($phaseStatuses | Where-Object {
+        $_.phase_ref -eq 'phase:operational-acceptance'
+    })
+    if ($operationalPhaseStatus.Count -ne 1 -or $operationalPhaseStatus[0].status -ne 'ACTIVE') {
+        throw 'PILOT_STAGE_6_PHASE_CATALOG_INVARIANT_FAILED'
+    }
+    $phaseCatalog = @([ordered]@{
+        schema_version = '0.2.0'
+        phase_id = 'phase:operational-acceptance'
+        title = 'Operational acceptance'
+        ordinal = 1
+        kind = 'AUDIT'
+        status = $operationalPhaseStatus[0].status
+        required_gate_refs = @(1..8 | ForEach-Object { 'gate:opa-{0:D2}' -f $_ })
+        optional_gate_refs = @('gate:opa-waiver-exercise')
+        started_at = $null
+        completed_at = $null
+        reopened_at = $null
+    })
+    Write-PilotJson $phaseCatalogPath $phaseCatalog
+
+    $beforeProjection = $sourceState
+    $authoritativeRenderPath = Join-Path $projectionRoot 'authoritative-shareable.md'
+    $projectionCopyPath = Join-Path $projectionRoot 'divergence-copy.md'
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'render', '--database', $database, '--project-ref', $projectRef,
+        '--output', $authoritativeRenderPath, '--privacy', 'shareable', '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef,
+        '--artifact', $authoritativeRenderPath, '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'render', '--database', $database, '--project-ref', $projectRef,
+        '--output', $projectionCopyPath, '--privacy', 'shareable', '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef,
+        '--artifact', $projectionCopyPath, '--json'
+    )
+    [IO.File]::WriteAllText(
+        $projectionCopyPath,
+        "# Deliberate divergence`n`nThis copy is not authoritative and must be regenerated.`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $divergenceResult = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'verify', '--database', $database, '--project-ref', $projectRef,
+            '--artifact', $projectionCopyPath, '--json'
+        ) `
+        -ExpectedExitCodes @(15)
+    $authoritativeRenderDigestBefore = (Get-FileHash -Algorithm SHA256 -LiteralPath $authoritativeRenderPath).Hash.ToLowerInvariant()
+    $authoritativeRecordPath = $authoritativeRenderPath + '.record.json'
+    $authoritativeRecordDigestBefore = (Get-FileHash -Algorithm SHA256 -LiteralPath $authoritativeRecordPath).Hash.ToLowerInvariant()
+    $existingRenderResult = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'render', '--database', $database, '--project-ref', $projectRef,
+            '--output', $authoritativeRenderPath, '--privacy', 'shareable', '--json'
+        ) `
+        -ExpectedExitCodes @(2)
+    $authoritativeRenderUnchanged =
+        $authoritativeRenderDigestBefore -eq (Get-FileHash -Algorithm SHA256 -LiteralPath $authoritativeRenderPath).Hash.ToLowerInvariant() -and
+        $authoritativeRecordDigestBefore -eq (Get-FileHash -Algorithm SHA256 -LiteralPath $authoritativeRecordPath).Hash.ToLowerInvariant()
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'render', '--database', $database, '--project-ref', $projectRef,
+        '--output', $projectionCopyPath, '--privacy', 'shareable', '--regenerate', '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef,
+        '--artifact', $projectionCopyPath, '--json'
+    )
+    $regeneratedMatches =
+        [Convert]::ToHexString([IO.File]::ReadAllBytes($authoritativeRenderPath)) -eq
+            [Convert]::ToHexString([IO.File]::ReadAllBytes($projectionCopyPath))
+    $afterProjection = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $projectionStateDelta = [int64]$afterProjection.state_version - [int64]$beforeProjection.state_version
+    if ($divergenceResult.error.code -ne 'GENERATED_ARTIFACT_DIVERGED' -or
+        $existingRenderResult.error.code -ne 'INVALID_INPUT' -or
+        -not $authoritativeRenderUnchanged -or -not $regeneratedMatches -or
+        $projectionStateDelta -ne 0 -or $afterProjection.state_digest -ne $beforeProjection.state_digest) {
+        throw 'PILOT_STAGE_6_PROJECTION_INVARIANT_FAILED'
+    }
+
+    $portableSourceDataRoot = Join-Path $portableRoot 'source-data'
+    $prospectivePortableDatabase = Join-Path $portableSourceDataRoot (
+        'project-ledger/projects/00000000-0000-0000-0000-000000000000/ledger.db'
+    )
+    if ($prospectivePortableDatabase.Length -ge 240) {
+        $scratchSuffix = $projectRef.Substring([Math]::Max(0, $projectRef.Length - 8))
+        $portableSourceDataRoot = Join-Path $resolvedRepository (
+            ".tooling/g-ledger-operational-pilot/s6/$scratchSuffix"
+        )
+        [System.IO.Directory]::CreateDirectory($portableSourceDataRoot) | Out-Null
+    }
+    $portableInit = Invoke-PilotLedgerJson $ledger @(
+        'init', '--title', 'Stage 6 portable roundtrip fixture',
+        '--summary', 'Disposable privacy-clean portable recovery fixture',
+        '--timezone', 'UTC', '--data-root', $portableSourceDataRoot, '--json'
+    )
+    $portableInitLines = $portableInit.output -split "`n"
+    $portableProjectRef = ($portableInitLines | Where-Object { $_ -like 'project_ref=*' }) -replace '^project_ref=', ''
+    $portableSourceDatabase = ($portableInitLines | Where-Object { $_ -like 'database=*' }) -replace '^database=', ''
+    if ($portableProjectRef -notmatch '^project:[0-9a-f-]{36}$' -or
+        -not (Test-Path -LiteralPath $portableSourceDatabase -PathType Leaf)) {
+        throw 'PILOT_STAGE_6_PORTABLE_FIXTURE_INIT_INVALID'
+    }
+    $portableProgress = Invoke-PilotLedgerJson $ledger @(
+        'record', 'progress', '--summary', 'Portable fixture has a non-trivial replayable history.',
+        '--record-id', 'work:stage6-portable-fixture',
+        '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef,
+        '--expected-version', '1', '--idempotency-key', 'opa:stage6:portable-fixture-progress',
+        '--actor-id', 'agent:opa-stage6', '--observed-at', $observedAt, '--json'
+    )
+    if ($portableProgress.status -ne 'ACCEPTED') {
+        throw 'PILOT_STAGE_6_PORTABLE_FIXTURE_PROGRESS_INVALID'
+    }
+    $portableSourceState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $portableSourceResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef, '--format', 'json'
+    )
+    $portableSourceDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+
+    $portableExportPath = Join-Path $portableRoot 'export-original'
+    $beforePortableExport = $portableSourceState
+    $portableManifest = Invoke-PilotLedgerJson $ledger @(
+        'export', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef,
+        '--format', 'portable', '--output', $portableExportPath, '--json'
+    )
+    $afterPortableExport = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $portableExportDelta = [int64]$afterPortableExport.state_version - [int64]$beforePortableExport.state_version
+    $portableDatabase = Join-Path $portableRoot 'imported-roundtrip.db'
+    $portableImport = Invoke-PilotLedgerJson $ledger @(
+        'import', '--file', $portableExportPath, '--database', $portableDatabase,
+        '--project-ref', $portableProjectRef, '--json'
+    )
+    $importedState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $importedResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--format', 'json'
+    )
+    $importedDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $beforeIdenticalImport = $importedState
+    $identicalImport = Invoke-PilotLedgerJson $ledger @(
+        'import', '--file', $portableExportPath, '--database', $portableDatabase,
+        '--project-ref', $portableProjectRef, '--json'
+    )
+    $afterIdenticalImport = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $identicalImportDelta = [int64]$afterIdenticalImport.state_version - [int64]$beforeIdenticalImport.state_version
+
+    $portableDigestBeforeExisting = Get-StageSixDirectoryDigest $portableExportPath
+    $existingPortableExport = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'export', '--database', $portableSourceDatabase, '--project-ref', $portableProjectRef,
+            '--format', 'portable', '--output', $portableExportPath, '--json'
+        ) `
+        -ExpectedExitCodes @(2)
+    $portableExistingUnchanged = $portableDigestBeforeExisting -eq (Get-StageSixDirectoryDigest $portableExportPath)
+
+    $corruptPortablePath = Join-Path $portableRoot 'export-corrupt-checksum'
+    Copy-Item -LiteralPath $portableExportPath -Destination $corruptPortablePath -Recurse
+    [IO.File]::AppendAllText(
+        (Join-Path $corruptPortablePath 'events.jsonl'),
+        "{}`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $corruptPortableDatabase = Join-Path $portableRoot 'corrupt-must-not-exist.db'
+    $corruptPortableImport = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'import', '--file', $corruptPortablePath, '--database', $corruptPortableDatabase,
+            '--project-ref', $portableProjectRef, '--json'
+        ) `
+        -ExpectedExitCodes @(15)
+
+    $branchSourceDatabase = Join-Path $portableRoot 'branch-source.db'
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'import', '--file', $portableExportPath, '--database', $branchSourceDatabase,
+        '--project-ref', $portableProjectRef, '--json'
+    )
+    $branchVersion = [int64]$portableSourceState.state_version
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'record', 'note', '--kind', 'LIMITATION', '--text', 'Stage 6 source branch divergence fixture.',
+        '--database', $branchSourceDatabase, '--project-ref', $portableProjectRef,
+        '--expected-version', [string]$branchVersion, '--idempotency-key', 'opa:stage6:portable-source-branch',
+        '--actor-id', 'agent:opa-stage6', '--observed-at', $observedAt, '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'record', 'note', '--kind', 'LIMITATION', '--text', 'Stage 6 target branch divergence fixture.',
+        '--database', $portableDatabase, '--project-ref', $portableProjectRef,
+        '--expected-version', [string]$branchVersion, '--idempotency-key', 'opa:stage6:portable-target-branch',
+        '--actor-id', 'agent:opa-stage6', '--observed-at', $observedAt, '--json'
+    )
+    $advancedPortablePath = Join-Path $portableRoot 'export-divergent-source'
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'export', '--database', $branchSourceDatabase, '--project-ref', $portableProjectRef,
+        '--format', 'portable', '--output', $advancedPortablePath, '--json'
+    )
+    $beforeDivergentImport = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $beforeDivergentDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $divergentImport = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'import', '--file', $advancedPortablePath, '--database', $portableDatabase,
+            '--project-ref', $portableProjectRef, '--json'
+        ) `
+        -ExpectedExitCodes @(15)
+    $afterDivergentImport = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $afterDivergentDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $portableDatabase, '--project-ref', $portableProjectRef, '--json'
+    )
+    $divergentTargetUnchanged =
+        [int64]$beforeDivergentImport.state_version -eq [int64]$afterDivergentImport.state_version -and
+        $beforeDivergentImport.state_digest -eq $afterDivergentImport.state_digest -and
+        $beforeDivergentDoctor.head_digest -eq $afterDivergentDoctor.head_digest
+
+    $portableStateMatches =
+        [int64]$importedState.state_version -eq [int64]$portableSourceState.state_version -and
+        $importedState.state_digest -eq $portableSourceState.state_digest
+    $portableHeadMatches = $importedDoctor.head_digest -eq $portableSourceDoctor.head_digest
+    $portableResumeMatches = $importedResume.digest -eq $portableSourceResume.digest
+    if ($portableExportDelta -ne 0 -or
+        $portableManifest.project_ref -ne $portableProjectRef -or
+        $portableImport.disposition -ne 'NEW_PROJECT' -or
+        $portableImport.restores_command_results -ne $false -or
+        -not $portableStateMatches -or -not $portableHeadMatches -or -not $portableResumeMatches -or
+        $identicalImport.disposition -ne 'IDENTICAL_CHAIN' -or $identicalImportDelta -ne 0 -or
+        $existingPortableExport.error.code -ne 'INVALID_INPUT' -or -not $portableExistingUnchanged -or
+        $corruptPortableImport.error.code -ne 'PORTABLE_INTEGRITY' -or
+        (Test-Path -LiteralPath $corruptPortableDatabase) -or
+        $divergentImport.error.code -ne 'PORTABLE_INTEGRITY' -or -not $divergentTargetUnchanged) {
+        throw 'PILOT_STAGE_6_PORTABLE_INVARIANT_FAILED'
+    }
+
+    $backupPath = Join-Path $backupRoot 'sqlite-full-fidelity'
+    $beforeBackup = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $backupManifest = Invoke-PilotLedgerJson $ledger @(
+        'backup', '--database', $database, '--project-ref', $projectRef,
+        '--output', $backupPath, '--json'
+    )
+    $afterBackup = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $backupDelta = [int64]$afterBackup.state_version - [int64]$beforeBackup.state_version
+    $backupDigestBeforeExisting = Get-StageSixDirectoryDigest $backupPath
+    $existingBackup = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'backup', '--database', $database, '--project-ref', $projectRef,
+            '--output', $backupPath, '--json'
+        ) `
+        -ExpectedExitCodes @(2)
+    $backupExistingUnchanged = $backupDigestBeforeExisting -eq (Get-StageSixDirectoryDigest $backupPath)
+
+    $restoredDatabase = Join-Path $backupRoot 'restored-full-fidelity.db'
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'restore', '--file', $backupPath, '--database', $restoredDatabase, '--json'
+    )
+    $restoredState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $restoredDatabase, '--project-ref', $projectRef, '--json'
+    )
+    $restoredDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $restoredDatabase, '--project-ref', $projectRef, '--json'
+    )
+    $restoredReconcile = Invoke-PilotLedgerJson $ledger @(
+        'reconcile', '--database', $restoredDatabase, '--project-ref', $projectRef,
+        '--command-type', 'RECORD_WORK_PROGRESS', '--actor-id', 'agent:opa-stage6',
+        '--trust-domain', 'TRUSTED_FOR_RECORDING', '--idempotency-key', 'opa:stage6:progress', '--json'
+    )
+    $restoredBeforeReplay = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $restoredDatabase, '--project-ref', $projectRef, '--json'
+    )
+    $restoredReplay = Invoke-PilotLedgerJson $ledger @(
+        $progressArguments + @(
+            '--database', $restoredDatabase, '--project-ref', $projectRef,
+            '--expected-version', [string]$progressExpectedVersion,
+            '--idempotency-key', 'opa:stage6:progress', '--actor-id', 'agent:opa-stage6',
+            '--observed-at', $progressObservedAt, '--json'
+        )
+    )
+    $restoredAfterReplay = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $restoredDatabase, '--project-ref', $projectRef, '--json'
+    )
+    $restoredReplayDelta = [int64]$restoredAfterReplay.state_version - [int64]$restoredBeforeReplay.state_version
+
+    $restoredDigestBeforeExisting = (Get-FileHash -Algorithm SHA256 -LiteralPath $restoredDatabase).Hash.ToLowerInvariant()
+    $existingRestore = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @('restore', '--file', $backupPath, '--database', $restoredDatabase, '--json') `
+        -ExpectedExitCodes @(2)
+    $restoreExistingUnchanged =
+        $restoredDigestBeforeExisting -eq (Get-FileHash -Algorithm SHA256 -LiteralPath $restoredDatabase).Hash.ToLowerInvariant()
+
+    $corruptBackupPath = Join-Path $backupRoot 'sqlite-corrupt-checksum'
+    Copy-Item -LiteralPath $backupPath -Destination $corruptBackupPath -Recurse
+    $corruptBackupManifestPath = Join-Path $corruptBackupPath 'manifest.json'
+    $corruptBackupManifest = Get-Content -Raw -LiteralPath $corruptBackupManifestPath | ConvertFrom-Json
+    $corruptBackupManifest.database_digest = 'sha256:' + ('0' * 64)
+    Write-PilotJson $corruptBackupManifestPath $corruptBackupManifest
+    $corruptRestoreDatabase = Join-Path $backupRoot 'corrupt-must-not-exist.db'
+    $corruptRestore = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @('restore', '--file', $corruptBackupPath, '--database', $corruptRestoreDatabase, '--json') `
+        -ExpectedExitCodes @(15)
+
+    $restoreStateMatches =
+        [int64]$restoredState.state_version -eq [int64]$sourceState.state_version -and
+        $restoredState.state_digest -eq $sourceState.state_digest
+    $restoreHeadMatches = $restoredDoctor.head_digest -eq $sourceDoctor.head_digest
+    if ($backupManifest.format -ne 'project-ledger-sqlite-backup/1' -or
+        $backupDelta -ne 0 -or
+        $existingBackup.error.code -ne 'INVALID_INPUT' -or -not $backupExistingUnchanged -or
+        -not $restoreStateMatches -or -not $restoreHeadMatches -or
+        $restoredReconcile.outcome -ne 'RECONCILED' -or $restoredReconcile.result.status -ne 'ACCEPTED' -or
+        $restoredReplay.status -ne 'DUPLICATE_REPLAY' -or $restoredReplayDelta -ne 0 -or
+        $existingRestore.error.code -ne 'INVALID_INPUT' -or -not $restoreExistingUnchanged -or
+        $corruptRestore.error.code -ne 'BACKUP_INTEGRITY' -or
+        (Test-Path -LiteralPath $corruptRestoreDatabase)) {
+        throw 'PILOT_STAGE_6_BACKUP_INVARIANT_FAILED'
+    }
+
+    $canaryEvidence = Invoke-StageSixCommand `
+        'canary-evidence' 'RECORD_VERIFICATION_RESULT' 'agent:opa-stage6' $false `
+        @(
+            'evidence', 'run', '--policy', $canaryPolicyPath, '--cwd', $installation,
+            '--kind', 'CUSTOM_DECLARATIVE', '--gate', 'gate:opa-06',
+            '--', $ledger, ('--' + $canaries[0]), ('--' + $canaries[1])
+        ) `
+        3 1
+    $canaryIdentity = ConvertTo-PilotCanonicalJson @(
+        $projectRef,
+        'agent:opa-stage6',
+        'TRUSTED_FOR_RECORDING',
+        'opa:stage6:canary-evidence'
+    )
+    $canaryIdentityDigest = Get-PilotTextDigest $canaryIdentity
+    $canaryEvidenceRef = 'evidence:' + $canaryIdentityDigest.Substring(7)
+    $canaryEvidenceView = Invoke-PilotLedgerJson $ledger @(
+        'evidence', 'show', $canaryEvidenceRef,
+        '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if ($canaryEvidence.result.status -ne 'ACCEPTED' -or
+        $canaryEvidenceView.privacy.raw_output_stored -ne $false) {
+        throw 'PILOT_STAGE_6_CANARY_EVIDENCE_INVARIANT_FAILED'
+    }
+
+    $postCanaryRenderPath = Join-Path $projectionRoot 'post-canary-shareable.md'
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'render', '--database', $database, '--project-ref', $projectRef,
+        '--output', $postCanaryRenderPath, '--privacy', 'shareable', '--json'
+    )
+    $null = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef,
+        '--artifact', $postCanaryRenderPath, '--json'
+    )
+    $postCanaryRecordPath = $postCanaryRenderPath + '.record.json'
+    $postCanaryPortablePath = Join-Path $portableRoot 'post-canary-must-not-exist'
+    $postCanaryPortable = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'export', '--database', $database, '--project-ref', $projectRef,
+            '--format', 'portable', '--output', $postCanaryPortablePath,
+            '--phase-catalog', $phaseCatalogPath, '--json'
+        ) `
+        -ExpectedExitCodes @(13)
+    if ($postCanaryPortable.error.code -ne 'PRIVACY_REJECTED' -or
+        (Test-Path -LiteralPath $postCanaryPortablePath)) {
+        throw 'PILOT_STAGE_6_PRIVATE_PORTABLE_INVARIANT_FAILED'
+    }
+
+    $null = Invoke-StageSixCommand `
+        'blocker-stage6-resolve' 'RESOLVE_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'resolve', 'blocker:opa-stage6-recovery',
+            '--summary', 'Projection, privacy, portable, backup, restore, and integrity safeguards passed Stage 6.'
+        ) `
+        0 3
+    $null = Invoke-StageSixCommand `
+        'next-stage7-set' 'SET_NEXT_ACTION' 'human:owner' $true `
+        @(
+            'next', 'set', '--title', 'Request authorization for Stage 7 blind handoff and bounded integrations',
+            '--summary', 'Stage 7 remains outside the current authorization.',
+            '--phase', 'phase:operational-acceptance', '--classification', 'ELIGIBLE',
+            '--record-id', 'action:opa-stage-07-integrations'
+        ) `
+        0 1
+    $null = Invoke-StageSixCommand `
+        'blocker-stage7-open' 'OPEN_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'open', '--title', 'Stage 7 requires separate human authorization',
+            '--summary', 'Blind Codex handoff, bounded local integrations, and fixed GSP tests are not authorized by Stage 6.',
+            '--severity', 'MEDIUM', '--record-id', 'blocker:opa-stage7-integrations'
+        ) `
+        0 2
+    $null = Invoke-StageSixCommand `
+        'checkpoint-final' 'CREATE_CONTINUITY_CHECKPOINT' 'agent:opa-stage6' $false `
+        @('checkpoint', 'create', '--reason', 'Stage 6 projections privacy and recovery handoff') `
+        0 1
+
+    $finalState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $finalDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalVerify = Invoke-PilotLedgerJson $ledger @(
+        'verify', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalAudit = Invoke-PilotLedgerJson $ledger @(
+        'audit', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $phaseList = @(Invoke-PilotLedgerJson $ledger @(
+        'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $activePhase = @($phaseList | Where-Object { $_.phase_ref -eq 'phase:operational-acceptance' })
+    if ($finalResume.checkpoint_freshness -ne 'CURRENT' -or
+        $finalState.project.lifecycle_status -ne 'BLOCKED' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or
+        $finalState.preferred_next_action_ref -ne 'action:opa-stage-07-integrations' -or
+        @($finalState.open_blocker_refs) -notcontains 'blocker:opa-stage7-integrations' -or
+        @($finalState.open_blocker_refs) -contains 'blocker:opa-stage6-recovery' -or
+        $activePhase.Count -ne 1 -or $activePhase[0].status -ne 'ACTIVE' -or
+        $finalDoctor.integrity -ne 'ok' -or $finalVerify.integrity -ne 'ok' -or $finalAudit.integrity -ne 'ok' -or
+        @($finalVerify.findings).Count -ne 0 -or @($finalAudit.findings).Count -ne 0) {
+        $finalInvariantDetails = [ordered]@{
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            lifecycle_status = $finalState.project.lifecycle_status
+            primary_active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            preferred_next_action_ref = $finalState.preferred_next_action_ref
+            open_blocker_refs = @($finalState.open_blocker_refs)
+            active_phase_count = $activePhase.Count
+            active_phase_status = if ($activePhase.Count -eq 1) { $activePhase[0].status } else { $null }
+            doctor_integrity = $finalDoctor.integrity
+            verify_integrity = $finalVerify.integrity
+            audit_integrity = $finalAudit.integrity
+            verify_finding_count = @($finalVerify.findings).Count
+            audit_finding_count = @($finalAudit.findings).Count
+        }
+        throw ('PILOT_STAGE_6_FINAL_STATE_MISMATCH: ' + (ConvertTo-PilotCanonicalJson $finalInvariantDetails))
+    }
+
+    $supportedSurfaceTexts = @(
+        ($sourceResume | ConvertTo-Json -Depth 20 -Compress),
+        ($finalResume | ConvertTo-Json -Depth 20 -Compress),
+        [IO.File]::ReadAllText($authoritativeRenderPath),
+        [IO.File]::ReadAllText($authoritativeRecordPath),
+        [IO.File]::ReadAllText($postCanaryRenderPath),
+        [IO.File]::ReadAllText($postCanaryRecordPath)
+    )
+    foreach ($file in @(Get-ChildItem -LiteralPath $portableExportPath -Recurse -File)) {
+        $supportedSurfaceTexts += [Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($file.FullName))
+    }
+    $canaryMatchCount = 0
+    foreach ($canary in $canaries) {
+        foreach ($surface in $supportedSurfaceTexts) {
+            if ($surface.Contains($canary, [StringComparison]::Ordinal)) {
+                $canaryMatchCount++
+            }
+        }
+    }
+    if ($canaryMatchCount -ne 0) {
+        throw "PILOT_STAGE_6_CANARY_LEAK: matches=$canaryMatchCount"
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 6
+        status = 'RECOVERY_PRIVACY_PASS'
+        proof_class = 'LIVE_PILOT'
+        project_ref = $projectRef
+        subject = [ordered]@{
+            zip_sha256 = $actualZipHash
+            source_commit = $ExpectedSourceCommit
+            version = $stageOneManifest.subject.version
+        }
+        execution = [ordered]@{
+            resumed_after_partial_attempt = $stageSixResumed
+            prior_runtime_preserved = $stageSixRootExistedBefore
+            runtime_root = $stageSixRoot
+            auxiliary_data_root = $portableSourceDataRoot
+        }
+        projection = [ordered]@{
+            privacy_profile = 'SHAREABLE'
+            initial_render_verified = $true
+            divergence_exit_code = 15
+            divergence_detected = $divergenceResult.error.code -eq 'GENERATED_ARTIFACT_DIVERGED'
+            regenerated_matches_authoritative_render = $regeneratedMatches
+            existing_output_exit_code = 2
+            existing_output_unchanged = $authoritativeRenderUnchanged
+            state_version_delta = $projectionStateDelta
+            state_digest_unchanged = $afterProjection.state_digest -eq $beforeProjection.state_digest
+            markdown_is_authority = $false
+        }
+        portable = [ordered]@{
+            format = 'project-ledger-portable-bundle/1'
+            scope = 'AUXILIARY_DISPOSABLE_PROJECT'
+            project_ref = $portableProjectRef
+            source_state_version = [int64]$portableSourceState.state_version
+            export_state_version_delta = $portableExportDelta
+            import_disposition = $portableImport.disposition
+            state_version_matches = [int64]$importedState.state_version -eq [int64]$portableSourceState.state_version
+            state_digest_matches = $importedState.state_digest -eq $portableSourceState.state_digest
+            history_head_digest_matches = $portableHeadMatches
+            resume_matches = $portableResumeMatches
+            restores_command_results = $portableImport.restores_command_results
+            restores_execution_reservations = $portableImport.restores_execution_reservations
+            identical_chain_disposition = $identicalImport.disposition
+            identical_chain_state_version_delta = $identicalImportDelta
+            existing_export_exit_code = 2
+            existing_export_unchanged = $portableExistingUnchanged
+            checksum_corruption_exit_code = 15
+            corrupt_destination_created = Test-Path -LiteralPath $corruptPortableDatabase
+            divergence_exit_code = 15
+            divergent_target_unchanged = $divergentTargetUnchanged
+        }
+        backup = [ordered]@{
+            format = $backupManifest.format
+            database_digest = $backupManifest.database_digest
+            source_state_version = [int64]$sourceState.state_version
+            backup_state_version_delta = $backupDelta
+            restore_state_version_matches = [int64]$restoredState.state_version -eq [int64]$sourceState.state_version
+            restore_state_digest_matches = $restoredState.state_digest -eq $sourceState.state_digest
+            restore_head_digest_matches = $restoreHeadMatches
+            reconcile_outcome = $restoredReconcile.outcome
+            reconciled_status = $restoredReconcile.result.status
+            replay_status = $restoredReplay.status
+            replay_state_version_delta = $restoredReplayDelta
+            existing_backup_exit_code = 2
+            existing_backup_unchanged = $backupExistingUnchanged
+            existing_restore_exit_code = 2
+            existing_restore_unchanged = $restoreExistingUnchanged
+            checksum_corruption_exit_code = 15
+            corrupt_destination_created = Test-Path -LiteralPath $corruptRestoreDatabase
+        }
+        privacy = [ordered]@{
+            canary_count = $canaries.Count
+            evidence_ref = $canaryEvidenceRef
+            evidence_execution_exit_code = 3
+            evidence_record_status = $canaryEvidence.result.status
+            raw_output_stored = $canaryEvidenceView.privacy.raw_output_stored
+            surfaces_checked = @(
+                'resume-json',
+                'render-shareable-post-canary',
+                'portable-export-clean-roundtrip',
+                'portable-export-post-canary-fail-closed',
+                'stage-manifest'
+            )
+            canary_match_count = $canaryMatchCount
+            post_canary_render_verified = $true
+            portable_export_exit_code = 13
+            portable_export_rejected = $postCanaryPortable.error.code -eq 'PRIVACY_REJECTED'
+            portable_destination_created = Test-Path -LiteralPath $postCanaryPortablePath
+            sanitized_report_check_required = $true
+            universal_byte_absence_claimed = $false
+        }
+        integrity = [ordered]@{
+            state_version = [int64]$finalState.state_version
+            state_digest = $finalState.state_digest
+            head_digest = $finalDoctor.head_digest
+            doctor_integrity = $finalDoctor.integrity
+            verify_integrity = $finalVerify.integrity
+            audit_integrity = $finalAudit.integrity
+            verify_finding_count = @($finalVerify.findings).Count
+            audit_finding_count = @($finalAudit.findings).Count
+            unresolved_submission_count = $finalAudit.unresolved_submission_count
+        }
+        lifecycle = [ordered]@{
+            initial_state_version = [int64]$initialState.state_version
+            final_state_version = [int64]$finalState.state_version
+            final_state_digest = $finalState.state_digest
+            final_head_event_digest = $finalDoctor.head_digest
+        }
+        boundary = [ordered]@{
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            open_blocker_ref = 'blocker:opa-stage7-integrations'
+            next_action_ref = $finalState.preferred_next_action_ref
+            checkpoint_ref = $finalResume.checkpoint_ref
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            stage_7_executed = $false
+            merge_performed = $false
+            release_performed = $false
+            operational_acceptance_declared = $false
+        }
+        mutations = @($script:stageSixMutations)
+        scenarios = [ordered]@{
+            'OPA-S22' = 'PASS'
+            'OPA-S23' = 'PASS'
+            'OPA-S24' = 'PASS'
+            'OPA-S25' = 'PASS'
+            'OPA-S26' = 'PASS'
+            'OPA-S27' = 'PASS'
+        }
+    }
+    $manifestText = $manifest | ConvertTo-Json -Depth 20
+    foreach ($canary in $canaries) {
+        if ($manifestText.Contains($canary, [StringComparison]::Ordinal)) {
+            throw 'PILOT_STAGE_6_CANARY_LEAK_IN_MANIFEST'
+        }
+    }
+    Write-PilotJson $stageSixManifestPath $manifest
+
+    [pscustomobject]@{
+        stage = 6
+        status = 'RECOVERY_PRIVACY_PASS'
+        evidence = 'evidence/stage-6-projections-privacy-recovery.json'
+    }
+    return
 }
 
 if ($Stage -eq 5) {

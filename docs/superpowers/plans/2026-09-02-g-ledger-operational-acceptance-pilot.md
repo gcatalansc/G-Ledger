@@ -73,10 +73,10 @@
 
 ### Task 6: Proyecciones, privacidad y recuperación
 
-- [ ] Renderizar, alterar copia y demostrar divergencia/regeneración.
-- [ ] Ejecutar portable roundtrip y backup/restore; rechazar corrupción y overwrite.
-- [ ] Escanear superficies soportadas contra canaries; ejecutar doctor/verify/audit.
-- [ ] Validar S22…S27, actualizar 6/8 y commit `test: validate recovery privacy and projections`.
+- [x] Renderizar, alterar copia y demostrar divergencia/regeneración.
+- [x] Ejecutar portable roundtrip y backup/restore; rechazar corrupción y overwrite.
+- [x] Escanear superficies soportadas contra canaries; ejecutar doctor/verify/audit.
+- [x] Validar S22…S27, actualizar 6/8 y commit `test: validate recovery privacy and projections`.
 
 ### Task 7: Handoff ciego e integraciones
 
@@ -116,3 +116,16 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Límite: `blocker:opa-stage6-recovery` mantiene el proyecto `BLOCKED`; `action:opa-stage6-recovery` sólo es `ELIGIBLE` para solicitar autorización. No se ejecutaron Stage 6, merge, release ni aceptación operativa.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 6. Sin ella, no ejecutar proyecciones, portabilidad, privacidad, backup/restore ni cambiar el contador de 5/8.
+
+## 2026-09-03 — Stage 6 ejecutado y conciliado, 6/8
+
+- RED/GREEN: Stage 6 comenzó con `PILOT_STAGE_NOT_IMPLEMENTED: stage 6`. La suite incorporó pruebas de proyección, portabilidad, backup/restore, corrupción, privacidad y una regresión específica de reanudación tras interrupción; el cierre final exige 9/9 pruebas PowerShell.
+- Proyección: un Markdown `SHAREABLE` verificó contra el stream, una copia alterada devolvió exit 15/`GENERATED_ARTIFACT_DIVERGED`, y `--regenerate` reconstruyó bytes idénticos sin mutar versión ni digest. Un destino ya existente devolvió exit 2 y permaneció intacto.
+- Portabilidad: el proyecto principal contiene locators absolutos privados y su export portable falla cerrado en vez de reescribir historia. Por ello el round-trip normativo se ejecutó en `project:01a069e2-bd81-73b1-a654-719bb6444e3d`, Ledger auxiliar limpio y descartable: `NEW_PROJECT`, estado/digest/head/resume iguales, reimport idéntico `IDENTICAL_CHAIN` con delta cero, y corrupción/divergencia/overwrite rechazados sin alterar destino.
+- Recuperación completa: backup/restore SQLite del proyecto gobernado conservó estado, digest, head, resultados e idempotencia. `reconcile` recuperó el progreso original y su repetición devolvió `DUPLICATE_REPLAY` con delta cero; corrupción y destinos existentes se rechazaron sin sobrescritura.
+- Privacidad: dos canaries ficticios produjeron evidencia aceptada con `raw_output_stored=false`; no aparecieron en `resume`, Markdown compartible, bundle limpio ni reporte sanitizado. El export posterior del historial privado devolvió exit 13/`PRIVACY_REJECTED` y no creó destino. Esto cubre superficies soportadas, no ausencia universal en bytes internos.
+- Interrupción controlada: el primer intento real alcanzó sólo el registro de progreso y falló al crear la DB auxiliar por longitud de ruta Windows. El resultado aceptado se reconcilió con el scope original; no se reenvió ciegamente, no se reescribió historia y el runtime parcial se conservó. El harness selecciona ahora un scratch corto bajo `.tooling/g-ledger-operational-pilot/` y la regresión correspondiente pasa.
+- Cierre controlado: state version 85, digest `sha256:a48d21a8d594bba4ebe9fa00b298c156726599a2359f46faa324d0bb0c7c9652`, head `sha256:1e6854daebda895e97e2c6138a69d6cfa7061c04bc31aeeafdecba7b65c76342` y checkpoint `checkpoint:624442ea-7360-77df-9f92-ddc4e73fde32` `CURRENT`. `doctor`, `verify` y `audit` quedaron `ok`, sin findings ni submissions sin resolver.
+- Límite: `blocker:opa-stage7-integrations` mantiene el proyecto `BLOCKED`; `action:opa-stage-07-integrations` es `ELIGIBLE`, no `AUTHORIZED`. No se ejecutaron Stage 7, merge, release ni aceptación operativa.
+
+**Siguiente paso:** solicitar autorización humana explícita para Stage 7. Esa autorización deberá incluir la creación de una tarea Codex nueva y ciega, acotada al ejecutable, database, project_ref y skill. Sin ella, no iniciar el handoff ni las integraciones.

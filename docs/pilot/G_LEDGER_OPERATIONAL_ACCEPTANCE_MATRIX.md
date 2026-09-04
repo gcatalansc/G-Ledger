@@ -1,6 +1,6 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado actual: `IN_PROGRESS`, 5/8, 62,5 %. OPA-S01…OPA-S21 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; las etapas 6–8 permanecen sin ejecutar y esta matriz no concede adopción operativa. Stage 5 confirmó replay, conflictos de clave/versión, denegación de autoridad y reconciliación de resultado incierto sin retry ciego. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage6-recovery` mantiene el proyecto bloqueado.
+Estado actual: `IN_PROGRESS`, 6/8, 75 %. OPA-S01…OPA-S27 disponen de evidencia fresca del candidato alojado exacto `99fdaab`; las etapas 7–8 permanecen sin ejecutar y esta matriz no concede adopción operativa. Stage 6 confirmó regeneración de proyecciones, round-trip portable auxiliar, backup/restore de fidelidad completa, rechazo de corrupción/overwrite y privacidad fail-closed sobre las superficies soportadas. `gate:opa-04` sigue verificado, el ejercicio opcional dispensado y siete gates requeridos pendientes; la fase continúa activa y `blocker:opa-stage7-integrations` mantiene el proyecto bloqueado.
 
 ## Principios P-01…P-10
 

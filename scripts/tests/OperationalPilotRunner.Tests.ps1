@@ -387,3 +387,173 @@ Describe 'Operational pilot runner Stage 5 transactional safety' {
         $result.status | Should Be 'TRANSACTIONAL_SAFETY_PASS'
     }
 }
+
+Describe 'Operational pilot runner Stage 6 projections privacy and recovery' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'regenerates projections, roundtrips portable and backup state, rejects corruption, and excludes canaries' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 6 á recovery privacy'
+
+        foreach ($stage in 1..6) {
+            $result = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-6-projections-privacy-recovery.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+
+        $manifest.profile | Should Be 'project-ledger-operational-pilot-stage/1'
+        $manifest.stage | Should Be 6
+        $manifest.status | Should Be 'RECOVERY_PRIVACY_PASS'
+        $manifest.proof_class | Should Be 'LIVE_PILOT'
+        $manifest.subject.zip_sha256 | Should Be $expectedHash
+        $manifest.subject.source_commit | Should Be $expectedSourceCommit
+        $manifest.execution.resumed_after_partial_attempt | Should Be $false
+        $manifest.execution.prior_runtime_preserved | Should Be $false
+        $manifest.projection.initial_render_verified | Should Be $true
+        $manifest.projection.divergence_exit_code | Should Be 15
+        $manifest.projection.divergence_detected | Should Be $true
+        $manifest.projection.regenerated_matches_authoritative_render | Should Be $true
+        $manifest.projection.existing_output_exit_code | Should Be 2
+        $manifest.projection.existing_output_unchanged | Should Be $true
+        $manifest.projection.state_version_delta | Should Be 0
+        $manifest.projection.state_digest_unchanged | Should Be $true
+        $manifest.portable.export_state_version_delta | Should Be 0
+        $manifest.portable.scope | Should Be 'AUXILIARY_DISPOSABLE_PROJECT'
+        $manifest.portable.import_disposition | Should Be 'NEW_PROJECT'
+        $manifest.portable.state_version_matches | Should Be $true
+        $manifest.portable.state_digest_matches | Should Be $true
+        $manifest.portable.history_head_digest_matches | Should Be $true
+        $manifest.portable.resume_matches | Should Be $true
+        $manifest.portable.restores_command_results | Should Be $false
+        $manifest.portable.identical_chain_disposition | Should Be 'IDENTICAL_CHAIN'
+        $manifest.portable.identical_chain_state_version_delta | Should Be 0
+        $manifest.portable.existing_export_exit_code | Should Be 2
+        $manifest.portable.existing_export_unchanged | Should Be $true
+        $manifest.portable.checksum_corruption_exit_code | Should Be 15
+        $manifest.portable.corrupt_destination_created | Should Be $false
+        $manifest.portable.divergence_exit_code | Should Be 15
+        $manifest.portable.divergent_target_unchanged | Should Be $true
+        $manifest.backup.format | Should Be 'project-ledger-sqlite-backup/1'
+        $manifest.backup.backup_state_version_delta | Should Be 0
+        $manifest.backup.restore_state_version_matches | Should Be $true
+        $manifest.backup.restore_state_digest_matches | Should Be $true
+        $manifest.backup.restore_head_digest_matches | Should Be $true
+        $manifest.backup.reconcile_outcome | Should Be 'RECONCILED'
+        $manifest.backup.reconciled_status | Should Be 'ACCEPTED'
+        $manifest.backup.replay_status | Should Be 'DUPLICATE_REPLAY'
+        $manifest.backup.replay_state_version_delta | Should Be 0
+        $manifest.backup.existing_backup_exit_code | Should Be 2
+        $manifest.backup.existing_backup_unchanged | Should Be $true
+        $manifest.backup.existing_restore_exit_code | Should Be 2
+        $manifest.backup.existing_restore_unchanged | Should Be $true
+        $manifest.backup.checksum_corruption_exit_code | Should Be 15
+        $manifest.backup.corrupt_destination_created | Should Be $false
+        $manifest.privacy.canary_count | Should Be 2
+        $manifest.privacy.evidence_execution_exit_code | Should Be 3
+        $manifest.privacy.evidence_record_status | Should Be 'ACCEPTED'
+        $manifest.privacy.raw_output_stored | Should Be $false
+        $manifest.privacy.canary_match_count | Should Be 0
+        $manifest.privacy.post_canary_render_verified | Should Be $true
+        $manifest.privacy.portable_export_exit_code | Should Be 13
+        $manifest.privacy.portable_export_rejected | Should Be $true
+        $manifest.privacy.portable_destination_created | Should Be $false
+        $manifest.privacy.sanitized_report_check_required | Should Be $true
+        $manifest.privacy.universal_byte_absence_claimed | Should Be $false
+        $manifest.integrity.doctor_integrity | Should Be 'ok'
+        $manifest.integrity.verify_integrity | Should Be 'ok'
+        $manifest.integrity.audit_integrity | Should Be 'ok'
+        $manifest.integrity.verify_finding_count | Should Be 0
+        $manifest.integrity.audit_finding_count | Should Be 0
+        $manifest.boundary.project_status | Should Be 'BLOCKED'
+        $manifest.boundary.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.boundary.completed_phase_count | Should Be 0
+        $manifest.boundary.open_blocker_ref | Should Be 'blocker:opa-stage7-integrations'
+        $manifest.boundary.next_action_ref | Should Be 'action:opa-stage-07-integrations'
+        $manifest.boundary.checkpoint_freshness | Should Be 'CURRENT'
+        $manifest.boundary.stage_7_executed | Should Be $false
+        $manifest.boundary.merge_performed | Should Be $false
+        $manifest.boundary.release_performed | Should Be $false
+        $manifest.boundary.operational_acceptance_declared | Should Be $false
+        $manifest.scenarios.'OPA-S22' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S23' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S24' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S25' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S26' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S27' | Should Be 'PASS'
+        $result.stage | Should Be 6
+        $result.status | Should Be 'RECOVERY_PRIVACY_PASS'
+    }
+
+    It 'reconciles an accepted progress record and preserves a failed runtime before resuming' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 6 resumed after interruption'
+
+        foreach ($stage in 1..5) {
+            $null = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $locator = Get-Content -Raw -LiteralPath (Join-Path $pilotRoot 'pilot-locator.json') | ConvertFrom-Json
+        $ledger = Join-Path $pilotRoot 'instalación con espacios\project-ledger.exe'
+        $state = & $ledger status `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --json | ConvertFrom-Json
+        $observedAt = [DateTimeOffset]::UtcNow.ToString(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        $progress = & $ledger record progress `
+            --summary 'Stage 6 validates projections, privacy, portable recovery, and SQLite backup restore.' `
+            --phase 'phase:operational-acceptance' `
+            --record-id 'work:opa-stage6-recovery' `
+            --database $locator.database `
+            --project-ref $locator.project_ref `
+            --expected-version ([string]$state.state_version) `
+            --idempotency-key 'opa:stage6:progress' `
+            --actor-id 'agent:opa-stage6' `
+            --observed-at $observedAt `
+            --json | ConvertFrom-Json
+        $progress.status | Should Be 'ACCEPTED'
+
+        $failedRuntime = Join-Path $pilotRoot 'stage-6-runtime'
+        $null = New-Item -ItemType Directory -Path $failedRuntime
+        $sentinel = Join-Path $failedRuntime 'failed-attempt-preserved.txt'
+        [IO.File]::WriteAllText($sentinel, 'preserve')
+
+        $result = & $runner `
+            -Stage 6 `
+            -LedgerZip $ledgerZip `
+            -PilotRoot $pilotRoot `
+            -RepositoryRoot $repositoryRoot `
+            -ExpectedZipSha256 $expectedHash `
+            -ExpectedSourceCommit $expectedSourceCommit
+
+        $LASTEXITCODE | Should Be 0
+        $manifest = Get-Content -Raw -LiteralPath (
+            Join-Path $pilotRoot 'evidence\stage-6-projections-privacy-recovery.json'
+        ) | ConvertFrom-Json
+        $manifest.status | Should Be 'RECOVERY_PRIVACY_PASS'
+        $manifest.execution.resumed_after_partial_attempt | Should Be $true
+        $manifest.execution.prior_runtime_preserved | Should Be $true
+        $manifest.mutations[0].recovered_by_reconciliation | Should Be $true
+        (Test-Path -LiteralPath $sentinel) | Should Be $true
+        $manifest.boundary.stage_7_executed | Should Be $false
+    }
+}
