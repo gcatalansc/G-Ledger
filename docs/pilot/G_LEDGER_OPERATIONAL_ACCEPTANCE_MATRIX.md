@@ -1,21 +1,21 @@
 # Matriz del Piloto de Aceptación Operativa
 
-Estado vigente: **`IN_PROGRESS`, 3/8, 37,5 %**. OPA-DEFECT-004 invalidó el candidato alojado `99fdaab`; el fix exacto `138eabe` fue calificado mediante PR privado draft #4, seis jobs success en el run `33838359314` y ZIP alojado `7160d31d…0162`, verificado independientemente con 2/2 harness externos. Un bootstrap nuevo creó `project:01a06adc-c603-7291-aabe-240d71809978`; Stage 1…3 y OPA-S01…OPA-S10 pasaron. El flujo endurecido conserva `RISK_MITIGATED` y `RISK_CLOSED`, termina v45 con checkpoint `CURRENT`, sesión cerrada y cero `open_risk_refs`. La evidencia 8/8 y la decisión anterior permanecen históricas, no se borran ni se transfieren. Stage 4…Stage 8 aún requieren evidencia viva; OPA-S31 sigue `EXCLUDED_BY_SCOPE` y G-Skills queda fuera de la validación de producto. No hubo Stage 4, merge, release ni nueva aceptación.
+Estado vigente: **`IN_PROGRESS`, 4/8, 50 %**. El candidato exacto `138eabe`/`7160d31d…0162` continúa en `project:01a06adc-c603-7291-aabe-240d71809978`; Stage 1…4 y OPA-S01…OPA-S15 pasaron. Stage 4 separó evidencia `OBSERVED` de `VERIFIED_SOURCE`, acreditó un único efecto durable y replay delta cero, verificó `gate:opa-04` sólo mediante Gate Engine, mantuvo la fase activa, forzó revalidación por cambio material y limitó el waiver al gate opcional. Terminó v67 con checkpoint `CURRENT`, cero riesgos, cero unknowns críticos y cero findings. La evidencia 8/8 y la decisión anterior permanecen históricas, no se borran ni se transfieren. Stage 5…Stage 8 aún requieren evidencia viva; OPA-S31 sigue `EXCLUDED_BY_SCOPE` y G-Skills queda fuera de la validación de producto. No hubo Stage 5, merge, release ni nueva aceptación.
 
 ## Recalificación vigente y cierre histórico conservado
 
 | Control | Resultado |
 |---|---|
-| Etapas | 1–3 acreditadas; 4–8 `REQUALIFICATION_REQUIRED` |
-| Escenarios | S01…S10 `PASS`; S11…S30 y S32 requieren recalificación; OPA-S31 `EXCLUDED_BY_SCOPE` |
+| Etapas | 1–4 acreditadas; 5–8 `REQUALIFICATION_REQUIRED` |
+| Escenarios | S01…S15 `PASS`; S16…S30 y S32 requieren recalificación; OPA-S31 `EXCLUDED_BY_SCOPE` |
 | Defectos | 4 `FIXED_AND_REQUALIFIED`; OPA-DEFECT-004 pasó ejecución viva Stage 3 |
-| Integridad | `doctor`, `verify` y `audit`: `ok`; único finding esperado `CriticalUnknownOpen` para Stage 4 |
-| Continuidad | v45; digest `sha256:0772e8fb…c337445`; checkpoint `checkpoint:843caa1c-1721-7d35-abe7-1590596b1824` `CURRENT` |
-| Gates requeridos | 0 `VERIFIED`; 8 `PENDING`; 0 `WAIVED`; gate opcional también pendiente |
-| Lifecycle | fase activa; proyecto `BLOCKED` por Stage 4; 0 fases completadas |
+| Integridad | `doctor`, `verify` y `audit`: `ok`, 0 findings, 0 submissions sin resolver |
+| Continuidad | v67; digest `sha256:33d16f22…e22c0`; checkpoint `checkpoint:8d613d30-08a6-7700-ae19-a1ec534cf9ef` `CURRENT` |
+| Gates requeridos | `gate:opa-04` `VERIFIED`; 7 `PENDING`; 0 `WAIVED`; sólo gate opcional `WAIVED` |
+| Lifecycle | fase activa; proyecto `BLOCKED` por Stage 5; 0 fases completadas |
 | Riesgo | `risk:opa-stage3-continuity` `CLOSED`; mitigación preservada; 0 `open_risk_refs` |
 | Autoridad | Decisión previa preservada como histórica; nueva decisión pendiente después de Stage 8 |
-| Evidencia vigente | `docs/pilot/results/stage-3-risk-close-hosted-requalification.json` |
+| Evidencia vigente | `docs/pilot/results/stage-4-risk-close-hosted-requalification.json` |
 
 G-Skills permanece en desarrollo y **no fue validado como producto**. Su superficie local se utilizó únicamente como contraparte de desarrollo para probar las fronteras de integración de G-Ledger; no hubo contraparte externa, certificación bilateral ni aceptación operativa de G-Skills.
 

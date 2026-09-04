@@ -10,7 +10,7 @@
     "zip_path": "github-actions://runs/33838359314/artifacts/9924403634/project-ledger-0.2.0-windows-x86_64.zip",
     "zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
     "candidate_superseded": false,
-    "qualification": "HOSTED_STAGE_3_REQUALIFICATION_PASS",
+    "qualification": "HOSTED_STAGE_4_REQUALIFICATION_PASS",
     "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
     "hosted_artifact_id": 9924403634,
     "hosted_archive_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
@@ -27,15 +27,15 @@
   },
   "progress": {
     "total_stages": 8,
-    "completed_stages": [1, 2, 3],
-    "percentage": 37.5
+    "completed_stages": [1, 2, 3, 4],
+    "percentage": 50
   },
   "project_identity": {
     "project_ref": "project:01a06adc-c603-7291-aabe-240d71809978",
     "database_locator": ".tooling/g-ledger-operational-pilot/rq hosted 138eabe á/data/project-ledger/projects/01a06adc-c603-7291-aabe-240d71809978/ledger.db",
-    "latest_state_version": 45,
-    "latest_state_digest": "sha256:0772e8fb5304647c51e65e6e55e4168f5bc91c7cb54c0c0b8f6ae2effc337445",
-    "latest_checkpoint_ref": "checkpoint:843caa1c-1721-7d35-abe7-1590596b1824",
+    "latest_state_version": 67,
+    "latest_state_digest": "sha256:33d16f221947c155a01aec1be68c360198bbdf8c27b6afd8a721f63e23be22c0",
+    "latest_checkpoint_ref": "checkpoint:8d613d30-08a6-7700-ae19-a1ec534cf9ef",
     "latest_checkpoint_freshness": "CURRENT"
   },
   "historical_project_identity": {
@@ -84,7 +84,7 @@
     "evidence": ["docs/pilot/results/stage-8-operational-acceptance.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-8-operational-acceptance.json"]
   },
   "repository_verification": {
-    "status": "HOSTED_STAGE_3_REQUALIFICATION_PASS",
+    "status": "HOSTED_STAGE_4_REQUALIFICATION_PASS",
     "product_code_changed": true,
     "candidate_requalification_required": true,
     "checks": [
@@ -106,7 +106,7 @@
     {"stage": 1, "name": "IDENTITY_AND_PREFLIGHT", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-3-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-1-preflight.json"]},
     {"stage": 2, "name": "GOVERNED_PROJECT_MODEL", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-3-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-2-governed-model.json"]},
     {"stage": 3, "name": "HIGH_LEVEL_CONTINUITY", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-3-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-3-high-level-continuity.json"]},
-    {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-4-evidence-lifecycle.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"stage": 4, "name": "EVIDENCE_GATES_LIFECYCLE", "status": "PASS", "proof_class": "LIVE_PILOT_HOSTED", "evidence": ["docs/pilot/results/stage-4-risk-close-hosted-requalification.json", "local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
     {"stage": 5, "name": "IDEMPOTENCY_CONCURRENCY_RECONCILIATION", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-5-transactional-safety.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"stage": 6, "name": "PROJECTIONS_PRIVACY_RECOVERY", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-6-projections-privacy-recovery.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-6-projections-privacy-recovery.json"]},
     {"stage": 7, "name": "BLIND_HANDOFF_AND_INTEGRATIONS", "status": "REQUALIFICATION_REQUIRED", "historical_status": "PASS", "evidence": ["docs/pilot/results/stage-7-blind-handoff-integrations.json", "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-7-blind-handoff-integrations.json"]},
@@ -123,11 +123,11 @@
     {"id":"OPA-S08","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-3-high-level-continuity.json"]},
     {"id":"OPA-S09","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-3-high-level-continuity.json"]},
     {"id":"OPA-S10","stage":3,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-3-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-3-high-level-continuity.json"]},
-    {"id":"OPA-S11","stage":4,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
-    {"id":"OPA-S12","stage":4,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
-    {"id":"OPA-S13","stage":4,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
-    {"id":"OPA-S14","stage":4,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
-    {"id":"OPA-S15","stage":4,"critical":false,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-evidence-lifecycle.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S11","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S12","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S13","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S14","stage":4,"critical":true,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
+    {"id":"OPA-S15","stage":4,"critical":false,"status":"PASS","proof_class":"LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-4-risk-close-hosted-requalification.json","local:.tooling/g-ledger-operational-pilot/rq hosted 138eabe á/evidence/stage-4-evidence-lifecycle.json"]},
     {"id":"OPA-S16","stage":5,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-5-transactional-safety.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"id":"OPA-S17","stage":5,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-5-transactional-safety.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
     {"id":"OPA-S18","stage":5,"critical":true,"status":"REQUALIFICATION_REQUIRED","historical_status":"PASS","proof_class":"HISTORICAL_LIVE_PILOT_HOSTED","evidence":["docs/pilot/results/stage-5-transactional-safety.json","local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json"]},
@@ -231,11 +231,11 @@
     }
   ],
   "current_requalification": {
-    "status": "IN_PROGRESS_STAGE_4_NOT_AUTHORIZED",
+    "status": "IN_PROGRESS_STAGE_5_NOT_AUTHORIZED",
     "trigger_defect": "OPA-DEFECT-004",
     "affected_stage": 3,
-    "completed_stages": [1, 2, 3],
-    "required_stages": [4, 5, 6, 7, 8],
+    "completed_stages": [1, 2, 3, 4],
+    "required_stages": [5, 6, 7, 8],
     "exact_source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
     "local_candidate_zip_sha256": "sha256:ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc",
     "hosted_candidate_zip_sha256": "sha256:7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
@@ -250,9 +250,17 @@
     "stage_3_checkpoint_ref": "checkpoint:843caa1c-1721-7d35-abe7-1590596b1824",
     "stage_3_checkpoint_freshness": "CURRENT",
     "stage_3_open_risk_count": 0,
-    "stage_4_executed": false,
+    "stage_4_executed": true,
+    "stage_4_status": "PASS",
+    "stage_4_final_state_version": 67,
+    "stage_4_final_state_digest": "sha256:33d16f221947c155a01aec1be68c360198bbdf8c27b6afd8a721f63e23be22c0",
+    "stage_4_checkpoint_ref": "checkpoint:8d613d30-08a6-7700-ae19-a1ec534cf9ef",
+    "stage_4_checkpoint_freshness": "CURRENT",
+    "stage_4_verified_gate_refs": ["gate:opa-04"],
+    "stage_4_optional_waiver_refs": ["gate:opa-waiver-exercise"],
+    "stage_5_executed": false,
     "previous_owner_decision_transferred": false,
-    "next_action": "Obtain explicit authorization to execute Stage 4 only on the current disposable project and exact hosted ZIP. Stage 5 remains unauthorized."
+    "next_action": "Obtain explicit authorization to execute Stage 5 only on the current disposable project and exact hosted ZIP. Stage 6 remains unauthorized."
   },
   "critical_waivers": [],
   "historical_owner_decision": {
@@ -269,7 +277,7 @@
     "The hosted exact-SHA 99fdaab package and its owner decision remain historical evidence but are not the active accepted subject after OPA-DEFECT-004 invalidated that candidate",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The exact-SHA 138eabe fix passed hosted CI, independent package verification and live Stage 1 through Stage 3 requalification; Stage 4 through Stage 8 remain required",
+    "The exact-SHA 138eabe fix passed hosted CI, independent package verification and live Stage 1 through Stage 4 requalification; Stage 5 through Stage 8 remain required",
     "A discarded non-normative setup path produced SQLite WAL/SHM paths of 261 characters and failed before Ledger initialization; the normative Unicode-and-spaces destination passed at 222 characters, so Windows legacy long-path compatibility remains an explicit environmental limitation outside the Stage 1 scenario",
     "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
     "The fixed GSP traversal and local integration-boundary exercises preserve certified_compatibility=false",

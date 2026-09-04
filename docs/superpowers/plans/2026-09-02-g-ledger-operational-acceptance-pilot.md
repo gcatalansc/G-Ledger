@@ -195,3 +195,14 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Resultado: OPA-S01…OPA-S10 `PASS`, OPA-DEFECT-004 `FIXED_AND_REQUALIFIED`, 0 riesgos abiertos y avance **3/8, 37,5 %, `IN_PROGRESS`**. La evidencia sanitizada está en `docs/pilot/results/stage-3-risk-close-hosted-requalification.json`.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 4/8 sobre este proyecto descartable y el mismo ZIP alojado exacto. No iniciar Stage 5, merge, release ni aceptación operativa.
+
+## 2026-09-04 — Recalificación Stage 4 ejecutada y conciliada, 4/8
+
+- Autoridad: se ejecutó únicamente Stage 4 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`. Stage 5, merge, release y aceptación operativa permanecieron fuera de alcance.
+- Evidencia fail-closed: una evidencia `OBSERVED` con exit 0 mantuvo `gate:opa-04` sin verificar; Gate Engine devolvió exit 6 y Phase Engine mantuvo la fase activa con exit 6.
+- RecordSink local: policy digest `sha256:1f2d9037c0e60b8de128fc3f10fc63e072918e006bbc199d7a586652f9f8862c`; validate `VALID`, submit `ACCEPTED`, replay `DUPLICATE_REPLAY`, status/reconcile `FOUND`. La evidencia `VERIFIED_SOURCE` produjo exactamente un efecto durable y el replay delta cero, sin almacenar salida cruda ni reclamar autoridad lifecycle.
+- Gate, freshness y waiver: `gate:opa-04` quedó `VERIFIED`; un cambio auxiliar volvió el gate `REVALIDATION_REQUIRED` y el checkpoint `STALE_FOR_AUTHORITY`; la revalidación devolvió el gate a `VERIFIED` y el checkpoint reemplazante `checkpoint:8d613d30-08a6-7700-ae19-a1ec534cf9ef` quedó `CURRENT`. El gate opcional quedó `WAIVED`; `gate:opa-08` rechazó waiver con exit 3 y delta cero.
+- Cierre controlado: estado v67, digest `sha256:33d16f221947c155a01aec1be68c360198bbdf8c27b6afd8a721f63e23be22c0`, proyecto `BLOCKED`, fase activa, cero fases completadas, siete gates requeridos pendientes, cero riesgos y cero unknowns críticos. `doctor`, `verify` y `audit` informaron integridad `ok`, cero findings y cero submissions sin resolver; la reconciliación completa tuvo delta cero.
+- Resultado: OPA-S11…OPA-S15 `PASS`; avance **4/8, 50 %, `IN_PROGRESS`**. La evidencia sanitizada está en `docs/pilot/results/stage-4-risk-close-hosted-requalification.json`.
+
+**Siguiente paso:** solicitar autorización humana explícita para Stage 5/8 sobre el mismo proyecto y ZIP alojado exacto. No iniciar Stage 6, merge, release ni aceptación operativa.

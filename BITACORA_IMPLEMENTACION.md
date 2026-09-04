@@ -2384,3 +2384,15 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Evidencia: `docs/pilot/results/stage-3-risk-close-hosted-requalification.json`; OPA-S01…OPA-S10 están `PASS` y OPA-DEFECT-004 cambia a `FIXED_AND_REQUALIFIED`. Avance oficial: **3/8, 37,5 %, `IN_PROGRESS`**.
 
 **Siguiente paso:** obtener autorización explícita para ejecutar Stage 4/8 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado `7160d31d…0162`. Stage 5, merge, release y aceptación operativa siguen fuera de alcance.
+
+## 2026-09-04 — Stage 4 recalificado: evidencia, gates y lifecycle, 4/8
+
+- Alcance: ejecución exclusiva de Stage 4 sobre `project:01a06adc-c603-7291-aabe-240d71809978` y el ZIP alojado exacto `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`; no se ejecutó Stage 5 ni hubo merge, release o aceptación.
+- Evidencia: `OBSERVED` con exit 0 no verificó `gate:opa-04`; la evaluación devolvió exit 6 y la fase permaneció abierta. El RecordSink local validó y aceptó una evidencia `VERIFIED_SOURCE`, produjo un efecto durable, devolvió `DUPLICATE_REPLAY` con delta cero y reconcilió `FOUND`; `raw_output_stored=false`.
+- Autoridad: sólo Gate Engine verificó `gate:opa-04` y sólo Phase Engine evaluó el cierre, que volvió a fallar cerrado con exit 6 por los gates requeridos pendientes. El RecordSink no reclamó autoridad lifecycle ni certificó G-Skills.
+- Frescura: `authority:opa-stage4-material-change` volvió el gate `REVALIDATION_REQUIRED` y el checkpoint anterior `STALE_FOR_AUTHORITY`. La revalidación explícita restauró `VERIFIED`; el checkpoint `checkpoint:8d613d30-08a6-7700-ae19-a1ec534cf9ef` quedó `CURRENT`.
+- Waiver: el único waiver aceptado fue para `gate:opa-waiver-exercise`, opcional y específico. `gate:opa-08`, requerido, rechazó waiver con exit 3 y delta cero.
+- Conciliación: v67/digest `sha256:33d16f221947c155a01aec1be68c360198bbdf8c27b6afd8a721f63e23be22c0`; proyecto `BLOCKED` por `blocker:opa-stage5-transaction`, fase activa, cero fases completadas, `gate:opa-04` verificado y siete gates requeridos pendientes. `doctor`, `verify` y `audit` quedaron `ok`, sin findings ni submissions sin resolver; `resume` informa cero riesgos, cero unknowns críticos y `action:opa-stage5-transaction` como próxima acción.
+- Evidencia sanitizada: `docs/pilot/results/stage-4-risk-close-hosted-requalification.json`. OPA-S11…OPA-S15 pasan y el avance oficial queda **4/8, 50 %, `IN_PROGRESS`**.
+
+**Siguiente paso:** obtener autorización explícita para Stage 5/8 sobre este mismo proyecto y ZIP. Stage 6, merge, release y aceptación operativa permanecen fuera de alcance.
