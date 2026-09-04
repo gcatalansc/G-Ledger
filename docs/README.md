@@ -1,0 +1,60 @@
+# Centro de documentación de G-Ledger 0.2.0
+
+Este es el punto de entrada único para la documentación activa. La ruta recomendada evita mezclar instrucciones de uso con especificaciones, evidencia de aceptación o planes internos.
+
+## Quiero instalarlo y usarlo
+
+Lea en este orden:
+
+1. [Inicio rápido](getting-started/QUICKSTART.md): instalación y primer proyecto en cinco minutos.
+2. [Tutorial guiado](getting-started/TUTORIAL.md): recorrido completo de una sesión con progreso, checkpoint y reanudación.
+3. [Guía de usuario](operations/USER_GUIDE.md): modelo operativo cotidiano, responsabilidades y recuperación.
+4. [Referencia operativa de la CLI](CLI_OPERATIONS.md): familias de comandos, concurrencia, idempotencia y evidencia.
+5. [Windows portable](WINDOWS_PORTABLE.md): instalación, verificación, rollback y límites del paquete.
+
+## Quiero evaluar la entrega
+
+- [Contenido oficial de la entrega](DELIVERY_CONTENTS.md).
+- [Notas de release `v0.2.0-rc.1`](RELEASE_NOTES_v0.2.0-rc.1.md).
+- [Aseguramiento y aceptación](assurance/README.md).
+- [Informe final humano](pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md).
+- [Matriz del piloto](pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md).
+- [Threat model](THREAT_MODEL.md).
+- [Fuente, build y procedencia](SOURCE_AND_BUILD.md).
+
+## Quiero integrar o desarrollar
+
+- [Especificación normativa v0.2.0](../specs/PROJECT_LEDGER_SPEC_v0.2.0.md).
+- [Handoff Codex](../referencias/PROJECT_LEDGER_v0.2.0_CODEX/00_START_HERE.md).
+- [Matriz contrato→schema→fixture→test](CONTRACT_SCHEMA_FIXTURE_TEST_MATRIX.md).
+- [Skill de continuidad](../integrations/agent-skills/project-ledger-continuity/SKILL.md).
+- [Guía de contribución](../CONTRIBUTING.md).
+- [Planes ejecutables](superpowers/plans/).
+
+## Mapa de directorios documentales
+
+| Ubicación | Propósito | Audiencia |
+|---|---|---|
+| `docs/getting-started/` | Inicio rápido y tutorial | Usuario nuevo |
+| `docs/operations/` | Modelo de operación | Operador/maintainer |
+| `docs/pilot/` | Especificación, matriz y evidencia OPA | Auditor/propietario |
+| `docs/assurance/` | Índice de aseguramiento y límites | Empresa receptora |
+| `docs/PREPILOT_*.md` | Evidencia histórica prepiloto, preservada | Auditor |
+| `docs/superpowers/plans/` | Planes de implementación internos | Desarrollo |
+| `specs/` | Contrato normativo y compatibilidad | Arquitectura/desarrollo |
+| `release/` | Manifiestos, SBOM y evidencia machine-readable | Release/auditoría |
+
+Las rutas históricas no se reorganizan físicamente cuando están referenciadas por hashes, manifests o evidencia. Su clasificación en este índice es deliberada: preserva integridad sin obligar al lector a navegar archivos dispersos.
+
+## Autoridad
+
+Si dos documentos discrepan, rige este orden:
+
+1. [Especificación normativa v0.2.0](../specs/PROJECT_LEDGER_SPEC_v0.2.0.md).
+2. Schemas, locks y fixtures cerrados de la versión.
+3. Estado derivado del stream canónico de cada Ledger.
+4. Guías y tutoriales.
+5. Evidencia histórica y planes internos.
+
+Markdown es documentación o proyección; nunca sustituye el stream SQLite/WAL verificado de un proyecto.
+
