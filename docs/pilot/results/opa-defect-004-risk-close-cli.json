@@ -1,7 +1,7 @@
 {
   "profile": "project-ledger-operational-pilot-defect/1",
   "defect_id": "OPA-DEFECT-004",
-  "status": "FIXED_LOCALLY_REQUALIFICATION_PENDING",
+  "status": "FIXED_HOSTED_CANDIDATE_QUALIFIED_STAGE_3_PENDING_AUTHORITY",
   "recorded_at": "2026-09-04T00:21:12-04:00",
   "affected_stage": 3,
   "severity": "CRITICAL",
@@ -25,6 +25,7 @@
   "fix": {
     "product_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
     "pilot_qualifier_commit": "3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe",
+    "ci_qualifier_commit": "97507a39cb70e0f6bc044123a9d7cefcf64ab412",
     "behavior": "Stage 3 now executes OPEN_RISK, MITIGATE_RISK, and CLOSE_RISK; its rendered timeline must preserve RISK_MITIGATED and RISK_CLOSED while resume must omit the closed risk.",
     "public_api_added": false,
     "contract_modified": false
@@ -53,10 +54,15 @@
   ],
   "governance": {
     "invalidated_hosted_zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
-    "current_pilot_status": "BLOCKED",
+    "current_pilot_status": "BLOCKED_ON_FRESH_STAGE_1_2_BOOTSTRAP_AUTHORITY",
     "credited_stages": [1, 2],
     "required_rerun_stages": [3, 4, 5, 6, 7, 8],
-    "hosted_exact_sha_verified": false,
+    "hosted_exact_sha_verified": true,
+    "hosted_workflow_run_id": 33838359314,
+    "hosted_artifact_id": 9924403634,
+    "hosted_product_zip_sha256": "7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "stage_3_execution_performed": false,
+    "stage_3_ledger_mutation_count": 0,
     "previous_owner_decision_transferred": false,
     "merge_authorized": false,
     "release_authorized": false

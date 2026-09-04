@@ -2360,3 +2360,15 @@ Ejecutar la etapa 3: CLI cotidiana, errores tipados y códigos normativos, selec
 - Límites: no se hizo push, PR, merge, release ni mutación adicional del proyecto descartable aceptado. La evidencia sanitizada está en `docs/pilot/results/opa-defect-004-risk-close-cli.json`.
 
 **Siguiente paso:** solicitar autorización humana explícita para publicar la rama candidata exacta de `138eabe`, abrir un PR privado draft que active exclusivamente la CI, verificar el ZIP alojado y ejecutar Stage 3/8. Stage 4 y posteriores requerirán sus autorizaciones separadas; la aceptación final requerirá una nueva decisión humana.
+
+## 2026-09-04 — Candidato alojado exacto calificado; Stage 3 no iniciado
+
+- Publicación autorizada: se creó `codex/g-ledger-opa-risk-close-exact-ci-138eabe` y el PR privado draft #4 contra `main`. No hubo merge ni release.
+- Intento rechazado: el run `33836827729` pasó 6/6, pero el ZIP `649ec32c…02c41` declaró `source_commit=4f72c1a6…`, el merge sintético del PR. Aunque 2/2 harness externos pasaron, la identidad exacta falló y Stage 3 no se inició.
+- Calificador: `97507a39cb70e0f6bc044123a9d7cefcf64ab412` modificó únicamente `.github/workflows/ci.yml` para fijar cada checkout a `138eabe715d209da5f527340a34492bff3f6fd1a` y comprobar limpieza/identidad antes de ejecutar. El producto permaneció exactamente en `138eabe`.
+- CI aceptada: run `33838359314`, seis jobs success. Artefacto `9924403634`, digest GitHub `sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2` y ZIP interior SHA-256 `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`.
+- Reverificación independiente: `package.json` declaró `source_commit=138eabe…` y `source_tree_dirty=false`; recursos, specs, contratos, release, privacidad y 2/2 harness externos pasaron. `certified_compatibility=false` se conserva.
+- Límite de ejecución: Stage 3 requiere un Ledger fresco al cierre exacto de Stage 2. El proyecto histórico está completado en v134; reutilizarlo o truncarlo violaría continuidad. Ejecutar Stage 1/2 en un destino nuevo excedería la autorización “exclusivamente Stage 3”. Por ello hubo cero mutaciones del Ledger y el avance permanece **2/8, 25 %, `BLOCKED`**.
+- Evidencia sanitizada: `docs/pilot/results/stage-3-risk-close-hosted-qualification.json`.
+
+**Siguiente paso:** solicitar autorización explícita para ejecutar Stage 1 y Stage 2 sólo como bootstrap fresco del candidato alojado `7160d31d…0162`, con sus usos documentados de `--as-human`, y ejecutar luego Stage 3/8. No autoriza Stage 4, merge, release ni aceptación operativa.

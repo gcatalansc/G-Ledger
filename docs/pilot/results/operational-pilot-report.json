@@ -197,7 +197,7 @@
     {
       "id": "OPA-DEFECT-004",
       "severity": "CRITICAL",
-      "status": "FIXED_LOCALLY_REQUALIFICATION_PENDING",
+      "status": "FIXED_HOSTED_CANDIDATE_QUALIFIED_STAGE_3_PENDING_AUTHORITY",
       "stage": 3,
       "summary": "The v0.2 CLOSE_RISK command existed in the domain contract but was absent from the public CLI risk family",
       "observed_behavior": "risk:opa-stage3-continuity could be mitigated but not closed through the supported CLI, so resume continued listing it in open_risk_refs after operational acceptance",
@@ -207,24 +207,32 @@
       "contract_change_required": false,
       "candidate_invalidated": "sha256:e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
       "fix_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
-      "qualifier_commit": "3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe",
+      "pilot_harness_commit": "3696ea69ae9b03b7866c5c5cd48ac7d2e91deabe",
+      "ci_qualifier_commit": "97507a39cb70e0f6bc044123a9d7cefcf64ab412",
+      "qualifier_pr": "https://github.com/gcatalansc/G-Ledger/pull/4",
       "local_candidate_zip_sha256": "sha256:ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc",
-      "requalification_status": "PENDING_HOSTED_EXACT_SHA_AND_STAGE_3_TO_8_RERUN",
-      "evidence": "docs/pilot/results/opa-defect-004-risk-close-cli.json"
+      "hosted_candidate_zip_sha256": "sha256:7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+      "requalification_run_id": 33838359314,
+      "requalification_artifact_id": 9924403634,
+      "requalification_status": "HOSTED_CANDIDATE_QUALIFIED_STAGE_3_PENDING_AUTHORITY",
+      "evidence": ["docs/pilot/results/opa-defect-004-risk-close-cli.json", "docs/pilot/results/stage-3-risk-close-hosted-qualification.json"]
     }
   ],
   "current_requalification": {
-    "status": "BLOCKED",
+    "status": "BLOCKED_ON_FRESH_STAGE_1_2_BOOTSTRAP_AUTHORITY",
     "trigger_defect": "OPA-DEFECT-004",
     "affected_stage": 3,
     "required_stages": [3, 4, 5, 6, 7, 8],
     "exact_source_commit": "138eabe715d209da5f527340a34492bff3f6fd1a",
     "local_candidate_zip_sha256": "sha256:ff6c4ef49d1d2e206d27740fc97c45dc8bdca79e02117e32a6fcf851f0f6e8cc",
-    "hosted_candidate_zip_sha256": null,
-    "hosted_run": null,
-    "hosted_artifact_id": null,
+    "hosted_candidate_zip_sha256": "sha256:7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162",
+    "hosted_run": "https://github.com/gcatalansc/G-Ledger/actions/runs/33838359314",
+    "hosted_artifact_id": 9924403634,
+    "hosted_artifact_archive_digest": "sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2",
+    "stage_3_execution_performed": false,
+    "stage_3_ledger_mutation_count": 0,
     "previous_owner_decision_transferred": false,
-    "next_action": "Obtain explicit authorization to publish an exact-SHA qualification branch, open a private draft PR, verify the hosted ZIP, and rerun Stage 3 through Stage 8 with a new separate owner decision."
+    "next_action": "Obtain explicit authorization to execute Stage 1 and Stage 2 only as fresh disposable bootstrap for the qualified hosted candidate, including their documented human ceremonies, and then execute Stage 3. Stage 4 remains unauthorized."
   },
   "critical_waivers": [],
   "historical_owner_decision": {
@@ -241,7 +249,7 @@
     "The hosted exact-SHA 99fdaab package and its owner decision remain historical evidence but are not the active accepted subject after OPA-DEFECT-004 invalidated that candidate",
     "The portable roundtrip used an auxiliary privacy-clean disposable project because the governed pilot contains private absolute locators and portable export is fail-closed rather than history-rewriting",
     "Canary checks cover supported output surfaces and do not establish universal absence from internal bytes",
-    "The local exact-SHA 138eabe fix proves that risk:opa-stage3-continuity can transition MITIGATED to CLOSED, preserve both events, and disappear from open_risk_refs; hosted requalification remains pending",
+    "The exact-SHA 138eabe fix is qualified by hosted CI and independent package verification; live Stage 3 remains pending because its required fresh Stage 1 and Stage 2 bootstrap is outside the current authorization",
     "The accredited blind task received exactly executable, database, project_ref and skill; a redundant local task created during delayed task visibility was aborted before Ledger mutation and is excluded from evidence",
     "The fixed GSP traversal and local integration-boundary exercises preserve certified_compatibility=false",
     "No current OPERATIONALLY_ACCEPTED declaration is valid until hosted requalification and a new separate human decision; no merge or release is authorized"

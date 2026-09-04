@@ -174,3 +174,12 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Gobierno: el ZIP alojado `e2509d48…a851` queda invalidado como sujeto vigente. Su evidencia y la decisión humana anterior permanecen históricas, pero no se transfieren. El estado actual vuelve a **`BLOCKED`, 2/8, 25 %**; Stage 3…Stage 8 y la decisión humana final deben repetirse sobre un ZIP alojado exacto nuevo.
 
 **Siguiente paso:** solicitar autorización explícita para publicar una rama candidata exacta apuntando a `138eabe`, abrir un PR privado draft exclusivamente para activar la CI de recalificación, descargar/verificar su ZIP alojado y ejecutar Stage 3/8. No se autoriza implícitamente Stage 4, merge, release ni aceptación operativa.
+
+### Calificación alojada completada; ejecución Stage 3 pendiente de precondición autorizada
+
+- PR privado draft: `https://github.com/gcatalansc/G-Ledger/pull/4`. El primer run `33836827729` pasó 6/6, pero su paquete declaró el merge sintético `4f72c1a6…`; se rechazó antes de cualquier mutación del piloto.
+- El commit calificador separado `97507a39cb70e0f6bc044123a9d7cefcf64ab412` fijó los cuatro checkouts al candidato `138eabe715d209da5f527340a34492bff3f6fd1a`. No modificó producto ni contratos.
+- El run exacto `33838359314` pasó 6/6. El artefacto `9924403634` tiene digest GitHub `sha256:bd36d90840b102f6bf6515ef06890b93b0c508302540c575964e652e922cc6f2`; su ZIP interior tiene SHA-256 `7160d31d831b0e85d792f77f04f8f56290256e73d695746545fcfa67b13f0162`, declara `source_commit=138eabe…`, árbol limpio y pasó 2/2 harness externos en una reverificación independiente.
+- Stage 3 no se ejecutó. El runner exige un Ledger fresco exactamente en el estado terminal de Stage 2; el proyecto histórico está completado en v134 y no es reutilizable como esa precondición. Crear el nuevo estado ejecutaría Stage 1 y Stage 2 con sus ceremonias humanas, alcance que la autorización vigente excluyó expresamente.
+
+**Siguiente paso:** obtener autorización explícita para ejecutar Stage 1 y Stage 2 únicamente como bootstrap fresco en una carpeta descartable nueva usando el ZIP alojado `7160d31d…0162`, y continuar después con Stage 3/8. Stage 4, merge, release y aceptación operativa permanecen fuera de alcance.
