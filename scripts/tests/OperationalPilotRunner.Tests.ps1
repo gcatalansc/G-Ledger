@@ -303,3 +303,87 @@ Describe 'Operational pilot runner Stage 4 evidence and lifecycle' {
         $result.status | Should Be 'EVIDENCE_LIFECYCLE_PASS'
     }
 }
+
+Describe 'Operational pilot runner Stage 5 transactional safety' {
+    $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+    $runner = Join-Path $repositoryRoot 'scripts\run-operational-pilot.ps1'
+    $ledgerZip = Join-Path $repositoryRoot '.tooling\candidates\99fdaab\project-ledger-0.2.0-windows-x86_64.zip'
+    $expectedHash = 'b7abca67c630687f6c5a4f9d58c19d0711bebb87a6f6acdbb1487f91a000d9dc'
+    $expectedSourceCommit = '99fdaab52bcec7003bab02e4cfee45059a4bf737'
+
+    It 'proves replay, conflicts, authority denial, and unknown-outcome reconciliation without blind retry' {
+        $pilotRoot = Join-Path $TestDrive 'Stage 5 á transactional safety'
+
+        foreach ($stage in 1..5) {
+            $result = & $runner `
+                -Stage $stage `
+                -LedgerZip $ledgerZip `
+                -PilotRoot $pilotRoot `
+                -RepositoryRoot $repositoryRoot `
+                -ExpectedZipSha256 $expectedHash `
+                -ExpectedSourceCommit $expectedSourceCommit
+        }
+
+        $LASTEXITCODE | Should Be 0
+        $manifestPath = Join-Path $pilotRoot 'evidence\stage-5-transactional-safety.json'
+        (Test-Path -LiteralPath $manifestPath) | Should Be $true
+        $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+
+        $manifest.profile | Should Be 'project-ledger-operational-pilot-stage/1'
+        $manifest.stage | Should Be 5
+        $manifest.status | Should Be 'TRANSACTIONAL_SAFETY_PASS'
+        $manifest.proof_class | Should Be 'LIVE_PILOT'
+        $manifest.subject.zip_sha256 | Should Be $expectedHash
+        $manifest.subject.source_commit | Should Be $expectedSourceCommit
+        $manifest.replay.first_status | Should Be 'ACCEPTED'
+        $manifest.replay.replay_status | Should Be 'DUPLICATE_REPLAY'
+        $manifest.replay.replay_state_version_delta | Should Be 0
+        $manifest.replay.replay_state_digest_unchanged | Should Be $true
+        $manifest.replay.same_command_result_id | Should Be $true
+        $manifest.replay.replayed | Should Be $true
+        $manifest.idempotency_conflict.exit_code | Should Be 10
+        $manifest.idempotency_conflict.state_version_delta | Should Be 0
+        $manifest.idempotency_conflict.state_digest_unchanged | Should Be $true
+        $manifest.version_conflict.exit_code | Should Be 5
+        $manifest.version_conflict.state_version_delta | Should Be 0
+        $manifest.version_conflict.state_digest_unchanged | Should Be $true
+        $manifest.version_conflict.resume_observed | Should Be $true
+        $manifest.version_conflict.replanned_status | Should Be 'ACCEPTED'
+        $manifest.version_conflict.original_key_reused | Should Be $false
+        $manifest.authority_denial.exit_code | Should Be 9
+        $manifest.authority_denial.state_version_delta | Should Be 0
+        $manifest.authority_denial.state_digest_unchanged | Should Be $true
+        $manifest.authority_denial.as_human_added | Should Be $false
+        $manifest.uncertain_checkpoint.stdout_discarded | Should Be $true
+        $manifest.uncertain_checkpoint.command_attempt_count | Should Be 1
+        $manifest.uncertain_checkpoint.reconcile_outcome | Should Be 'RECONCILED'
+        $manifest.uncertain_checkpoint.reconciled_status | Should Be 'ACCEPTED'
+        $manifest.uncertain_checkpoint.reconcile_state_version_delta | Should Be 0
+        $manifest.uncertain_checkpoint.actor_id | Should Be 'agent:opa-stage5'
+        $manifest.uncertain_checkpoint.actor_kind | Should Be 'AGENT'
+        $manifest.uncertain_checkpoint.command_type | Should Be 'CREATE_CONTINUITY_CHECKPOINT'
+        $manifest.uncertain_checkpoint.trust_domain | Should Be 'LOCAL_USER'
+        $manifest.missing_result.exit_code | Should Be 12
+        $manifest.missing_result.state_version_delta | Should Be 0
+        $manifest.missing_result.state_digest_unchanged | Should Be $true
+        $manifest.missing_result.blind_retry_performed | Should Be $false
+        $manifest.boundary.project_status | Should Be 'BLOCKED'
+        $manifest.boundary.active_phase_ref | Should Be 'phase:operational-acceptance'
+        $manifest.boundary.completed_phase_count | Should Be 0
+        $manifest.boundary.open_blocker_ref | Should Be 'blocker:opa-stage6-recovery'
+        $manifest.boundary.next_action_ref | Should Be 'action:opa-stage6-recovery'
+        $manifest.boundary.checkpoint_freshness | Should Be 'CURRENT'
+        $manifest.boundary.stage_6_executed | Should Be $false
+        $manifest.boundary.merge_performed | Should Be $false
+        $manifest.boundary.release_performed | Should Be $false
+        $manifest.boundary.operational_acceptance_declared | Should Be $false
+        $manifest.scenarios.'OPA-S16' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S17' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S18' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S19' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S20' | Should Be 'PASS'
+        $manifest.scenarios.'OPA-S21' | Should Be 'PASS'
+        $result.stage | Should Be 5
+        $result.status | Should Be 'TRANSACTIONAL_SAFETY_PASS'
+    }
+}

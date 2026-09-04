@@ -66,10 +66,10 @@
 
 ### Task 5: Idempotencia y reconciliación
 
-- [ ] Ejecutar replay, key conflict, version conflict y policy denial con delta cero.
-- [ ] Descartar stdout de checkpoint y reconciliar el scope original; consultar key inexistente.
-- [ ] Validar S16…S21 sin retry ciego.
-- [ ] Actualizar 5/8 y commit `test: validate transactional safety`.
+- [x] Ejecutar replay, key conflict, version conflict y policy denial con delta cero.
+- [x] Descartar stdout de checkpoint y reconciliar el scope original; consultar key inexistente.
+- [x] Validar S16…S21 sin retry ciego.
+- [x] Actualizar 5/8 y commit `test: validate transactional safety`.
 
 ### Task 6: Proyecciones, privacidad y recuperación
 
@@ -106,3 +106,13 @@ Ante un resultado inesperado: detener etapa, preservar evidencia sanitizada, abr
 - Límite: `blocker:opa-stage5-transaction` mantiene el proyecto `BLOCKED`; `action:opa-stage5-transaction` sólo es `RECOMMENDED`. No se ejecutaron Stage 5, merge, release ni aceptación operativa.
 
 **Siguiente paso:** solicitar autorización humana explícita para Stage 5. Sin ella, no ejecutar replay/conflict/version/outcome-unknown del piloto ni cambiar el contador de 4/8.
+
+## 2026-09-03 — Stage 5 ejecutado y conciliado, 5/8
+
+- RED/GREEN: Stage 5 comenzó con `PILOT_STAGE_NOT_IMPLEMENTED: stage 5`. Tras implementar el harness, la suite completa pasó 7/7 sobre proyectos temporales nuevos. Las discrepancias intermedias fueron del harness: URI relativa inválida, digest distinto y normativo para `DUPLICATE_REPLAY`, invalidación adicional del checkpoint al resolver el único blocker, y lectura del head digest desde la superficie incorrecta. No se cambió G-Ledger ni sus contratos.
+- Ejecución viva: el proyecto `project:01a0697c-34b6-7042-a751-fbfb30a06a49` y el ZIP alojado `e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851` pasaron OPA-S16…OPA-S21. Replay exacto: `DUPLICATE_REPLAY`, mismo `command_result_id`, delta cero. Conflicto de intención: exit 10/delta cero. Versión obsoleta: exit 5/delta cero, seguida de `resume` y comando replanificado con clave nueva.
+- Autoridad y resultado incierto: un agente recibió exit 9/delta cero al intentar registrar autoridad y no se añadió `--as-human`. Se descartó stdout de un checkpoint aceptado, se reconcilió una sola vez con `agent:opa-stage5`, `CREATE_CONTINUITY_CHECKPOINT`, `LOCAL_USER` y la clave original, sin reenvío. La consulta de una clave inexistente devolvió exit 12/delta cero y no provocó retry ciego.
+- Cierre controlado: state version 76, digest `sha256:b6ba0140df804e9227ea8ec3c07be92a899dc9f8b5947ea1044079bda7a40cd0`, checkpoint `checkpoint:98e9fdf3-2ff8-7274-8b9e-0df11b9bd6a4` `CURRENT`, fase activa y cero fases completadas. `doctor`, `verify` y `audit` informaron integridad `ok`, cero findings y cero submissions sin resolver.
+- Límite: `blocker:opa-stage6-recovery` mantiene el proyecto `BLOCKED`; `action:opa-stage6-recovery` sólo es `ELIGIBLE` para solicitar autorización. No se ejecutaron Stage 6, merge, release ni aceptación operativa.
+
+**Siguiente paso:** solicitar autorización humana explícita para Stage 6. Sin ella, no ejecutar proyecciones, portabilidad, privacidad, backup/restore ni cambiar el contador de 5/8.

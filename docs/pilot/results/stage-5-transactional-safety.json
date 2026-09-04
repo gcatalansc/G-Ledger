@@ -1,0 +1,137 @@
+{
+  "profile": "project-ledger-operational-pilot-stage-closure/1",
+  "stage": 5,
+  "status": "PASS",
+  "proof_class": "LIVE_PILOT_HOSTED",
+  "observed_at": "2026-09-04T00:09:44Z",
+  "subject": {
+    "product_version": "0.2.0",
+    "source_commit": "99fdaab52bcec7003bab02e4cfee45059a4bf737",
+    "hosted_run_id": 33813281940,
+    "hosted_artifact_id": 9916188037,
+    "zip_sha256": "e2509d48abefe2211261b645604d4b08f13d5751d182ad158a0059d3c222a851",
+    "project_ref": "project:01a0697c-34b6-7042-a751-fbfb30a06a49",
+    "certified_compatibility": false
+  },
+  "harness": {
+    "runner": "scripts/run-operational-pilot.ps1",
+    "runner_sha256": "58106fc4e696d55298f76a9d5feecd178aeed2a45ab69b6c8030057a7e993a65",
+    "test": "scripts/tests/OperationalPilotRunner.Tests.ps1",
+    "test_sha256": "d939c32cc33825fe2ae27dda134f618558019a2ac9708badaa9efae9c0222fa0",
+    "red_condition": "PILOT_STAGE_NOT_IMPLEMENTED: stage 5",
+    "green_total": 7,
+    "green_passed": 7,
+    "green_failed": 0,
+    "mutable_fixture_root": ".tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/",
+    "raw_output_versioned": false
+  },
+  "live_manifest": {
+    "locator": "local:.tooling/g-ledger-operational-pilot/attempts/hosted-run-33813281940/evidence/stage-5-transactional-safety.json",
+    "sha256": "7d4b4103d73cd3cbd522e8b868ebedc7022217e1aa6652f62b8fb0d6d73de1cc"
+  },
+  "replay": {
+    "command_type": "RECORD_PROGRESS",
+    "actor_id": "agent:opa-stage5",
+    "trust_domain": "TRUSTED_FOR_RECORDING",
+    "idempotency_key": "opa:stage5:replay",
+    "first_status": "ACCEPTED",
+    "first_state_version_delta": 1,
+    "replay_status": "DUPLICATE_REPLAY",
+    "replay_state_version_delta": 0,
+    "replay_state_digest_unchanged": true,
+    "same_command_result_id": true,
+    "replayed": true
+  },
+  "idempotency_conflict": {
+    "exit_code": 10,
+    "status": "REJECTED",
+    "error_code": "IDEMPOTENCY_CONFLICT",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true
+  },
+  "version_conflict": {
+    "exit_code": 5,
+    "status": "VERSION_CONFLICT",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "resume_observed": true,
+    "replanned_expected_version": 67,
+    "replanned_status": "ACCEPTED",
+    "original_key_reused": false
+  },
+  "authority_denial": {
+    "exit_code": 9,
+    "status": "POLICY_DENIED",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "as_human_added": false
+  },
+  "uncertain_checkpoint": {
+    "stdout_discarded": true,
+    "command_attempt_count": 1,
+    "idempotency_key": "opa:stage5:checkpoint-outcome",
+    "actor_id": "agent:opa-stage5",
+    "actor_kind": "AGENT",
+    "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+    "trust_domain": "LOCAL_USER",
+    "initial_state_version_delta": 1,
+    "reconcile_outcome": "RECONCILED",
+    "reconciled_status": "ACCEPTED",
+    "reconciled_result_digest": "sha256:80857578967abc19c8725f23ca1f237a4ad978da94e844cc665105bc14ce7062",
+    "reconcile_state_version_delta": 0,
+    "blind_resubmission_performed": false
+  },
+  "missing_result": {
+    "exit_code": 12,
+    "error_code": "OUTCOME_UNKNOWN",
+    "state_version_delta": 0,
+    "state_digest_unchanged": true,
+    "blind_retry_performed": false
+  },
+  "human_actions": {
+    "actor_id": "human:owner",
+    "as_human_use_count": 3,
+    "actions": [
+      "RESOLVE_STAGE_5_BLOCKER",
+      "SET_STAGE_6_AS_ELIGIBLE_FOR_AUTHORIZATION",
+      "OPEN_STAGE_6_AUTHORIZATION_BLOCKER"
+    ],
+    "scope": "Stage 5 closure boundary only; no Stage 6 execution authority"
+  },
+  "reconciliation": {
+    "state_version": 76,
+    "state_digest": "sha256:b6ba0140df804e9227ea8ec3c07be92a899dc9f8b5947ea1044079bda7a40cd0",
+    "head_digest": "sha256:1dfac0b05e782498750c291614ca5b663178c995f7778ebbc642fdfb0ef46923",
+    "doctor_integrity": "ok",
+    "verify_integrity": "ok",
+    "audit_integrity": "ok",
+    "verify_finding_count": 0,
+    "audit_finding_count": 0,
+    "command_count": 67,
+    "command_result_count": 67,
+    "unresolved_submission_count": 0,
+    "checkpoint_ref": "checkpoint:98e9fdf3-2ff8-7274-8b9e-0df11b9bd6a4",
+    "checkpoint_freshness": "CURRENT"
+  },
+  "scenarios": [
+    {"id":"OPA-S16","status":"PASS"},
+    {"id":"OPA-S17","status":"PASS"},
+    {"id":"OPA-S18","status":"PASS"},
+    {"id":"OPA-S19","status":"PASS"},
+    {"id":"OPA-S20","status":"PASS"},
+    {"id":"OPA-S21","status":"PASS"}
+  ],
+  "boundaries": {
+    "project_status": "BLOCKED",
+    "active_phase_ref": "phase:operational-acceptance",
+    "completed_phase_count": 0,
+    "open_blocker_ref": "blocker:opa-stage6-recovery",
+    "next_action_ref": "action:opa-stage6-recovery",
+    "next_action_classification": "ELIGIBLE",
+    "stage_6_executed": false,
+    "pull_request_merged": false,
+    "release_published": false,
+    "operational_adoption_granted": false,
+    "general_availability_claimed": false
+  }
+}

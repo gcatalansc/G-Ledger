@@ -90,6 +90,461 @@ function Get-PilotTextDigest {
     return 'sha256:' + [Convert]::ToHexString($hash).ToLowerInvariant()
 }
 
+if ($Stage -eq 5) {
+    $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+    $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
+    $resolvedPilotRoot = [System.IO.Path]::GetFullPath($PilotRoot)
+    if (-not (Test-Path -LiteralPath $resolvedPilotRoot -PathType Container)) {
+        throw "PILOT_STAGE_1_REQUIRED: $resolvedPilotRoot"
+    }
+
+    $evidenceDirectory = Join-Path $resolvedPilotRoot 'evidence'
+    $fixtureDirectory = Join-Path $resolvedPilotRoot 'fixtures'
+    $stageOneManifestPath = Join-Path $evidenceDirectory 'stage-1-preflight.json'
+    $stageTwoManifestPath = Join-Path $evidenceDirectory 'stage-2-governed-model.json'
+    $stageThreeManifestPath = Join-Path $evidenceDirectory 'stage-3-high-level-continuity.json'
+    $stageFourManifestPath = Join-Path $evidenceDirectory 'stage-4-evidence-lifecycle.json'
+    $stageFiveManifestPath = Join-Path $evidenceDirectory 'stage-5-transactional-safety.json'
+    $locatorPath = Join-Path $resolvedPilotRoot 'pilot-locator.json'
+    $installation = Join-Path $resolvedPilotRoot 'instalación con espacios'
+    $ledger = Join-Path $installation 'project-ledger.exe'
+    $packageManifestPath = Join-Path $installation 'package.json'
+    foreach ($requiredPath in @(
+        $stageOneManifestPath,
+        $stageTwoManifestPath,
+        $stageThreeManifestPath,
+        $stageFourManifestPath,
+        $locatorPath,
+        $ledger,
+        $packageManifestPath
+    )) {
+        if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
+            throw "PILOT_STAGE_4_EVIDENCE_MISSING: $requiredPath"
+        }
+    }
+    if (Test-Path -LiteralPath $stageFiveManifestPath) {
+        throw "PILOT_STAGE_ALREADY_EXECUTED: $stageFiveManifestPath"
+    }
+
+    $actualZipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $resolvedZip).Hash.ToLowerInvariant()
+    if ($actualZipHash -ne $ExpectedZipSha256.ToLowerInvariant()) {
+        throw "PILOT_ZIP_HASH_MISMATCH: expected $($ExpectedZipSha256.ToLowerInvariant()); actual $actualZipHash"
+    }
+    $stageOneManifest = Get-Content -Raw -LiteralPath $stageOneManifestPath | ConvertFrom-Json
+    $stageTwoManifest = Get-Content -Raw -LiteralPath $stageTwoManifestPath | ConvertFrom-Json
+    $stageThreeManifest = Get-Content -Raw -LiteralPath $stageThreeManifestPath | ConvertFrom-Json
+    $stageFourManifest = Get-Content -Raw -LiteralPath $stageFourManifestPath | ConvertFrom-Json
+    $packageManifest = Get-Content -Raw -LiteralPath $packageManifestPath | ConvertFrom-Json
+    if ($stageOneManifest.status -ne 'PREFLIGHT_PASS' -or
+        $stageTwoManifest.status -ne 'GOVERNED_MODEL_PASS' -or
+        $stageThreeManifest.status -ne 'HIGH_LEVEL_CONTINUITY_PASS' -or
+        $stageFourManifest.status -ne 'EVIDENCE_LIFECYCLE_PASS' -or
+        $stageOneManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageFourManifest.subject.zip_sha256 -ne $actualZipHash -or
+        $stageOneManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $stageFourManifest.subject.source_commit -ne $ExpectedSourceCommit -or
+        $packageManifest.source_commit -ne $ExpectedSourceCommit) {
+        throw 'PILOT_STAGE_4_IDENTITY_MISMATCH'
+    }
+
+    $locator = Get-Content -Raw -LiteralPath $locatorPath | ConvertFrom-Json
+    $database = [string]$locator.database
+    $projectRef = [string]$locator.project_ref
+    if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+        throw 'PILOT_DATABASE_MISSING'
+    }
+    $initialState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $stageFourLastMutation = @($stageFourManifest.mutations)[-1]
+    if ([int64]$initialState.state_version -ne [int64]$stageFourLastMutation.resulting_state_version -or
+        $initialState.project.lifecycle_status -ne 'BLOCKED' -or
+        $initialState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($initialState.completed_phase_refs).Count -ne 0 -or
+        $initialState.preferred_next_action_ref -ne 'action:opa-stage5-transaction' -or
+        @($initialState.open_blocker_refs) -notcontains 'blocker:opa-stage5-transaction' -or
+        $initialState.checkpoint_ref -ne $stageFourManifest.freshness.replacement_checkpoint_ref) {
+        throw 'PILOT_STAGE_5_INITIAL_STATE_MISMATCH'
+    }
+
+    $observedAt = [DateTimeOffset]::UtcNow.ToString(
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        [Globalization.CultureInfo]::InvariantCulture
+    )
+    $script:stageFiveStateVersion = [int64]$initialState.state_version
+    $script:stageFiveMutations = @()
+
+    function Invoke-StageFiveCommand {
+        param(
+            [string]$Name,
+            [string]$CommandType,
+            [string]$ActorId,
+            [bool]$AsHuman,
+            [string[]]$CommandArguments,
+            [int64]$ExpectedVersion,
+            [string]$IdempotencyKey,
+            [int]$ExpectedExitCode,
+            [int64]$ExpectedDelta
+        )
+
+        $before = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $arguments = @($CommandArguments) + @(
+            '--database', $database,
+            '--project-ref', $projectRef,
+            '--expected-version', [string]$ExpectedVersion,
+            '--idempotency-key', $IdempotencyKey,
+            '--actor-id', $ActorId,
+            '--observed-at', $observedAt
+        )
+        if ($AsHuman) { $arguments += '--as-human' }
+        $arguments += '--json'
+        $result = Invoke-PilotLedgerJson `
+            -Executable $ledger `
+            -Arguments $arguments `
+            -ExpectedExitCodes @($ExpectedExitCode)
+        $after = Invoke-PilotLedgerJson $ledger @(
+            'status', '--database', $database, '--project-ref', $projectRef, '--json'
+        )
+        $delta = [int64]$after.state_version - [int64]$before.state_version
+        if ($delta -ne $ExpectedDelta) {
+            throw "PILOT_STAGE_5_MUTATION_DELTA_INVALID: $Name expected=$ExpectedDelta actual=$delta"
+        }
+        if ($ExpectedDelta -eq 0 -and $after.state_digest -ne $before.state_digest) {
+            throw "PILOT_STAGE_5_ZERO_DELTA_DIGEST_CHANGED: $Name"
+        }
+        $script:stageFiveStateVersion = [int64]$after.state_version
+        $script:stageFiveMutations += [ordered]@{
+            name = $Name
+            command_type = $CommandType
+            actor_id = $ActorId
+            as_human = $AsHuman
+            expected_exit_code = $ExpectedExitCode
+            observed_exit_code = $ExpectedExitCode
+            expected_state_version = $ExpectedVersion
+            state_version_before = [int64]$before.state_version
+            resulting_state_version = [int64]$after.state_version
+            state_version_delta = $delta
+            idempotency_key = $IdempotencyKey
+        }
+        return [ordered]@{ result = $result; before = $before; state = $after; delta = $delta }
+    }
+
+    $initialVersion = [int64]$initialState.state_version
+    $replayArguments = @(
+        'record', 'progress', '--summary', 'Stage 5 exact replay probe accepted once.',
+        '--phase', 'phase:operational-acceptance',
+        '--files', 'workspace://docs/pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_PILOT_SPEC_v1.0.0.md',
+        '--record-id', 'work:opa-stage5-replay'
+    )
+    $first = Invoke-StageFiveCommand `
+        'replay-first' 'RECORD_PROGRESS' 'agent:opa-stage5' $false `
+        $replayArguments $initialVersion 'opa:stage5:replay' 0 1
+    $afterFirst = $first.state
+    $replay = Invoke-StageFiveCommand `
+        'replay-identical' 'RECORD_PROGRESS' 'agent:opa-stage5' $false `
+        $replayArguments $initialVersion 'opa:stage5:replay' 0 0
+    if ($first.result.status -ne 'ACCEPTED' -or
+        $replay.result.status -ne 'DUPLICATE_REPLAY' -or
+        $replay.result.command_result_id -ne $first.result.command_result_id -or
+        $replay.result.idempotency.replayed -ne $true) {
+        throw "PILOT_STAGE_5_REPLAY_INVARIANT_FAILED: first_status=$($first.result.status) replay_status=$($replay.result.status) first_result=$($first.result.command_result_id) replay_result=$($replay.result.command_result_id) replayed=$($replay.result.idempotency.replayed)"
+    }
+
+    $idempotencyConflict = Invoke-StageFiveCommand `
+        'idempotency-conflict' 'RECORD_PROGRESS' 'agent:opa-stage5' $false `
+        @(
+            'record', 'progress', '--summary', 'Changed intent must be rejected.',
+            '--phase', 'phase:operational-acceptance', '--record-id', 'work:opa-stage5-conflict'
+        ) `
+        $initialVersion 'opa:stage5:replay' 10 0
+    if ($idempotencyConflict.result.status -ne 'REJECTED' -or
+        $idempotencyConflict.result.rejection.code -ne 'IDEMPOTENCY_CONFLICT') {
+        throw 'PILOT_STAGE_5_IDEMPOTENCY_CONFLICT_NOT_TYPED'
+    }
+
+    $versionConflict = Invoke-StageFiveCommand `
+        'version-conflict' 'RECORD_PROGRESS' 'agent:opa-stage5' $false `
+        @(
+            'record', 'progress', '--summary', 'Stale expected version must be rejected.',
+            '--phase', 'phase:operational-acceptance', '--record-id', 'work:opa-stage5-stale'
+        ) `
+        $initialVersion 'opa:stage5:version-stale' 5 0
+    if ($versionConflict.result.status -ne 'VERSION_CONFLICT') {
+        throw 'PILOT_STAGE_5_VERSION_CONFLICT_NOT_TYPED'
+    }
+    $resumeAfterConflict = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    if ([int64]$resumeAfterConflict.state_version -ne [int64]$versionConflict.state.state_version) {
+        throw 'PILOT_STAGE_5_RESUME_AFTER_CONFLICT_MISMATCH'
+    }
+    $replannedExpectedVersion = [int64]$resumeAfterConflict.state_version
+    $replanned = Invoke-StageFiveCommand `
+        'version-replanned' 'RECORD_PROGRESS' 'agent:opa-stage5' $false `
+        @(
+            'record', 'progress', '--summary', 'Stage 5 resumed and replanned from the current version.',
+            '--phase', 'phase:operational-acceptance', '--record-id', 'work:opa-stage5-replanned'
+        ) `
+        $replannedExpectedVersion 'opa:stage5:version-replanned' 0 1
+    if ($replanned.result.status -ne 'ACCEPTED') {
+        throw 'PILOT_STAGE_5_REPLAN_NOT_ACCEPTED'
+    }
+
+    $agentAuthorityFixture = Join-Path $fixtureDirectory 'stage-5-agent-authority-forbidden.md'
+    [IO.File]::WriteAllText(
+        $agentAuthorityFixture,
+        "# Stage 5 authority denial fixture`n`nAn agent must not register this as authority.`n",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $agentAuthorityDigest = 'sha256:' + (Get-FileHash -Algorithm SHA256 -LiteralPath $agentAuthorityFixture).Hash.ToLowerInvariant()
+    $authorityDenial = Invoke-StageFiveCommand `
+        'authority-denied' 'REGISTER_AUTHORITY_DOCUMENT' 'agent:opa-stage5' $false `
+        @(
+            'authority', 'add', '--uri', $agentAuthorityFixture, '--digest', $agentAuthorityDigest,
+            '--record-id', 'authority:opa-stage5-agent-forbidden'
+        ) `
+        $script:stageFiveStateVersion 'opa:stage5:authority-denied' 9 0
+    if ($authorityDenial.result.status -ne 'POLICY_DENIED') {
+        throw 'PILOT_STAGE_5_AUTHORITY_DENIAL_NOT_TYPED'
+    }
+
+    $checkpointVersionBefore = [int64]$script:stageFiveStateVersion
+    $checkpointKey = 'opa:stage5:checkpoint-outcome'
+    $checkpointArguments = @(
+        'checkpoint', 'create', '--reason', 'Stage 5 discarded-response reconciliation probe',
+        '--database', $database, '--project-ref', $projectRef,
+        '--expected-version', [string]$checkpointVersionBefore,
+        '--idempotency-key', $checkpointKey,
+        '--actor-id', 'agent:opa-stage5', '--observed-at', $observedAt, '--json'
+    )
+    & $ledger @checkpointArguments 1>$null 2>$null
+    $discardedCheckpointExit = $LASTEXITCODE
+    if ($discardedCheckpointExit -ne 0) {
+        throw "PILOT_STAGE_5_DISCARDED_CHECKPOINT_FAILED: exit=$discardedCheckpointExit"
+    }
+    $afterDiscardedCheckpoint = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    if (([int64]$afterDiscardedCheckpoint.state_version - $checkpointVersionBefore) -ne 1) {
+        throw 'PILOT_STAGE_5_DISCARDED_CHECKPOINT_DELTA_INVALID'
+    }
+    $script:stageFiveStateVersion = [int64]$afterDiscardedCheckpoint.state_version
+    $script:stageFiveMutations += [ordered]@{
+        name = 'checkpoint-response-discarded'
+        command_type = 'CREATE_CONTINUITY_CHECKPOINT'
+        actor_id = 'agent:opa-stage5'
+        as_human = $false
+        expected_exit_code = 0
+        observed_exit_code = $discardedCheckpointExit
+        expected_state_version = $checkpointVersionBefore
+        state_version_before = $checkpointVersionBefore
+        resulting_state_version = [int64]$afterDiscardedCheckpoint.state_version
+        state_version_delta = 1
+        idempotency_key = $checkpointKey
+        stdout_discarded = $true
+    }
+    $reconciledCheckpoint = Invoke-PilotLedgerJson $ledger @(
+        'reconcile', '--database', $database, '--project-ref', $projectRef,
+        '--command-type', 'CREATE_CONTINUITY_CHECKPOINT',
+        '--actor-id', 'agent:opa-stage5', '--trust-domain', 'LOCAL_USER',
+        '--idempotency-key', $checkpointKey, '--json'
+    )
+    $afterReconcile = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $reconcileDelta = [int64]$afterReconcile.state_version - [int64]$afterDiscardedCheckpoint.state_version
+    if ($reconciledCheckpoint.outcome -ne 'RECONCILED' -or
+        $reconciledCheckpoint.result.status -ne 'ACCEPTED' -or
+        $reconcileDelta -ne 0 -or
+        $afterReconcile.state_digest -ne $afterDiscardedCheckpoint.state_digest) {
+        throw 'PILOT_STAGE_5_RECONCILE_INVARIANT_FAILED'
+    }
+
+    $beforeMissingResult = $afterReconcile
+    $missingResult = Invoke-PilotLedgerJson `
+        -Executable $ledger `
+        -Arguments @(
+            'reconcile', '--database', $database, '--project-ref', $projectRef,
+            '--command-type', 'CREATE_CONTINUITY_CHECKPOINT',
+            '--actor-id', 'agent:opa-stage5', '--trust-domain', 'LOCAL_USER',
+            '--idempotency-key', 'opa:stage5:checkpoint-missing', '--json'
+        ) `
+        -ExpectedExitCodes @(12)
+    $afterMissingResult = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $missingResultDelta = [int64]$afterMissingResult.state_version - [int64]$beforeMissingResult.state_version
+    if ($missingResult.error.code -ne 'OUTCOME_UNKNOWN' -or
+        $missingResultDelta -ne 0 -or
+        $afterMissingResult.state_digest -ne $beforeMissingResult.state_digest) {
+        throw 'PILOT_STAGE_5_MISSING_RESULT_INVARIANT_FAILED'
+    }
+
+    $null = Invoke-StageFiveCommand `
+        'blocker-stage5-resolve' 'RESOLVE_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'resolve', 'blocker:opa-stage5-transaction',
+            '--summary', 'Replay, conflict, authority, and uncertain-outcome safeguards passed Stage 5.'
+        ) `
+        $script:stageFiveStateVersion 'opa:stage5:blocker-resolve' 0 3
+    $null = Invoke-StageFiveCommand `
+        'next-stage6-set' 'SET_NEXT_ACTION' 'human:owner' $true `
+        @(
+            'next', 'set', '--title', 'Request authorization for Stage 6 recovery and privacy',
+            '--summary', 'Stage 6 remains outside the current authorization.',
+            '--phase', 'phase:operational-acceptance', '--classification', 'ELIGIBLE',
+            '--record-id', 'action:opa-stage6-recovery'
+        ) `
+        $script:stageFiveStateVersion 'opa:stage5:next-stage6' 0 1
+    $null = Invoke-StageFiveCommand `
+        'blocker-stage6-open' 'OPEN_BLOCKER' 'human:owner' $true `
+        @(
+            'blocker', 'open', '--title', 'Stage 6 requires separate human authorization',
+            '--summary', 'Projection, privacy, portable, backup, and restore tests are not authorized by Stage 5.',
+            '--severity', 'MEDIUM', '--record-id', 'blocker:opa-stage6-recovery'
+        ) `
+        $script:stageFiveStateVersion 'opa:stage5:blocker-stage6' 0 2
+    $finalCheckpoint = Invoke-StageFiveCommand `
+        'checkpoint-final' 'CREATE_CONTINUITY_CHECKPOINT' 'agent:opa-stage5' $false `
+        @('checkpoint', 'create', '--reason', 'Stage 5 transactional safety handoff') `
+        $script:stageFiveStateVersion 'opa:stage5:checkpoint-final' 0 1
+
+    $finalResume = Invoke-PilotLedgerJson $ledger @(
+        'resume', '--database', $database, '--project-ref', $projectRef, '--format', 'json'
+    )
+    $finalState = Invoke-PilotLedgerJson $ledger @(
+        'status', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $finalDoctor = Invoke-PilotLedgerJson $ledger @(
+        'doctor', '--database', $database, '--project-ref', $projectRef, '--json'
+    )
+    $phaseList = @(Invoke-PilotLedgerJson $ledger @(
+        'phase', 'list', '--database', $database, '--project-ref', $projectRef, '--json'
+    ))
+    $activePhase = @($phaseList | Where-Object { $_.phase_ref -eq 'phase:operational-acceptance' })
+    if ($finalResume.checkpoint_freshness -ne 'CURRENT' -or
+        $finalState.project.lifecycle_status -ne 'BLOCKED' -or
+        $finalState.primary_active_phase_ref -ne 'phase:operational-acceptance' -or
+        @($finalState.completed_phase_refs).Count -ne 0 -or
+        $finalState.preferred_next_action_ref -ne 'action:opa-stage6-recovery' -or
+        @($finalState.open_blocker_refs) -notcontains 'blocker:opa-stage6-recovery' -or
+        @($finalState.open_blocker_refs) -contains 'blocker:opa-stage5-transaction' -or
+        $finalDoctor.integrity -ne 'ok' -or
+        [int64]$finalDoctor.state_version -ne [int64]$finalState.state_version -or
+        $activePhase.Count -ne 1 -or $activePhase[0].status -ne 'ACTIVE') {
+        throw 'PILOT_STAGE_5_FINAL_STATE_MISMATCH'
+    }
+
+    $manifest = [ordered]@{
+        profile = 'project-ledger-operational-pilot-stage/1'
+        stage = 5
+        status = 'TRANSACTIONAL_SAFETY_PASS'
+        proof_class = 'LIVE_PILOT'
+        project_ref = $projectRef
+        subject = [ordered]@{
+            zip_sha256 = $actualZipHash
+            source_commit = $ExpectedSourceCommit
+            version = $stageOneManifest.subject.version
+        }
+        replay = [ordered]@{
+            command_type = 'RECORD_PROGRESS'
+            actor_id = 'agent:opa-stage5'
+            trust_domain = 'TRUSTED_FOR_RECORDING'
+            idempotency_key = 'opa:stage5:replay'
+            first_status = $first.result.status
+            replay_status = $replay.result.status
+            replay_state_version_delta = $replay.delta
+            replay_state_digest_unchanged = $replay.before.state_digest -eq $replay.state.state_digest
+            same_command_result_id = $replay.result.command_result_id -eq $first.result.command_result_id
+            replayed = $replay.result.idempotency.replayed
+        }
+        idempotency_conflict = [ordered]@{
+            exit_code = 10
+            status = $idempotencyConflict.result.status
+            error_code = $idempotencyConflict.result.rejection.code
+            state_version_delta = $idempotencyConflict.delta
+            state_digest_unchanged = $idempotencyConflict.before.state_digest -eq $idempotencyConflict.state.state_digest
+        }
+        version_conflict = [ordered]@{
+            exit_code = 5
+            status = $versionConflict.result.status
+            state_version_delta = $versionConflict.delta
+            state_digest_unchanged = $versionConflict.before.state_digest -eq $versionConflict.state.state_digest
+            resume_observed = [int64]$resumeAfterConflict.state_version -eq [int64]$versionConflict.state.state_version
+            replanned_expected_version = $replannedExpectedVersion
+            replanned_status = $replanned.result.status
+            original_key_reused = $false
+        }
+        authority_denial = [ordered]@{
+            exit_code = 9
+            status = $authorityDenial.result.status
+            state_version_delta = $authorityDenial.delta
+            state_digest_unchanged = $authorityDenial.before.state_digest -eq $authorityDenial.state.state_digest
+            as_human_added = $false
+        }
+        uncertain_checkpoint = [ordered]@{
+            stdout_discarded = $true
+            command_attempt_count = 1
+            idempotency_key = $checkpointKey
+            actor_id = 'agent:opa-stage5'
+            actor_kind = 'AGENT'
+            command_type = 'CREATE_CONTINUITY_CHECKPOINT'
+            trust_domain = 'LOCAL_USER'
+            initial_state_version_delta = 1
+            reconcile_outcome = $reconciledCheckpoint.outcome
+            reconciled_status = $reconciledCheckpoint.result.status
+            reconciled_result_digest = $reconciledCheckpoint.result.digest
+            reconcile_state_version_delta = $reconcileDelta
+            blind_resubmission_performed = $false
+        }
+        missing_result = [ordered]@{
+            exit_code = 12
+            error_code = $missingResult.error.code
+            state_version_delta = $missingResultDelta
+            state_digest_unchanged = $beforeMissingResult.state_digest -eq $afterMissingResult.state_digest
+            blind_retry_performed = $false
+        }
+        lifecycle = [ordered]@{
+            initial_state_version = [int64]$initialState.state_version
+            final_state_version = [int64]$finalState.state_version
+            final_state_digest = $finalState.state_digest
+            final_head_event_digest = $finalDoctor.head_digest
+        }
+        boundary = [ordered]@{
+            project_status = $finalState.project.lifecycle_status
+            active_phase_ref = $finalState.primary_active_phase_ref
+            completed_phase_count = @($finalState.completed_phase_refs).Count
+            open_blocker_ref = 'blocker:opa-stage6-recovery'
+            next_action_ref = $finalState.preferred_next_action_ref
+            checkpoint_ref = $finalResume.checkpoint_ref
+            checkpoint_freshness = $finalResume.checkpoint_freshness
+            stage_6_executed = $false
+            merge_performed = $false
+            release_performed = $false
+            operational_acceptance_declared = $false
+        }
+        mutations = @($script:stageFiveMutations)
+        scenarios = [ordered]@{
+            'OPA-S16' = 'PASS'
+            'OPA-S17' = 'PASS'
+            'OPA-S18' = 'PASS'
+            'OPA-S19' = 'PASS'
+            'OPA-S20' = 'PASS'
+            'OPA-S21' = 'PASS'
+        }
+    }
+    Write-PilotJson $stageFiveManifestPath $manifest
+
+    [pscustomobject]@{
+        stage = 5
+        status = 'TRANSACTIONAL_SAFETY_PASS'
+        evidence = 'evidence/stage-5-transactional-safety.json'
+    }
+    return
+}
+
 if ($Stage -eq 4) {
     $resolvedRepository = (Resolve-Path -LiteralPath $RepositoryRoot).Path
     $resolvedZip = (Resolve-Path -LiteralPath $LedgerZip).Path
