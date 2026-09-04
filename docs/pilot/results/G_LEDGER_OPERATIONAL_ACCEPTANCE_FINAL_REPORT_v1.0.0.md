@@ -2,12 +2,14 @@
 
 ## Piloto de Aceptación Operativa de G-Ledger 0.2.0
 
-**Fecha de corte:** 4 de septiembre de 2026  
-**Producto evaluado:** G-Ledger 0.2.0  
-**Estado formal:** `READY_FOR_OWNER_DECISION`  
-**Avance formal:** 7/8 etapas, 87,5 %  
-**Decisión humana vigente:** pendiente  
-**Uso evaluado:** adopción operativa controlada; no General Availability
+| Control | Valor |
+|---|---|
+| Fecha de corte | 4 de septiembre de 2026 |
+| Producto evaluado | G-Ledger 0.2.0 |
+| Estado formal | `READY_FOR_OWNER_DECISION` |
+| Avance formal | 7/8 etapas, 87,5 % |
+| Decisión humana vigente | Pendiente |
+| Uso evaluado | Adopción operativa controlada; no General Availability |
 
 ---
 
@@ -169,10 +171,12 @@ La decisión histórica emitida para un candidato anterior fue preservada como h
 
 ### Registro de decisión
 
-**Actor autorizado:** `human:owner`  
-**Decisión:** pendiente  
-**Fecha:** pendiente  
-**Observaciones del propietario:** pendiente
+| Campo | Valor |
+|---|---|
+| Actor autorizado | `human:owner` |
+| Decisión | Pendiente |
+| Fecha | Pendiente |
+| Observaciones del propietario | Pendiente |
 
 ## 11. Documentos de respaldo
 
