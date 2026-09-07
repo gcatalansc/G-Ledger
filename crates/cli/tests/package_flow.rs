@@ -36,15 +36,37 @@ fn run(cwd: &Path, args: &[&str], exit: i32) -> Value {
 }
 
 #[test]
-#[allow(clippy::too_many_lines)]
 fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains() {
     let temp = tempfile::Builder::new()
         .prefix("Ledger paquete recuperación á ")
         .tempdir()
         .unwrap();
-    let cwd = temp.path();
+    exercise_portable_flow(temp.path(), temp.path());
+}
+
+#[cfg(windows)]
+#[test]
+fn portable_artifact_operates_and_recovers_beyond_windows_max_path() {
+    use std::os::windows::ffi::OsStrExt;
+
+    let temp = tempfile::Builder::new()
+        .prefix("Ledger rutas largas á ")
+        .tempdir()
+        .unwrap();
+    let mut cwd = temp.path().to_path_buf();
+    while cwd.as_os_str().encode_wide().count() < 1100 {
+        cwd.push("directorio de recuperación con espacios y acentos á");
+    }
+    fs::create_dir_all(&cwd).unwrap();
+    // CreateProcessW restricts the child's working directory independently of
+    // database paths. Keep process cwd short and select all data paths explicitly.
+    exercise_portable_flow(temp.path(), &cwd);
+}
+
+#[allow(clippy::too_many_lines)]
+fn exercise_portable_flow(working_directory: &Path, cwd: &Path) {
     let initialized = run(
-        cwd,
+        working_directory,
         &[
             "init",
             "--title",
@@ -67,7 +89,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
     let selected = |args: &[&str], exit| {
         let mut args = args.to_vec();
         args.extend(["--database", &db, "--project-ref", &id]);
-        run(cwd, &args, exit)
+        run(working_directory, &args, exit)
     };
     let at = "2026-08-27T23:00:00Z";
     let note = [
@@ -96,7 +118,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
     )
     .unwrap();
     let failure = run(
-        cwd,
+        working_directory,
         &[
             "evidence",
             "run",
@@ -117,7 +139,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
             "--policy",
             policy.to_str().unwrap(),
             "--cwd",
-            cwd.to_str().unwrap(),
+            working_directory.to_str().unwrap(),
             "--",
             binary().to_str().unwrap(),
             "--token=FAKE_PACKAGE_PROCESS_CANARY",
@@ -167,7 +189,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
     selected(&["export", "--output", portable.to_str().unwrap()], 0);
     let imported = cwd.join("importado á.db");
     run(
-        cwd,
+        working_directory,
         &[
             "import",
             "--file",
@@ -178,7 +200,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
         0,
     );
     let imported_state = run(
-        cwd,
+        working_directory,
         &[
             "resume",
             "--database",
@@ -199,9 +221,9 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
         "--database",
         restored.to_str().unwrap(),
     ];
-    run(cwd, &restore, 0);
+    run(working_directory, &restore, 0);
     let before = fs::read(&restored).unwrap();
-    run(cwd, &restore, 2);
+    run(working_directory, &restore, 2);
     assert_eq!(before, fs::read(&restored).unwrap());
     let mut replay = checkpoint.to_vec();
     replay.extend([
@@ -210,9 +232,12 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
         "--project-ref",
         &id,
     ]);
-    assert_eq!(run(cwd, &replay, 0)["status"], "DUPLICATE_REPLAY");
+    assert_eq!(
+        run(working_directory, &replay, 0)["status"],
+        "DUPLICATE_REPLAY"
+    );
     let audit = run(
-        cwd,
+        working_directory,
         &[
             "audit",
             "--database",
@@ -226,7 +251,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
     assert_eq!(audit["state_version"], version);
     let missing = cwd.join("missing.db");
     run(
-        cwd,
+        working_directory,
         &[
             "resume",
             "--database",
@@ -239,7 +264,7 @@ fn portable_artifact_operates_recovers_and_rejects_private_exports_without_toolc
     assert!(!missing.exists());
     let fork = cwd.join("fork.db");
     run(
-        cwd,
+        working_directory,
         &[
             "import",
             "--mode",

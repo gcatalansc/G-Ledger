@@ -159,7 +159,11 @@ function Invoke-Isolated([string[]]$Arguments, [int]$ExpectedExit=0) {
 }
 foreach ($family in @('resources','specs','contracts','release')) { $null = Invoke-Isolated @($family,'verify','--json') }
 $harnessResults = [Collections.Generic.List[object]]::new()
-foreach ($test in @(@($CodexTest,'published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access'), @($PortableTest,'portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains'))) {
+foreach ($test in @(
+    @($CodexTest,'published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access'),
+    @($PortableTest,'portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains'),
+    @($PortableTest,'portable_artifact_operates_and_recovers_beyond_windows_max_path')
+)) {
     $start = [Diagnostics.ProcessStartInfo]::new((Resolve-Path -LiteralPath $test[0]).Path)
     $start.UseShellExecute = $false
     $start.CreateNoWindow = $true
@@ -193,7 +197,7 @@ $null = Invoke-Isolated @('resources','verify','--json')
 $result = [ordered]@{
     profile='project-ledger-package-verification/1'; status='PASS'; zip_sha256=$ExpectedSha256.ToLowerInvariant()
     source_commit=$manifest.source_commit; source_tree_dirty=$manifest.source_tree_dirty; extracted_directory=$install
-    scenarios=@('official-document-layout','documentation-links','delivery-checksums','compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
+    scenarios=@('official-document-layout','documentation-links','delivery-checksums','compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','windows-long-data-paths','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
     runtime_environment='PATH absent; only SystemRoot/TEMP/TMP passed to Ledger; no Cargo/Git/Python/checkout required by core'
     imported_system_dlls=$imports.ToArray(); certified_compatibility=$false
     harness_results=$harnessResults.ToArray()

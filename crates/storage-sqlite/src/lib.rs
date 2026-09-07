@@ -69,7 +69,7 @@ impl SqliteEventStore {
         } else {
             OpenFlags::SQLITE_OPEN_READ_WRITE
         };
-        let connection = Connection::open_with_flags(path, flags)?;
+        let connection = open_connection(path, flags)?;
         connection.busy_timeout(Duration::from_secs(5))?;
         migrations::verify_current(&connection)?;
         connection.pragma_update(None, "foreign_keys", true)?;
@@ -88,7 +88,7 @@ impl SqliteEventStore {
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }
-        let mut connection = Connection::open(path)?;
+        let mut connection = open_connection(path, OpenFlags::default())?;
         connection.busy_timeout(Duration::from_secs(5))?;
         connection.pragma_update(None, "foreign_keys", true)?;
         connection.pragma_update(None, "synchronous", "FULL")?;
@@ -153,5 +153,39 @@ impl SqliteEventStore {
         Ok(self
             .connection
             .query_row("PRAGMA quick_check", [], |row| row.get(0))?)
+    }
+}
+
+// The larger VFS buffer and extended Windows filename are both required:
+// the native SQLite build does not add the extended prefix automatically.
+fn open_connection(path: &Path, flags: OpenFlags) -> rusqlite::Result<Connection> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::ffi::OsStrExt;
+
+        // Resolve relative paths, separators and dot components before using
+        // the verbatim namespace. This does not require the file to exist.
+        let absolute = std::path::absolute(path)
+            .map_err(|_| rusqlite::Error::InvalidPath(path.to_path_buf()))?;
+        // Leave short names in Win32's normal namespace; reserve room for
+        // SQLite's longest sidecar suffix and the terminating NUL.
+        if absolute.as_os_str().encode_wide().count() + "-journal".len() < 260 {
+            return Connection::open_with_flags_and_vfs(path, flags, "win32-longpath");
+        }
+        let name = absolute
+            .to_str()
+            .ok_or_else(|| rusqlite::Error::InvalidPath(path.to_path_buf()))?;
+        let extended = if name.starts_with(r"\\?\") || name.starts_with(r"\\.\") {
+            name.to_owned()
+        } else if let Some(unc) = name.strip_prefix(r"\\") {
+            format!(r"\\?\UNC\{unc}")
+        } else {
+            format!(r"\\?\{name}")
+        };
+        Connection::open_with_flags_and_vfs(extended, flags, "win32-longpath")
+    }
+    #[cfg(not(windows))]
+    {
+        Connection::open_with_flags(path, flags)
     }
 }

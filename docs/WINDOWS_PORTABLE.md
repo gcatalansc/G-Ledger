@@ -14,6 +14,14 @@ La skill Codex y sus argv están en `resources/integrations/agent-skills/project
 
 `render` produce Markdown derivado; no editarlo como fuente de verdad. `export --format portable` exporta historia verificada, no secretos ni todos los resultados privados. `backup` conserva el estado SQLite/WAL completo, resultados e idempotencia: es un respaldo privado, no compartible. `restore` escribe sólo un destino nuevo. `migrate` exige respaldo previo explícito. El fork materializado sigue no disponible en v0.2.
 
+## Rutas de datos en Windows
+
+El ZIP publicado `v0.2.0-rc.1` conserva el límite observado en el piloto: una base de 257 caracteres produjo rutas WAL/SHM de 261 y falló antes de inicializar. Para esa entrega, mantenga cortas las rutas de datos y respaldos.
+
+La [remediación posterior a rc.1](maintenance/2026-09-07-TECHNICAL_REMEDIATION.md) incorpora rutas extendidas en SQLite y en la publicación atómica de archivos. Sus regresiones cubren bases de 257 y 1.150 caracteres, Unicode, espacios y destinos de datos de más de 1.100 caracteres. No se modificó el ZIP publicado ni la configuración de Windows.
+
+El directorio de trabajo de un proceso externo tiene límites propios de Windows. Mantenga corto el directorio desde el que lanza la CLI y el `--cwd` de `evidence run`/GSP; seleccione las rutas de datos largas mediante flags. Esta verificación usa disco local, no acredita SQLite/WAL sobre carpetas de red ni todos los exploradores o extractores ZIP.
+
 ## GSP opcional y fijado
 
 GSP requiere por separado Python 3.12, Git y el entorno congelado del compiler `7a43559c02417641691dbb5f2a6e79c13d74d1a1`, junto al spec `004b14d7b64837025671970eac2469f092c49475`. Contrato `gsp-exact-2026.04.12`. No se descargan ni actualizan automáticamente, no se sustituyen por versiones recientes y su ausencia no impide usar el núcleo.

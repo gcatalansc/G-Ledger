@@ -4,6 +4,15 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ## [Unreleased]
 
+### Fixed
+
+- SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.
+- Publicación atómica de backups, imports portable y artefactos locales en rutas largas, manteniendo el rechazo de sobrescrituras.
+- Regresión del recorrido portable completo con rutas de datos de más de 1.100 caracteres, espacios y Unicode, incluida en el verificador Windows.
+- Resumen vigente de implementación, referencia de `risk close` y trazabilidad documental de la publicación rc.1, con límites externos explícitos.
+
+Registro y verificación: `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`, accesible desde el centro documental. Estos cambios son posteriores al ZIP rc.1 publicado.
+
 ## [0.2.0-rc.1] - 2026-09-04
 
 ### Added

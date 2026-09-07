@@ -1,4 +1,4 @@
-use crate::{SqliteEventStore, SqliteStoreError, migrations};
+use crate::{SqliteEventStore, SqliteStoreError, migrations, open_connection};
 use project_ledger_canonical_json::{Sha256Digest, to_canonical_vec};
 use project_ledger_domain::ProjectId;
 use project_ledger_event_store::{EventStore, StoreError};
@@ -51,7 +51,7 @@ impl SqliteEventStore {
     /// # Errors
     /// Rejects missing databases, unsupported versions and corrupt migration metadata.
     pub fn open_for_recovery(path: &Path) -> Result<Self, SqliteStoreError> {
-        let connection = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+        let connection = open_connection(path, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
         connection.busy_timeout(Duration::from_secs(5))?;
         migrations::verify_known(&connection)?;
         Ok(Self { connection })
@@ -78,7 +78,10 @@ impl SqliteEventStore {
             return Err(BackupError::DestinationExists);
         }
         fs::create_dir(directory)?;
-        let temporary = NamedTempFile::new_in(directory)?;
+        // tempfile's Windows persist uses native APIs without path expansion.
+        // Canonicalize the created directory so both rename paths are extended.
+        let directory = fs::canonicalize(directory)?;
+        let temporary = NamedTempFile::new_in(&directory)?;
         let copied = copy_snapshot(&self.connection, temporary.path())?;
         let projects = validate_snapshot(&copied)?;
         let version = copied.migration_version()?;
@@ -155,7 +158,9 @@ impl SqliteEventStore {
             .parent()
             .filter(|p| !p.as_os_str().is_empty())
             .unwrap_or_else(|| Path::new("."));
-        let temporary = NamedTempFile::new_in(parent)?;
+        let parent = fs::canonicalize(parent)?;
+        let destination = parent.join(destination.file_name().ok_or(BackupError::Integrity)?);
+        let temporary = NamedTempFile::new_in(&parent)?;
         // The source is a closed checksummed snapshot, not a live DB. Copy first,
         // verify those exact bytes, then inspect only the private copy with SQLite.
         fs::copy(&source_path, temporary.path())?;
@@ -163,7 +168,7 @@ impl SqliteEventStore {
             return Err(BackupError::Integrity);
         }
         let copied = Self {
-            connection: Connection::open(temporary.path())?,
+            connection: open_connection(temporary.path(), OpenFlags::default())?,
         };
         let projects = validate_snapshot(&copied)?;
         if projects != manifest.projects
@@ -187,7 +192,7 @@ impl SqliteEventStore {
         path: &Path,
         directory: &Path,
     ) -> Result<BackupManifest, BackupError> {
-        let mut writer = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_WRITE)?;
+        let mut writer = open_connection(path, OpenFlags::SQLITE_OPEN_READ_WRITE)?;
         writer.busy_timeout(Duration::from_secs(5))?;
         writer.pragma_update(None, "foreign_keys", true)?;
         writer.pragma_update(None, "synchronous", "FULL")?;
@@ -202,7 +207,7 @@ impl SqliteEventStore {
 }
 
 fn copy_snapshot(source: &Connection, destination: &Path) -> Result<SqliteEventStore, BackupError> {
-    let mut target = Connection::open(destination)?;
+    let mut target = open_connection(destination, OpenFlags::default())?;
     target.busy_timeout(Duration::from_millis(100))?;
     let backup = Backup::new(source, &mut target)?;
     let deadline = Instant::now() + Duration::from_mins(1);

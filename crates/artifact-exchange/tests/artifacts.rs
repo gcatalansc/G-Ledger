@@ -7,6 +7,45 @@ use project_ledger_canonical_json::{sha256_bytes, to_canonical_vec};
 use serde_json::{Value, json};
 use tempfile::tempdir;
 
+#[cfg(windows)]
+#[test]
+fn long_path_artifact_publication_roundtrips_without_overwriting() {
+    use std::os::windows::ffi::OsStrExt;
+
+    let temporary = tempdir().unwrap();
+    let mut root = temporary.path().to_path_buf();
+    while root.as_os_str().encode_wide().count() < 1100 {
+        root.push("publicación de artefactos con espacios y acentos á");
+    }
+    fs::create_dir_all(&root).unwrap();
+    let value = json!({"state_version": 42});
+    let receipt =
+        write_canonical_json(&root, "projection.json", &value, ArtifactLimits::default()).unwrap();
+    assert_eq!(
+        read_canonical_json::<Value>(
+            &root,
+            "projection.json",
+            receipt.digest,
+            ArtifactLimits::default()
+        )
+        .unwrap(),
+        value
+    );
+    assert!(matches!(
+        write_canonical_json(
+            &root,
+            "projection.json",
+            &json!({}),
+            ArtifactLimits::default()
+        ),
+        Err(ArtifactExchangeError::AlreadyExists { .. })
+    ));
+    assert_eq!(
+        fs::read(root.join("projection.json")).unwrap(),
+        to_canonical_vec(&value).unwrap()
+    );
+}
+
 #[test]
 fn canonical_artifact_roundtrip_is_atomic_and_never_overwrites() {
     let root = tempdir().unwrap();

@@ -25,7 +25,7 @@ Las mutaciones reciben `--expected-version`, `--idempotency-key`, `--actor-id` y
 | Conocimiento | claim record, status; unknown record, resolve | Afirmaciones iniciales ASSERTED, referencias explícitas |
 | Evidencia | evidence run, import, link, unlink, show, external-list | Política explícita para run; import nunca conserva VERIFIED_SOURCE del archivo |
 | Decisiones | decision propose, accept, supersede, show | JSON/YAML; un reemplazo debe estar propuesto y aceptado antes de sustituir |
-| Impedimentos | blocker open, resolve; risk open, mitigate | Flags o payload completo |
+| Impedimentos | blocker open, resolve; risk open, mitigate, close | Flags o payload completo |
 | Continuidad | next set; session start/end; checkpoint create; resume; reconcile | Comandos existentes; sesiones admiten payload contractual |
 
 `--file` admite el payload completo del comando o, para registros compuestos, el objeto contractual (por ejemplo, GateDefinition). Se verifican campos cerrados, digests y referencias; no se inventan gates o autoridades a partir de un nombre. Para next action AUTHORIZED use el payload completo con su autoridad; una clasificación no concede autoridad por sí sola.

@@ -86,8 +86,11 @@ pub fn write_canonical_json<T: Serialize>(
             actual: byte_len,
         });
     }
-    let destination = root.join(file_name);
-    let mut temporary = NamedTempFile::new_in(root).map_err(|source| io(root, source))?;
+    // tempfile's native Windows rename requires extended paths on both sides.
+    let canonical_root = fs::canonicalize(root).map_err(|source| io(root, source))?;
+    let destination = canonical_root.join(file_name);
+    let mut temporary =
+        NamedTempFile::new_in(&canonical_root).map_err(|source| io(root, source))?;
     temporary
         .write_all(&bytes)
         .map_err(|source| io(temporary.path(), source))?;

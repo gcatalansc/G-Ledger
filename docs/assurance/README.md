@@ -2,7 +2,11 @@
 
 Este índice separa el resultado humano, la evidencia machine-readable y los antecedentes de ingeniería. El lector ejecutivo puede detenerse en el primer bloque; auditoría y desarrollo pueden profundizar sin mezclar niveles.
 
-## Resultado vigente
+## Aceptación del piloto y entrega publicada
+
+El informe y la matriz conservan el corte del piloto del 2026-09-04. Las frases sobre ausencia de merge o release describen ese momento. La entrega posterior quedó integrada en [PR #5](https://github.com/gcatalansc/G-Ledger/pull/5) y publicada como [v0.2.0-rc.1](https://github.com/gcatalansc/G-Ledger/releases/tag/v0.2.0-rc.1), commit `22b3eca46ac6b963ab928e0131b0cdf88cd6627c`, con [CI 6/6 success](https://github.com/gcatalansc/G-Ledger/actions/runs/33890755947).
+
+Las correcciones posteriores y sus límites se consultan en el [registro de mantenimiento](../maintenance/2026-09-07-TECHNICAL_REMEDIATION.md). Esa verificación técnica no cambia el sujeto ni la decisión humana del piloto.
 
 - [Informe final humano del Piloto de Aceptación Operativa](../pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md).
 - [Acta de decisión humana exacta](../pilot/results/stage-8-risk-close-operational-acceptance.json).
@@ -39,4 +43,3 @@ Los JSON bajo [`docs/pilot/results/`](../pilot/results/) preservan identidad del
 ## Interpretación correcta
 
 `PASS` significa que el escenario identificado pasó sobre el sujeto y entorno declarados. No amplía el alcance a sistemas no ejecutados. `EXCLUDED_BY_SCOPE` nunca se interpreta como PASS. La evidencia prepiloto aporta contexto, pero no sustituye evidencia `LIVE_PILOT`.
-

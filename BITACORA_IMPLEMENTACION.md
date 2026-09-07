@@ -6,6 +6,25 @@
 
 | Campo | Valor |
 |---|---|
+| Fecha de actualización | 2026-09-07 |
+| Implementación base (§50/§51) | 12/12 macrofases; S0–S14, 15/15 slices completados |
+| Preparación prepiloto | 8/8 completada |
+| Piloto operativo | 8/8; aceptación humana del 2026-09-04, acotada a su sujeto exacto |
+| Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
+| Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
+| Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
+| Trabajo actual | Remediación local verificada; firma y certificación bilateral dependen de terceros. Registro `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md` |
+| Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
+| Investigación de mejoras | A la espera del propietario; no iniciada |
+
+La aceptación operativa corresponde al piloto y a la entrega identificados. Las correcciones posteriores requieren su propia evidencia de verificación; este resumen no transfiere la aceptación a un binario nuevo.
+
+### Resumen histórico conservado — 2026-08-23
+
+La tabla siguiente describía el cierre de S9; se conserva como antecedente, no como pendiente vigente.
+
+| Campo | Valor |
+|---|---|
 | Fecha de actualización | 2026-08-23 |
 | Estado | FASE 6 COMPLETADA — S9 CERRADO |
 | Macrofases completadas (§50) | 7/12 |
@@ -23,7 +42,7 @@
 - Spec v0.2.0 verificada: SHA-256 `31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9`.
 - Antecedente v0.1.0 localizado en el archivo externo preservado de G-Ledger Docs.
 - Antecedente v0.1.0 verificado antes de copiar: SHA-256 `772ea51780a5ed2881a786a198aa90dedb8b4ba619b6652d8f54ef4ca306d865`.
-- El lock read-only de G-Skills está `COMPLETE` y sigue sin certificación bilateral; GSP y Radar permanecen `PENDING`/`LOCK_GATED`.
+- Los cuatro perfiles del reporte de compatibilidad están `COMPLETE` en su alcance local. G-Skills conserva `PENDING_COUNTERPART_GSKILLS_S24` y Radar requiere contraparte y evidencia bilateral. Ningún perfil está certificado; véase `release/compatibility-report.json`.
 
 ## Historial
 
@@ -2472,3 +2491,13 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Identidad de distribución: el tag objetivo es `v0.2.0-rc.1`, siempre como prerelease. La release debe usar exclusivamente el ZIP generado por CI de `main` para el mismo SHA del tag, publicar `.sha256`/verification/SBOM/manifests y verificar una descarga fresca.
 - Límites: no se promueve GA, no se certifican integraciones externas y no se consume ni sustituye la prueba posterior sobre un proyecto real.
 - Calificación local previa al sellado: Pester terminó 20/20 incluyendo las ocho etapas del harness. Formato, Clippy estricto, tests workspace/all-targets/all-features, build workspace locked, schemas, specs, contratos, cuatro perfiles de integración, build release locked, benchmark, release check/verify, `cargo deny` y diff terminaron con exit 0. El ZIP limpio de `b71a5f55068f05690a430f64ad979ecc4614a99b` contuvo 574 archivos, declaró `source_tree_dirty=false` y pasó diez familias de verificación con SHA-256 `60d77b1d6ef45f378da1efabc8e5f23a4a984402f80b0b3560ecb9392e1393e2`; es evidencia local pre-merge, no el activo hosted de release.
+
+## 2026-09-07 — Remediación técnica posterior a rc.1
+
+- Autorización: el propietario pidió remediar primero los pendientes técnicos y esperar después para crear un plan de investigación.
+- Base: rc.1 / `22b3eca46ac6b963ab928e0131b0cdf88cd6627c`. PR #5, CI `33890755947` y ZIP publicado se reconsultaron; el ZIP conserva SHA-256 `5abcff9728a7b7c8a77551636cc54cd3d2a4a1d8be92a337ad7a1d83d7f55391`.
+- RED→GREEN: fallos reales de rutas largas en SQLite/WAL, import y publicación atómica; corregidos mediante VFS nativo de rutas largas, nombres extendidos y padres canónicos para temporales. Reapertura, cadena, resultados, idempotencia y rechazo de sobrescrituras permanecen verificados.
+- Documentación: resumen actual corregido sin eliminar el snapshot de S9; CLI incluye `risk close`; entrega rc.1 reconciliada y evidencia del piloto conservada como histórica.
+- Gate local: formato, Clippy, dependencias, schemas, specs, contratos, benchmark/release check y diff PASS; workspace 309 aprobadas, cero fallos, 14 entradas especiales ignored; documentación 9/9; build release con CRT estático y tres recorridos del binario aislado PASS.
+- Registro único: `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`, con alcance, evidencia y límites. Firma de código continúa sin certificado disponible; certificación bilateral depende de contrapartes. No se altera el contrato de fork ni la privacidad del portable.
+- Cierre: correcciones locales en `codex/technical-remediation`; publicación original preservada. Esperar al propietario para preparar el plan, sin iniciar investigación ni adopción real.

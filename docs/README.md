@@ -14,11 +14,12 @@ Lea en este orden:
 
 ## Quiero evaluar la entrega
 
+- [Estado de la remediación técnica posterior a rc.1](maintenance/2026-09-07-TECHNICAL_REMEDIATION.md): correcciones verificables y dependencias externas pendientes.
 - [Contenido oficial de la entrega](DELIVERY_CONTENTS.md).
 - [Notas de release `v0.2.0-rc.1`](RELEASE_NOTES_v0.2.0-rc.1.md).
 - [Aseguramiento y aceptación](assurance/README.md).
-- [Informe final humano](pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md).
-- [Matriz del piloto](pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md).
+- [Informe final humano del piloto, corte 2026-09-04](pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md).
+- [Matriz histórica del piloto](pilot/G_LEDGER_OPERATIONAL_ACCEPTANCE_MATRIX.md).
 - [Threat model](THREAT_MODEL.md).
 - [Fuente, build y procedencia](SOURCE_AND_BUILD.md).
 
@@ -37,6 +38,7 @@ Lea en este orden:
 |---|---|---|
 | `docs/getting-started/` | Inicio rápido y tutorial | Usuario nuevo |
 | `docs/operations/` | Modelo de operación | Operador/maintainer |
+| `docs/maintenance/` | Correcciones posteriores a la entrega y evidencia de verificación | Operador/desarrollo |
 | `docs/pilot/` | Especificación, matriz y evidencia OPA | Auditor/propietario |
 | `docs/assurance/` | Índice de aseguramiento y límites | Empresa receptora |
 | `docs/PREPILOT_*.md` | Evidencia histórica prepiloto, preservada | Auditor |
@@ -57,4 +59,3 @@ Si dos documentos discrepan, rige este orden:
 5. Evidencia histórica y planes internos.
 
 Markdown es documentación o proyección; nunca sustituye el stream SQLite/WAL verificado de un proyecto.
-

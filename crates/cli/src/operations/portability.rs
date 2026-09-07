@@ -350,13 +350,19 @@ pub fn import(args: &ImportArgs) -> Result<String, CliError> {
             .parent()
             .filter(|p| !p.as_os_str().is_empty())
             .unwrap_or_else(|| Path::new("."));
-        let temp = tempfile::NamedTempFile::new_in(parent).map_err(CliError::storage)?;
+        let parent = fs::canonicalize(parent).map_err(CliError::storage)?;
+        let destination = parent.join(
+            args.database
+                .file_name()
+                .ok_or_else(|| CliError::input("database filename is required"))?,
+        );
+        let temp = tempfile::NamedTempFile::new_in(&parent).map_err(CliError::storage)?;
         let mut store = SqliteEventStore::open(temp.path())?;
         let outcome = apply_import(&mut store, &plan).map_err(portable_error)?;
         store.recovery_report(id)?;
         drop(store);
         temp.as_file().sync_all().map_err(CliError::storage)?;
-        temp.persist_noclobber(&args.database)
+        temp.persist_noclobber(&destination)
             .map_err(CliError::storage)?;
         outcome
     };

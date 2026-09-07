@@ -217,12 +217,39 @@ pub fn publish(path: &Path, value: &impl Serialize) -> Result<(), CliError> {
         .parent()
         .filter(|p| !p.as_os_str().is_empty())
         .unwrap_or(Path::new("."));
-    let mut temporary = tempfile::NamedTempFile::new_in(parent).map_err(CliError::storage)?;
+    let parent = fs::canonicalize(parent).map_err(CliError::storage)?;
+    let destination = parent.join(
+        path.file_name()
+            .ok_or_else(|| CliError::input("GSP output filename is required"))?,
+    );
+    let mut temporary = tempfile::NamedTempFile::new_in(&parent).map_err(CliError::storage)?;
     temporary.write_all(&bytes).map_err(CliError::storage)?;
     temporary.write_all(b"\n").map_err(CliError::storage)?;
     temporary.as_file().sync_all().map_err(CliError::storage)?;
     temporary
-        .persist_noclobber(path)
+        .persist_noclobber(&destination)
         .map_err(|_| CliError::input("GSP output cannot be published without overwriting"))?;
     Ok(())
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::*;
+    use std::os::windows::ffi::OsStrExt;
+
+    #[test]
+    fn long_path_publication_preserves_output_and_rejects_overwrite() {
+        let temporary = tempfile::tempdir().unwrap();
+        let mut parent = temporary.path().to_path_buf();
+        while parent.as_os_str().encode_wide().count() < 1100 {
+            parent.push("publicación local del resultado á");
+        }
+        fs::create_dir_all(&parent).unwrap();
+        let path = parent.join("result.json");
+        // Tests local publication only; no external GSP runtime is involved.
+        publish(&path, &serde_json::json!({"a": 1})).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"{\"a\":1}\n");
+        assert!(publish(&path, &serde_json::json!({"a": 2})).is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"{\"a\":1}\n");
+    }
 }
