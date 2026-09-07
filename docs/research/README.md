@@ -47,6 +47,8 @@ Las medianas de lectura observadas estuvieron entre 36,843 y 44,268 ms, con cinc
 
 Tres intentos de preparación se conservaron antes de C01: expectativa incorrecta de permiso para `next set` (`215658Z`), enum de fixture inválido `CRITICAL` en vez de `MATERIAL` (`215905Z`) y aserción del harness de un único evento que omitía la invalidación derivada (`215938Z`). Se corrigió el instrumento, no el producto. Los argv y salidas permanecen en `.tooling/research/utility-v01/` bajo cada run completo.
 
+Control de bytes: Git normalizó inicialmente los saltos CRLF del reporte capturado C01. Se añadió un atributo limitado a ese archivo para conservar los bytes ligados por `comparison-P1.json`; el control final compara los hashes con los blobs Git. Los valores y mediciones no cambiaron.
+
 ## P1: qué cambia y qué falta
 
 P1 deriva una ficha del JSON capturado: cuenta las ocho incógnitas, enlaza sus referencias completas, señala texto recortado y evita interpretar una próxima acción ausente como autorización. Conserva proyecto, versión, digest y el alcance de frescura. Funciona fuera del motor y no escribe en el Ledger.

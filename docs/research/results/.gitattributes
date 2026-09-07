@@ -1,0 +1,2 @@
+# Preserve the captured report bytes bound by comparison-P1.json.
+calibration-C01.json -text whitespace=cr-at-eol
