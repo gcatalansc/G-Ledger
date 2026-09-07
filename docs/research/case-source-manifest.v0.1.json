@@ -1,0 +1,136 @@
+{
+  "schema_version": "research-0.1",
+  "collected_at_utc": "2026-09-07T21:56:58.345043+00:00",
+  "catalog_sha256": "d3fdfa9d5bac6f607ee0b436696d490ec1633fba7152db4c8397a253276e19a4",
+  "sources": {
+    "LP": {
+      "repo": "G-Ledger",
+      "path": "docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md",
+      "commit": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+      "sha256": "418c163bc21653c02860c2156bc10f8a470f52097f3ba33211fb66f2c5ad7911",
+      "bytes": 12009,
+      "lines": 193
+    },
+    "LH": {
+      "repo": "G-Ledger",
+      "path": "BITACORA_IMPLEMENTACION.md",
+      "commit": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+      "sha256": "31dcbbcfac30f06265950fdd245c5aac23d5b19d3671c257a899f480f01ce9e1",
+      "bytes": 315506,
+      "lines": 2503
+    },
+    "LR": {
+      "repo": "G-Ledger",
+      "path": "docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md",
+      "commit": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+      "sha256": "f402d3cad65f719034ef79d217b7d051f108205b16222529b2dad61d24d85416",
+      "bytes": 7336,
+      "lines": 49
+    },
+    "FH": {
+      "repo": "G-Flow",
+      "path": "BITACORA_PROYECTO.md",
+      "commit": "043bb87e3eaa8e4cd7617eab1920f19c2997e655",
+      "sha256": "62031d433b1f8451942ff3098d53e1eb436161c999d5ae7700548d9010e43064",
+      "bytes": 179287,
+      "lines": 853
+    },
+    "WH": {
+      "repo": "G-Writer",
+      "path": "BITACORA_IMPLEMENTACION.md",
+      "commit": "a799d678e54695359211ada5331cc02cebe41b7e",
+      "sha256": "40ec5439c2bc244304863f765d6d35828e3f1a4315982498089fb0b301f6d834",
+      "bytes": 329202,
+      "lines": 1962
+    },
+    "A1": {
+      "repo": "G-ASRL",
+      "path": "docs/BITACORA/000017_2026-09-02_desktop_prototype.md",
+      "commit": "1076bc0cf3ae409d01940fdea84beade6da37800",
+      "sha256": "c93d3bb3e1cf72ad77d96b6898a2eb7dca9f1202f1b2f2d444abf1072ec1bdcb",
+      "bytes": 15547,
+      "lines": 188
+    },
+    "A2": {
+      "repo": "G-ASRL",
+      "path": "docs/BITACORA/000018_2026-09-07_desktop_rpc.md",
+      "commit": "1076bc0cf3ae409d01940fdea84beade6da37800",
+      "sha256": "c0c2e6fc521d631dc80aacb4f56c977a4807db6f5558af0b59f761d23cdfbf62",
+      "bytes": 8088,
+      "lines": 124
+    }
+  },
+  "cases": [
+    {
+      "id": "R01",
+      "source": "LP",
+      "start_line": 122,
+      "end_line": 122,
+      "excerpt_lf_sha256": "24fff6f6f257d47879c3e3e18c01f54a4091dc2822c37f30425c4f3157a229d7"
+    },
+    {
+      "id": "R02",
+      "source": "LP",
+      "start_line": 124,
+      "end_line": 124,
+      "excerpt_lf_sha256": "4bcc430bf498b0f751eada153feefd7685cebac8bd4fa10a141ee305420253cb"
+    },
+    {
+      "id": "R03",
+      "source": "LP",
+      "start_line": 125,
+      "end_line": 125,
+      "excerpt_lf_sha256": "2960a3c85972be096a8ff355df4cc6d10be3f7a1605de96fa95e63eb6081469c"
+    },
+    {
+      "id": "R04",
+      "source": "LR",
+      "start_line": 1,
+      "end_line": 47,
+      "excerpt_lf_sha256": "5fd2a6bd75ca9138d4f60b9201512f3ac0464202af3393c218b60375971f3297"
+    },
+    {
+      "id": "R05",
+      "source": "LH",
+      "start_line": 2467,
+      "end_line": 2469,
+      "excerpt_lf_sha256": "3b0d8a035d6c8f70a2208941752bbab5ab69c3d7f2b78e82a05443c9bbfda183"
+    },
+    {
+      "id": "R06",
+      "source": "FH",
+      "start_line": 822,
+      "end_line": 853,
+      "excerpt_lf_sha256": "658213a625bdc1dd0c68d66f683d1b940e8e755bd719967bfa015b031c0df65e"
+    },
+    {
+      "id": "R07",
+      "source": "WH",
+      "start_line": 1957,
+      "end_line": 1957,
+      "excerpt_lf_sha256": "a2e0cbf9fc7b22f6cf12496f784cb7d4bfe1cdf2f32a3e5d7a99feaccab0af80"
+    },
+    {
+      "id": "R08",
+      "source": "WH",
+      "start_line": 1952,
+      "end_line": 1952,
+      "excerpt_lf_sha256": "b53413c2023af315fa580f4e105f7bbdd014ce645fb61c320597aada09c36c6b"
+    },
+    {
+      "id": "R09",
+      "source": "A1",
+      "start_line": 170,
+      "end_line": 186,
+      "excerpt_lf_sha256": "f9fd6ed8a6580a66a5c906e7777dd5040b18a5811816751de94d1ac5fe5b44e3"
+    },
+    {
+      "id": "R10",
+      "source": "A2",
+      "start_line": 114,
+      "end_line": 124,
+      "excerpt_lf_sha256": "716dc6cecfed7244dc9f876a987ba04290dbd7d505ab4ba64b6c3490d75bd5af"
+    }
+  ],
+  "qualification": "DOCUMENTARY_DISCOVERY_ONLY"
+}

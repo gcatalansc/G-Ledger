@@ -32,6 +32,11 @@ Lea en este orden:
 - [Guía de contribución](../CONTRIBUTING.md).
 - [Planes ejecutables](superpowers/plans/).
 
+## Quiero evaluar su utilidad y evolución
+
+- [Investigación de utilidad: resultados y estado](research/README.md): diez episodios en cuatro proyectos, alternativas, calibración mecánica y un prototipo de presentación. Utilidad comparativa y adopción aún no demostradas.
+- [Plan autorizado v0.1](research/G_LEDGER_UTILITY_RESEARCH_PLAN_v0.1.md) y [protocolo comparativo E01](research/EXPERIMENT_PROTOCOL_v0.1.md).
+
 ## Mapa de directorios documentales
 
 | Ubicación | Propósito | Audiencia |
@@ -39,6 +44,7 @@ Lea en este orden:
 | `docs/getting-started/` | Inicio rápido y tutorial | Usuario nuevo |
 | `docs/operations/` | Modelo de operación | Operador/maintainer |
 | `docs/maintenance/` | Correcciones posteriores a la entrega y evidencia de verificación | Operador/desarrollo |
+| `docs/research/` | Investigación de utilidad, protocolos y decisiones basadas en evidencia | Propietario/investigación |
 | `docs/pilot/` | Especificación, matriz y evidencia OPA | Auditor/propietario |
 | `docs/assurance/` | Índice de aseguramiento y límites | Empresa receptora |
 | `docs/PREPILOT_*.md` | Evidencia histórica prepiloto, preservada | Auditor |

@@ -1,0 +1,17 @@
+{
+  "qualification": "RESEARCH_ARTIFACT_CHECKS_ONLY",
+  "verified_at_utc": "2026-09-07T22:14:55.570712+00:00",
+  "status": "PASS",
+  "pinned_sources": 7,
+  "cases": 10,
+  "projects": 4,
+  "clusters": 7,
+  "mechanical_resume_reads": 30,
+  "json_files_parsed": 6,
+  "python_files_parsed": 5,
+  "local_links_checked": 16,
+  "prototype_tests": 6,
+  "prototype_test_exit": 0,
+  "comparative_productivity_evaluated": false,
+  "production_code_changed": false
+}

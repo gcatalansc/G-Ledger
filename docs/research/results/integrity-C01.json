@@ -1,0 +1,99 @@
+{
+  "verify": {
+    "command_count": 13,
+    "command_result_count": 13,
+    "execution_attempt_count": 0,
+    "findings": [
+      {
+        "code": "CheckpointNotCurrent",
+        "message": "continuity checkpoint is not current: Invalidated",
+        "severity": "High",
+        "subject_refs": [
+          "checkpoint:4842557f-e845-7159-98e2-f35affdfee49"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:19f97f81d71e7e7ae408963e3afc5c4e0de332e01fd6d794016980884bfb1658"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:3bb85480911b00d8f59501383014af3c2df91353fcf462a48fdc0cb725a9435c"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:4ac424e0e4e9e0ae8ebe3e44c0785a6bd56d68d004de5dd5d8825359e375420a"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:608d777fb86f1151429aedc76c5118832746a5185cc758a223bc758616b42732"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:62dc409220236e9e69bb58430d051d5481aae8bb4e14d02f409b6b4784a431df"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:9f4660877338951f3366f8b62b41c253727aab7a1170b8899983d9f1c8403eb1"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:f3369f8db520c40ee16c6fba6cc845af9980f012f38755956d4b50e9ab82c724"
+        ]
+      },
+      {
+        "code": "CriticalUnknownOpen",
+        "message": "material unknown remains open",
+        "severity": "High",
+        "subject_refs": [
+          "unknown:ff02f4daaa8cab1556e21f59a652b8fa11d70bac08aba3783815cc468e6215fb"
+        ]
+      }
+    ],
+    "head_digest": "sha256:b3bb739de5df87a0c40554bf131cc38e2c3eea44cd91f050cefb4ad61cbcb8c6",
+    "integrity": "ok",
+    "migration_version": 3,
+    "project_ref": "project:01a07de2-d496-7d60-9f55-15e051c8bf0a",
+    "read_only": true,
+    "state_version": 12,
+    "unresolved_submission_count": 0
+  },
+  "doctor": {
+    "command_count": 13,
+    "command_result_count": 13,
+    "head_digest": "sha256:b3bb739de5df87a0c40554bf131cc38e2c3eea44cd91f050cefb4ad61cbcb8c6",
+    "integrity": "ok",
+    "migration_version": 3,
+    "project_ref": "project:01a07de2-d496-7d60-9f55-15e051c8bf0a",
+    "read_only": true,
+    "state_version": 12,
+    "unresolved_submission_count": 0
+  }
+}

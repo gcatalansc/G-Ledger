@@ -13,9 +13,9 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Remediación local verificada; firma y certificación bilateral dependen de terceros. Registro `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md` |
+| Trabajo actual | Investigación de utilidad; remediación local previa verificada en `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`. Firma y certificación bilateral conservan sus dependencias externas |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
-| Investigación de mejoras | A la espera del propietario; no iniciada |
+| Investigación de mejoras | Autorizada y en ejecución: diez episodios, revisión de alternativas, calibración mecánica y P1 exploratorio. Comparación independiente y adopción pendientes; `docs/research/README.md` |
 
 La aceptación operativa corresponde al piloto y a la entrega identificados. Las correcciones posteriores requieren su propia evidencia de verificación; este resumen no transfiere la aceptación a un binario nuevo.
 
@@ -2501,3 +2501,14 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Gate local: formato, Clippy, dependencias, schemas, specs, contratos, benchmark/release check y diff PASS; workspace 309 aprobadas, cero fallos, 14 entradas especiales ignored; documentación 9/9; build release con CRT estático y tres recorridos del binario aislado PASS.
 - Registro único: `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`, con alcance, evidencia y límites. Firma de código continúa sin certificado disponible; certificación bilateral depende de contrapartes. No se altera el contrato de fork ni la privacidad del portable.
 - Cierre: correcciones locales en `codex/technical-remediation`; publicación original preservada. Esperar al propietario para preparar el plan, sin iniciar investigación ni adopción real.
+
+## 2026-09-07 — Investigación de utilidad, descubrimiento y calibración C01
+
+- Autorización posterior: «Procede con el plan profesionalmente», sobre `docs/research/G_LEDGER_UTILITY_RESEARCH_PLAN_v0.1.md`. Base técnica `53dc909fc34d2ca03f9ca73db3a1af3b54520610`; no se transfiere la aceptación de rc.1.
+- Descubrimiento documental: diez episodios, cuatro proyectos y siete documentos fijados por commit y SHA-256. Proyectos externos sólo leídos. Los episodios son una muestra intencional; no hay estimación de frecuencia ni coste humano. La revisión dirigida registra doce fuentes primarias y elige documentación bien mantenida como alternativa A.
+- Situaciones: reanudar tras relevo de sesión/responsable y cerrar una sesión dejando un avance verificable. La memoria habitual del agente forma parte de la alternativa, sin degradarla para favorecer a G-Ledger.
+- C01: Ledger sintético, binario local SHA-256 `3d240fe74730f8942371f9d2cceeab62d001b6929414339bab455cec97a93438`; 63 llamadas CLI, 30 lecturas de continuidad y diez mutaciones aceptadas. Recursos verificados; lecturas con delta cero; doctor/verify con integridad ok y nueve findings esperados del fixture.
+- Hallazgos: vista Codex conserva cuatro de ocho referencias de incógnitas; JSON conserva ocho, pero su texto de progreso también está recortado. `next set` y `blocker open` rechazados para agente con cero eventos, conforme a la política; no se empleó `--as-human`. Se preservan tres intentos fallidos de preparación del harness sin reclasificarlos como defectos del producto.
+- Exploración P1: ficha derivada con conteos, identidad, frescura y recortes explícitos; seis pruebas aprobadas, entrada intacta, 987 bytes frente a 442 de la vista Codex y 1394 del JSON. No recupera contenido ausente ni acredita eficacia de usuarios. Se adelantó sólo esta prueba de presentación al comparativo; no se promueve al motor.
+- Expediente: `docs/research/README.md`, catálogo/manifiesto, fuentes, protocolo E01, herramientas reproducibles y resultados sintéticos revisables. Datos brutos locales en `.tooling/research/utility-v01/`. Cero participantes independientes y cero modelos evaluados; comparación, prerregistro confirmatorio y adopción pendientes.
+- Siguiente entrada: asignar participantes independientes y configuración de E01. Se consultó al propietario por subagentes nuevos, porque la aplicación exige autorización explícita para delegación; no se iniciaron bajo la autorización genérica del plan. No hay cambios de contratos, binario, release, bases reales ni ejecución externa.

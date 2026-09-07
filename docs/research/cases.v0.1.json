@@ -1,0 +1,33 @@
+{
+  "schema_version": "research-0.1",
+  "date": "2026-09-07",
+  "sampling": "Purposive retrospective discovery; one owner's ecosystem; no population frequency or productivity inference.",
+  "human_minutes": null,
+  "pins": {
+    "G-Ledger": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+    "G-Flow": "043bb87e3eaa8e4cd7617eab1920f19c2997e655",
+    "G-Writer": "a799d678e54695359211ada5331cc02cebe41b7e",
+    "G-ASRL": "1076bc0cf3ae409d01940fdea84beade6da37800"
+  },
+  "sources": {
+    "LP": {"repo": "G-Ledger", "path": "docs/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md"},
+    "LH": {"repo": "G-Ledger", "path": "BITACORA_IMPLEMENTACION.md"},
+    "LR": {"repo": "G-Ledger", "path": "docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md"},
+    "FH": {"repo": "G-Flow", "path": "BITACORA_PROYECTO.md"},
+    "WH": {"repo": "G-Writer", "path": "BITACORA_IMPLEMENTACION.md"},
+    "A1": {"repo": "G-ASRL", "path": "docs/BITACORA/000017_2026-09-02_desktop_prototype.md"},
+    "A2": {"repo": "G-ASRL", "path": "docs/BITACORA/000018_2026-09-07_desktop_rpc.md"}
+  },
+  "cases": [
+    {"id":"R01","cluster":"ledger-pilot","source":"LP","start":"| OPA-DEFECT-001 |","end":"| OPA-DEFECT-001 |","kind":"historical_corrected_defect","observation":"Normalizar un timestamp cambiaba el digest esperado; el piloto exigió corrección y recalificación.","question":"¿Qué candidato y evidencia califican el resultado vigente?","need":"Identidad del sujeto y procedencia de resultados","alternative_already_helps":true},
+    {"id":"R02","cluster":"ledger-pilot","source":"LP","start":"| OPA-DEFECT-003 |","end":"| OPA-DEFECT-003 |","kind":"historical_corrected_defect","observation":"Historia de autoridad supersedida podía marcar stale un checkpoint nuevo; se corrigió y repitió desde Stage 3.","question":"¿Qué dependencia vigente invalida este checkpoint?","need":"Vigencia por dependencias, sin confundir historia con conflicto actual","alternative_already_helps":true},
+    {"id":"R03","cluster":"ledger-pilot","source":"LP","start":"| OPA-DEFECT-004 |","end":"| OPA-DEFECT-004 |","kind":"historical_corrected_defect","observation":"El contrato permitía cerrar riesgos pero faltaba risk close en el CLI; se añadió y recalificó.","question":"¿La operación necesaria está realmente disponible?","need":"Disponibilidad ejecutable del flujo completo","alternative_already_helps":true},
+    {"id":"R04","cluster":"ledger-remediation","source":"LR","start":"# ","end":"El informe humano, los JSON","kind":"well_documented_boundary","observation":"La remediación local es posterior a rc.1; su evidencia no hereda la aceptación del piloto ni cambia el artefacto publicado.","question":"¿La release distribuida contiene y está calificada con esta corrección?","need":"Separar código local, release y calificación","alternative_already_helps":true},
+    {"id":"R05","cluster":"ledger-owner-report","source":"LH","start":"### Corrección documental — informe final legible","end":"El archivo `operational-pilot-report.json`","kind":"documented_presentation_correction","observation":"El reporte JSON se reclasificó como lectura de máquina y se creó un informe humano para la decisión del propietario.","question":"¿Puede el responsable entender el dictamen y sus límites sin reconstruir reportes de máquina?","need":"Síntesis comprensible con evidencia accesible","alternative_already_helps":true},
+    {"id":"R06","cluster":"flow-f10","source":"FH","start":"### GF-LOG-0085","end":"- Siguiente paso: esperar autorización explícita y una distribución G-Ledger","kind":"documented_blocker_with_successful_handoff","observation":"F10 no pudo negociar ledger.project_summary; la bitácora conserva el bloqueo y la condición de entrada. La revisión posterior distingue inspección estática de una nueva ejecución RPC.","question":"¿Se puede cerrar F10 o ejecutar la fase siguiente?","need":"Bloqueo externo, versión y prueba bilateral concreta","alternative_already_helps":true},
+    {"id":"R07","cluster":"writer-slice08","source":"WH","start":"- Autoridad y SQLite: Kernel `22/22`, referencias internas `23/23`, Writer `22/22`, gobernanza PASS. DB v2 aislada","end":"- Autoridad y SQLite: Kernel `22/22`, referencias internas `23/23`, Writer `22/22`, gobernanza PASS. DB v2 aislada","kind":"well_documented_boundary","observation":"La DB aislada de pruebas está en v2; la DB real permanece en v1 y no se ha migrado.","question":"¿La evidencia de la DB de prueba demuestra que el usuario ya usa v2?","need":"Identidad del entorno y alcance de evidencia","alternative_already_helps":true},
+    {"id":"R08","cluster":"writer-slice08","source":"WH","start":"- Backend: `356/356` PASS","end":"- Backend: `356/356` PASS","kind":"reported_unreproduced_failure","observation":"Una primera corrida tuvo tres fallos; dos expectativas se corrigieron y un fallo analítico no se reprodujo. El registro conserva esa incertidumbre junto al PASS posterior.","question":"¿El PASS posterior permite afirmar que se identificó y corrigió la causa de cada fallo?","need":"Preservar intentos negativos y causas aún desconocidas","alternative_already_helps":true},
+    {"id":"R09","cluster":"asrl-d1-approval","source":"A1","start":"## 25. Checkpoint","end":"APPROVAL-001 verifica40 artefactos","kind":"documented_temporal_update","observation":"Una candidata D1 pendiente fue después aprobada con identidad precisa; permanecen las entradas históricas PENDING. D1 cierra y D2 queda autorizada, aún no implementada por esa aprobación.","question":"¿Qué aprobación rige y qué permite en ese momento?","need":"Tiempo de decisión, supersesión y acción autorizada","alternative_already_helps":true},
+    {"id":"R10","cluster":"asrl-d2-closure","source":"A2","start":"## 15. Evidencia y resultado D2","end":"D2 y DEV-000018 COMPLETED","kind":"well_documented_boundary","observation":"D2 cierra con regresión focalizada. Regresión global y ejecución contextual de todas las capacidades siguen pendientes; este cierre no autoriza D3.","question":"¿Qué se probó realmente y cuál es la siguiente condición de entrada?","need":"Alcance de cobertura y cierre por fase","alternative_already_helps":true}
+  ]
+}

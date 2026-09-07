@@ -1,0 +1,37 @@
+{
+  "qualification": "PRESENTATION_PROPERTIES_ONLY",
+  "source_run": "20260907T220012Z-22221d2c",
+  "critical_unknowns_source": 8,
+  "critical_unknown_refs_codex": 4,
+  "p1_exposes_total_count": true,
+  "p1_labels_truncated_text": true,
+  "p1_recovers_missing_semantic_content": false,
+  "p1_assigns_authority": false,
+  "input_unchanged": true,
+  "p1_script_sha256": "bdb7b5bb8c12ca3ade6599c95c15f41651a9e8f1a8c31b0fcd950cf37bcbf4c2",
+  "files": {
+    "calibration-C01.json": {
+      "bytes": 5401,
+      "sha256": "70ebb8ba09de4dec292045aad1b6d194dea1590ef5600d1824a66e34fb300dea"
+    },
+    "resume-input.json": {
+      "bytes": 1394,
+      "sha256": "02ba3dc92d7f57c4ecc1451700f71d0abc40665cae3c3ce6e58797350e5e8bbd"
+    },
+    "resume-codex.md": {
+      "bytes": 442,
+      "sha256": "476431d5c960b1eeec10608f9cd15d3b42c83ef20e6afabe08a6f8310cffcac1"
+    },
+    "continuity-P1.md": {
+      "bytes": 987,
+      "sha256": "a9aeaa72516da1e93dcbe59ce7a1542254b10768ed2f8a4f1224f73e212d1274"
+    },
+    "integrity-C01.json": {
+      "bytes": 3116,
+      "sha256": "cf225fa772346129d072b58e735d5ddefda6e8205a01c96b0a70b08a8d79047c"
+    }
+  },
+  "productivity_effect": null,
+  "preferred_by_users": null,
+  "decision": "Keep as research candidate; no promotion to product on these measurements."
+}

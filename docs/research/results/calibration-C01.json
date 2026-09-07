@@ -1,0 +1,179 @@
+{
+  "schema_version": "research-0.1",
+  "run_id": "20260907T220012Z-22221d2c",
+  "qualification": "MECHANICAL_CALIBRATION_ONLY",
+  "binary_sha256": "3d240fe74730f8942371f9d2cceeab62d001b6929414339bab455cec97a93438",
+  "source_commit": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+  "script_sha256": "f926b0d65a5fe075480a3f0c8dd11e3b3819bfe64672d1fb50aa67c61854745d",
+  "resource_verification_exit": 0,
+  "synthetic_fixture": true,
+  "independent_participants": 0,
+  "models_evaluated": 0,
+  "tokens_measured": false,
+  "human_time_measured": false,
+  "declared_progress": "D2 completada con regresión focalizada y tipos comprobados; se preservan los intentos fallidos y la evidencia del prototipo. La regresión global sigue pendiente. D3 requiere aprobación separada.",
+  "accepted_mutations": 10,
+  "total_cli_calls": 63,
+  "agent_used_as_human": false,
+  "denied_agent_operations": [
+    {
+      "operation": "next set",
+      "exit_code": 9,
+      "status": "POLICY_DENIED",
+      "event_delta": 0
+    },
+    {
+      "operation": "blocker open",
+      "exit_code": 9,
+      "status": "POLICY_DENIED",
+      "event_delta": 0
+    }
+  ],
+  "observations": [
+    {
+      "critical_unknowns_recorded": 0,
+      "critical_unknown_refs_json": 0,
+      "critical_unknown_refs_codex": 0,
+      "codex_unknown_line": "- Critical unknowns: -",
+      "freshness": "CURRENT_FOR_PROJECT_ONLY",
+      "read_state_delta": 0,
+      "json_progress": "D2 completada con regresión focalizada y tipos comprobados; se preservan los intentos fallidos …",
+      "full_progress_available_in_resume_json": false,
+      "critical_tail_in_codex": false,
+      "critical_tail_in_json": false,
+      "outputs_utf8_bytes": {
+        "codex": 364,
+        "json": 807
+      },
+      "latency_ms": {
+        "codex": {
+          "samples": [
+            44.112,
+            40.613,
+            36.038,
+            44.714,
+            34.322
+          ],
+          "median": 40.613
+        },
+        "json": {
+          "samples": [
+            47.353,
+            38.78,
+            37.396,
+            37.15,
+            37.586
+          ],
+          "median": 37.586
+        }
+      }
+    },
+    {
+      "critical_unknowns_recorded": 1,
+      "critical_unknown_refs_json": 1,
+      "critical_unknown_refs_codex": 1,
+      "codex_unknown_line": "- Critical unknowns: unknown:62dc4092202…",
+      "freshness": "INVALIDATED",
+      "read_state_delta": 0,
+      "json_progress": "D2 completada con regresión focalizada y tipos comprobados; se preservan los intentos fallidos …",
+      "full_progress_available_in_resume_json": false,
+      "critical_tail_in_codex": false,
+      "critical_tail_in_json": false,
+      "outputs_utf8_bytes": {
+        "codex": 372,
+        "json": 868
+      },
+      "latency_ms": {
+        "codex": {
+          "samples": [
+            40.448,
+            37.152,
+            34.69,
+            35.012,
+            36.843
+          ],
+          "median": 36.843
+        },
+        "json": {
+          "samples": [
+            38.703,
+            38.579,
+            42.807,
+            38.506,
+            37.701
+          ],
+          "median": 38.579
+        }
+      }
+    },
+    {
+      "critical_unknowns_recorded": 8,
+      "critical_unknown_refs_json": 8,
+      "critical_unknown_refs_codex": 4,
+      "codex_unknown_line": "- Critical unknowns: unknown:19f97f81d71…,unknown:3bb85480911…,unknown:4ac424e0e4e…,unknown:608d777fb86…",
+      "freshness": "INVALIDATED",
+      "read_state_delta": 0,
+      "json_progress": "D2 completada con regresión focalizada y tipos comprobados; se preservan los intentos fallidos …",
+      "full_progress_available_in_resume_json": false,
+      "critical_tail_in_codex": false,
+      "critical_tail_in_json": false,
+      "outputs_utf8_bytes": {
+        "codex": 442,
+        "json": 1394
+      },
+      "latency_ms": {
+        "codex": {
+          "samples": [
+            42.332,
+            45.256,
+            43.341,
+            44.268,
+            45.012
+          ],
+          "median": 44.268
+        },
+        "json": {
+          "samples": [
+            38.994,
+            39.01,
+            44.562,
+            51.192,
+            40.674
+          ],
+          "median": 40.674
+        }
+      }
+    }
+  ],
+  "status_top_level_keys": [
+    "active_phase_refs",
+    "authority_documents",
+    "checkpoint_ref",
+    "completed_phase_refs",
+    "current_decision_refs",
+    "last_material_activity_at",
+    "last_material_event_ref",
+    "material_state_version",
+    "open_blocker_refs",
+    "open_conflict_refs",
+    "open_risk_refs",
+    "ordered_next_action_refs",
+    "pending_gate_refs",
+    "preferred_next_action_ref",
+    "primary_active_phase_ref",
+    "project",
+    "project_state_id",
+    "revalidation_required_gate_refs",
+    "roadmap",
+    "schema_version",
+    "state_digest",
+    "state_version",
+    "updated_at",
+    "verified_gate_refs"
+  ],
+  "limitations": [
+    "Single local machine, one synthetic Ledger, five reads per format per state.",
+    "Timings include process startup and caches; no comparative productivity claim.",
+    "Byte lengths are not tokenizer counts; preparing and maintaining facts is unmeasured."
+  ]
+}
