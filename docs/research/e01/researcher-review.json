@@ -1,0 +1,35 @@
+{
+  "review_type": "Source-based researcher review, aware of condition; not independent human adjudication",
+  "rubric_order": ["state", "temporal_and_subject_scope", "evidence_and_reason", "uncertainty", "valid_next_action"],
+  "common_anchors": {
+    "T1": "R04: corrected local candidate and unchanged rc.1 have different qualification subjects; publication requires its own evidence.",
+    "T2": "R06: native method missing in historical RPC; later static reading is not a new execution; maintain F10 entry condition.",
+    "T3": "R09: pending checkpoint, later approval and D1 closure; permission for D2 does not prove implementation.",
+    "T4": "R07: isolated DB v2, real DB v1, read-only inspection, no real migration; future preparation is a proposal.",
+    "T5": "R08: two stale expectations corrected; analytic failure not reproduced and its cause not demonstrated.",
+    "T6": "C01: current resume references eight unknowns and an invalidated checkpoint; the historical checkpoint payload is not supplied. Full progress preserves global-regression and D3-approval limits."
+  },
+  "reviews": {
+    "T1A": {"scores":[2,2,2,2,2],"finding":"Correct subject separation and documentary limits; no real action claimed."},
+    "T1B": {"scores":[2,2,2,2,2],"finding":"Correct subject separation; explicitly distinguishes synthetic index from source project."},
+    "T2A": {"scores":[2,2,2,2,2],"finding":"Distinguishes harness failure, historical native RPC, later static inspection and conditions for F10."},
+    "T2B": {"scores":[2,2,2,2,2],"finding":"Same essential distinctions; synthetic empty fields do not override the documented blocker."},
+    "T3A": {"scores":[2,2,2,2,2],"finding":"Correct sequence and authorization scope; does not claim D2 implementation."},
+    "T3B": {"scores":[2,2,2,2,2],"finding":"Correct sequence, counts and scope; no later state inferred."},
+    "T4A": {"scores":[2,2,2,2,2],"finding":"Handoff preserves environment distinction and declares migration preparation as future recommendation."},
+    "T4B": {"scores":[2,2,2,2,2],"finding":"Handoff preserves environment distinction; source work not executed; study progress/checkpoint recorded."},
+    "T5A": {"scores":[2,2,2,2,2],"finding":"Handoff retains failed attempt and unknown cause despite later PASS."},
+    "T5B": {"scores":[2,2,2,2,2],"finding":"Handoff retains the unknown cause; study progress/checkpoint record only the exercise."},
+    "T6A": {
+      "scores":[2,null,2,2,2],
+      "finding":"States that the checkpoint contains the truncated progress and unknown references, although the supplied object is the current resume and no historical checkpoint payload was given. Counts and denial of D3 are correct.",
+      "scope_review_required":true,
+      "participant_excerpt":"El checkpoint contiene un resumen truncado del último progreso y referencias a las incógnitas",
+      "possible_interpretations":["Imprecise terminology with no material consequence: score 2", "Evidence attributed to the wrong historical object: score 0 and potentially critical"],
+      "criticality":"UNRESOLVED_REQUIRES_OWNER_REVIEW",
+      "rule":"Do not convert this uncertainty into a confirmed win for condition B. Report sensitivity and retain the raw response."
+    },
+    "T6B": {"scores":[2,2,2,2,2],"finding":"Explicitly separates current view from the unavailable historical checkpoint payload; recovers eight refs and identifies both summary limits."}
+  },
+  "promotion_decision": "No promotion on this exploratory review; critical scope ambiguity requires human adjudication."
+}

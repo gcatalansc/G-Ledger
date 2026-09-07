@@ -10,7 +10,9 @@ La oportunidad mejor sustentada hasta ahora es **ayudar a retomar y entregar tra
 - Revisión dirigida: **12 fuentes primarias** de metodología y alternativas. [Fuentes, límites y comparación](SOURCES_AND_ALTERNATIVES_v0.1.md).
 - Calibración C01: binario local fijado, un Ledger sintético, tres estados y **30 lecturas de continuidad dentro de 63 llamadas CLI**. [Resultados](results/calibration-C01.json).
 - Un candidato de presentación P1, aislado del producto, hace visibles conteos y texto recortado. [Ejemplo legible](results/continuity-P1.md), [salida actual](results/resume-codex.md), [comparación de propiedades](results/comparison-P1.json).
-- La comparación con participantes queda preparada en [E01](EXPERIMENT_PROTOCOL_v0.1.md). Cero participantes independientes, cero modelos evaluados y cero mediciones de ahorro humano hasta este corte.
+- E01 ejecutó **doce sesiones nuevas de subagentes, seis pares A/B**. No demostró ventaja neta frente a documentación mantenida. Once entregas cumplen la rúbrica bajo revisión del investigador; una ambigüedad sigue pendiente de adjudicación humana. [Informe, resultados y decisión](e01/REPORT.md).
+
+E01 tuvo exposición automática a memoria previa en los doce participantes, sin identificador exacto de modelo ni telemetría de tokens. Las duraciones de intento fueron mayores en B, pero no permiten estimar productividad causal. No participaron humanos ni se midieron mantenimiento longitudinal o ahorro neto. La siguiente pregunta es cuánto cuesta conservar el estado correcto durante cambios y relevos reales.
 
 **Situaciones seleccionadas:** U1, retomar después de cambiar de sesión o responsable; U2, cerrar una sesión dejando un avance verificable y útil para el siguiente responsable. Se conserva la prioridad inicial de continuidad, aún sin una preferencia posterior del propietario entre públicos. Humanos y LLM se analizarán por separado.
 
@@ -63,15 +65,15 @@ Se adelantó este explorador respecto de la comparación E01 para probar una pro
 |---|---|
 | 1. Descubrimiento | Revisión documental realizada; entrevistas, costes y diversidad de propietarios pendientes |
 | 2. Alternativas | Revisión dirigida realizada; comparador A elegido; alternativas especializadas no ejecutadas |
-| 3. Medición | C01 mecánica realizada; E01 con participantes pendiente; no ensayo confirmatorio |
+| 3. Medición | C01 y doce intentos E01 realizados; una adjudicación pendiente; no ensayo confirmatorio |
 | 4. Mejoras | P1 preparado y comprobado en propiedades; comparación y promoción pendientes |
 | 5. Adopción | No iniciada; exige sesiones reales, relevo y proyecto nuevo |
 
-**Siguiente entrada necesaria:** participantes independientes y su configuración para E01. Los casos actuales ya fueron vistos por el investigador; no deben presentarse como evaluación ciega. El roadmap de producto se decidirá después de comparación y adopción. Se preservan binario, contratos, release y bases reales; sólo se agregan investigación y su estado documental.
+**Siguiente paso sustentado:** diseñar la observación del coste total de mantener contexto durante varias actualizaciones y un relevo, con casos nuevos y configuración inspeccionable. E01 no proporciona evidencia suficiente para promover P1, construir P2 o iniciar adopción. El [dictamen](e01/REPORT.md) especifica las condiciones aún necesarias. Se preservan binario, contratos, release y bases reales; sólo se agregan investigación y su estado documental.
 
 ## Reproducción
 
-Requiere Python 3.11+, Git y el binario exacto de la remediación con sus recursos verificados. No requiere dependencias Python externas, red ni servicios LLM. Ejecutar desde la raíz de G-Ledger:
+La calibración mecánica C01 y P1 requieren Python 3.11+, Git y el binario exacto de la remediación con sus recursos verificados. Esas herramientas no requieren dependencias Python externas, red ni servicios LLM. E01 sí utilizó participantes LLM de esta aplicación. Ejecutar las herramientas mecánicas desde la raíz de G-Ledger:
 
 ```powershell
 python docs/research/tools/snapshot_cases.py

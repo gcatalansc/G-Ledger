@@ -1,0 +1,202 @@
+{
+  "study": "E01",
+  "kind": "EXPLORATORY_CALIBRATION",
+  "registered_at_utc": "2026-09-07T22:25:39.053388+00:00",
+  "participants_authorized": 12,
+  "participants_per_attempt": 1,
+  "seed": 20260907,
+  "model": "parent-inherited; no override; exact runtime identifier not exposed by spawn API",
+  "session_context": "fork_turns=none; packet-only instruction; shared filesystem, not OS-enforced blindness",
+  "time_limit_seconds": 900,
+  "binary_sha256": "3d240fe74730f8942371f9d2cceeab62d001b6929414339bab455cec97a93438",
+  "source_commit": "53dc909fc34d2ca03f9ca73db3a1af3b54520610",
+  "primary": "Time until correct handoff, exploratory only; no efficacy threshold",
+  "rubric": [
+    "state",
+    "temporal_and_subject_scope",
+    "evidence_and_reason",
+    "uncertainty",
+    "valid_next_action"
+  ],
+  "points_per_dimension": [
+    0,
+    1,
+    2
+  ],
+  "critical_errors": [
+    "unsupported authority",
+    "claiming unexecuted work",
+    "evidence attributed to wrong subject"
+  ],
+  "conditions": {
+    "A": "Maintained concise state + frozen source excerpts + ordinary file tools",
+    "B": "Identical A files + current G-Ledger minimal agent recording workflow; U2 must also record progress and checkpoint"
+  },
+  "limits": [
+    "One owner ecosystem; six discovery cases, no holdout.",
+    "B progress/checkpoint configuration does not encode historical human decisions as canonical approvals.",
+    "Model token/cost telemetry is unavailable; do not infer it from bytes.",
+    "No native participant-specific memory is prepopulated; fresh sessions have the same supplied context.",
+    "Preparation is scripted and outside participant clocks; total net benefit cannot be inferred.",
+    "Researcher grading is source-based, condition-aware; critical discrepancies need owner review before promotion."
+  ],
+  "tasks": [
+    {
+      "task_id": "T1",
+      "case_ids": [
+        "R04"
+      ],
+      "situation": "U1",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "6ad9699880cc4fb312635da8357dffa4b2d525a1c1513c47a45c0cf17f604eb2",
+          "CURRENT_STATE.md": "2c48a95868828c85505263a576c97fddafa23f5a543ae50c421c027d86e2e36a",
+          "SOURCES.md": "a4185e68b372fa9266405759b86316483be62a04d92d3ed9cb709c962f709132"
+        },
+        "B": {
+          "TASK.md": "6ad9699880cc4fb312635da8357dffa4b2d525a1c1513c47a45c0cf17f604eb2",
+          "CURRENT_STATE.md": "2c48a95868828c85505263a576c97fddafa23f5a543ae50c421c027d86e2e36a",
+          "SOURCES.md": "a4185e68b372fa9266405759b86316483be62a04d92d3ed9cb709c962f709132"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "5bc8eaaec86ff532fa5a170f3ee39789b5c0c96e051e84ea8becacd8272962f0",
+        "ledger-resume.txt": "fd0181a0d17afa205c3cac1cef8ad70d9f123386e1eba319f6b97fc63f5090b2",
+        "ledger-status.txt": "4641f9d3cf17d3dc03106ea21d6ba60f3bff38601abb413f138f62eda539d67a"
+      }
+    },
+    {
+      "task_id": "T2",
+      "case_ids": [
+        "R06"
+      ],
+      "situation": "U1",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "3ab5d935d203d697bddc5febeb264907d2ca1bdf30cccf3748a669959842fd27",
+          "CURRENT_STATE.md": "50f67b93398a4bab514ceac4d066e2d3de754c4277c3ebc984e07251dc96cdf1",
+          "SOURCES.md": "fd589f456c088a1286caaa6b0f8c88ac6a5e9cc10370f5f3322f4b1fcd3ce37e"
+        },
+        "B": {
+          "TASK.md": "3ab5d935d203d697bddc5febeb264907d2ca1bdf30cccf3748a669959842fd27",
+          "CURRENT_STATE.md": "50f67b93398a4bab514ceac4d066e2d3de754c4277c3ebc984e07251dc96cdf1",
+          "SOURCES.md": "fd589f456c088a1286caaa6b0f8c88ac6a5e9cc10370f5f3322f4b1fcd3ce37e"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "68549664ed5d862ba7782d83bfe0f2e3039851109e6da0ee7b1dba7f3f9b2c1a",
+        "ledger-resume.txt": "3bec73ae382a7e6332dd33d951c791ff56283ffce74109010b5c55b26a90a17b",
+        "ledger-status.txt": "f9c8d0b3710c48c0a08285027be11fd9483209c420c2d0d57b28a438cdf4ada3"
+      }
+    },
+    {
+      "task_id": "T3",
+      "case_ids": [
+        "R09"
+      ],
+      "situation": "U1",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "d1e71eefd2aaa13126d6c16a64a1201f774789c4e5c61789bcd59177642261d5",
+          "CURRENT_STATE.md": "82cf9cb29951ed8cd8e9fd026dddceaa561db89bcc65ec63aa5c23b2d15a539d",
+          "SOURCES.md": "a8b09997df0a9e54dca5f9c55c97a0d5fbe39af232919377f246bbec6419c30e"
+        },
+        "B": {
+          "TASK.md": "d1e71eefd2aaa13126d6c16a64a1201f774789c4e5c61789bcd59177642261d5",
+          "CURRENT_STATE.md": "82cf9cb29951ed8cd8e9fd026dddceaa561db89bcc65ec63aa5c23b2d15a539d",
+          "SOURCES.md": "a8b09997df0a9e54dca5f9c55c97a0d5fbe39af232919377f246bbec6419c30e"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "488e8969ada3d203ca8f2b63dbb21ae1dbd28c7d1b0b28b695206a1dc1217494",
+        "ledger-resume.txt": "31b4f5fab0e763f4ec1d5ec8b9473d3473f59d595677884e4a39d0eab8c0c34b",
+        "ledger-status.txt": "ea82718672e80f8dd3f4790095124872cb9ec026458cb8a4a93c3cd6bce2fcc6"
+      }
+    },
+    {
+      "task_id": "T4",
+      "case_ids": [
+        "R07"
+      ],
+      "situation": "U2",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "b87ded254ff58c1815a96a7434ce05549b1d1f3f3fcbe40ca2c76a9a8e325505",
+          "CURRENT_STATE.md": "c0a13a32018801e15b8913720406789b6bbb75c506f569a6ff7c0400f0f253f3",
+          "SOURCES.md": "907d39f987add2ffd09fefc35fbb4db1fa3b14f347160ddd591485bbd11ee5e5"
+        },
+        "B": {
+          "TASK.md": "b87ded254ff58c1815a96a7434ce05549b1d1f3f3fcbe40ca2c76a9a8e325505",
+          "CURRENT_STATE.md": "c0a13a32018801e15b8913720406789b6bbb75c506f569a6ff7c0400f0f253f3",
+          "SOURCES.md": "907d39f987add2ffd09fefc35fbb4db1fa3b14f347160ddd591485bbd11ee5e5"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "8ef61d6ace7b9c604bcf81e623824b432dde4ee50742eaa1a164a28278b3e6ee",
+        "ledger-resume.txt": "7bcbd6a8a787385014792cd1728d762ef1049fdc1450da4600e6eb558b84166f",
+        "ledger-status.txt": "ad66641b48a99607e677eab6e33ae0835604578a0e8119c4807f4071a6d75aa0"
+      }
+    },
+    {
+      "task_id": "T5",
+      "case_ids": [
+        "R08"
+      ],
+      "situation": "U2",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "050285fdb49f0a1ae34c270c48cee8e7b4cf606465551332730859bbeac94682",
+          "CURRENT_STATE.md": "ad06890d313a56c6d13e9d44a6cd2c534ca2c7019fb155177cbfcd8ba7225081",
+          "SOURCES.md": "6b03549c0dc8dabbe9dc7fce32e3b9f65d372624a2082b4c205c77d8c80b5393"
+        },
+        "B": {
+          "TASK.md": "050285fdb49f0a1ae34c270c48cee8e7b4cf606465551332730859bbeac94682",
+          "CURRENT_STATE.md": "ad06890d313a56c6d13e9d44a6cd2c534ca2c7019fb155177cbfcd8ba7225081",
+          "SOURCES.md": "6b03549c0dc8dabbe9dc7fce32e3b9f65d372624a2082b4c205c77d8c80b5393"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "da5c802baf6662e23cffbc6ccc11f983ac09c51d5f4fab36c5b6b268b7ba8d18",
+        "ledger-resume.txt": "c088357db5b5b75604cd823ff0f93a650bc17f12193f4c36b5db468b023b2dc5",
+        "ledger-status.txt": "16f73f72fdbbf57d2d6596bae5e6239b6e67bbeb8fc98686b5185a504377e670"
+      }
+    },
+    {
+      "task_id": "T6",
+      "case_ids": [],
+      "situation": "U1",
+      "input_hashes": {
+        "A": {
+          "TASK.md": "edfa0d76f8dc6739a3755f68a4ae0bd6ea6a746c8026e6ffbecb7a1c540fd171",
+          "CURRENT_STATE.md": "c2acde00ca2a6af6f1e54ba671bece684ebe55047581c7274f06489594897285",
+          "SOURCES.md": "11093876e6a4af8fe098862d50a33af3358365d66f7c95b804a49ba5b0a33a8f"
+        },
+        "B": {
+          "TASK.md": "edfa0d76f8dc6739a3755f68a4ae0bd6ea6a746c8026e6ffbecb7a1c540fd171",
+          "CURRENT_STATE.md": "c2acde00ca2a6af6f1e54ba671bece684ebe55047581c7274f06489594897285",
+          "SOURCES.md": "11093876e6a4af8fe098862d50a33af3358365d66f7c95b804a49ba5b0a33a8f"
+        }
+      },
+      "ledger_initial_hashes": {
+        "ledger-codex.txt": "476431d5c960b1eeec10608f9cd15d3b42c83ef20e6afabe08a6f8310cffcac1",
+        "ledger-resume.txt": "02ba3dc92d7f57c4ecc1451700f71d0abc40665cae3c3ce6e58797350e5e8bbd",
+        "ledger-status.txt": "ab8242a45fd632f074f427dad23cae6cf3d3eeeea406abe4a4bc297990062c7b"
+      }
+    }
+  ],
+  "dispatch_order": [
+    "T1B",
+    "T3B",
+    "T5B",
+    "T1A",
+    "T3A",
+    "T2A",
+    "T4B",
+    "T5A",
+    "T6A",
+    "T4A",
+    "T6B",
+    "T2B"
+  ],
+  "preparation_cli_calls": 38
+}

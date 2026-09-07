@@ -1,6 +1,6 @@
 # Protocolo de calibración comparativa E01
 
-Fecha: 2026-09-07. Estado: preparado para asignar participantes; **no ejecutado y no prerregistro confirmatorio**. C01 ya ejecutada mide el instrumento y superficies del CLI; no estima variabilidad entre usuarios o agentes. El investigador actual conoce los casos y no será presentado como participante independiente.
+Fecha: 2026-09-07. **Diseño exploratorio conservado; doce intentos E01 ejecutados posteriormente, con desviaciones y límites documentados. No es un prerregistro confirmatorio.** Véanse [registro congelado](e01/registration.json), [condiciones observadas](e01/EXECUTION_NOTES.md) e [informe de resultados](e01/REPORT.md). El texto de diseño siguiente describe lo previsto, no acredita que se haya realizado íntegramente. C01 mide el instrumento y superficies del CLI; no estima variabilidad entre usuarios o agentes. El investigador conoce los casos y no actuó como participante.
 
 ## Dos situaciones prioritarias
 
@@ -32,7 +32,7 @@ Los cortes de T3 se preparan como paquetes separados: hechos posteriores y respu
 - Primera calibración propuesta: seis pares de tareas, doce intentos A/B, con orden contrabalanceado. Es un presupuesto de descubrimiento, no una muestra con potencia confirmatoria. C se añade sólo si la calibración muestra una pregunta de presentación sin resolver.
 - Sesiones de LLM nuevas y sin historial de respuestas: fijar modelo, esfuerzo, configuración, memoria común pertinente, herramientas y límites. Los humanos no repiten el mismo caso inmediatamente; usar variantes equivalentes y registrar experiencia previa.
 
-Recursos aún necesarios: participantes independientes, disponibilidad, modelo/configuración si corresponde y presupuesto de consumo. No se han contratado servicios ni iniciado subagentes. La autorización del plan permite preparar el estudio; la configuración concreta debe reflejar participantes realmente disponibles, no identidades simuladas.
+Recursos previstos al preparar este diseño: participantes independientes, disponibilidad, modelo/configuración si corresponde y presupuesto de consumo. Posteriormente el propietario autorizó subagentes para E01 y se ejecutaron doce sesiones nuevas. La exposición automática de memoria y la falta de identificador exacto de modelo limitan esa configuración; el informe conserva lo efectivamente observado.
 
 ## Registro y juicio
 
@@ -48,4 +48,4 @@ No habrá dictamen de eficacia en E01. Después de la calibración se fijarán e
 
 Tras evidencia favorable, usar un proyecto nuevo y varias sesiones con al menos un relevo real. Registrar elección voluntaria, mantenimiento y abandonos sin exigir que se siga usando G-Ledger. El criterio de necesidad requiere beneficio neto y preferencia repetida; las pruebas de integridad, conteo o formato de P1 no satisfacen esa condición.
 
-Siguiente acción concreta: asignar participantes y modelo/disponibilidad para E01, producir sus paquetes aislados y revisar el equilibrio de hechos. El mapa, P1 y la calibración actual siguen siendo descubrimiento; no se promueve código a producto ni se modifica un contrato con esta evidencia.
+Estado posterior a ejecución: E01 terminó sus doce intentos, con once entregas claras bajo revisión del investigador y una ambigüedad pendiente. No se obtuvo la métrica primaria validada independientemente ni evidencia favorable suficiente para adopción. La siguiente investigación debe observar mantenimiento y relevo completos, con casos nuevos y contexto inspeccionable; el [dictamen](e01/REPORT.md) detalla el alcance. El mapa, P1 y las calibraciones siguen siendo descubrimiento; no se promueve código a producto ni se modifica un contrato con esta evidencia.

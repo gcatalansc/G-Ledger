@@ -34,7 +34,8 @@ Lea en este orden:
 
 ## Quiero evaluar su utilidad y evolución
 
-- [Investigación de utilidad: resultados y estado](research/README.md): diez episodios en cuatro proyectos, alternativas, calibración mecánica y un prototipo de presentación. Utilidad comparativa y adopción aún no demostradas.
+- [Investigación de utilidad: resultados y estado](research/README.md): diez episodios en cuatro proyectos, alternativas, calibración mecánica y doce intentos comparativos E01. Utilidad comparativa y adopción aún no demostradas.
+- [Informe E01 y siguiente decisión](research/e01/REPORT.md): comparación con documentación mantenida, costes observados, límites y adjudicación pendiente.
 - [Plan autorizado v0.1](research/G_LEDGER_UTILITY_RESEARCH_PLAN_v0.1.md) y [protocolo comparativo E01](research/EXPERIMENT_PROTOCOL_v0.1.md).
 
 ## Mapa de directorios documentales

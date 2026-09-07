@@ -1,0 +1,30 @@
+{
+  "qualification": "E01_PRESERVED_ARTIFACT_CHECKS_ONLY",
+  "verified_at_utc": "2026-09-07T22:53:15.897007+00:00",
+  "status": "PASS",
+  "registration_frozen": true,
+  "common_files_verified": 36,
+  "responses_verified": 12,
+  "handoffs_verified": 4,
+  "preparation_outputs_verified": 38,
+  "post_attempt_integrity_outputs_verified": 6,
+  "binary_sha256_verified": "3d240fe74730f8942371f9d2cceeab62d001b6929414339bab455cec97a93438",
+  "json_files_parsed_excluding_this_report": 10,
+  "python_files_parsed": 7,
+  "local_markdown_links_checked": 54,
+  "c01_p1_hashes_unchanged": true,
+  "personal_absolute_path_and_email_markers_in_e01_public_files": 0,
+  "production_code_changed": false,
+  "critical_adjudication_pending": 1,
+  "human_review_complete": false,
+  "efficacy_demonstrated": false,
+  "public_file_sha256": {
+    "docs/research/e01/EXECUTION_NOTES.md": "bf2ce3ae569dd5c1972a26c2ba9ee3026b04a1012065dfa278cc0787393cb184",
+    "docs/research/e01/registration.json": "a4ae0d3f2fcf44e283738534f37a990db6be674d304cd3de6ce00bb1646c723a",
+    "docs/research/e01/REPORT.md": "bda174e9f23b948fd3eaa760bdb08934863e39314b206d08e5825ac36ba39eb1",
+    "docs/research/e01/researcher-review.json": "77177dbd6369b1f1f55c446a40e7206ab8722c9c377f5706857ec0b714d97e2a",
+    "docs/research/e01/results.json": "54e96abf150b8c934c41b8dbf28d660487e6e71ed30bc654a1a284a9cb1e4e52",
+    "docs/research/tools/prepare_e01.py": "3b651957a1f209374b1101f7b5b7bd28e82c26ee34a9cf13a20a78e25ea05ab8",
+    "docs/research/tools/collect_e01.py": "7377762a672bcadfa246969a5aea71a686b4825957401d5d2f3a90837c42c893"
+  }
+}

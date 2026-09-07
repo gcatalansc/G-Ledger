@@ -15,7 +15,7 @@
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
 | Trabajo actual | Investigación de utilidad; remediación local previa verificada en `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`. Firma y certificación bilateral conservan sus dependencias externas |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
-| Investigación de mejoras | Autorizada y en ejecución: diez episodios, revisión de alternativas, calibración mecánica y P1 exploratorio. Comparación independiente y adopción pendientes; `docs/research/README.md` |
+| Investigación de mejoras | Diez episodios, alternativas, C01/P1 y doce intentos E01 realizados. Ventaja neta no demostrada; una adjudicación humana, validación comparativa y adopción pendientes; `docs/research/README.md` |
 
 La aceptación operativa corresponde al piloto y a la entrega identificados. Las correcciones posteriores requieren su propia evidencia de verificación; este resumen no transfiere la aceptación a un binario nuevo.
 
@@ -2512,3 +2512,13 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Exploración P1: ficha derivada con conteos, identidad, frescura y recortes explícitos; seis pruebas aprobadas, entrada intacta, 987 bytes frente a 442 de la vista Codex y 1394 del JSON. No recupera contenido ausente ni acredita eficacia de usuarios. Se adelantó sólo esta prueba de presentación al comparativo; no se promueve al motor.
 - Expediente: `docs/research/README.md`, catálogo/manifiesto, fuentes, protocolo E01, herramientas reproducibles y resultados sintéticos revisables. Datos brutos locales en `.tooling/research/utility-v01/`. Cero participantes independientes y cero modelos evaluados; comparación, prerregistro confirmatorio y adopción pendientes.
 - Siguiente entrada: asignar participantes independientes y configuración de E01. Se consultó al propietario por subagentes nuevos, porque la aplicación exige autorización explícita para delegación; no se iniciaron bajo la autorización genérica del plan. No hay cambios de contratos, binario, release, bases reales ni ejecución externa.
+
+## 2026-09-07 — E01 ejecutado: comparación exploratoria y decisión de investigación
+
+- Autorización: «Sí, autoriza subagentes para E01». Se ejecutaron doce sesiones nuevas, seis pares A/B, con registro congelado antes de participantes y orden aleatorizado. Base de investigación local `cf822e6`; producto evaluado `53dc909`. No hubo participantes humanos ni condición C.
+- Equilibrio: tarea, estado mantenido y fuentes idénticos en bytes por par. B añadió un índice sintético mínimo de progreso/checkpoint; su preparación requirió 38 llamadas CLI. Los dos participantes U2 de B reportaron cuatro comandos cada uno y dos mutaciones aceptadas; los cuatro U1 de B usaron vistas capturadas.
+- Resultado: once entregas conformes bajo revisión del investigador y una ambigüedad de alcance en T6A pendiente de adjudicación humana. Duración mediana de intento A 90 s, B 114 s; no es tiempo hasta corrección validada ni efecto causal de productividad. No se demostró ventaja neta sobre documentación bien mantenida.
+- Límites: los doce participantes recibieron memoria previa automática pese a sesiones nuevas; modelo exacto y telemetría no expuestos; casos conocidos del investigador; juicio conoce condición; mantenimiento y relevo posterior no observados. T6 es un diagnóstico que también entrega JSON estático a A. Se registran desviaciones sin reescribir el registro congelado.
+- Integridad: entradas originales intactas; seis Ledgers de estudio verificados ok, v3 en T1–T3, v5 en T4/T5 y v12 en T6. Los nueve findings de T6 son los esperados del fixture C01, no una aprobación de checkpoint. Respuestas y cuatro traspasos se conservan localmente y quedan ligados por hashes.
+- Expediente y decisión: `docs/research/e01/REPORT.md`, registro, notas, revisión y resultados. P1 no se promueve, P2 no se construye y adopción no comienza con evidencia insuficiente. Siguiente investigación: coste completo de mantener contexto durante cambios y relevo, con casos nuevos y configuración inspeccionable. No se declara necesario el producto ni se descarta su utilidad por esta calibración.
+- Alcance del checkpoint: documentación e instrumentos de investigación, sin modificar producto, contratos, release o proyectos fuente. El juicio pendiente no impide conservar el resultado inconcluso; sí impide tratar T6A como error crítico confirmado o victoria de B.
