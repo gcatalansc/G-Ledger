@@ -13,6 +13,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ### Fixed
 
+- G-Skills RecordSink (PL-GSK-003, parte interna): `status` y `reconcile` reconstruyen el corte atómico del resultado persistido aunque el proyecto haya avanzado. Conservan resultado/digest y rechazan identidad, cortes o cadena inválidos. La confirmación histórica de extremo a extremo conserva una adenda contractual pendiente de autorización.
 - G-Skills RecordSink (PL-GSK-002): una versión que cambia antes del envío conserva la versión aprobada y alcanza el rechazo nativo `VERSION_CONFLICT`, recuperable por `status` y `reconcile` sin eventos adicionales. Las validaciones de identidad y aprobación permanecen activas; el alcance no incluye carreras durante el commit.
 - SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.
 - Publicación atómica de backups, imports portable y artefactos locales en rutas largas, manteniendo el rechazo de sobrescrituras.

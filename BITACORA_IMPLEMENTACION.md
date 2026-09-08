@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Núcleo de historia v0.3 preservado. Corrección G-Skills PL-GSK-002 y su evidencia: `docs/maintenance/PL-GSK-002.md`. Firma y certificación externa conservan sus dependencias |
+| Trabajo actual | Núcleo de historia v0.3 preservado. Recuperación interna PL-GSK-003 verificada: `docs/maintenance/PL-GSK-003.md`; adenda de confirmación histórica externa pendiente de autorización. PL-GSK-002 y evidencia anterior preservados |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 
@@ -2539,3 +2539,10 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Verificación: reproducción inicial de `StateMismatch`, once casos específicos PASS; suite completa 319 PASS/0 fallos/14 omitidos, seguida de once repeticiones tras un ajuste de estilo. Formato, Clippy, schemas/specs/contratos, recursos y release local PASS; build optimizado PASS.
 - Entrega exacta y límites: `docs/maintenance/PL-GSK-002.md`. G-Skills recalifica el candidato por commit y SHA-256. Carreras durante commit y recuperación después de avances posteriores permanecen fuera de este cambio; S24 no se cierra por la corrección local. Sin publicación, datos operativos ni cambios de contratos congelados.
 - Resultado bilateral posterior: commit de código `50e6d555`, siete escenarios PASS y recuperación tras otro avance con `GAP_REPRODUCED`; comparación contra `22b3eca` confirma que el fallo precede al parche. PL-GSK-002 satisfecho; S24/conformidad integral permanecen abiertos. Reportes y hashes preservados en el informe, propuesta adicional sólo de lectura y pendiente de autorización.
+
+## 2026-09-07 — PL-GSK-003: recuperación interna tras avances posteriores
+
+- Autorización comunicada desde G-Skills: «Autorizo, procede». Base `33455323975ae4397d719f4d40c83706e14096a4`, rama `codex/history-core`. Alcance: revisión contractual, corrección interna, fixtures y entrega local; una superficie pública adicional requiere autorización propia.
+- Corrección: `confirmed_projection_ref` verifica el proyecto y reconstruye el corte atómico del resultado sobre un snapshot íntegro. `status`/`reconcile` conservan el resultado y digest persistidos después de otro avance, sin eventos nuevos ni sustitución por HEAD.
+- Verificación: RED reproducido; 141 pruebas de suites afectadas PASS, 0 fallos y 9 omisiones preexistentes. Formato, Clippy de todo el workspace, schemas/specs/contratos y recursos PASS. Build optimizado y siete pruebas CLI contra su copia exacta PASS. Informe y SHA-256: `docs/maintenance/PL-GSK-003.md`.
+- Revisión bilateral: STATE histórico no está habilitado por el perfil G-Skills vigente. Se revisó una adenda de confirmación minimizada como propuesta; no se implementa. Corrección interna verificada, calificación por la contraparte en curso; cierre integral de PL-GSK-003 y S24 pendientes de la adenda. Sin publicación, migración ni datos operativos.

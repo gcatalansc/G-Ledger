@@ -137,6 +137,63 @@ fn cli_sink_stale_submit_is_durable_after_restart_without_domain_events() {
 }
 
 #[test]
+fn cli_sink_recovers_accepted_result_after_another_checkpoint_and_restart() {
+    assert_result_survives_newer_checkpoint(false);
+}
+
+#[test]
+fn cli_sink_recovers_rejected_result_after_another_checkpoint_and_restart() {
+    assert_result_survives_newer_checkpoint(true);
+}
+
+fn assert_result_survives_newer_checkpoint(reject: bool) {
+    let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
+    let command = fixture.command();
+    if reject {
+        fixture.advance_checkpoint();
+    }
+    let submitted = fixture
+        .rpc("ledger.command_submit", &command)
+        .result
+        .unwrap();
+    assert_eq!(
+        submitted["status"],
+        if reject {
+            "VERSION_CONFLICT"
+        } else {
+            "ACCEPTED"
+        }
+    );
+    assert_eq!(submitted["state_transition"]["new_state_version"], 2);
+    let before = fixture
+        .rpc("ledger.command_status", &command)
+        .result
+        .unwrap();
+    assert_eq!(before["status"], "FOUND");
+    assert_eq!(
+        before["result"]["native_result_digest"],
+        submitted["native_result_digest"]
+    );
+
+    fixture.advance_checkpoint();
+    let events = fixture.event_bytes();
+    for method in ["ledger.command_status", "ledger.command_reconcile"] {
+        let response = fixture.rpc_at(method, &command, "2026-08-23T10:10:00-04:00");
+        assert!(response.error.is_none(), "{response:?}");
+        assert_eq!(response.result.unwrap(), before);
+    }
+    assert_eq!(fixture.event_bytes(), events);
+    let store = SqliteEventStore::open(&fixture.database).unwrap();
+    assert_eq!(store.current_version(&project_id()).unwrap(), 3);
+    store.verify_event_chain(&project_id()).unwrap();
+    let result = store
+        .command_result(&CommandId::parse(&format!("command:{COMMAND_UUID}")).unwrap())
+        .unwrap()
+        .unwrap();
+    assert_eq!(json!(result.digest), submitted["native_result_digest"]);
+}
+
+#[test]
 fn cli_sink_matching_version_still_requires_exact_state_identity() {
     let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
     let valid = fixture.command();
@@ -320,6 +377,12 @@ impl SinkFixture {
     }
 
     fn advance_checkpoint(&self) {
+        let version = SqliteEventStore::open(&self.database)
+            .unwrap()
+            .current_version(&project_id())
+            .unwrap();
+        let version_text = version.to_string();
+        let key = format!("competing-checkpoint:{version}");
         let output = Command::cargo_bin("project-ledger")
             .unwrap()
             .args([
@@ -328,9 +391,9 @@ impl SinkFixture {
                 "--reason",
                 "Accepted competing checkpoint",
                 "--expected-version",
-                "1",
+                &version_text,
                 "--idempotency-key",
-                "competing-checkpoint",
+                &key,
                 "--actor-id",
                 "agent:competitor",
                 "--observed-at",
@@ -348,8 +411,8 @@ impl SinkFixture {
         );
         let result: Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_eq!(result["status"], "ACCEPTED");
-        assert_eq!(result["previous_state_version"], 1);
-        assert_eq!(result["new_state_version"], 2);
+        assert_eq!(result["previous_state_version"], version);
+        assert_eq!(result["new_state_version"], version + 1);
     }
 
     fn event_bytes(&self) -> Vec<u8> {

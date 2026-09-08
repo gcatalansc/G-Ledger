@@ -2,6 +2,8 @@ mod errors;
 mod gsp_compile;
 mod operations;
 mod resources;
+#[cfg(test)]
+mod sink_history_tests;
 use errors::CliError;
 
 use std::{
@@ -48,7 +50,7 @@ use project_ledger_interop_radar::{
     build_project_projection, build_sync_envelope, validate_sync_envelope,
     verify_profile_contracts as verify_radar_profile_contracts,
 };
-use project_ledger_projection_engine::ProjectStateProjection;
+use project_ledger_projection_engine::{HistoryView, ProjectStateProjection};
 use project_ledger_release::verify_release;
 use project_ledger_schemas::{check_generated, validate_contracts};
 use project_ledger_storage_sqlite::SqliteEventStore;
@@ -1383,13 +1385,19 @@ impl RecordSinkHost for SqliteRecordSinkHost {
         project_ref: &ProjectId,
         state_version: u64,
     ) -> Result<ResourceRef, RecordSinkHostError> {
-        let state = self.state_identity(project_ref)?;
-        if state.state_version != state_version {
-            return Err(RecordSinkHostError::new(format!(
-                "confirmed projection version mismatch: expected {state_version}, actual {}",
-                state.state_version
-            )));
+        if project_ref != &self.project_ref {
+            return Err(RecordSinkHostError::new(
+                "record sink requested an unexpected project",
+            ));
         }
+        let events = self
+            .store
+            .borrow()
+            .load_verified_snapshot(project_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?;
+        // The result belongs to its own atomic historical cut, even after later writes.
+        HistoryView::at(&events, Some(state_version))
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?;
         ResourceRef::parse(&format!("continuity:ledger-{state_version}"))
             .map_err(|error| RecordSinkHostError::new(error.to_string()))
     }
