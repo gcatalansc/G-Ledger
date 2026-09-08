@@ -1,5 +1,7 @@
 # PL-GSK-003: adenda de confirmación histórica
 
+Estado: **adenda implementada y recalificada bilateralmente; SCOPED_PASS**. Cierre acotado de PL-GSK-003. Se conserva la limitación de la regresión ampliada indicada abajo; no se declara cierre de S24/Fase 6 ni release.
+
 ## Autorización y contrato
 
 El 2026-09-08, G-Skills Engine III comunicó la autorización adicional explícita de Alfredo «Autorizo, procede» para `G-Skills/docs/context-orchestration/PL-GSK-003-confirmation-addendum.md`, fijada en G-Skills `a0c9382b0f4fe137e9e3a8fb2bc08386617e93e4`. Habilita perfil, schemas, manifest/policy/lock candidatos, implementación bilateral y pruebas locales. No habilita publicación, push/merge, tags, migración, DB operativa ni Fase 7.
@@ -44,7 +46,21 @@ Build `cargo build --locked --release -p project-ledger-cli`, exit 0, 2m 18s. Co
 
 Contra esa copia exacta, seleccionada con `CARGO_BIN_EXE_project-ledger`, pasan ocho pruebas de confirmación y siete del sink anterior: **15 PASS**, sin fallos/omitidas. `specs verify`, `contracts verify`, `resources verify` y `release verify` también pasan con `--resources <raíz de este checkout>`; 484 recursos verificados. Es una copia de ejecutable para calificación local, no un paquete autónomo; el resultado de release verify no certifica el nuevo perfil ni compatibilidad universal.
 
-G-Skills fijó su consumo en `integrations/project-ledger/confirmation-v0.1/gskills-consumption.json`, SHA-256 `ac6925d9cb1619e0a771cba250e1e63f73b9111b3bcab1432131f2bc07ea190f`, revalidado directamente desde Ledger. Código host comunicado `ace06001e6115cfc157edd0f973a3f252fd0d15e`, binario optimizado `636791b2ea3703165cff6117a32f2f5d296ec7033f7053e4b7e6aa695b8ff689` y helper `3a3537db63010ea1381bce0ffdf8bbce1f8f8b6afc0299e386cb103a5771bf05`. La calificación conjunta del candidato queda pendiente de su ejecución; no se declara cierre integral de PL-GSK-003/S24/Fase 6.
+Código Ledger entregado: `4f720e11e799fc868560feb2836125289e90777c`. G-Skills fijó su consumo en `integrations/project-ledger/confirmation-v0.1/gskills-consumption.json`, SHA-256 `ac6925d9cb1619e0a771cba250e1e63f73b9111b3bcab1432131f2bc07ea190f`, revalidado directamente desde Ledger. Código host `ace06001e6115cfc157edd0f973a3f252fd0d15e`, binario optimizado `636791b2ea3703165cff6117a32f2f5d296ec7033f7053e4b7e6aa695b8ff689`. El helper inicial `3a3537db63010ea1381bce0ffdf8bbce1f8f8b6afc0299e386cb103a5771bf05` queda preservado; el helper final se identifica abajo.
+
+## Resultado bilateral final
+
+Reporte G-Skills `release/evidence/pl-gsk-003a-final-qualification.json`, SHA-256 `dff6f447b74a6342a2b35cea726466af746766652ccdb7e8d100b181da679202`: **SCOPED_PASS, 9/9 PASS**, 77 invocaciones superiores registradas. Runner/helper fijados en `12694d7fef9b86256366dc86dbe21138cbb74a3c`, helper optimizado `fcb7227fda40299d7c98e3c1b7cbe687a1f7edfb19dff7ba0b5af143f8d42623`; binarios productivos Ledger y G-Skills permanecen los ya entregados.
+
+- Cinco mappings, conflicto anterior a submit, refresco fallido, recuperación tras avance y replay/original PASS. El rechazo conocido seguido de avance también conserva su resultado e intento único.
+- Aceptación con respuesta perdida, avance 22→23 y reinicio: `RECONCILED_ACCEPTED` / `ADVANCED_AFTER_RESULT`, digest original `sha256:5c0cdc52d2be58eb6d047bfc1f42a3a64536a102bdaf336d646a543c76cade50`, intento 1. Corte V22 y HEAD V23 comprobados por la nueva prueba nativa.
+- Control sin opt-in: resultado conocido preservado, confirmación `UNAVAILABLE` y `OUTCOME_UNKNOWN`. No se obtiene permiso por el estado actual ni por la existencia del contrato candidato.
+- Replay: dos entregas nativas inyectadas explícitamente por la fixture después de Validate, un envío/intento lógico del host, un único evento nuevo (21→22), cero reintentos ciegos. Observación `DUPLICATE_REPLAY` digest `sha256:0f959ae1637899ffdb4495abbe7ed20e3993b9d45479c1c4b755ee23cd212d21` conservada aparte; lookup durable `ACCEPTED` digest `sha256:17cd54b797c9ca49f736f03724b46c890b553599b5ab1ecf5f6f1723bf0ce2f5`, `RECONCILED_ACCEPTED` / `CONFIRMED_AT_RESULT`.
+- El primer armado del replay aceptaba externamente antes de Validate y recibió correctamente StateMismatch. Se conserva esa corrida/diagnóstico. La corrección afectó únicamente la inyección de la fixture; no se debilitó la validación ni cambió el producto para obtener PASS.
+
+Contraste directo desde Ledger: hash del reporte y cuatro ejecutables coincidentes; nueve estados PASS y nueve pares de snapshots antes/después de consultas idénticos; ambos lookups nativos y el resultado conservado por el host coinciden completos con el original. Se reconstruyeron independientemente, desde los bindings registrados, el digest del efecto y el de la respuesta nativa completa del caso histórico; ambos coinciden. Cero escrituras operativas/upstream; `release_certified=false`, `phase_6_closed=false`.
+
+G-Skills comunica UB-51/53 VERIFIED en este alcance. PL-GSK-003 y su adenda quedan satisfechos por esta evidencia local bilateral; S24/Fase 6 continúan sujetos a sus demás gates. La incidencia de 700 ms de la suite nativa se conserva como limitación, no queda arreglada por la calificación conjunta.
 
 ## Límites de la entrega
 
