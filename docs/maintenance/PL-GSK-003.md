@@ -1,6 +1,6 @@
 # PL-GSK-003: recuperar el resultado en su versión histórica
 
-Estado: **corrección interna verificada; adenda de confirmación externa pendiente**. No se declara cierre integral de PL-GSK-003 ni de S24.
+Estado: **corrección interna recalificada bilateralmente; adenda de confirmación externa pendiente**. No se declara cierre integral de PL-GSK-003 ni de S24.
 
 ## Autorización y alcance
 
@@ -45,6 +45,18 @@ Logs locales preservados en `.tooling/pl-gsk-003/`, fuera de Git. Esta pasada fo
 Las siete pruebas CLI de `gskills_sink` también pasan contra esa copia mediante `CARGO_BIN_EXE_project-ledger`, exit 0. `specs verify`, `contracts verify`, `resources verify` y `release verify` pasan contra el mismo ejecutable con `--resources <raíz de este checkout>`; los 461 recursos están verificados. Al copiar sólo el ejecutable fuera de su instalación, omitir esa ruta falla con `RESOURCE_INTEGRITY`/exit 15, según el contrato de recursos. No es un paquete distribuible autónomo.
 
 Log de regresión: `.tooling/pl-gsk-003/regression.log`, SHA-256 `cd9b541c62dedb6af90d7b7acc9979450c53250947466fe2d726e33350844990`. Pruebas del ejecutable: `.tooling/pl-gsk-003/delivery-cli-tests.log`. La calificación bilateral se realiza por commit y hash exactos, sin promover la nueva superficie contractual.
+
+## Calificación bilateral (2026-09-08)
+
+Commit Ledger entregado: `d0661b4242e492881c279c9ce3434aa8b2655c31`. G-Skills fijó su código en `26a6eb641187d3d4ca28544ce17d087a0b689b64`, host dev SHA-256 `d4a71ba9ca0d2eda73db0590340706f1b73cf52f15d973e0da9a20c0e4a2a152` y helper de recuperación `27e6772ababb689b38c7f8860a321a4c500a7c53945061c826633b77a91afd09`. No se presentan esos artefactos de prueba como releases.
+
+Reporte G-Skills `release/evidence/pl-gsk-003-candidate-qualification.json`, SHA-256 `bec3df620e9690f9846162214b32c7ac151271876416476a9fb7f86eb55029bd`: **SCOPED_PASS_HISTORY_CONTRACT_PENDING**. Cinco mappings y dos escenarios de conflicto/refresco PASS, incluyendo rechazo conocido seguido de avance. El octavo caso, aceptación con respuesta perdida y avance 22→23, registra **NATIVE_RECOVERY_PASS_HISTORY_CONTRACT_PENDING**.
+
+Después del avance y con procesos nuevos, ambos métodos nativos devuelven FOUND y el objeto completo original, incluido su digest. En el rechazo conocido, G-Skills mantiene `RECONCILED_REJECTED`, intento 1, y confirmación `UNAVAILABLE` separada. En la aceptación con respuesta perdida, conserva `ACCEPTED` conocido e intento 1, pero mantiene `OUTCOME_UNKNOWN` y `UNAVAILABLE/HISTORICAL_PROOF_CONTRACT_REQUIRED`: resultado V22 y contexto actual V23 son distintos. No reenvía ni afirma confirmación histórica por comparar `current >= V`.
+
+Control con el mismo host y Ledger anterior `50e6d555`: `release/evidence/pl-gsk-003-baseline-comparison.json`, SHA-256 `f246956643e8ccd51a98aa36b8700b9ddf93327592cc1554c512dd1e8c4d0856`, sigue reproduciendo GAP_REPRODUCED. La corrección nativa queda contrastada sin atribuirle capacidades aún no implementadas.
+
+Revisión directa desde G-Ledger: hashes de los cuatro ejecutables seleccionados coinciden; los ocho pares de snapshots antes/después de consultas son idénticos; ambos resultados nativos recuperados y el conservado por el host coinciden completos con el original. Cero escrituras operativas; `release_certified=false`, `phase_6_closed=false`. El reporte no promueve UB51/53 ni S24.
 
 ## Límites y rollback
 
