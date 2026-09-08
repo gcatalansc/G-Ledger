@@ -1,3 +1,4 @@
+mod confirmation;
 mod errors;
 mod gsp_compile;
 mod operations;
@@ -337,6 +338,7 @@ struct GspLinkResultArgs {
 enum ServeCommand {
     Provider(ServeProviderArgs),
     Sink(ServeSinkArgs),
+    Confirmation(ServeSinkArgs),
 }
 
 #[derive(Debug, Args)]
@@ -539,6 +541,9 @@ fn dispatch_existing(
         TopLevelCommand::Serve {
             command: ServeCommand::Sink(args),
         } => serve_gskills_sink(&args),
+        TopLevelCommand::Serve {
+            command: ServeCommand::Confirmation(args),
+        } => confirmation::serve(&args),
     }
 }
 

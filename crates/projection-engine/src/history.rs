@@ -72,6 +72,14 @@ impl<'a> HistoryView<'a> {
         value
     }
 
+    /// Minimal identity of this verified atomic cut, without state or episode bodies.
+    pub fn cut_identity(&self) -> Value {
+        let state = self.projection.state();
+        json!({"state_version":state.state_version,
+            "material_state_version":state.material_state_version,
+            "state_digest":state.state_digest,"head_digest":self.projection.head_digest()})
+    }
+
     /// State plus explicit episode context at this cut.
     pub fn state(&self) -> Value {
         self.response(

@@ -6,6 +6,8 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ### Added
 
+- G-Skills: perfil read-only `gskills-record-confirmation/0.1.0` y `ledger.command_confirmation`, con policy independiente, contratos candidatos separados y prueba minimizada de resultado/cortes/eventos sobre un único snapshot verificado. Adenda PL-GSK-003 autorizada el 2026-09-08; se conserva la línea publicada rc.1.
+
 - Historia v0.3: episodios, alternativas, intentos, vínculos explícitos con decisiones y correcciones append-only; registro atómico junto al avance habitual.
 - CLI `record episode`, `history at`, `history diff`, `history get`, `decision trace` paginado y exposición de `evidence invalidate` bajo la política existente.
 - Catálogo adicional v0.3, lectura de cortes completos y portable mixto v0.2/v0.3. Eventos, digests y schemas v0.2 preservados.
@@ -13,7 +15,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ### Fixed
 
-- G-Skills RecordSink (PL-GSK-003, parte interna): `status` y `reconcile` reconstruyen el corte atómico del resultado persistido aunque el proyecto haya avanzado. Conservan resultado/digest y rechazan identidad, cortes o cadena inválidos. La confirmación histórica de extremo a extremo conserva una adenda contractual pendiente de autorización.
+- G-Skills RecordSink (PL-GSK-003, parte interna): `status` y `reconcile` reconstruyen el corte atómico del resultado persistido aunque el proyecto haya avanzado. Conservan resultado/digest y rechazan identidad, cortes o cadena inválidos. La confirmación histórica adicional se incorpora mediante la adenda separada autorizada.
 - G-Skills RecordSink (PL-GSK-002): una versión que cambia antes del envío conserva la versión aprobada y alcanza el rechazo nativo `VERSION_CONFLICT`, recuperable por `status` y `reconcile` sin eventos adicionales. Las validaciones de identidad y aprobación permanecen activas; el alcance no incluye carreras durante el commit.
 - SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.
 - Publicación atómica de backups, imports portable y artefactos locales en rutas largas, manteniendo el rechazo de sobrescrituras.

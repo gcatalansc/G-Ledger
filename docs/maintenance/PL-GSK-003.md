@@ -1,6 +1,6 @@
 # PL-GSK-003: recuperar el resultado en su versión histórica
 
-Estado: **corrección interna recalificada bilateralmente; adenda de confirmación externa pendiente**. No se declara cierre integral de PL-GSK-003 ni de S24.
+Estado histórico de esta entrega: **corrección interna recalificada bilateralmente; adenda entonces pendiente**. La autorización e implementación posterior del 2026-09-08 se registra en [PL-GSK-003-CONFIRMATION.md](PL-GSK-003-CONFIRMATION.md). Este informe conserva la evidencia anterior; no declara cierre de S24.
 
 ## Autorización y alcance
 

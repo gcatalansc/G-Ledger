@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Núcleo de historia v0.3 preservado. Recuperación interna PL-GSK-003 verificada: `docs/maintenance/PL-GSK-003.md`; adenda de confirmación histórica externa pendiente de autorización. PL-GSK-002 y evidencia anterior preservados |
+| Trabajo actual | Adenda PL-GSK-003 autorizada e implementada: `docs/maintenance/PL-GSK-003-CONFIRMATION.md`; calificación candidata en curso. Núcleo de historia, correcciones PL-GSK-002/003 y evidencia anterior preservados |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 
@@ -2552,3 +2552,10 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Ledger `d0661b4242e492881c279c9ce3434aa8b2655c31` + G-Skills `26a6eb641187d3d4ca28544ce17d087a0b689b64`: `SCOPED_PASS_HISTORY_CONTRACT_PENDING`. Siete escenarios PASS y recuperación nativa de aceptación tras respuesta perdida/avance 22→23 PASS, con confirmación histórica pendiente. El rechazo conocido tras avance conserva su resultado e intento único.
 - Evidencia contrastada directamente: hashes de cuatro binarios, ocho pares de snapshots idénticos y resultados completos originales recuperados por `status`/`reconcile` y conservados por el host. Mismo host con Ledger `50e6d555` reproduce el fallo anterior. Reportes y hashes en `docs/maintenance/PL-GSK-003.md`.
 - Corrección interna autorizada completada y recalificada. Adenda aún propuesta; confirmación automática externa, PL-GSK-003 integral, UB51/53, S24 y Fase 6 permanecen pendientes. Binario candidato y rc.1 intactos; sin publicación ni datos operativos.
+
+## 2026-09-08 — Adenda PL-GSK-003 autorizada: confirmación histórica nativa
+
+- Nueva autorización explícita «Autorizo, procede», comunicada desde G-Skills Engine III. Contratos separados entregados primero en `ab9faf83d00a8098a6461309f1c39ea953774fc8`; consumo recíproco por hashes confirmado. No se modifican autoridades/perfiles/locks anteriores ni rc.1.
+- Perfil `gskills-record-confirmation/0.1.0`, `serve confirmation` y `ledger.command_confirmation` de sólo lectura. Snapshot único de comando, resultado, scope e historial verificados; prueba minimizada de cortes y causalidad completa, sin STATE/episodios al host.
+- Verificación: ocho CLI y dos nuevas unitarias de snapshot/límite PASS. Regresión ampliada 153 PASS/1 fallo/9 omitidas; el auxiliar de una prueba anterior no arrancó dentro de 700 ms, y el caso aislado pasó. Se conserva el fallo inicial y no se presenta la pasada como limpia. Formato/Clippy/schemas/contratos/484 recursos PASS.
+- Binario optimizado: 15 pruebas CLI de confirmación y sink anterior PASS sobre su copia exacta. Informe, hashes, comandos y límites en `docs/maintenance/PL-GSK-003-CONFIRMATION.md`. Entrega nativa lista para calificación conjunta; sin publicación, migración ni DB operativa. S24/Fase 6 no cerrados.

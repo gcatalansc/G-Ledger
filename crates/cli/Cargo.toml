@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 ctrlc = { version = "3.5.2", features = ["termination"] }
 clap.workspace = true
+jsonschema.workspace = true
 project-ledger-application = { path = "../application", version = "=0.2.0" }
 project-ledger-agent-skill = { path = "../agent-skill", version = "=0.2.0" }
 project-ledger-canonical-json = { path = "../canonical-json", version = "=0.2.0" }
@@ -42,7 +43,6 @@ tempfile.workspace = true
 sha2.workspace = true
 
 [dev-dependencies]
-jsonschema.workspace = true
 rusqlite.workspace = true
 assert_cmd.workspace = true
 predicates.workspace = true
