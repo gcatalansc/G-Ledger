@@ -89,6 +89,127 @@ fn cli_sink_executes_validate_submit_replay_status_and_reconcile_on_real_sqlite(
 }
 
 #[test]
+fn cli_sink_stale_submit_is_durable_after_restart_without_domain_events() {
+    let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
+    let command = fixture.command();
+    let original = command.clone();
+    assert_eq!(
+        fixture
+            .rpc("ledger.command_validate", &command)
+            .result
+            .unwrap()["status"],
+        "VALID"
+    );
+
+    fixture.advance_checkpoint();
+    let before = fixture.event_bytes();
+    let response = fixture.rpc("ledger.command_submit", &command);
+    assert!(response.error.is_none(), "{response:?}");
+    let result = response.result.unwrap();
+    assert_eq!(result["status"], "VERSION_CONFLICT");
+    assert_eq!(result["state_transition"]["previous_state_version"], 2);
+    assert_eq!(result["state_transition"]["new_state_version"], 2);
+    assert_eq!(result["state_transition"]["emitted_event_refs"], json!([]));
+    assert!(result["resulting_checkpoint_ref"].is_null());
+
+    // Each call starts a new native process. Lookup remains valid after approval expires.
+    for method in ["ledger.command_status", "ledger.command_reconcile"] {
+        let found = fixture.rpc_at(method, &command, "2026-08-23T10:10:00-04:00");
+        assert!(found.error.is_none(), "{found:?}");
+        let found = found.result.unwrap();
+        assert_eq!(found["status"], "FOUND");
+        assert_eq!(found["result"]["status"], "VERSION_CONFLICT");
+        assert_eq!(
+            found["result"]["native_result_digest"],
+            result["native_result_digest"]
+        );
+    }
+    assert_eq!(fixture.event_bytes(), before);
+    assert_eq!(command, original);
+    let store = SqliteEventStore::open(&fixture.database).unwrap();
+    store.verify_event_chain(&project_id()).unwrap();
+    let durable = store
+        .command_result(&CommandId::parse(&format!("command:{COMMAND_UUID}")).unwrap())
+        .unwrap()
+        .unwrap();
+    assert_eq!(durable.status, CommandResultStatus::VersionConflict);
+    assert_eq!(json!(durable.digest), result["native_result_digest"]);
+}
+
+#[test]
+fn cli_sink_matching_version_still_requires_exact_state_identity() {
+    let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
+    let valid = fixture.command();
+    let before = fixture.event_bytes();
+    for field in ["material_state_version", "project_state_digest"] {
+        let mut command = valid.clone();
+        if field == "material_state_version" {
+            command["expected_state"][field] = json!(99);
+        } else {
+            command["expected_state"][field] = json!(zero());
+            command["preparation"]["expected_state_digest"] = json!(zero());
+        }
+        resign_command(&mut command);
+        let response = fixture.rpc("ledger.command_submit", &command);
+        let error = response
+            .error
+            .expect("inconsistent current identity must be rejected");
+        assert_eq!(error.code, -32602);
+        assert!(
+            error.data.as_ref().unwrap()["record_sink_error"]
+                .as_str()
+                .unwrap()
+                .contains("state identity mismatch"),
+            "{error:?}"
+        );
+        assert_eq!(
+            fixture
+                .rpc("ledger.command_status", &command)
+                .result
+                .unwrap()["status"],
+            "NOT_FOUND"
+        );
+    }
+    assert_eq!(fixture.event_bytes(), before);
+}
+
+#[test]
+fn cli_sink_stale_version_does_not_bypass_identity_policy_or_approval() {
+    let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
+    let valid = fixture.command();
+    fixture.advance_checkpoint();
+    let before = fixture.event_bytes();
+    for (pointer, replacement) in [
+        ("/project_ref", json!("project:other")),
+        ("/actor/id", json!("other-agent")),
+        (
+            "/idempotency_scope/actor_trust_domain",
+            json!("other-domain"),
+        ),
+        ("/preparation/policy_digest", json!(zero())),
+        ("/preparation/provider_executable_digest", json!(zero())),
+        (
+            "/preparation/approval_expires_at",
+            json!("2026-08-23T10:01:30-04:00"),
+        ),
+        ("/privacy/raw_output_included", json!(true)),
+        ("/native_command/expected_state_version", json!(99)),
+    ] {
+        let mut command = valid.clone();
+        *command.pointer_mut(pointer).unwrap() = replacement;
+        resign_command(&mut command);
+        let response = fixture.rpc("ledger.command_submit", &command);
+        assert!(response.result.is_none(), "{pointer}: {response:?}");
+        assert_eq!(response.error.unwrap().code, -32602, "{pointer}");
+    }
+    assert_eq!(fixture.event_bytes(), before);
+    assert_eq!(
+        fixture.rpc("ledger.command_status", &valid).result.unwrap()["status"],
+        "NOT_FOUND"
+    );
+}
+
+#[test]
 fn cli_sink_requires_explicit_recording_policy_and_never_derives_write_trust() {
     let fixture = SinkFixture::new("TRUSTED_FOR_PROJECTION");
 
@@ -149,6 +270,93 @@ struct SinkFixture {
 }
 
 impl SinkFixture {
+    fn rpc(&self, method: &str, command: &Value) -> JsonRpcResponse {
+        self.rpc_at(method, command, "2026-08-23T10:02:00-04:00")
+    }
+
+    fn rpc_at(&self, method: &str, command: &Value, observed_at: &str) -> JsonRpcResponse {
+        let input = encode_frame(
+            &JsonRpcRequest {
+                jsonrpc: "2.0".to_owned(),
+                id: json!(1),
+                method: method.to_owned(),
+                params: json!({"command": command}),
+            },
+            FrameLimits::default(),
+        )
+        .unwrap();
+        let output = Command::cargo_bin("project-ledger")
+            .unwrap()
+            .current_dir(repository_root())
+            .args([
+                "serve",
+                "sink",
+                "--stdio",
+                "--profile",
+                PROFILE,
+                "--database",
+            ])
+            .arg(&self.database)
+            .args([
+                "--project-ref",
+                PROJECT_ID,
+                "--gskills-project-ref",
+                "project:mempilot",
+                "--policy",
+            ])
+            .arg(&self.policy)
+            .args(["--observed-at", observed_at])
+            .write_stdin(input)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let mut responses = decode_frames(&output.stdout);
+        assert_eq!(responses.len(), 1);
+        responses.remove(0)
+    }
+
+    fn advance_checkpoint(&self) {
+        let output = Command::cargo_bin("project-ledger")
+            .unwrap()
+            .args([
+                "checkpoint",
+                "create",
+                "--reason",
+                "Accepted competing checkpoint",
+                "--expected-version",
+                "1",
+                "--idempotency-key",
+                "competing-checkpoint",
+                "--actor-id",
+                "agent:competitor",
+                "--observed-at",
+                "2026-08-23T10:01:30-04:00",
+                "--database",
+            ])
+            .arg(&self.database)
+            .args(["--project-ref", PROJECT_ID, "--json"])
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(result["status"], "ACCEPTED");
+        assert_eq!(result["previous_state_version"], 1);
+        assert_eq!(result["new_state_version"], 2);
+    }
+
+    fn event_bytes(&self) -> Vec<u8> {
+        let store = SqliteEventStore::open(&self.database).unwrap();
+        serde_json::to_vec(&store.load_stream(&project_id()).unwrap()).unwrap()
+    }
+
     fn new(trust: &str) -> Self {
         let root = TempDir::new().unwrap();
         let database = root.path().join("ledger.db");
@@ -356,6 +564,13 @@ fn prepared_digest(value: &Value) -> Sha256Digest {
         preparation.remove(field);
     }
     sha256_digest(&core).unwrap()
+}
+
+fn resign_command(value: &mut Value) {
+    let prepared = prepared_digest(value);
+    value["preparation"]["prepared_command_digest"] = json!(prepared);
+    value["preparation"]["preview_digest"] = json!(prepared);
+    refresh_digest(value);
 }
 
 fn refresh_digest(value: &mut Value) {

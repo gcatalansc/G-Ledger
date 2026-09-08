@@ -109,3 +109,38 @@ fn version_race_returns_native_conflict_without_overwrite() {
     assert_eq!(conflict["status"], "VERSION_CONFLICT");
     assert_eq!(host.event_count(), before);
 }
+
+#[test]
+fn version_change_before_submit_persists_native_conflict_without_state_override() {
+    let host = ProcessingHost::new();
+    let command = work_progress_command(host.current_state());
+    let original = command.clone();
+    let sink = GSkillsRecordSink::new(&host, policy()).unwrap();
+    sink.validate(&command).unwrap();
+
+    host.advance_out_of_band();
+    let before = host.current_state();
+    let events = host.event_count();
+    let conflict = sink.submit(&command).unwrap();
+
+    assert_eq!(conflict["status"], "VERSION_CONFLICT");
+    assert_eq!(
+        conflict["state_transition"]["emitted_event_refs"],
+        serde_json::json!([])
+    );
+    assert_eq!(host.event_count(), events);
+    assert_eq!(host.current_state().state_digest, before.state_digest);
+    assert_eq!(command, original);
+    for found in [
+        sink.status(&command).unwrap(),
+        sink.reconcile(&command).unwrap(),
+    ] {
+        assert_eq!(found["status"], "FOUND");
+        assert_eq!(
+            found["result"]["native_result_digest"],
+            conflict["native_result_digest"]
+        );
+        assert_eq!(found["result"]["status"], "VERSION_CONFLICT");
+    }
+    assert_eq!(host.execute_calls(), 1);
+}

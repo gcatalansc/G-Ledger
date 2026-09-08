@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Núcleo de historia v0.3 implementado y verificado: `docs/history/IMPLEMENTATION_REPORT.md`. Remediación anterior preservada; firma y certificación bilateral conservan sus dependencias externas |
+| Trabajo actual | Núcleo de historia v0.3 preservado. Corrección G-Skills PL-GSK-002 y su evidencia: `docs/maintenance/PL-GSK-002.md`. Firma y certificación externa conservan sus dependencias |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 
@@ -2531,3 +2531,10 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Compatibilidad: ocho schemas v0.3 adicionales; comando/evento nuevos en un stream mixto. Los 142 artefactos generados v0.2 y la spec base permanecen idénticos. Portable y backup/restore preservan la historia; la aceptación publicada de rc.1 no se transfiere al binario nuevo.
 - Verificación: seis escenarios CLI, 315 casos únicos de regresión resueltos mediante pasada completa y repetición selectiva, 14 casos especiales ignored. Formato, Clippy, schemas, specs, contratos y 461 recursos PASS. Ejercicio directo del implementador: 14 llamadas CLI, sin `--as-human`, pasado intacto y restauración exacta.
 - Entrega y límites: `docs/history/IMPLEMENTATION_REPORT.md`, contrato, guía y registro del ejercicio. No hay nueva publicación, certificación externa ni medición de productividad; los resultados E01 permanecen históricos. La implementación autorizada está completada.
+
+## 2026-09-07 — PL-GSK-002: conflicto anterior al envío G-Skills
+
+- Autorización bilateral explícita de Alfredo: «Apruebo, pero quiero que verifiques que no quede nada roto.» Base `e593e8a`, misma rama candidata `codex/history-core`; rc.1 intacta.
+- Corrección limitada al adaptador: conserva la versión aprobada y deja que el procesador persista `VERSION_CONFLICT` sin eventos. Identidad, política, aprobación y comparación de estado coincidente permanecen activas.
+- Verificación: reproducción inicial de `StateMismatch`, once casos específicos PASS; suite completa 319 PASS/0 fallos/14 omitidos, seguida de once repeticiones tras un ajuste de estilo. Formato, Clippy, schemas/specs/contratos, recursos y release local PASS; build optimizado PASS.
+- Entrega exacta y límites: `docs/maintenance/PL-GSK-002.md`. G-Skills recalifica el candidato por commit y SHA-256. Carreras durante commit y recuperación después de avances posteriores permanecen fuera de este cambio; S24 no se cierra por la corrección local. Sin publicación, datos operativos ni cambios de contratos congelados.

@@ -13,6 +13,7 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ### Fixed
 
+- G-Skills RecordSink (PL-GSK-002): una versión que cambia antes del envío conserva la versión aprobada y alcanza el rechazo nativo `VERSION_CONFLICT`, recuperable por `status` y `reconcile` sin eventos adicionales. Las validaciones de identidad y aprobación permanecen activas; el alcance no incluye carreras durante el commit.
 - SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.
 - Publicación atómica de backups, imports portable y artefactos locales en rutas largas, manteniendo el rechazo de sobrescrituras.
 - Regresión del recorrido portable completo con rutas de datos de más de 1.100 caracteres, espacios y Unicode, incluida en el verificador Windows.

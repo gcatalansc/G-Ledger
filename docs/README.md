@@ -25,6 +25,7 @@ Lea en este orden:
 
 ## Quiero integrar o desarrollar
 
+- [Corrección G-Skills PL-GSK-002](maintenance/PL-GSK-002.md): conflicto nativo recuperable ante un avance anterior al envío, regresiones y límites de recalificación bilateral.
 - [Extensión de historia v0.3](history/HISTORY_EXTENSION_v0.3.md) y [uso directo por un LLM](history/LLM_USAGE.md): episodios, intentos, correcciones y reconstrucción por versión; incorporación posterior a rc.1.
 - [Entrega del núcleo de historia y verificación](history/IMPLEMENTATION_REPORT.md): capacidades implementadas, seis escenarios y ejercicio directo.
 

@@ -155,7 +155,13 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
             lookup_prepared
         } else {
             let current = self.host.state_identity(&self.policy.native_project_ref)?;
-            prepare_record_command(command, &self.policy, current, &observed_at)?
+            if current.state_version == lookup_prepared.expected_state_version {
+                prepare_record_command(command, &self.policy, current, &observed_at)?
+            } else {
+                // Preserve the approved expected version. The native processor owns the
+                // VERSION_CONFLICT result and rejects before any domain event is appended.
+                lookup_prepared
+            }
         };
         let result = self.host.execute(prepared.native_envelope()?)?;
         self.map_result(&prepared, &result)
