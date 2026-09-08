@@ -160,17 +160,7 @@ where
             );
         }
         if command.expected_state_version != current {
-            return self.persist_rejected(
-                &command,
-                CommandResultStatus::VersionConflict,
-                current,
-                ErrorCode::VersionConflict,
-                format!(
-                    "expected state version {}, actual {current}",
-                    command.expected_state_version
-                ),
-                Vec::new(),
-            );
+            return self.finalize_version_conflict(&command);
         }
 
         let drafts = match handler.handle(&command, &stream) {
@@ -239,14 +229,9 @@ where
                     Vec::new(),
                 )
             }
-            Err(StoreError::StreamVersionConflict { actual, .. }) => self.rejected(
-                &command_for_outcome,
-                CommandResultStatus::VersionConflict,
-                actual,
-                ErrorCode::VersionConflict,
-                "the stream version changed during commit",
-                Vec::new(),
-            ),
+            Err(StoreError::StreamVersionConflict { .. }) => {
+                self.finalize_version_conflict(&command_for_outcome)
+            }
             Err(error) => Err(error.into()),
         }
     }
@@ -295,14 +280,9 @@ where
         }) {
             Ok(CommitDisposition::Committed(result)) => Ok(result),
             Ok(CommitDisposition::Replayed(previous)) => self.replay(previous),
-            Err(StoreError::StreamVersionConflict { actual, .. }) => self.rejected(
-                command,
-                CommandResultStatus::VersionConflict,
-                actual,
-                ErrorCode::VersionConflict,
-                "the stream version changed while recording the command result",
-                Vec::new(),
-            ),
+            Err(StoreError::StreamVersionConflict { .. }) => {
+                self.finalize_version_conflict(command)
+            }
             Err(StoreError::IdempotencyConflict { .. }) => self.rejected(
                 command,
                 CommandResultStatus::Rejected,
@@ -311,6 +291,31 @@ where
                 "the scoped idempotency key changed while recording the command result",
                 Vec::new(),
             ),
+            Err(error) => Err(error.into()),
+        }
+    }
+
+    fn finalize_version_conflict(
+        &mut self,
+        command: &CommandEnvelope,
+    ) -> Result<CommandResult, ProcessorError> {
+        match self
+            .store
+            .finalize_version_conflict(command.clone(), self.clock.now())
+        {
+            Ok(CommitDisposition::Committed(result)) => Ok(result),
+            Ok(CommitDisposition::Replayed(previous)) => self.replay(previous),
+            Err(StoreError::IdempotencyConflict { .. }) => {
+                let current = self.store.current_version(&command.project_ref)?;
+                self.rejected(
+                    command,
+                    CommandResultStatus::Rejected,
+                    current,
+                    ErrorCode::IdempotencyConflict,
+                    "the scoped idempotency key changed while finalizing the version conflict",
+                    Vec::new(),
+                )
+            }
             Err(error) => Err(error.into()),
         }
     }

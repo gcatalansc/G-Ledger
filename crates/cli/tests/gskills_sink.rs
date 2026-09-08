@@ -103,6 +103,11 @@ fn cli_sink_stale_submit_is_durable_after_restart_without_domain_events() {
 
     fixture.advance_checkpoint();
     let before = fixture.event_bytes();
+    let tables_before = fixture.table_contents();
+    let validated = fixture.rpc("ledger.command_validate", &command);
+    assert!(validated.error.is_none(), "{validated:?}");
+    assert_eq!(validated.result.unwrap()["status"], "VALID");
+    assert_eq!(fixture.table_contents(), tables_before);
     let response = fixture.rpc("ledger.command_submit", &command);
     assert!(response.error.is_none(), "{response:?}");
     let result = response.result.unwrap();
@@ -255,9 +260,14 @@ fn cli_sink_stale_version_does_not_bypass_identity_policy_or_approval() {
         let mut command = valid.clone();
         *command.pointer_mut(pointer).unwrap() = replacement;
         resign_command(&mut command);
-        let response = fixture.rpc("ledger.command_submit", &command);
-        assert!(response.result.is_none(), "{pointer}: {response:?}");
-        assert_eq!(response.error.unwrap().code, -32602, "{pointer}");
+        for method in ["ledger.command_validate", "ledger.command_submit"] {
+            let response = fixture.rpc(method, &command);
+            assert!(
+                response.result.is_none(),
+                "{method} {pointer}: {response:?}"
+            );
+            assert_eq!(response.error.unwrap().code, -32602, "{method} {pointer}");
+        }
     }
     assert_eq!(fixture.event_bytes(), before);
     assert_eq!(
@@ -327,6 +337,37 @@ struct SinkFixture {
 }
 
 impl SinkFixture {
+    fn table_contents(&self) -> Vec<(String, Vec<Vec<rusqlite::types::Value>>)> {
+        let connection = rusqlite::Connection::open(&self.database).unwrap();
+        let tables: Vec<String> = connection
+            .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+            .unwrap()
+            .query_map([], |row| row.get(0))
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap();
+        tables
+            .into_iter()
+            .map(|name| {
+                let mut statement = connection
+                    .prepare(&format!("SELECT * FROM \"{}\"", name.replace('"', "\"\"")))
+                    .unwrap();
+                let columns = statement.column_count();
+                let mut rows = statement
+                    .query_map([], |row| {
+                        (0..columns)
+                            .map(|index| row.get(index))
+                            .collect::<Result<Vec<rusqlite::types::Value>, _>>()
+                    })
+                    .unwrap()
+                    .collect::<Result<Vec<_>, _>>()
+                    .unwrap();
+                rows.sort_by_cached_key(|row| format!("{row:?}"));
+                (name, rows)
+            })
+            .collect()
+    }
+
     fn rpc(&self, method: &str, command: &Value) -> JsonRpcResponse {
         self.rpc_at(method, command, "2026-08-23T10:02:00-04:00")
     }

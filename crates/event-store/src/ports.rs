@@ -138,6 +138,19 @@ pub trait EventStore {
     /// Returns [`StoreError`] for conflicts, invalid batches, or persistence failures.
     fn commit_command(&mut self, commit: CommandCommit) -> Result<CommitDisposition, StoreError>;
 
+    /// Finalizes a version rejection against the head locked by this transaction.
+    /// Resolves idempotency first, then atomically stores the unchanged command, its
+    /// `VERSION_CONFLICT` result and scope owner, with no events. Never reruns the handler.
+    ///
+    /// # Errors
+    /// Returns [`StoreError`] for invalid input, a matching version, a different scoped
+    /// digest, corruption or persistence failure. An uncommitted result is never returned.
+    fn finalize_version_conflict(
+        &mut self,
+        command: CommandEnvelope,
+        processed_at: LedgerTimestamp,
+    ) -> Result<CommitDisposition, StoreError>;
+
     /// Looks up a durable server result by command identity.
     ///
     /// # Errors

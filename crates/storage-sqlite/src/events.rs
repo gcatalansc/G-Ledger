@@ -1,11 +1,12 @@
 use project_ledger_canonical_json::{Sha256Digest, to_canonical_vec};
 use project_ledger_domain::{
-    CommandId, CommandResult, CommandResultStatus, CommandType, Event, EventEnvelope, ProjectId,
-    StableId,
+    CommandEnvelope, CommandId, CommandRejection, CommandResult, CommandResultStatus, CommandType,
+    ErrorCode, Event, EventEnvelope, LedgerTimestamp, ProjectId, StableId,
 };
 use project_ledger_event_store::{
-    CommandCommit, CommitDisposition, EventImportStore, EventStore, IdempotencyLookup, StoreError,
-    validate_command_integrity, validate_command_result_integrity, validate_event_integrity,
+    CommandCommit, CommandResultDraft, CommitDisposition, EventImportStore, EventStore,
+    IdempotencyLookup, StoreError, build_command_result, validate_command_integrity,
+    validate_command_result_integrity, validate_event_integrity,
 };
 use rusqlite::{OptionalExtension, Transaction, TransactionBehavior, params};
 
@@ -215,6 +216,78 @@ impl EventStore for SqliteEventStore {
         Ok(CommitDisposition::Committed(commit.result))
     }
 
+    fn finalize_version_conflict(
+        &mut self,
+        command: CommandEnvelope,
+        processed_at: LedgerTimestamp,
+    ) -> Result<CommitDisposition, StoreError> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(persistence)?;
+        validate_command_integrity(&command)?;
+        let trust_domain = contract_name(&command.actor.trust_level)?;
+        match lookup_idempotency_on(
+            &transaction,
+            &command.project_ref,
+            command.command_type(),
+            &command.actor.actor_id,
+            &trust_domain,
+            &command.idempotency_key,
+            command.command_digest,
+        )? {
+            IdempotencyLookup::Vacant => {}
+            IdempotencyLookup::Replay(result) => return Ok(CommitDisposition::Replayed(result)),
+            IdempotencyLookup::Conflict {
+                existing_command_digest,
+            } => {
+                return Err(StoreError::IdempotencyConflict {
+                    existing_command_digest,
+                });
+            }
+        }
+        let (current, head_digest) =
+            stream_head(&transaction, &command.project_ref)?.unwrap_or((0, None));
+        if command.expected_state_version == current {
+            return invalid_commit(
+                "cannot finalize VERSION_CONFLICT when the expected version matches",
+            );
+        }
+        let command_result_id = StableId::parse(&format!("result:{}", command.command_id.uuid()))
+            .map_err(|error| StoreError::InvalidCommit {
+            message: error.to_string(),
+        })?;
+        let result = build_command_result(CommandResultDraft {
+            command_result_id,
+            command_ref: command.command_id.clone(),
+            status: CommandResultStatus::VersionConflict,
+            previous_state_version: current,
+            new_state_version: current,
+            emitted_event_refs: Vec::new(),
+            resulting_checkpoint_ref: None,
+            rejection: Some(CommandRejection {
+                code: ErrorCode::VersionConflict,
+                message: format!(
+                    "expected state version {}, actual {current}",
+                    command.expected_state_version
+                ),
+                subject_refs: Vec::new(),
+            }),
+            replayed: false,
+            processed_at,
+        })?;
+        let commit = CommandCommit {
+            command,
+            events: Vec::new(),
+            result,
+        };
+        validate_commit_shape(&commit)?;
+        validate_sequence(&commit, current, head_digest)?;
+        persist_commit(&transaction, &commit, &trust_domain)?;
+        transaction.commit().map_err(persistence)?;
+        Ok(CommitDisposition::Committed(commit.result))
+    }
+
     fn command_result(&self, command_ref: &CommandId) -> Result<Option<CommandResult>, StoreError> {
         let stored = self
             .connection
@@ -236,10 +309,7 @@ impl SqliteEventStore {
     ///
     /// # Errors
     /// Rejects mismatched identity, digest, malformed JSON or storage failures.
-    pub fn recorded_command(
-        &self,
-        id: &CommandId,
-    ) -> Result<Option<project_ledger_domain::CommandEnvelope>, StoreError> {
+    pub fn recorded_command(&self, id: &CommandId) -> Result<Option<CommandEnvelope>, StoreError> {
         let bytes: Option<Vec<u8>> = self
             .connection
             .query_row(
@@ -251,8 +321,7 @@ impl SqliteEventStore {
             .map_err(persistence)?;
         bytes
             .map(|bytes| {
-                let command: project_ledger_domain::CommandEnvelope =
-                    serde_json::from_slice(&bytes)?;
+                let command: CommandEnvelope = serde_json::from_slice(&bytes)?;
                 validate_command_integrity(&command)?;
                 if command.command_id != *id {
                     return Err(StoreError::InvalidCommit {
@@ -283,7 +352,7 @@ impl SqliteEventStore {
             |row| row.get(0),
         ).optional().map_err(persistence)?;
         let Some(bytes) = stored else { return Ok(None) };
-        let command: project_ledger_domain::CommandEnvelope = serde_json::from_slice(&bytes)?;
+        let command: CommandEnvelope = serde_json::from_slice(&bytes)?;
         validate_command_integrity(&command)?;
         if command.project_ref != *project
             || command.command_type() != kind

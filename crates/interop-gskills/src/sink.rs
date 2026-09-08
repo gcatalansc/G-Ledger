@@ -36,13 +36,25 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
     }
 
     /// Validates and maps an external command without invoking the mutable host operation.
+    /// Admissibility does not guarantee acceptance: an obsolete expected version is preserved
+    /// so submit can return the native, durable conflict. All approval bindings still apply.
     ///
     /// # Errors
     ///
     /// Returns a fail-closed semantic, policy, state, privacy, approval or mapping error.
     pub fn validate(&self, command: &Value) -> Result<PreparedRecordCommand, RecordSinkError> {
+        let observed_at = self.host.observed_at();
+        let prepared = prepare_record_command_for_submit(command, &self.policy, &observed_at)?;
+        if self.host.command_result(&prepared.command_id)?.is_some() {
+            return Ok(prepared);
+        }
         let current = self.host.state_identity(&self.policy.native_project_ref)?;
-        prepare_record_command(command, &self.policy, current, &self.host.observed_at())
+        if current.state_version == prepared.expected_state_version {
+            prepare_record_command(command, &self.policy, current, &observed_at)
+        } else {
+            // The native processor owns VERSION_CONFLICT. Never rewrite approved state.
+            Ok(prepared)
+        }
     }
 
     /// Reads the canonical state tuple without mutating the project.
@@ -144,25 +156,7 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
     /// Returns [`RecordSinkError`] for semantic/policy/state failure, host failure or invalid
     /// native/external result mapping. A host transport error is not converted into a result.
     pub fn submit(&self, command: &Value) -> Result<Value, RecordSinkError> {
-        let observed_at = self.host.observed_at();
-        let lookup_prepared =
-            prepare_record_command_for_submit(command, &self.policy, &observed_at)?;
-        let prepared = if self
-            .host
-            .command_result(&lookup_prepared.command_id)?
-            .is_some()
-        {
-            lookup_prepared
-        } else {
-            let current = self.host.state_identity(&self.policy.native_project_ref)?;
-            if current.state_version == lookup_prepared.expected_state_version {
-                prepare_record_command(command, &self.policy, current, &observed_at)?
-            } else {
-                // Preserve the approved expected version. The native processor owns the
-                // VERSION_CONFLICT result and rejects before any domain event is appended.
-                lookup_prepared
-            }
-        };
+        let prepared = self.validate(command)?;
         let result = self.host.execute(prepared.native_envelope()?)?;
         self.map_result(&prepared, &result)
     }
