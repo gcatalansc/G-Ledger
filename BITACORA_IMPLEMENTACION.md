@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | PL-GSK-004 implementado y verificado nativamente: `952cf77`, ejecutable `5cde5898…`, pendiente de recalificación bilateral; `docs/maintenance/PL-GSK-004.md`. Corrige validación obsoleta, conflictos durables y binding del resultado al comando original. Adenda PL-GSK-003 y evidencia anterior preservadas. Incidente previo de 700 ms conservado; S24/Fase 6 no cerrados |
+| Trabajo actual | PL-GSK-004 implementado y recalificado bilateralmente: SCOPED_PASS, 12/12 casos; producto `952cf77`, ejecutable `5cde5898…`; `docs/maintenance/PL-GSK-004.md`. Validación obsoleta, conflictos durables y binding del resultado corregidos. G-Skills informa S24 técnico satisfecho sólo candidato local; Fase 6 sigue abierta. Evidencia anterior e incidente de 700 ms preservados |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 

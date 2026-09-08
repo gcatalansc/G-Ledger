@@ -47,7 +47,7 @@ S24/Fase 6 no se cierran por completar la parte nativa. La autoridad operativa d
 
 ## Entrega y verificación final
 
-Estado nativo: **NATIVE_VERIFIED_PENDING_BILATERAL**. Producto `952cf77c7f92fc3c3ceedb3b01383b8c40ffaf57`: integra el core `c7f9288153ae2d3bafeadc1b4a2fe397b8d8465a` y la protección posterior del binding. La parte application/event-store/storage no cambió entre ambos commits.
+Estado al emitir la entrega nativa: **NATIVE_VERIFIED_PENDING_BILATERAL**; cierre bilateral posterior registrado abajo. Producto `952cf77c7f92fc3c3ceedb3b01383b8c40ffaf57`: integra el core `c7f9288153ae2d3bafeadc1b4a2fe397b8d8465a` y la protección posterior del binding. La parte application/event-store/storage no cambió entre ambos commits.
 
 Entrega local inmutable en `.tooling/pl-gsk-004/delivery/`:
 
@@ -61,4 +61,18 @@ Build definitivo `cargo build --locked --release -p project-ledger-cli`, exit 0,
 
 Las copias de los harnesses CLI se ejecutaron con `CARGO_BIN_EXE_project-ledger` fijado al nuevo ejecutable release: sink **8 PASS**, confirmation **8 PASS**, sin fallos. El harness copiado del núcleo obtuvo **8 PASS** y tres observaciones JSON de carreras. `resources verify --resources <checkout Ledger>` verificó los 484 recursos. No se suman las pasadas repetidas como casos independientes. Se conservan la regresión completa del intermedio y la regresión de los componentes afectados del producto final como evidencias distintas.
 
-El manifest y las copias se entregaron a G-Skills Engine III para su runner final de doce casos sobre fixtures nuevas, junto con los negativos de identidad en los cuatro métodos. El resultado bilateral se añadirá como evidencia propia; este registro no lo anticipa ni cierra S24/Fase 6.
+El manifest y las copias se entregaron a G-Skills Engine III para su runner final de doce casos sobre fixtures nuevas, junto con los negativos de identidad en los cuatro métodos. El manifest permanece inmutable como registro de esa entrega anterior al resultado conjunto.
+
+## Cierre bilateral — 2026-09-08
+
+**PL-GSK-004 SCOPED_PASS: 12/12 casos, 120 invocaciones superiores**, sobre fixtures nuevas, producto Ledger `952cf77` / ejecutable `5cde5898…`. G-Skills: host `ace06001e6115cfc157edd0f973a3f252fd0d15e`, helper `abaf59e169072c5223d3d6e8deee6ca09eff229b` / `74296b044df10c0ed360fb87963a06465f711454cb197291371955dfdbe40d26`, runner `3a851aceab7b5dcd9fa0f390941cc98342f92d90`.
+
+- Selección `G-Skills/integrations/project-ledger/candidates/pl-gsk-004-selection.json`, SHA-256 `7c526d88bead5166f8f004d9c0762104dcdd7758c1210274061f59080bc85271`.
+- Reporte `G-Skills/release/evidence/pl-gsk-004-qualification.json`, SHA-256 `ffc4105f007600eb287f8b55c0ef4fa9e0e9dc94c3570d66ba9247616f27c9fb`.
+- Binding de implementación candidato: `sha256:a2c085ddc8508422e2e54206f40cb59d15336c694c63b340bdd691e9f151156f`. No reemplaza los locks de rc.1 ni concede permisos operativos.
+
+Ledger contrastó estos artefactos en sólo lectura: cuatro binarios seleccionados por hash; los doce resultados PASS; catorce pares de tablas invariantes durante lecturas; siete observaciones prepare sin mutación; cinco mappings nativos con digest y lista ordenada de eventos exactos; doce negativos de identidad con -32602, sin resultado ni cambios en tablas.
+
+La ventana anterior a la segunda Validate conserva expected=21, obtiene un rechazo V22→22, attempt_count=1 y exige REFRESH_AND_REPLAN con nuevo comando/aprobación y sin retry original. El reinicio y avance posterior conservan el digest nativo `sha256:c42b5987c85658183caeaa41cc0f4b941b5c7a4f6856c150778907cb21bfbb4d`. El rechazo cuya respuesta se pierde pasa de OUTCOME_UNKNOWN a RECONCILED_REJECTED y conserva `sha256:3777fb1ad4a63c375840e2f6b1bab425c446698bda7ef85e4a90d5d461afd3f0`, con un intento y sin reenvío ciego. Durante el rechazo observado sólo cambian las tablas commands/command_results/idempotency_keys; las demás permanecen idénticas.
+
+El alcance bilateral autorizado queda satisfecho para **LOCAL_CANDIDATE_OWNED_FIXTURES**. G-Skills informa UB-52/ACU-105 VERIFIED y S24 técnico SATISFIED sólo para este candidato. Fase 6 sigue 6/10 según su trazabilidad; no hay publicación, certificación de release ni autoridad operativa nueva. Permanecen explícitos los límites e incidencias anteriores.
