@@ -46,6 +46,25 @@ Build: `cargo build --locked --release -p project-ledger-cli`, exit 0; perfil op
 
 La tarea G-Skills recibe el commit completo que incorpora esta corrección y el binario exacto; su recalificación y el posible gap adicional se documentan como evidencia posterior, sin trasladar los PASS del antiguo candidato `22b3eca`.
 
+## Recalificación bilateral y hallazgo adicional
+
+Commit de implementación entregado: `50e6d555bf78566802b1c9266a494dab298f800b`. Se ejecutaron además las cinco pruebas CLI de `gskills_sink` contra la copia exacta del ejecutable optimizado, seleccionada con `CARGO_BIN_EXE_project-ledger`: 5 PASS, exit 0 (`delivery-cli-tests.log`).
+
+G-Skills ejecutó ocho escenarios sobre fixtures nuevos: cinco mappings aceptados, conflicto anterior al envío y conflicto con fallo de refresco pasan; el octavo reproduce una limitación adicional. Resultado global: `SCOPED_PASS_ADDITIONAL_GAP`. El host de producto está ligado a `8d2581de01615b75d12cc96e818d655b838fe4cf`, ejecutable `a678ab0a29002786b6ec2a5ac19bf75c888e62b52912790665257210b797c26d`; el auxiliar de inyección de fallos se identifica separadamente (`7038528422989c90d81d4984b787fd0fa8dedcd5942a06630ccac5cad6d64c67`).
+
+En los dos casos de conflicto, el rechazo conserva `VERSION_CONFLICT`, cero eventos emitidos, una tentativa y `REFRESH_AND_REPLAN` con nueva aprobación obligatoria; el fallo de refresco conserva el rechazo conocido. Las consultas posteriores no cambian los snapshots de eventos/resultados.
+
+El caso adicional acepta un comando en versión 22, suprime la respuesta al host y acepta otro checkpoint 22→23. El resultado original sigue persistido y era consultable antes del avance; después, `status` y `reconcile` devuelven `-32603` con `confirmed projection version mismatch: expected 22, actual 23`. G-Skills permanece `OUTCOME_UNKNOWN`, sin resultado visible al host, intento 1 y sin nuevos eventos durante consultas. Una comparación con un binario de la revisión histórica `22b3eca` (SHA-256 `4654bf2ab62269fb8ce9cf087d4641efb257c79650352b713d830cce12567dd5`) reproduce exactamente el mismo comportamiento: la limitación precede a esta corrección.
+
+Evidencias originales preservadas en el repositorio G-Skills:
+
+- `release/evidence/pl-gsk-002-candidate-qualification.json`, SHA-256 `399e2dad7e7aeae63eb4cc793bb1093a73347b7f17da483bdcca56a7598f6d74`.
+- `release/evidence/pl-gsk-002-historical-gap-comparison.json`, SHA-256 `bc42a3ece0373a50bf7602040739b26f5c8382ad0d4ef16cf0a1c3a261617109`.
+
+G-Ledger revisó ambos reportes, identidades de ejecutables, errores, estados y igualdad de snapshots. El alcance PL-GSK-002 queda satisfecho; UB-51/53 en el escenario adicional, S24 y la conformidad integral permanecen abiertos. Los PASS históricos conservan únicamente su alcance original.
+
+Se propuso, sin implementar, reconstruir la proyección de la versión del resultado y separar en G-Skills esa confirmación del contexto actual. `LedgerSinkProcess::confirm_projection` y `RecordSink::finish` también requieren revisión: corregir sólo el lookup upstream no basta. La propuesta debe conservar digests, identidad, evidencia histórica y tratamiento crítico de contradicciones; un simple cambio de `==` a `>=` no acredita la confirmación. Esta ampliación requiere autorización separada, conforme al plan aprobado.
+
 ## Límite de concurrencia y aceptación
 
 UB-52 de G-Skills v0.3.0 describe un cambio entre preparación y envío: rechazo nativo, actualización y ausencia de sobrescritura. Este cambio resuelve ese caso. Las rutas ya existentes del procesador que detectan una carrera durante el propio commit pueden retornar un conflicto no persistido; tampoco se acredita recuperación de resultados frente a avances posteriores de la proyección. No se declara durabilidad universal bajo concurrencia continua.
