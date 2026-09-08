@@ -234,7 +234,7 @@ impl RecordSinkHost for CountingHost {
     fn command_result(
         &self,
         _command_ref: &CommandId,
-    ) -> Result<Option<CommandResult>, RecordSinkHostError> {
+    ) -> Result<Option<(CommandEnvelope, CommandResult)>, RecordSinkHostError> {
         Ok(None)
     }
 

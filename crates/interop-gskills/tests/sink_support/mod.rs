@@ -146,11 +146,19 @@ impl RecordSinkHost for ProcessingHost {
     fn command_result(
         &self,
         command_ref: &CommandId,
-    ) -> Result<Option<CommandResult>, RecordSinkHostError> {
-        self.store
-            .borrow()
+    ) -> Result<Option<(CommandEnvelope, CommandResult)>, RecordSinkHostError> {
+        let store = self.store.borrow();
+        let Some(result) = store
             .command_result(command_ref)
-            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?
+        else {
+            return Ok(None);
+        };
+        let command = store
+            .recorded_command(command_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?
+            .ok_or_else(|| RecordSinkHostError::new("durable result has no recorded command"))?;
+        Ok(Some((command, result)))
     }
 
     fn confirmed_projection_ref(

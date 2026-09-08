@@ -126,7 +126,7 @@ pub struct PreparedRecordCommand {
 }
 
 impl PreparedRecordCommand {
-    /// Materializes the native envelope only at the submit boundary.
+    /// Materializes the native envelope for submission or exact durable-result binding.
     ///
     /// The stable preparation timestamp is used as the native wire timestamp so an exact
     /// replay produces the same native command digest; preparation itself remains read-only.
@@ -177,7 +177,8 @@ pub trait RecordSinkHost {
     /// Returns [`RecordSinkHostError`] when command processing or persistence fails.
     fn execute(&self, command: CommandEnvelope) -> Result<CommandResult, RecordSinkHostError>;
 
-    /// Looks up a durable native result without submitting or retrying the command.
+    /// Looks up a durable native result with its original command, without submitting.
+    /// The sink checks the complete command identity before reusing or mapping the result.
     ///
     /// # Errors
     ///
@@ -185,7 +186,7 @@ pub trait RecordSinkHost {
     fn command_result(
         &self,
         command_ref: &CommandId,
-    ) -> Result<Option<CommandResult>, RecordSinkHostError>;
+    ) -> Result<Option<(CommandEnvelope, CommandResult)>, RecordSinkHostError>;
 
     /// Obtains a reference only after rebuilding and confirming the resulting projection.
     ///

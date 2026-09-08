@@ -147,6 +147,52 @@ fn cli_sink_recovers_accepted_result_after_another_checkpoint_and_restart() {
 }
 
 #[test]
+fn cli_sink_never_rebinds_a_durable_result_to_an_altered_command_with_the_same_id() {
+    let fixture = SinkFixture::new("TRUSTED_FOR_RECORDING");
+    let original = fixture.command();
+    let accepted = fixture
+        .rpc("ledger.command_submit", &original)
+        .result
+        .unwrap();
+    assert_eq!(accepted["status"], "ACCEPTED");
+    let before = fixture.table_contents();
+    for (pointer, replacement) in [
+        (
+            "/idempotency_key",
+            json!("gskills:different-key-same-command-id"),
+        ),
+        (
+            "/payload/work_record/summary",
+            json!("A different approved payload"),
+        ),
+    ] {
+        let mut altered = original.clone();
+        *altered.pointer_mut(pointer).unwrap() = replacement;
+        refresh_digest(&mut altered["payload"]["work_record"]);
+        resign_command(&mut altered);
+        for method in [
+            "ledger.command_validate",
+            "ledger.command_status",
+            "ledger.command_reconcile",
+            "ledger.command_submit",
+        ] {
+            let response = fixture.rpc(method, &altered);
+            assert!(
+                response.error.is_some() && response.result.is_none(),
+                "{pointer} {method} must not reuse another command's result: {response:?}"
+            );
+        }
+    }
+    assert_eq!(fixture.table_contents(), before);
+    for method in ["ledger.command_status", "ledger.command_reconcile"] {
+        assert_eq!(
+            fixture.rpc(method, &original).result.unwrap()["result"]["native_result_digest"],
+            accepted["native_result_digest"]
+        );
+    }
+}
+
+#[test]
 fn cli_sink_recovers_rejected_result_after_another_checkpoint_and_restart() {
     assert_result_survives_newer_checkpoint(true);
 }

@@ -1380,9 +1380,18 @@ impl RecordSinkHost for SqliteRecordSinkHost {
     fn command_result(
         &self,
         command_ref: &CommandId,
-    ) -> Result<Option<CommandResult>, RecordSinkHostError> {
-        EventStore::command_result(&*self.store.borrow(), command_ref)
-            .map_err(|error| RecordSinkHostError::new(error.to_string()))
+    ) -> Result<Option<(CommandEnvelope, CommandResult)>, RecordSinkHostError> {
+        let store = self.store.borrow();
+        let Some(result) = EventStore::command_result(&*store, command_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?
+        else {
+            return Ok(None);
+        };
+        let command = store
+            .recorded_command(command_ref)
+            .map_err(|error| RecordSinkHostError::new(error.to_string()))?
+            .ok_or_else(|| RecordSinkHostError::new("durable result has no recorded command"))?;
+        Ok(Some((command, result)))
     }
 
     fn confirmed_projection_ref(

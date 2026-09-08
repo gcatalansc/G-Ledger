@@ -1,6 +1,6 @@
 use project_ledger_canonical_json::{Sha256Digest, sha256_digest};
 use project_ledger_domain::{CommandResult, TrustLevel};
-use project_ledger_event_store::validate_command_result_integrity;
+use project_ledger_event_store::{validate_command_integrity, validate_command_result_integrity};
 use serde_json::{Value, json};
 
 use crate::{
@@ -45,7 +45,7 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
     pub fn validate(&self, command: &Value) -> Result<PreparedRecordCommand, RecordSinkError> {
         let observed_at = self.host.observed_at();
         let prepared = prepare_record_command_for_submit(command, &self.policy, &observed_at)?;
-        if self.host.command_result(&prepared.command_id)?.is_some() {
+        if self.bound_result(&prepared)?.is_some() {
             return Ok(prepared);
         }
         let current = self.host.state_identity(&self.policy.native_project_ref)?;
@@ -181,7 +181,7 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
 
     fn lookup(&self, command: &Value) -> Result<Value, RecordSinkError> {
         let prepared = prepare_record_command_for_lookup(command, &self.policy)?;
-        let Some(result) = self.host.command_result(&prepared.command_id)? else {
+        let Some(result) = self.bound_result(&prepared)? else {
             return Ok(json!({
                 "status": "NOT_FOUND",
                 "command_ref": prepared.external_command["external_record_command_id"],
@@ -192,6 +192,26 @@ impl<'host, Host: RecordSinkHost + ?Sized> GSkillsRecordSink<'host, Host> {
             "status": "FOUND",
             "result": self.map_result(&prepared, &result)?
         }))
+    }
+
+    fn bound_result(
+        &self,
+        prepared: &PreparedRecordCommand,
+    ) -> Result<Option<CommandResult>, RecordSinkError> {
+        let Some((command, result)) = self.host.command_result(&prepared.command_id)? else {
+            return Ok(None);
+        };
+        validate_command_integrity(&command)?;
+        if command != prepared.native_envelope()? {
+            return Err(RecordSinkError::IdentityMismatch {
+                message: "command id belongs to a different native command, payload or idempotency scope",
+            });
+        }
+        validate_command_result_integrity(&result)?;
+        if result.command_ref != command.command_id {
+            return Err(RecordSinkError::DurableResultMismatch);
+        }
+        Ok(Some(result))
     }
 
     fn map_result(

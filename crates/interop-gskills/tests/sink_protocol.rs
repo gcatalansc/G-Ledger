@@ -40,12 +40,15 @@ fn submit_replay_status_and_reconcile_preserve_one_native_effect() {
 }
 
 #[test]
-fn same_scope_key_with_changed_command_is_rejected_without_duplicate_effect() {
+fn new_command_with_same_scope_key_and_changed_payload_is_rejected_without_duplicate_effect() {
     let host = ProcessingHost::new();
     let mut command = work_progress_command(host.current_state());
     let sink = GSkillsRecordSink::new(&host, policy()).unwrap();
     let baseline_events = host.event_count();
     assert_eq!(sink.submit(&command).unwrap()["status"], "ACCEPTED");
+
+    command["external_record_command_id"] =
+        serde_json::json!("external-command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5e");
 
     change_work_summary_and_resign(
         &mut command,

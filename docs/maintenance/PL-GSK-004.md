@@ -16,6 +16,8 @@ El processor usa esta finalización para la versión inicialmente obsoleta y par
 
 No hay nuevos métodos RPC, capabilities, wire schemas, tablas, migraciones ni hooks de prueba en el producto. El perfil de confirmación histórica mantiene sus contratos independientes.
 
+La revisión bilateral posterior al primer commit detectó otra brecha de identidad: un resultado recuperado sólo por command_id podía mapearse contra otra clave o payload. El puerto interno RecordSinkHost ahora entrega el comando original junto al resultado. El sink verifica su integridad y compara el envelope nativo completo —incluidos proyecto, actor/scope, clave, payload, expected version y timestamp preparado— antes de reutilizarlo en Validate, Submit, status o reconcile. Una identidad reutilizada con otro comando se rechaza como IdentityMismatch, sin inventar resultado ni depender de la confirmación opt-in. Un nuevo command_id con clave ocupada sigue llegando al rechazo nativo de idempotencia. El wire permanece idéntico.
+
 ## Evidencia de regresión
 
 Los logs locales están en `.tooling/pl-gsk-004/`; el inventario de entrega fija sus hashes.
@@ -24,6 +26,9 @@ Los logs locales están en `.tooling/pl-gsk-004/`; el inventario de entrega fija
 - `red-validate.log`: la segunda Validate devuelve -32602 por `project_state_version is stale` antes de implementar la corrección.
 - `green-races.log`: las cuatro regresiones del núcleo pasan tras la corrección, con resultados estructurados `PL_GSK_004_RACE` en stdout.
 - `targeted.log`: 26 pruebas PASS: siete del núcleo, siete CLI y doce de mapping/protocolo/framing. Esta pasada inicial conserva las advertencias de imports redundantes, corregidas antes de la verificación final.
+- `regression.log`: 340 PASS, 0 FAIL, 14 omitidas, 112 harnesses del workspace/all-targets/all-features para el intermedio `c7f9288`. `core-final.log` añade el control de reutilización de command_id con otra key/actor-scope, 8 PASS. Esa regresión completa no se atribuye a la corrección posterior del binding de resultados.
+- `red-result-binding.log`: la CLI del intermedio admite en Validate la misma identidad con otra clave. La regresión nueva exige rechazo en Validate/status/reconcile/Submit, conserva todas las tablas y comprueba que el lookup original sigue funcionando. Su ejecución posterior y la regresión de CLI/interop se registran aparte.
+- `green-result-binding.log`: 20 PASS. `regression-binding.log`: regresión final de CLI e interop-gskills/all-targets/all-features, 106 PASS, 0 FAIL, 8 omitidas, 25 harnesses. Clippy final de todo el workspace PASS en `clippy-binding.log`. No se repite ni se reasigna al producto final la pasada integral del intermedio.
 - Se conservan también los diagnósticos iniciales del arnés (`u64` no es FromSql y una tabla no tiene rowid) y la primera observación de Clippy; son fallos de preparación de pruebas/lint, no evidencia RED del defecto productivo.
 
 Las pruebas de carreras usan `CommandProcessor`, `CoreCommandHandler` y SQLite reales, con una segunda conexión en otro hilo. Un Clock de prueba coordina canales con timeout; no hay sleeps ni cambios para sincronización dentro del ejecutable. Se comprueban las ventanas entre lectura y commit, entre detección inicial y finalización, y al persistir un rechazo de dominio. También se observa el rollback de una inserción de resultado abortada, replay, clave/ámbito e integridad. La recuperación se verifica tras reabrir y después de un avance adicional, manteniendo el resultado original y cero eventos del comando rechazado.
