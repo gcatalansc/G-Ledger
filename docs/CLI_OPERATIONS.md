@@ -12,6 +12,8 @@ Las mutaciones reciben `--expected-version`, `--idempotency-key`, `--actor-id` y
 
 ## Operaciones disponibles
 
+El checkout posterior a rc.1 incluye la [extensión de historia v0.3](history/LLM_USAGE.md): `record episode --file`, `history at --version`, `history diff --from --to`, `history get REF` y `decision trace ID --cursor`. `evidence invalidate ID --reason` expone la invalidación canónica existente. Consulte `--help` para detectar estas capacidades; la versión del paquete publicado no acredita su presencia.
+
 | Familia | Operaciones | Entrada |
 |---|---|---|
 | Proyecto | init, status, doctor, audit, verify, pause, resume-project, archive | Flags y selección explícita |

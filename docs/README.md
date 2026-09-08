@@ -25,6 +25,9 @@ Lea en este orden:
 
 ## Quiero integrar o desarrollar
 
+- [Extensión de historia v0.3](history/HISTORY_EXTENSION_v0.3.md) y [uso directo por un LLM](history/LLM_USAGE.md): episodios, intentos, correcciones y reconstrucción por versión; incorporación posterior a rc.1.
+- [Entrega del núcleo de historia y verificación](history/IMPLEMENTATION_REPORT.md): capacidades implementadas, seis escenarios y ejercicio directo.
+
 - [Especificación normativa v0.2.0](../specs/PROJECT_LEDGER_SPEC_v0.2.0.md).
 - [Handoff Codex](../referencias/PROJECT_LEDGER_v0.2.0_CODEX/00_START_HERE.md).
 - [Matriz contrato→schema→fixture→test](CONTRACT_SCHEMA_FIXTURE_TEST_MATRIX.md).
@@ -59,7 +62,7 @@ Las rutas históricas no se reorganizan físicamente cuando están referenciadas
 
 Si dos documentos discrepan, rige este orden:
 
-1. [Especificación normativa v0.2.0](../specs/PROJECT_LEDGER_SPEC_v0.2.0.md).
+1. [Especificación normativa v0.2.0](../specs/PROJECT_LEDGER_SPEC_v0.2.0.md) y [extensión de historia v0.3](history/HISTORY_EXTENSION_v0.3.md), cada una dentro de su alcance/versionado.
 2. Schemas, locks y fixtures cerrados de la versión.
 3. Estado derivado del stream canónico de cada Ledger.
 4. Guías y tutoriales.

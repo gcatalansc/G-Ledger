@@ -183,7 +183,9 @@ pub fn build(args: &WriteArgs, kind: &str) -> Result<Value, CliError> {
         "LINK_EXTERNAL_EVIDENCE" => Ok(
             json!({"external_system":args.system,"artifact_uri":args.artifact_ref,"artifact_digest":args.digest,"schema_ref":args.schema_ref}),
         ),
-        "UNLINK_EXTERNAL_EVIDENCE" => Ok(json!({"evidence_ref":args.id,"reason":args.reason})),
+        "UNLINK_EXTERNAL_EVIDENCE" | "INVALIDATE_EVIDENCE" => {
+            Ok(json!({"evidence_ref":args.id,"reason":args.reason}))
+        }
         "ACCEPT_DECISION" => Ok(json!({"decision_ref":args.id,"authority_ref":args.authority})),
         "SUPERSEDE_DECISION" => Ok(
             json!({"decision_ref":args.id,"replacement":read(Path::new(args.with.as_deref().ok_or_else(|| CliError::input("--with required"))?), kind)?}),

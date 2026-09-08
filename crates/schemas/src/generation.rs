@@ -158,7 +158,7 @@ pub fn write_generated(repository_root: &Path) -> Result<(), GenerationError> {
             source,
         })?;
     }
-    Ok(())
+    write_history_generated(repository_root)
 }
 
 /// Verifies that committed artifacts exactly match a fresh deterministic build.
@@ -178,6 +178,66 @@ pub fn check_generated(repository_root: &Path) -> Result<(), GenerationError> {
         if actual != expected {
             return Err(GenerationError::Drift(relative_path));
         }
+    }
+    for (relative_path, expected) in history_generated_files()? {
+        let path = repository_root.join("schemas/v0.3").join(&relative_path);
+        let actual = fs::read(&path).map_err(|source| GenerationError::Io {
+            path: path.display().to_string(),
+            source,
+        })?;
+        if actual != expected {
+            return Err(GenerationError::Drift(format!("v0.3/{relative_path}")));
+        }
+    }
+    Ok(())
+}
+
+/// Deterministic extension artifacts, independent of the frozen v0.2 files.
+/// # Errors
+/// Reports serialization or schema generation failures.
+pub fn history_generated_files() -> Result<BTreeMap<String, Vec<u8>>, GenerationError> {
+    let mut files = BTreeMap::new();
+    let mut entries = Vec::new();
+    for schema in crate::schema_catalog_v0_3()? {
+        entries.push(RegistryEntry {
+            schema_id: schema.schema_id,
+            relative_path: schema.relative_path.clone(),
+            canonical_digest: sha256_digest(&schema.schema)?.to_string(),
+        });
+        files.insert(schema.relative_path, pretty_bytes(&schema.schema)?);
+    }
+    entries.sort_by(|a, b| a.schema_id.cmp(&b.schema_id));
+    files.insert(
+        "schema-registry.json".to_owned(),
+        pretty_bytes(&RegistryDocument {
+            schema_version: SchemaVersion::V0_3_0,
+            entries,
+        })?,
+    );
+    files.insert(
+        "command-event-matrix.json".to_owned(),
+        pretty_bytes(&crate::command_event_matrix_v0_3())?,
+    );
+    Ok(files)
+}
+
+/// Writes only the additive history schemas.
+/// # Errors
+/// Reports schema generation or filesystem failures.
+pub fn write_history_generated(root: &Path) -> Result<(), GenerationError> {
+    for (relative, bytes) in history_generated_files()? {
+        let path = root.join("schemas/v0.3").join(relative);
+        let parent = path
+            .parent()
+            .ok_or_else(|| GenerationError::Drift("schema output has no parent".to_owned()))?;
+        fs::create_dir_all(parent).map_err(|source| GenerationError::Io {
+            path: parent.display().to_string(),
+            source,
+        })?;
+        fs::write(&path, bytes).map_err(|source| GenerationError::Io {
+            path: path.display().to_string(),
+            source,
+        })?;
     }
     Ok(())
 }

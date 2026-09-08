@@ -784,10 +784,16 @@ fn verify_contract_artifacts(root: &Path) -> Result<String, CliError> {
     check_generated(root).map_err(CliError::input)?;
     let report = validate_contracts().map_err(CliError::input)?;
     Ok(format!(
-        "contracts MATCH schemas={} fixtures={} matrix_rows={}\n",
+        "contracts MATCH schemas={} fixtures={} matrix_rows={}\nhistory extension MATCH schemas={} matrix_rows={}\n",
         report.schema_count,
         report.positive_fixture_count + report.negative_fixture_count,
-        report.matrix_row_count
+        report.matrix_row_count,
+        project_ledger_schemas::schema_catalog_v0_3()
+            .map_err(CliError::input)?
+            .len(),
+        project_ledger_schemas::command_event_matrix_v0_3()
+            .rows
+            .len()
     ))
 }
 

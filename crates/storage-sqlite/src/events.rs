@@ -11,6 +11,25 @@ use rusqlite::{OptionalExtension, Transaction, TransactionBehavior, params};
 
 use crate::SqliteEventStore;
 
+impl SqliteEventStore {
+    /// Reads and verifies one consistent WAL snapshot, including the stored head.
+    /// # Errors
+    /// Returns corruption or storage failures without canonical mutations.
+    pub fn load_verified_snapshot(
+        &self,
+        project_ref: &ProjectId,
+    ) -> Result<Vec<EventEnvelope>, StoreError> {
+        let transaction = self
+            .connection
+            .unchecked_transaction()
+            .map_err(persistence)?;
+        self.verify_event_chain(project_ref)?;
+        let events = self.load_stream(project_ref)?;
+        transaction.commit().map_err(persistence)?;
+        Ok(events)
+    }
+}
+
 impl EventStore for SqliteEventStore {
     fn current_version(&self, project_ref: &ProjectId) -> Result<u64, StoreError> {
         let version = self

@@ -144,7 +144,7 @@ where
     })
 }
 
-fn apply_primitive_constraints(root: &mut Map<String, Value>) {
+pub(crate) fn apply_primitive_constraints(root: &mut Map<String, Value>) {
     let Some(definitions) = root.get_mut("$defs").and_then(Value::as_object_mut) else {
         return;
     };

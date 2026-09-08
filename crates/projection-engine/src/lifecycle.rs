@@ -25,6 +25,7 @@ use auxiliary::AuxiliaryRecords;
 /// from the compact public `ProjectState` contract.
 #[derive(Clone, Debug)]
 pub struct ProjectStateProjection {
+    episodes: crate::episodes::EpisodeIndex,
     auxiliary: AuxiliaryRecords,
     state: ProjectState,
     head_digest: Sha256Digest,
@@ -61,6 +62,7 @@ impl ProjectStateProjection {
     pub fn rebuild(events: &[EventEnvelope]) -> Result<Self, ProjectionError> {
         let (state, head_digest) = genesis_state(events)?;
         let mut projection = Self {
+            episodes: crate::episodes::EpisodeIndex::default(),
             auxiliary: AuxiliaryRecords::default(),
             state,
             head_digest,
@@ -136,6 +138,11 @@ impl ProjectStateProjection {
     /// Returns the compact canonical project state.
     pub const fn state(&self) -> &ProjectState {
         &self.state
+    }
+
+    /// Complete recorded development context at this exact stream version.
+    pub fn episodes(&self) -> Vec<project_ledger_domain::EpisodeProjection> {
+        self.episodes.all()
     }
 
     /// Consumes the cursor and returns its compact canonical project state.
@@ -228,6 +235,11 @@ impl ProjectStateProjection {
         self.latest_work_record_ref
             .as_ref()
             .and_then(|work_ref| self.work_records.get(work_ref))
+    }
+
+    /// Full work record at this projection's historical cut.
+    pub fn work_record(&self, reference: &StableId) -> Option<&WorkRecord> {
+        self.work_records.get(reference)
     }
 
     /// Returns a current derived unknown record.
@@ -397,6 +409,14 @@ impl ProjectStateProjection {
 
     #[allow(clippy::too_many_lines)] // One exhaustive closed-event reducer keeps lifecycle audit coverage local.
     fn reduce(&mut self, event: &EventEnvelope) -> Result<(), ProjectionError> {
+        if let Event::EpisodeUpdateRecorded(update) = &event.event {
+            return self.episodes.apply(
+                update,
+                event,
+                |id| self.decisions.contains_key(id),
+                |id| self.evidence.contains_key(id),
+            );
+        }
         match &event.event {
             Event::ProjectCreated(_) => return Err(ProjectionError::DuplicateGenesis),
             Event::ProjectMetadataUpdated(metadata) => {

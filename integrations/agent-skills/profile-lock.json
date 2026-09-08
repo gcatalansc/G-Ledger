@@ -5,7 +5,7 @@
   "source_spec_sha256": "31cb7cd450a6a12d2d92f5ecb018fbf23fd822a20816b2b018db6197bd404dd9",
   "profile": "project-ledger-agent-skill/0.2.0",
   "schema_registry_sha256": "8b543f807789a3c0aeec0ee8d3b1d3b7400205fafbcd5ff7d5929293a2cfc99c",
-  "fixture_manifest_sha256": "f40ffc464422df265a47ed15528803d69b7cabaebe586258c8e9189d32486731",
+  "fixture_manifest_sha256": "0ea0afbf530db11a215f8836de29b75115080e9d2e55f523a468b607996e1576",
   "compatibility_range": {"protocol":"project-ledger-agent-skill","minimum":"0.2.0","maximum":"0.2.x"},
   "contract_status": "PASS_LOCAL",
   "content_status": "PASS_NO_CURRENT_STATE",

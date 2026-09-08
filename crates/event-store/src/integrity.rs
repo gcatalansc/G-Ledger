@@ -120,6 +120,14 @@ pub fn prepare_command(draft: CommandDraft) -> Result<CommandEnvelope, Integrity
 ///
 /// Returns [`IntegrityError`] on any serialization failure or mismatch.
 pub fn validate_command_integrity(command: &CommandEnvelope) -> Result<(), IntegrityError> {
+    let expected_version = if matches!(command.command, Command::RecordEpisodeUpdate(_)) {
+        SchemaVersion::V0_3_0
+    } else {
+        SchemaVersion::V0_2_0
+    };
+    if command.schema_version != expected_version {
+        return Err(IntegrityError::SchemaReferenceMismatch);
+    }
     let expected_payload = payload_digest(&command.command)?;
     if expected_payload != command.payload_digest {
         return Err(IntegrityError::PayloadDigestMismatch);
@@ -149,7 +157,14 @@ pub fn build_event(
     let payload_digest = payload_digest(&draft.event)?;
     let event_schema_ref = contract_schema_ref("event", &draft.event.event_type())?;
     let mut envelope = EventEnvelope {
-        schema_version: command.schema_version,
+        schema_version: if command.schema_version == SchemaVersion::V0_3_0
+            && matches!(command.command, Command::RecordEpisodeUpdate(_))
+            && !matches!(draft.event, Event::EpisodeUpdateRecorded(_))
+        {
+            SchemaVersion::V0_2_0
+        } else {
+            command.schema_version
+        },
         event_id: draft.event_id,
         project_ref: command.project_ref.clone(),
         stream_id: command.project_ref.clone(),
@@ -178,6 +193,14 @@ pub fn build_event(
 ///
 /// Returns [`IntegrityError`] on any serialization failure or mismatch.
 pub fn validate_event_integrity(event: &EventEnvelope) -> Result<(), IntegrityError> {
+    let expected_version = if matches!(event.event, Event::EpisodeUpdateRecorded(_)) {
+        SchemaVersion::V0_3_0
+    } else {
+        SchemaVersion::V0_2_0
+    };
+    if event.schema_version != expected_version {
+        return Err(IntegrityError::SchemaReferenceMismatch);
+    }
     let expected_payload = payload_digest(&event.event)?;
     if expected_payload != event.payload_digest {
         return Err(IntegrityError::PayloadDigestMismatch);
@@ -295,6 +318,14 @@ fn contract_schema_ref<T: Serialize>(
         .ok_or(IntegrityError::MissingPayload)?
         .to_ascii_lowercase()
         .replace('_', "-");
-    ResourceRef::parse(&format!("urn:project-ledger:{kind}:{name}:0.2.0"))
+    let version = if matches!(
+        name.as_str(),
+        "record-episode-update" | "episode-update-recorded"
+    ) {
+        "0.3.0"
+    } else {
+        "0.2.0"
+    };
+    ResourceRef::parse(&format!("urn:project-ledger:{kind}:{name}:{version}"))
         .map_err(|_| IntegrityError::InvalidSchemaReference)
 }

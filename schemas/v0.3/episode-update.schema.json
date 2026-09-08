@@ -1,0 +1,147 @@
+{
+  "$defs": {
+    "EpisodeEntry": {
+      "oneOf": [
+        {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "ALTERNATIVE",
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "rationale"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "alternative_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "description": {
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "$ref": "#/$defs/StableId"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "const": "ATTEMPT",
+              "type": "string"
+            },
+            "outcome": {
+              "$ref": "#/$defs/EpisodeOutcome"
+            }
+          },
+          "required": [
+            "kind",
+            "alternative_ref",
+            "description",
+            "outcome",
+            "evidence_refs"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "alternative_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "decision_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "kind": {
+              "const": "DECISION_LINK",
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "decision_ref",
+            "alternative_ref",
+            "rationale"
+          ],
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "corrects_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entry_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "entry_id"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "EpisodeOutcome": {
+      "enum": [
+        "SUCCEEDED",
+        "FAILED",
+        "INCONCLUSIVE"
+      ],
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:episode-update:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/EpisodeEntry"
+      },
+      "maxItems": 200,
+      "type": "array"
+    },
+    "episode_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "objective": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "episode_ref",
+    "summary",
+    "entries"
+  ],
+  "title": "EpisodeUpdate",
+  "type": "object"
+}

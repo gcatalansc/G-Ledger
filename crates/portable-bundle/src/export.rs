@@ -47,7 +47,7 @@ pub struct PortableBundle {
 /// Fail-closed export, verification and filesystem failures.
 #[derive(Debug, Error)]
 pub enum PortableBundleError {
-    #[error("portable export requires a non-empty v0.2.0 event stream")]
+    #[error("portable export requires a non-empty supported event stream")]
     EmptyStream,
     #[error("portable export requires explicit migration before reading schema {schema_version:?}")]
     MigrationRequired { schema_version: SchemaVersion },
@@ -153,7 +153,7 @@ impl PortableBundle {
             .last()
             .ok_or(PortableBundleError::EmptyStream)?;
         let mut manifest = PortableExport {
-            schema_version: SchemaVersion::V0_2_0,
+            schema_version: stream_schema_version(&request.stream),
             export_id: request.export_id,
             project_ref: projection.state().project.project_id.clone(),
             project_state_version: projection.state().state_version,
@@ -207,7 +207,10 @@ impl PortableBundle {
     /// Returns [`PortableBundleError::Integrity`] when any byte or binding has
     /// diverged from the manifest, checksums, stream or rebuilt state.
     pub fn verify(&self) -> Result<(), PortableBundleError> {
-        if self.manifest.schema_version != SchemaVersion::V0_2_0 {
+        if !matches!(
+            self.manifest.schema_version,
+            SchemaVersion::V0_2_0 | SchemaVersion::V0_3_0
+        ) {
             return Err(PortableBundleError::MigrationRequired {
                 schema_version: self.manifest.schema_version,
             });
@@ -229,7 +232,10 @@ impl PortableBundle {
         if sha256_bytes(schemas_lock) != self.manifest.schemas_lock_digest {
             return integrity("schemas lock digest mismatch");
         }
-        validate_schema_lock(schemas_lock)?;
+        validate_schema_lock(schemas_lock, self.manifest.schema_version)?;
+        if self.manifest.schema_version != stream_schema_version(&self.events) {
+            return integrity("manifest schema version does not match stream capabilities");
+        }
         let projection = validate_stream(&self.events)?;
         let first = self
             .events
@@ -303,7 +309,10 @@ pub(crate) fn validate_stream(
     let project_ref = &first.project_ref;
     let mut previous = None;
     for (index, event) in events.iter().enumerate() {
-        if event.schema_version != SchemaVersion::V0_2_0 {
+        if !matches!(
+            event.schema_version,
+            SchemaVersion::V0_2_0 | SchemaVersion::V0_3_0
+        ) {
             return Err(PortableBundleError::MigrationRequired {
                 schema_version: event.schema_version,
             });
@@ -414,8 +423,45 @@ fn validate_lock_name(name: &str) -> Result<(), PortableBundleError> {
     Ok(())
 }
 
-fn validate_schema_lock(bytes: &[u8]) -> Result<(), PortableBundleError> {
+fn stream_schema_version(events: &[EventEnvelope]) -> SchemaVersion {
+    if events
+        .iter()
+        .any(|e| e.schema_version == SchemaVersion::V0_3_0)
+    {
+        SchemaVersion::V0_3_0
+    } else {
+        SchemaVersion::V0_2_0
+    }
+}
+
+fn validate_schema_lock(bytes: &[u8], expected: SchemaVersion) -> Result<(), PortableBundleError> {
     let value: Value = serde_json::from_slice(bytes)?;
+    if expected == SchemaVersion::V0_3_0 {
+        if value.get("schema_version").and_then(Value::as_str) != Some("0.3.0") {
+            return integrity("history streams require a v0.3 schema lock");
+        }
+        let expected_schemas = project_ledger_schemas::schema_catalog_v0_3().map_err(|error| {
+            PortableBundleError::Integrity {
+                message: error.to_string(),
+            }
+        })?;
+        for schema in expected_schemas {
+            let digest = sha256_digest(&schema.schema)?.to_string();
+            if !value
+                .get("schemas")
+                .and_then(Value::as_array)
+                .is_some_and(|entries| {
+                    entries.iter().any(|entry| {
+                        entry.get("schema_id").and_then(Value::as_str) == Some(&schema.schema_id)
+                            && entry.get("digest").and_then(Value::as_str) == Some(&digest)
+                    })
+                })
+            {
+                return integrity("history schema lock is incomplete or incompatible");
+            }
+        }
+        return Ok(());
+    }
     match value.get("schema_version").and_then(Value::as_str) {
         Some("0.2.0") => Ok(()),
         Some("0.1.1") => Err(PortableBundleError::MigrationRequired {

@@ -45,7 +45,8 @@ impl CommandHandler for CoreCommandHandler {
                     },
                 )
             }
-            Command::RecordWorkProgress(_)
+            Command::RecordEpisodeUpdate(_)
+            | Command::RecordWorkProgress(_)
             | Command::RecordNote(_)
             | Command::AddArtifactReference(_)
             | Command::StartSession(_)

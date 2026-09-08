@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "EpisodeEntry": {
+      "oneOf": [
+        {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "kind": {
+              "const": "ALTERNATIVE",
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "rationale"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "alternative_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "description": {
+              "type": "string"
+            },
+            "evidence_refs": {
+              "items": {
+                "$ref": "#/$defs/StableId"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "const": "ATTEMPT",
+              "type": "string"
+            },
+            "outcome": {
+              "$ref": "#/$defs/EpisodeOutcome"
+            }
+          },
+          "required": [
+            "kind",
+            "alternative_ref",
+            "description",
+            "outcome",
+            "evidence_refs"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "alternative_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "decision_ref": {
+              "$ref": "#/$defs/StableId"
+            },
+            "kind": {
+              "const": "DECISION_LINK",
+              "type": "string"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "decision_ref",
+            "alternative_ref",
+            "rationale"
+          ],
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "corrects_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entry_id": {
+          "$ref": "#/$defs/StableId"
+        }
+      },
+      "required": [
+        "entry_id"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "EpisodeEntryRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "entry": {
+          "$ref": "#/$defs/EpisodeEntry"
+        },
+        "episode_ref": {
+          "$ref": "#/$defs/StableId"
+        },
+        "event_ref": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/LedgerTimestamp"
+        },
+        "stream_version": {
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "superseded_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StableId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "episode_ref",
+        "entry",
+        "event_ref",
+        "stream_version",
+        "actor_ref",
+        "occurred_at",
+        "recorded_at"
+      ],
+      "type": "object"
+    },
+    "EpisodeOutcome": {
+      "enum": [
+        "SUCCEEDED",
+        "FAILED",
+        "INCONCLUSIVE"
+      ],
+      "type": "string"
+    },
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:episode-projection:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/EpisodeEntryRecord"
+      },
+      "type": "array"
+    },
+    "episode_ref": {
+      "$ref": "#/$defs/StableId"
+    },
+    "latest_summary": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "update_event_refs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "episode_ref",
+    "objective",
+    "latest_summary",
+    "update_event_refs",
+    "entries"
+  ],
+  "title": "EpisodeProjection",
+  "type": "object"
+}

@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "LedgerTimestamp": {
+      "description": "A validated RFC 3339 timestamp with an explicit UTC offset.",
+      "format": "date-time",
+      "type": "string"
+    },
+    "PortableImportPolicy": {
+      "enum": [
+        "IDENTICAL_CHAIN",
+        "FAST_FORWARD",
+        "NEW_PROJECT",
+        "FORK_EXPLICIT"
+      ],
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "description": "Supported durable contract versions in the first contract slice.",
+      "enum": [
+        "0.2.0",
+        "0.1.1"
+      ],
+      "type": "string"
+    },
+    "Sha256Digest": {
+      "description": "A canonical lowercase SHA-256 digest with the `sha256:` prefix.",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "StableId": {
+      "description": "A compact stable identifier for phases, gates, decisions, and related records.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
+      "type": "string"
+    }
+  },
+  "$id": "urn:project-ledger:schema:portable-export:0.3.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "chain_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "checksums_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "created_at": {
+      "$ref": "#/$defs/LedgerTimestamp"
+    },
+    "digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "event_count": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "export_id": {
+      "$ref": "#/$defs/StableId"
+    },
+    "first_event_ref": {
+      "type": "string"
+    },
+    "import_policy": {
+      "$ref": "#/$defs/PortableImportPolicy"
+    },
+    "last_event_ref": {
+      "type": "string"
+    },
+    "project_ref": {
+      "type": "string"
+    },
+    "project_state_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    },
+    "project_state_version": {
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "schemas_lock_digest": {
+      "$ref": "#/$defs/Sha256Digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "export_id",
+    "project_ref",
+    "project_state_version",
+    "project_state_digest",
+    "first_event_ref",
+    "last_event_ref",
+    "event_count",
+    "chain_digest",
+    "import_policy",
+    "schemas_lock_digest",
+    "checksums_digest",
+    "created_at",
+    "digest"
+  ],
+  "title": "PortableExport",
+  "type": "object"
+}

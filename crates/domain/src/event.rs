@@ -187,19 +187,20 @@ macro_rules! event_catalog {
     ($($variant:ident($payload:ty)),+ $(,)?) => {
         #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, JsonSchema, Ord, PartialEq, PartialOrd, Serialize)]
         #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-        pub enum EventType { $($variant),+ }
+        pub enum EventType { $($variant),+, #[schemars(skip)] EpisodeUpdateRecorded }
 
         impl EventType {
+            /// The frozen v0.2 catalog. Extension events are versioned separately.
             pub const ALL: &'static [Self] = &[$(Self::$variant),+];
         }
 
         #[derive(Clone, Debug, Deserialize, JsonSchema, PartialEq, Serialize)]
         #[serde(tag = "event_type", content = "payload", rename_all = "SCREAMING_SNAKE_CASE", deny_unknown_fields)]
-        pub enum Event { $($variant($payload)),+ }
+        pub enum Event { $($variant($payload)),+, #[schemars(skip)] EpisodeUpdateRecorded(crate::EpisodeUpdate) }
 
         impl Event {
             pub const fn event_type(&self) -> EventType {
-                match self { $(Self::$variant(_) => EventType::$variant),+ }
+                match self { $(Self::$variant(_) => EventType::$variant),+, Self::EpisodeUpdateRecorded(_) => EventType::EpisodeUpdateRecorded }
             }
         }
     };

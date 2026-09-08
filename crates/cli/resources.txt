@@ -1,4 +1,17 @@
 # Reviewed distribution allowlist. Additions require an explicit review and package regression.
+crates/cli/tests/history.rs
+docs/history/HISTORY_EXTENSION_v0.3.md
+docs/history/LLM_USAGE.md
+schemas/v0.3/command-envelope.schema.json
+schemas/v0.3/command-event-matrix.json
+schemas/v0.3/command-payload.schema.json
+schemas/v0.3/episode-projection.schema.json
+schemas/v0.3/episode-update.schema.json
+schemas/v0.3/event-envelope.schema.json
+schemas/v0.3/event-payload.schema.json
+schemas/v0.3/history-response.schema.json
+schemas/v0.3/portable-export.schema.json
+schemas/v0.3/schema-registry.json
 .github/workflows/ci.yml
 Cargo.lock
 benchmark/project-ledger-v0.2.0-windows-x86_64.json

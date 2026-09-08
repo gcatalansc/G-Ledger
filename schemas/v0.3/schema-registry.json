@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.3.0",
+  "entries": [
+    {
+      "schema_id": "urn:project-ledger:schema:command-envelope:0.3.0",
+      "relative_path": "command-envelope.schema.json",
+      "canonical_digest": "sha256:33038348f959c8d15b09946bec7e30364ae900d6bae88346fc0bac9afee64f17"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:command-payload:0.3.0",
+      "relative_path": "command-payload.schema.json",
+      "canonical_digest": "sha256:ee763e2c4100bca17df0f98be5d9264d6f9f081748f752d877b436ca8d046521"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:episode-projection:0.3.0",
+      "relative_path": "episode-projection.schema.json",
+      "canonical_digest": "sha256:6dd133a8f07ed5db49d03f0c4e7613cbc9271d622f80dae93ffe930a2b6ea546"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:episode-update:0.3.0",
+      "relative_path": "episode-update.schema.json",
+      "canonical_digest": "sha256:21e592aab0a9fccfea12761ca0821ebcd2b42366f9baa1241c4ce55f55e60a91"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-envelope:0.3.0",
+      "relative_path": "event-envelope.schema.json",
+      "canonical_digest": "sha256:0e24efe96655165d7971efd221880375be001147e767362ae5b956400bb31af6"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:event-payload:0.3.0",
+      "relative_path": "event-payload.schema.json",
+      "canonical_digest": "sha256:36c5d1a4ce8755448bf8ca5d39d89b75ce20288e1a68c2816ea2028f464cdecf"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:history-response:0.3.0",
+      "relative_path": "history-response.schema.json",
+      "canonical_digest": "sha256:c9e98be270fe9ec65f8f57354e5970909f34e1fef6734d399c794f95d2f4c718"
+    },
+    {
+      "schema_id": "urn:project-ledger:schema:portable-export:0.3.0",
+      "relative_path": "portable-export.schema.json",
+      "canonical_digest": "sha256:9436584364b6cb950f340106ec2e367faa2ac7c74ecd6af7d4a1a68b21b541ac"
+    }
+  ]
+}

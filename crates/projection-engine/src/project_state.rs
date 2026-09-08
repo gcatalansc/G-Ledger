@@ -9,7 +9,7 @@ use thiserror::Error;
 use crate::lifecycle::ProjectStateProjection;
 
 /// Version of the deterministic `ProjectState` fold implemented by this crate.
-pub const PROJECTOR_VERSION: u32 = 5;
+pub const PROJECTOR_VERSION: u32 = 6;
 
 /// Failures that prevent a stream or event from becoming trusted derived state.
 #[derive(Debug, Error)]
@@ -101,11 +101,11 @@ pub(crate) fn genesis_state(
     let Some(genesis) = events.first() else {
         return Err(ProjectionError::EmptyStream);
     };
-    validate_event_integrity(genesis)
-        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
     if genesis.schema_version != SchemaVersion::V0_2_0 {
         return Err(ProjectionError::UnsupportedSchemaVersion);
     }
+    validate_event_integrity(genesis)
+        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
     if genesis.stream_version != 1
         || genesis.previous_event_digest.is_some()
         || genesis.project_ref != genesis.stream_id
@@ -164,11 +164,14 @@ pub(crate) fn validate_next_event(
     event: &EventEnvelope,
 ) -> Result<(), ProjectionError> {
     validate_state_integrity(state)?;
-    validate_event_integrity(event)
-        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
-    if event.schema_version != SchemaVersion::V0_2_0 {
+    if !matches!(
+        event.schema_version,
+        SchemaVersion::V0_2_0 | SchemaVersion::V0_3_0
+    ) {
         return Err(ProjectionError::UnsupportedSchemaVersion);
     }
+    validate_event_integrity(event)
+        .map_err(|error| ProjectionError::EventIntegrity(error.to_string()))?;
     if event.project_ref != state.project.project_id
         || event.stream_id != state.project.project_id
         || state.project_state_id != state_id(&state.project.project_id)?

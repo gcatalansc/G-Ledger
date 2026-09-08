@@ -4,6 +4,8 @@ G-Ledger, cuyo nombre técnico es Project Ledger, es una bitácora local y verif
 
 ## Estado
 
+El checkout de desarrollo añade [historia estructurada para LLM](docs/history/LLM_USAGE.md): registro de episodios, alternativas e intentos; reconstrucción por versión, comparación y trazado de decisiones. La extensión contractual v0.3 es posterior al ZIP rc.1 descrito abajo.
+
 - Producto: `0.2.0`.
 - Aceptación: **`OPERATIONALLY_ACCEPTED` para uso operativo controlado**, piloto 8/8.
 - Distribución: `ENGINEERING_RELEASE_CANDIDATE`.

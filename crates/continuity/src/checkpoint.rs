@@ -150,6 +150,47 @@ impl ContinuityEngine {
                     replacement_field_values: payload.replacement_field_values.clone(),
                 }),
             )?,
+            Command::RecordEpisodeUpdate(update) => {
+                append(
+                    command,
+                    &mut projection,
+                    &mut drafts,
+                    Event::EpisodeUpdateRecorded(update.clone()),
+                )?;
+                let mut work = project_ledger_domain::WorkRecord {
+                    schema_version: SchemaVersion::V0_2_0,
+                    work_record_id: stable_command_id("work", command)?,
+                    summary: update.summary.clone(),
+                    phase_ref: None,
+                    task_ref: None,
+                    files_or_artifacts: Vec::new(),
+                    commit_refs: Vec::new(),
+                    claim_refs: Vec::new(),
+                    evidence_refs: Vec::new(),
+                    actor_ref: command.actor.actor_id.clone(),
+                    influence: None,
+                    occurred_at: command.submitted_at.clone(),
+                    recorded_at: command.submitted_at.clone(),
+                    provenance_ref: project_ledger_domain::ResourceRef::parse(&format!(
+                        "urn:project-ledger:episode:{}",
+                        update.episode_ref
+                    ))
+                    .map_err(|_| invalid("invalid episode provenance"))?,
+                    digest: Sha256Digest::from([0_u8; 32]),
+                };
+                let mut encoded = serde_json::to_value(&work)?;
+                encoded
+                    .as_object_mut()
+                    .ok_or_else(|| invalid("invalid work record"))?
+                    .remove("digest");
+                work.digest = sha256_digest(&encoded)?;
+                append(
+                    command,
+                    &mut projection,
+                    &mut drafts,
+                    Event::WorkProgressRecorded(WorkProgressRecordedEvent { work_record: work }),
+                )?;
+            }
             Command::RecordWorkProgress(payload) => append(
                 command,
                 &mut projection,
@@ -378,6 +419,7 @@ const fn allows_checkpoint_invalidation(command: &Command) -> bool {
             | Command::RevokeExternalMapping(_)
             | Command::ResolveConflict(_)
             | Command::RecordEventCorrection(_)
+            | Command::RecordEpisodeUpdate(_)
     )
 }
 

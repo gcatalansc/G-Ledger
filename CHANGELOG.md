@@ -4,6 +4,13 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ## [Unreleased]
 
+### Added
+
+- Historia v0.3: episodios, alternativas, intentos, vínculos explícitos con decisiones y correcciones append-only; registro atómico junto al avance habitual.
+- CLI `record episode`, `history at`, `history diff`, `history get`, `decision trace` paginado y exposición de `evidence invalidate` bajo la política existente.
+- Catálogo adicional v0.3, lectura de cortes completos y portable mixto v0.2/v0.3. Eventos, digests y schemas v0.2 preservados.
+- Guía de uso directo por LLM y seis escenarios de integración sobre procesos y SQLite reales.
+
 ### Fixed
 
 - SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.

@@ -169,19 +169,20 @@ macro_rules! command_catalog {
     ($($variant:ident($payload:ty)),+ $(,)?) => {
         #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, JsonSchema, Ord, PartialEq, PartialOrd, Serialize)]
         #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-        pub enum CommandType { $($variant),+ }
+        pub enum CommandType { $($variant),+, #[schemars(skip)] RecordEpisodeUpdate }
 
         impl CommandType {
+            /// The frozen v0.2 catalog. Extension commands are versioned separately.
             pub const ALL: &'static [Self] = &[$(Self::$variant),+];
         }
 
         #[derive(Clone, Debug, Deserialize, JsonSchema, PartialEq, Serialize)]
         #[serde(tag = "command_type", content = "payload", rename_all = "SCREAMING_SNAKE_CASE", deny_unknown_fields)]
-        pub enum Command { $($variant($payload)),+ }
+        pub enum Command { $($variant($payload)),+, #[schemars(skip)] RecordEpisodeUpdate(crate::EpisodeUpdate) }
 
         impl Command {
             pub const fn command_type(&self) -> CommandType {
-                match self { $(Self::$variant(_) => CommandType::$variant),+ }
+                match self { $(Self::$variant(_) => CommandType::$variant),+, Self::RecordEpisodeUpdate(_) => CommandType::RecordEpisodeUpdate }
             }
         }
     };

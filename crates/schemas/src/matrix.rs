@@ -617,6 +617,19 @@ pub fn command_event_matrix() -> CommandEventMatrix {
     }
 }
 
+/// Additive v0.3 catalog; the v0.2 matrix remains byte-identical.
+pub fn command_event_matrix_v0_3() -> CommandEventMatrix {
+    let mut matrix = command_event_matrix();
+    matrix.schema_version = SchemaVersion::V0_3_0;
+    matrix.rows.push(row(
+        C::RecordEpisodeUpdate,
+        &[&[E::EpisodeUpdateRecorded, E::WorkProgressRecorded]],
+        &[E::CheckpointInvalidated],
+        &[EngineOwner::CommandHandler, EngineOwner::FreshnessEngine],
+    ));
+    matrix
+}
+
 fn row(
     command_type: C,
     accepted_outcomes: &[&[E]],

@@ -1,6 +1,6 @@
 # Investigación de utilidad de G-Ledger
 
-Fecha: 2026-09-07. **Investigación en ejecución; utilidad comparativa y adopción aún no demostradas.** Autorización del propietario: «Procede con el plan profesionalmente».
+Fecha: 2026-09-07. Este expediente conserva C01/E01 y sus límites. El propietario orientó después el trabajo hacia el núcleo como bitácora de alto nivel para LLM y autorizó implementar la [extensión de historia v0.3](../history/HISTORY_EXTENSION_v0.3.md), con [uso directo por CLI](../history/LLM_USAGE.md). La nueva etapa añade capacidades estructurales; no repite E01 ni altera sus resultados. Utilidad comparativa y adopción aún no demostradas.
 
 La oportunidad mejor sustentada hasta ahora es **ayudar a retomar y entregar trabajo con el estado, la evidencia y los límites correctos**. Los registros existentes contienen buena parte de esa información. Falta demostrar que G-Ledger permite aprovecharla con menos esfuerzo y errores que una documentación bien mantenida.
 

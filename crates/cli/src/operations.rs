@@ -15,6 +15,7 @@ use serde_json::{Value, json};
 use std::{fs, path::PathBuf};
 
 mod evidence_run;
+mod history;
 mod legacy;
 mod payloads;
 mod portability;
@@ -184,6 +185,10 @@ pub struct ReconcileArgs {
 }
 #[derive(Debug, Subcommand)]
 pub enum Operation {
+    History {
+        #[command(subcommand)]
+        command: history::HistoryCommand,
+    },
     Status(Selection),
     Doctor(Selection),
     Audit(portability::VerifyArgs),
@@ -282,7 +287,7 @@ macro_rules! family {
         }
     }
 }
-family!(RecordCommand { Note => "RECORD_NOTE", Progress => "RECORD_WORK_PROGRESS" }; { Notes => "notes" });
+family!(RecordCommand { Note => "RECORD_NOTE", Progress => "RECORD_WORK_PROGRESS", Episode => "RECORD_EPISODE_UPDATE" }; { Notes => "notes" });
 family!(AuthorityCommand { Add => "REGISTER_AUTHORITY_DOCUMENT", Refresh => "REFRESH_AUTHORITY_DOCUMENT_DIGEST", Supersede => "SUPERSEDE_AUTHORITY_DOCUMENT" }; { List => "authority" });
 family!(RepositoryCommand { Bind => "BIND_REPOSITORY", Refresh => "REFRESH_REPOSITORY_BINDING", Revoke => "REVOKE_REPOSITORY_BINDING" }; { List => "repository" });
 family!(RoadmapCommand { Import => "DEFINE_ROADMAP" }; { Show => "roadmap" });
@@ -291,7 +296,25 @@ family!(GateCommand { Define => "DEFINE_GATE", RequestRevalidation => "REQUEST_G
 family!(ArtifactCommand { Add => "ADD_ARTIFACT_REFERENCE" }; { List => "artifact" });
 family!(ClaimCommand { Record => "RECORD_CLAIM", Status => "UPDATE_CLAIM_STATUS" }; {});
 family!(UnknownCommand { Record => "RECORD_UNKNOWN", Resolve => "RESOLVE_UNKNOWN" }; {});
-family!(DecisionCommand { Propose => "PROPOSE_DECISION", Accept => "ACCEPT_DECISION", Supersede => "SUPERSEDE_DECISION" }; { Show => "decision-show" });
+#[derive(Debug, Subcommand)]
+pub enum DecisionCommand {
+    Propose(Box<WriteArgs>),
+    Accept(Box<WriteArgs>),
+    Supersede(Box<WriteArgs>),
+    Show(ViewArgs),
+    Trace(history::TraceArgs),
+}
+impl DecisionCommand {
+    fn run(self) -> Result<String, CliError> {
+        match self {
+            Self::Propose(args) => mutate(&args, "PROPOSE_DECISION"),
+            Self::Accept(args) => mutate(&args, "ACCEPT_DECISION"),
+            Self::Supersede(args) => mutate(&args, "SUPERSEDE_DECISION"),
+            Self::Show(args) => query(&args, "decision-show"),
+            Self::Trace(args) => history::trace(&args),
+        }
+    }
+}
 family!(BlockerCommand { Open => "OPEN_BLOCKER", Resolve => "RESOLVE_BLOCKER" }; {});
 family!(RiskCommand { Open => "OPEN_RISK", Mitigate => "MITIGATE_RISK", Close => "CLOSE_RISK" }; {});
 family!(NextCommand { Set => "SET_NEXT_ACTION" }; {});
@@ -299,6 +322,7 @@ family!(SessionCommand { Start => "START_SESSION", End => "END_SESSION" }; {});
 #[derive(Debug, Subcommand)]
 pub enum EvidenceCommand {
     Import(WriteArgs),
+    Invalidate(WriteArgs),
     Link(WriteArgs),
     Unlink(WriteArgs),
     Show(ViewArgs),
@@ -309,6 +333,7 @@ impl EvidenceCommand {
     fn run(self) -> Result<String, CliError> {
         match self {
             Self::Import(a) => mutate(&a, "RECORD_VERIFICATION_RESULT"),
+            Self::Invalidate(a) => mutate(&a, "INVALIDATE_EVIDENCE"),
             Self::Link(a) => mutate(&a, "LINK_EXTERNAL_EVIDENCE"),
             Self::Unlink(a) => mutate(&a, "UNLINK_EXTERNAL_EVIDENCE"),
             Self::Show(a) => query(&a, "evidence-show"),
@@ -333,6 +358,7 @@ pub fn run(operation: Operation) -> Result<String, CliError> {
         Operation::ResumeProject(args) => mutate(&args, "RESUME_PROJECT"),
         Operation::Archive(args) => mutate(&args, "ARCHIVE_PROJECT"),
         Operation::Record { command } => command.run(),
+        Operation::History { command } => command.run(),
         Operation::Authority { command } => command.run(),
         Operation::Repository { command } => command.run(),
         Operation::Roadmap { command } => command.run(),
@@ -495,7 +521,11 @@ pub fn execute(args: &WriteArgs, command: Command) -> Result<String, CliError> {
     let key = StableId::parse(&args.idempotency_key).map_err(CliError::input)?;
     let at = LedgerTimestamp::parse(&args.observed_at).map_err(CliError::input)?;
     let envelope = prepare_command(CommandDraft {
-        schema_version: SchemaVersion::V0_2_0,
+        schema_version: if matches!(command, Command::RecordEpisodeUpdate(_)) {
+            SchemaVersion::V0_3_0
+        } else {
+            SchemaVersion::V0_2_0
+        },
         command_id: crate::deterministic_cli_command_id(
             &format!("{kind}:{}:{}", args.actor_id, args.as_human),
             &project,

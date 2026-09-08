@@ -342,7 +342,8 @@ const fn recording_authorized(command: &CommandEnvelope) -> bool {
         TrustLevel::LocalUser => true,
         TrustLevel::TrustedForRecording => matches!(
             command.command,
-            Command::RecordWorkProgress(_)
+            Command::RecordEpisodeUpdate(_)
+                | Command::RecordWorkProgress(_)
                 | Command::RecordNote(_)
                 | Command::AddArtifactReference(_)
                 | Command::RecordClaim(_)
@@ -361,7 +362,11 @@ const fn recording_authorized(command: &CommandEnvelope) -> bool {
 }
 
 fn matrix_accepts(command: &CommandEnvelope, drafts: &[EventDraft]) -> bool {
-    let matrix = command_event_matrix();
+    let matrix = if matches!(command.command, Command::RecordEpisodeUpdate(_)) {
+        project_ledger_schemas::command_event_matrix_v0_3()
+    } else {
+        command_event_matrix()
+    };
     let Some(row) = matrix.row(command.command_type()) else {
         return false;
     };

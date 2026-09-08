@@ -42,6 +42,7 @@ tempfile.workspace = true
 sha2.workspace = true
 
 [dev-dependencies]
+jsonschema.workspace = true
 rusqlite.workspace = true
 assert_cmd.workspace = true
 predicates.workspace = true

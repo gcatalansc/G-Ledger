@@ -17,6 +17,11 @@ pub(crate) use closed_enum;
 /// Supported durable contract versions in the first contract slice.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, JsonSchema, PartialEq, Serialize)]
 pub enum SchemaVersion {
+    // The default derived schemas are the frozen v0.2 catalog. The extension
+    // has an explicit, separate catalog in project-ledger-schemas.
+    #[schemars(skip)]
+    #[serde(rename = "0.3.0")]
+    V0_3_0,
     #[serde(rename = "0.2.0")]
     V0_2_0,
     #[serde(rename = "0.1.1")]

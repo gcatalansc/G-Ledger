@@ -13,9 +13,9 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Investigación de utilidad; remediación local previa verificada en `docs/maintenance/2026-09-07-TECHNICAL_REMEDIATION.md`. Firma y certificación bilateral conservan sus dependencias externas |
+| Trabajo actual | Núcleo de historia v0.3 implementado y verificado: `docs/history/IMPLEMENTATION_REPORT.md`. Remediación anterior preservada; firma y certificación bilateral conservan sus dependencias externas |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
-| Investigación de mejoras | Diez episodios, alternativas, C01/P1 y doce intentos E01 realizados. Ventaja neta no demostrada; una adjudicación humana, validación comparativa y adopción pendientes; `docs/research/README.md` |
+| Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 
 La aceptación operativa corresponde al piloto y a la entrega identificados. Las correcciones posteriores requieren su propia evidencia de verificación; este resumen no transfiere la aceptación a un binario nuevo.
 
@@ -2522,3 +2522,12 @@ El archivo `operational-pilot-report.json` se reclasifica explícitamente como r
 - Integridad: entradas originales intactas; seis Ledgers de estudio verificados ok, v3 en T1–T3, v5 en T4/T5 y v12 en T6. Los nueve findings de T6 son los esperados del fixture C01, no una aprobación de checkpoint. Respuestas y cuatro traspasos se conservan localmente y quedan ligados por hashes.
 - Expediente y decisión: `docs/research/e01/REPORT.md`, registro, notas, revisión y resultados. P1 no se promueve, P2 no se construye y adopción no comienza con evidencia insuficiente. Siguiente investigación: coste completo de mantener contexto durante cambios y relevo, con casos nuevos y configuración inspeccionable. No se declara necesario el producto ni se descarta su utilidad por esta calibración.
 - Alcance del checkpoint: documentación e instrumentos de investigación, sin modificar producto, contratos, release o proyectos fuente. El juicio pendiente no impide conservar el resultado inconcluso; sí impide tratar T6A como error crítico confirmado o victoria de B.
+
+## 2026-09-07 — Núcleo de historia implementado
+
+- Autorización: implementar el plan posterior a E01, con foco en una bitácora de alto nivel para LLM y alcance «registrar y reconstruir». Base `5c20e7b`; rama `codex/history-core`.
+- Modelo: episodios, alternativas, intentos, vínculos explícitos con decisiones y correcciones append-only. Cada actualización incorpora el avance habitual de forma atómica; se conservan idempotencia, permisos, referencias y frescura del checkpoint.
+- Consultas: `history at`, `history diff`, `history get` y `decision trace` paginado. Cortes por comando completo, snapshot consistente de SQLite y cursores ligados a proyecto/versión/digest. Las correcciones posteriores no reescriben lo que constaba antes.
+- Compatibilidad: ocho schemas v0.3 adicionales; comando/evento nuevos en un stream mixto. Los 142 artefactos generados v0.2 y la spec base permanecen idénticos. Portable y backup/restore preservan la historia; la aceptación publicada de rc.1 no se transfiere al binario nuevo.
+- Verificación: seis escenarios CLI, 315 casos únicos de regresión resueltos mediante pasada completa y repetición selectiva, 14 casos especiales ignored. Formato, Clippy, schemas, specs, contratos y 461 recursos PASS. Ejercicio directo del implementador: 14 llamadas CLI, sin `--as-human`, pasado intacto y restauración exacta.
+- Entrega y límites: `docs/history/IMPLEMENTATION_REPORT.md`, contrato, guía y registro del ejercicio. No hay nueva publicación, certificación externa ni medición de productividad; los resultados E01 permanecen históricos. La implementación autorizada está completada.

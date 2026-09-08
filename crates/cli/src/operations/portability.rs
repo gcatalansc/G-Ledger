@@ -242,7 +242,14 @@ pub fn export(args: &ExportArgs) -> Result<String, CliError> {
     let stream = store.load_stream(&p.state().project.project_id)?;
     let created_at = stream.last().ok_or_else(divergence)?.recorded_at.clone();
     let markdown = markdown(&p, &stream, RendererPrivacyProfile::Shareable)?;
-    let schemas = project_ledger_schemas::schema_catalog().map_err(CliError::input)?.into_iter().map(|entry| {
+    let has_history = stream
+        .iter()
+        .any(|event| event.schema_version == project_ledger_domain::SchemaVersion::V0_3_0);
+    let mut catalog = project_ledger_schemas::schema_catalog().map_err(CliError::input)?;
+    if has_history {
+        catalog.extend(project_ledger_schemas::schema_catalog_v0_3().map_err(CliError::input)?);
+    }
+    let schemas = catalog.into_iter().map(|entry| {
         Ok(json!({"schema_id":entry.schema_id,"digest":sha256_digest(&entry.schema).map_err(CliError::input)?}))
     }).collect::<Result<Vec<_>,CliError>>()?;
     // These shipped locks are immutable resources, never read from the project cwd.
@@ -289,7 +296,7 @@ pub fn export(args: &ExportArgs) -> Result<String, CliError> {
         created_at,
         import_policy: PortableImportPolicy::FastForward,
         stream,
-        schemas_lock: json!({"schema_version":"0.2.0","schemas":schemas}),
+        schemas_lock: json!({"schema_version":if has_history { "0.3.0" } else { "0.2.0" },"schemas":schemas}),
         upstream_locks,
         resume: ResumeBuilder::build(&p, ResumeBudget::Structured).map_err(CliError::domain)?,
         evidence_references: json!(p.evidence_records()),

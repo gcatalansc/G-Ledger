@@ -1,0 +1,134 @@
+{
+  "scope": "Direct CLI use by the implementing LLM; actual development observations in a separate local ledger",
+  "independent_participant": false,
+  "productivity_claim": false,
+  "canonical_evidence_refs_supplied": false,
+  "executable_sha256": "3914a46ce432afe7134772c69563ff37d159c4bf30ece5a88eb868d0fd2266d2",
+  "calls": [
+    {
+      "operation": [
+        "init",
+        "--title"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "record",
+        "episode"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "at"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "record",
+        "episode"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "get"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "get"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "diff"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "at"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "record",
+        "episode"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "backup",
+        "--output"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "restore",
+        "--file"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "at"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "history",
+        "at"
+      ],
+      "exit": 0
+    },
+    {
+      "operation": [
+        "verify"
+      ],
+      "exit": 0
+    }
+  ],
+  "historical_cut": 3,
+  "final_version": 5,
+  "historical_head_digest": "sha256:237e6577368505da182511c720c70023d7b4bfd4adb9bdd58507f1a191db2f5f",
+  "final_head_digest": "sha256:0f7501892bf0d0faed644174c4802ed5612ff6e0b0219f806acc934cc679fac1",
+  "original_failure": {
+    "alternative_ref": "alternative:flatten-derive",
+    "corrects_ref": null,
+    "description": "Observed in this implementation session: the first CLI integration test exited 2 with unknown field description",
+    "entry_id": "attempt:derive-rejected-input",
+    "evidence_refs": [],
+    "kind": "ATTEMPT",
+    "outcome": "FAILED"
+  },
+  "selected_alternative": {
+    "corrects_ref": null,
+    "description": "Remove the two common fields, then decode the remaining closed variant",
+    "entry_id": "alternative:explicit-entry-decoder",
+    "kind": "ALTERNATIVE",
+    "rationale": "Keep flat input and reject unsupported fields without the buffering conflict"
+  },
+  "checks": {
+    "past_unchanged": true,
+    "replay_no_duplicate": true,
+    "backup_restore_exact": true,
+    "integrity": "ok"
+  },
+  "recording_actor": "agent:implementation",
+  "as_human_used": false
+}

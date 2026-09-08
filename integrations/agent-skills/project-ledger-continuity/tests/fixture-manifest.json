@@ -3,7 +3,7 @@
   "profile": "project-ledger-agent-skill/0.2.0",
   "trigger_cases": {"path":"tests/trigger-cases.json","raw_sha256":"dd473c14f5d09600440d246b86e93e5a74915cf5306bacf25daf458ab1483f02","count":7},
   "policy_cases": {"path":"tests/policy-cases.json","raw_sha256":"b4f5553845a4266d605be2794130dba043fa1f6c7c90ce6b0c1c43aca38fc045","count":5},
-  "instructions": {"path":"SKILL.md","raw_sha256":"94aff04d4268c1296017c877ec5ea960b2937e94026bb97f0d95ac24cac26913"},
+  "instructions": {"path":"SKILL.md","raw_sha256":"fc43781f3dba521b501520542d25b08354c23b8a0e290da804b1d92464cc8a3e"},
   "manifest": {"path":"manifest.json","raw_sha256":"2c64d81d9e25992a61e764d6bbd4f9da280e60d99ad504a90ddc02f3bff2b14a"},
   "workflow": {"path":"workflow.json","raw_sha256":"bd9172babe0091aa96ed84fef2e9cf8a3331bfb921bc59a5562e04c79eb58e4e"},
   "examples": [
