@@ -6,14 +6,14 @@
 
 | Campo | Valor |
 |---|---|
-| Fecha de actualización | 2026-09-07 |
+| Fecha de actualización | 2026-09-08 |
 | Implementación base (§50/§51) | 12/12 macrofases; S0–S14, 15/15 slices completados |
 | Preparación prepiloto | 8/8 completada |
 | Piloto operativo | 8/8; aceptación humana del 2026-09-04, acotada a su sujeto exacto |
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Adenda PL-GSK-003 implementada y recalificada bilateralmente, SCOPED_PASS/9 casos: `docs/maintenance/PL-GSK-003-CONFIRMATION.md`. Limitación de la prueba anterior de 700 ms conservada; S24/Fase 6 no cerrados. Núcleo de historia y evidencia anterior preservados |
+| Trabajo actual | PL-GSK-004 implementado y verificado nativamente: `952cf77`, ejecutable `5cde5898…`, pendiente de recalificación bilateral; `docs/maintenance/PL-GSK-004.md`. Corrige validación obsoleta, conflictos durables y binding del resultado al comando original. Adenda PL-GSK-003 y evidencia anterior preservadas. Incidente previo de 700 ms conservado; S24/Fase 6 no cerrados |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 

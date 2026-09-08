@@ -47,4 +47,18 @@ S24/Fase 6 no se cierran por completar la parte nativa. La autoridad operativa d
 
 ## Entrega y verificación final
 
-Pendiente de completar con commit de producto, hashes del ejecutable y binario de pruebas, resultados de regresión y evidencia bilateral.
+Estado nativo: **NATIVE_VERIFIED_PENDING_BILATERAL**. Producto `952cf77c7f92fc3c3ceedb3b01383b8c40ffaf57`: integra el core `c7f9288153ae2d3bafeadc1b4a2fe397b8d8465a` y la protección posterior del binding. La parte application/event-store/storage no cambió entre ambos commits.
+
+Entrega local inmutable en `.tooling/pl-gsk-004/delivery/`:
+
+| Artefacto | SHA-256 y alcance |
+|---|---|
+| `project-ledger.exe` | `5cde5898ba6e3bc6decb3245295b808cc0813904585b26b63dd2fce14b64775b`; release optimizado, versión declarada 0.2.0, sin tag |
+| `version-conflict-races.exe` | `6f0d658e558f3ca79cecad0d951ed47f1fbd45cac106d3b368dfb1e16dc6a3dc`; harness Rust debug del núcleo, 8 pruebas |
+| `manifest.json` | `c8b9e76b0a386b22025e2e1093034c973244276c8b67a74a4986a3de50adb059`; fija 4 binarios y 26 logs/metadatos con hashes, sujetos de cada pasada y límites |
+
+Build definitivo `cargo build --locked --release -p project-ledger-cli`, exit 0, 1m 18s. El build intermedio se conserva aparte en `intermediate-c7f9288`; no es la selección final. El ejecutable anterior `33f56f787af58812621eef443aba9f189c011050fa43e29bb7e1a173a0fa76a6` permanece idéntico.
+
+Las copias de los harnesses CLI se ejecutaron con `CARGO_BIN_EXE_project-ledger` fijado al nuevo ejecutable release: sink **8 PASS**, confirmation **8 PASS**, sin fallos. El harness copiado del núcleo obtuvo **8 PASS** y tres observaciones JSON de carreras. `resources verify --resources <checkout Ledger>` verificó los 484 recursos. No se suman las pasadas repetidas como casos independientes. Se conservan la regresión completa del intermedio y la regresión de los componentes afectados del producto final como evidencias distintas.
+
+El manifest y las copias se entregaron a G-Skills Engine III para su runner final de doce casos sobre fixtures nuevas, junto con los negativos de identidad en los cuatro métodos. El resultado bilateral se añadirá como evidencia propia; este registro no lo anticipa ni cierra S24/Fase 6.
