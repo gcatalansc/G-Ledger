@@ -1,0 +1,601 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:confirmation-response:0.1.0",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "profile": {
+          "const": "gskills-record-confirmation/0.1.0"
+        },
+        "confirmation_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://confirmations/sha256:[0-9a-f]{64}$"
+        },
+        "request_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "request_digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "format": "date-time"
+        },
+        "project_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "command_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^command:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "read_only": {
+          "const": true
+        },
+        "provenance_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://provenance/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "authority_binding_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://authority/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "status": {
+          "const": "VERIFIED"
+        },
+        "native_result": {
+          "type": "object",
+          "properties": {
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^project-ledger://command-results/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "ACCEPTED",
+                "REJECTED",
+                "VERSION_CONFLICT",
+                "VALIDATION_FAILED",
+                "POLICY_DENIED",
+                "DUPLICATE_REPLAY",
+                "INCOMPATIBLE_CONTRACT"
+              ]
+            },
+            "native_command_digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "previous_state_version": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            "new_state_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "resulting_checkpoint_ref": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+                  "not": {
+                    "pattern": "\\.\\."
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emitted_event_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "^event:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "maxItems": 256,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "ref",
+            "digest",
+            "status",
+            "native_command_digest",
+            "previous_state_version",
+            "new_state_version",
+            "resulting_checkpoint_ref",
+            "emitted_event_refs"
+          ],
+          "additionalProperties": false
+        },
+        "result_cut": {
+          "type": "object",
+          "properties": {
+            "state_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "material_state_version": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            "state_digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "head_digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "state_version",
+            "material_state_version",
+            "state_digest",
+            "head_digest"
+          ],
+          "additionalProperties": false
+        },
+        "current_cut": {
+          "type": "object",
+          "properties": {
+            "state_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 18446744073709551615
+            },
+            "material_state_version": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 18446744073709551615
+            },
+            "state_digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "head_digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "state_version",
+            "material_state_version",
+            "state_digest",
+            "head_digest"
+          ],
+          "additionalProperties": false
+        },
+        "effect_verification": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "EXACT"
+            },
+            "event_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 256
+            },
+            "digest": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "status",
+            "event_count",
+            "digest"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "profile",
+        "confirmation_ref",
+        "request_ref",
+        "request_digest",
+        "observed_at",
+        "project_ref",
+        "command_ref",
+        "read_only",
+        "provenance_ref",
+        "authority_binding_ref",
+        "digest",
+        "status",
+        "native_result",
+        "result_cut",
+        "current_cut",
+        "effect_verification"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "profile": {
+          "const": "gskills-record-confirmation/0.1.0"
+        },
+        "confirmation_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://confirmations/sha256:[0-9a-f]{64}$"
+        },
+        "request_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "request_digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "format": "date-time"
+        },
+        "project_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "command_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^command:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "read_only": {
+          "const": true
+        },
+        "provenance_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://provenance/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "authority_binding_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://authority/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "status": {
+          "const": "NOT_FOUND"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "COMMAND_NOT_FOUND",
+                "RESULT_NOT_FOUND"
+              ]
+            },
+            "retryable_read": {
+              "const": false
+            }
+          },
+          "required": [
+            "code",
+            "retryable_read"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "profile",
+        "confirmation_ref",
+        "request_ref",
+        "request_digest",
+        "observed_at",
+        "project_ref",
+        "command_ref",
+        "read_only",
+        "provenance_ref",
+        "authority_binding_ref",
+        "digest",
+        "status",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "profile": {
+          "const": "gskills-record-confirmation/0.1.0"
+        },
+        "confirmation_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://confirmations/sha256:[0-9a-f]{64}$"
+        },
+        "request_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "request_digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "format": "date-time"
+        },
+        "project_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "command_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^command:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "read_only": {
+          "const": true
+        },
+        "provenance_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://provenance/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "authority_binding_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://authority/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "status": {
+          "const": "UNAVAILABLE"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STORAGE_UNAVAILABLE",
+                "READ_LIMIT_EXCEEDED"
+              ]
+            },
+            "retryable_read": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "retryable_read"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "profile",
+        "confirmation_ref",
+        "request_ref",
+        "request_digest",
+        "observed_at",
+        "project_ref",
+        "command_ref",
+        "read_only",
+        "provenance_ref",
+        "authority_binding_ref",
+        "digest",
+        "status",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "profile": {
+          "const": "gskills-record-confirmation/0.1.0"
+        },
+        "confirmation_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://confirmations/sha256:[0-9a-f]{64}$"
+        },
+        "request_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "request_digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "format": "date-time"
+        },
+        "project_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "command_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^command:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "read_only": {
+          "const": true
+        },
+        "provenance_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://provenance/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "authority_binding_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^project-ledger://authority/confirmation/sha256:[0-9a-f]{64}$"
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "status": {
+          "const": "CONTRADICTION"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "IDENTITY_MISMATCH",
+                "SCOPE_MISMATCH",
+                "RESULT_MISMATCH",
+                "INVALID_CUT",
+                "EVENT_MISMATCH",
+                "INTEGRITY_VIOLATION"
+              ]
+            },
+            "retryable_read": {
+              "const": false
+            }
+          },
+          "required": [
+            "code",
+            "retryable_read"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "profile",
+        "confirmation_ref",
+        "request_ref",
+        "request_digest",
+        "observed_at",
+        "project_ref",
+        "command_ref",
+        "read_only",
+        "provenance_ref",
+        "authority_binding_ref",
+        "digest",
+        "status",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

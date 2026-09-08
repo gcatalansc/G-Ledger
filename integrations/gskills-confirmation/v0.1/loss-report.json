@@ -1,0 +1,19 @@
+{
+  "profile": "gskills-record-confirmation/0.1.0",
+  "material_loss_count": 0,
+  "source": "validated native command result and exact event interval",
+  "purpose": "historical confirmation of recorded effect",
+  "omitted_by_design": [
+    "command payload",
+    "event bodies",
+    "episodes",
+    "full ProjectState",
+    "raw logs"
+  ],
+  "not_claimed": [
+    "autonomous cryptographic proof",
+    "signing",
+    "network sandbox",
+    "semantic correctness of recorded evidence"
+  ]
+}

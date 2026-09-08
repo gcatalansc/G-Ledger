@@ -1,0 +1,96 @@
+{
+  "profile": "gskills-record-confirmation/0.1.0",
+  "status": "CANDIDATE_CONTRACT_ONLY_NOT_CERTIFIED",
+  "authority": {
+    "document": "G-Skills/docs/context-orchestration/PL-GSK-003-confirmation-addendum.md",
+    "source_commit": "a0c9382b0f4fe137e9e3a8fb2bc08386617e93e4",
+    "authorization": "Alfredo: Autorizo, procede; communicated by G-Skills Engine III"
+  },
+  "native_base_commit": "ec952a84f4aac2e8244b10bdf32bbe080f4f7942",
+  "files": [
+    {
+      "path": "field-mapping.json",
+      "sha256": "e34f3cc6e803294ff96e7127a88286d5b2bde8b550d7af907d10325fdf44c90d"
+    },
+    {
+      "path": "fixtures/index.json",
+      "sha256": "401c97a6420e538309e676a75263b3c68c9f4437bc2afce8c8c50ecca867feac"
+    },
+    {
+      "path": "fixtures/negative/invalid-native-id.json",
+      "sha256": "dd95fca0bcc2231f502fba77fbc04e914021103e78354f13bf343873f49bc661"
+    },
+    {
+      "path": "fixtures/negative/manifest.extra-field.json",
+      "sha256": "a4ab56752603512cd2f8972af1c24eef0715742e610dbc7a6618480617596d4f"
+    },
+    {
+      "path": "fixtures/negative/policy.extra-field.json",
+      "sha256": "bf0cfd54d168c628ec2d5a14c52dae0fc7bb1189406caaa39657bbfee8627a91"
+    },
+    {
+      "path": "fixtures/negative/proof-on-error.json",
+      "sha256": "5fb3550e8a98620288d75e4082b52a530da9c8d889237dc5434e506f55ea3279"
+    },
+    {
+      "path": "fixtures/negative/request.extra-field.json",
+      "sha256": "2f273d239237b7f2278977b84972284d138f326d3762e9b102bbd0fc062da7d0"
+    },
+    {
+      "path": "fixtures/negative/response.extra-field.json",
+      "sha256": "c9541265687b3405a2bcda54c0821add3e8c0abcd54fb85ddb38d8dfde8cf289"
+    },
+    {
+      "path": "fixtures/negative/too-many-refs.json",
+      "sha256": "298261ccca385433b2fb4acf3bd8b504ad8e0ab9cd3a5db1657afc0177dc75cc"
+    },
+    {
+      "path": "fixtures/positive/manifest.json",
+      "sha256": "a1430823f87a431aa674547a6bad855478f3cf73af1579f31e8cf93a12ed6744"
+    },
+    {
+      "path": "fixtures/positive/policy.json",
+      "sha256": "dd1418d52d03c7cbe87009f31a4158b8f28e89928cb5fe2fb866f98ba537c63c"
+    },
+    {
+      "path": "fixtures/positive/request.json",
+      "sha256": "ce35460d56968056b352359b09886fe772d9fab2958af1db5c1b85f00aae6399"
+    },
+    {
+      "path": "fixtures/positive/response.contradiction.json",
+      "sha256": "880e677b4ec38ab9faf84d2499dcf733a73a9c68f2825f582171d6bdbcfe9901"
+    },
+    {
+      "path": "fixtures/positive/response.json",
+      "sha256": "e6f4837b6f462e3fd58d9c6244682228f8f11afccbf0bafe640d5da6e25e22ac"
+    },
+    {
+      "path": "fixtures/positive/response.not_found.json",
+      "sha256": "5a47c48ca39225f099c0e42dae617de09284541aaec79d0899b4c958ad2d829c"
+    },
+    {
+      "path": "fixtures/positive/response.unavailable.json",
+      "sha256": "a0254ee926e0fa6fce3b44e8fe66803c4ed990b1b8db36024d3d6e9fb3a289af"
+    },
+    {
+      "path": "loss-report.json",
+      "sha256": "da43819dab332fd4b6a859085264abc231715ae2827394750d94d2369a010363"
+    },
+    {
+      "path": "manifest.schema.json",
+      "sha256": "65a0ffa30277d1bc585d37b24a75ed8b87c7812add357d9400bc5b6c4763d507"
+    },
+    {
+      "path": "policy.schema.json",
+      "sha256": "af6849bfaf677c6a8daf1117344dd495031cc623411ef39f51c71fc750873527"
+    },
+    {
+      "path": "request.schema.json",
+      "sha256": "1e37cfa11a46f0999676eaa2b00e6e6e07c5f7af484303131b63071a93b64bb6"
+    },
+    {
+      "path": "response.schema.json",
+      "sha256": "3a0d70c32cb0dc80625db7dae4f265c68584c0d2e1eda3710ceb6c83fe9fb12f"
+    }
+  ]
+}

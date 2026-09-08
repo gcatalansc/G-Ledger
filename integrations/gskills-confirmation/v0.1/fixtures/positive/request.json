@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1.0",
+  "profile": "gskills-record-confirmation/0.1.0",
+  "request_ref": "confirmation-request:fixture",
+  "requested_at": "2026-09-08T04:00:00Z",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df64",
+  "idempotency_scope": {
+    "command_type": "CREATE_CONTINUITY_CHECKPOINT",
+    "trust_domain": "TRUSTED_FOR_RECORDING",
+    "actor_ref": "agent:gskills",
+    "key": "gskills:confirmation-fixture"
+  },
+  "expected_native_result_ref": "project-ledger://command-results/0198f8c8-7417-7fb0-b88f-0fe0c0a7df64",
+  "expected_native_result_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "expected_result_version": 22,
+  "digest": "sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a"
+}

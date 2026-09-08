@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1.0",
+  "profile": "gskills-record-confirmation/0.1.0",
+  "confirmation_ref": "project-ledger://confirmations/sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "request_ref": "confirmation-request:fixture",
+  "request_digest": "sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "observed_at": "2026-09-08T04:00:00Z",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df64",
+  "read_only": true,
+  "provenance_ref": "project-ledger://provenance/confirmation/sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "authority_binding_ref": "project-ledger://authority/confirmation/sha256:5736302f07c563b261b9f9b9ce030dfb61b4944993aeb693fd86605cf74ea812",
+  "status": "NOT_FOUND",
+  "error": {
+    "code": "COMMAND_NOT_FOUND",
+    "retryable_read": false
+  },
+  "digest": "sha256:8fe8db100d58ab366928e51a9bef7b8ad817be66ae830e414e4f49af9a970662"
+}

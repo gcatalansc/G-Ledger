@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:confirmation-policy:0.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "profile": {
+      "const": "gskills-record-confirmation/0.1.0"
+    },
+    "policy_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "native_project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "gskills_project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+      "not": {
+        "pattern": "\\.\\."
+      }
+    },
+    "native_actor_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+      "not": {
+        "pattern": "\\.\\."
+      }
+    },
+    "native_trust_domain": {
+      "const": "TRUSTED_FOR_RECORDING"
+    },
+    "allowed_command_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "RECORD_WORK_PROGRESS",
+          "RECORD_VERIFICATION_RESULT",
+          "REQUEST_GATE_EVALUATION",
+          "REQUEST_GATE_REVALIDATION",
+          "CREATE_CONTINUITY_CHECKPOINT"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "read_authorized": {
+      "const": true
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_request_bytes": {
+          "const": 32768
+        },
+        "max_response_bytes": {
+          "const": 262144
+        },
+        "max_event_refs": {
+          "const": 256
+        },
+        "timeout_ms": {
+          "const": 5000
+        },
+        "max_response_age_seconds": {
+          "const": 30
+        },
+        "clock_skew_seconds": {
+          "const": 2
+        }
+      },
+      "required": [
+        "max_request_bytes",
+        "max_response_bytes",
+        "max_event_refs",
+        "timeout_ms",
+        "max_response_age_seconds",
+        "clock_skew_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "format": "date-time"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "policy_ref",
+    "native_project_ref",
+    "gskills_project_ref",
+    "native_actor_ref",
+    "native_trust_domain",
+    "allowed_command_types",
+    "read_authorized",
+    "limits",
+    "created_at",
+    "digest"
+  ],
+  "additionalProperties": false
+}

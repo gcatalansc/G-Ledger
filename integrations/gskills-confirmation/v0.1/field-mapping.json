@@ -1,0 +1,36 @@
+{
+  "profile": "gskills-record-confirmation/0.1.0",
+  "request": {
+    "schema_version": "caller binding; validated exact",
+    "profile": "caller binding; validated exact",
+    "request_ref": "caller binding; validated exact",
+    "requested_at": "caller binding; validated exact",
+    "project_ref": "caller binding; validated exact",
+    "command_ref": "caller binding; validated exact",
+    "idempotency_scope": "caller binding; validated exact",
+    "expected_native_result_ref": "caller binding; validated exact",
+    "expected_native_result_digest": "caller binding; validated exact",
+    "expected_result_version": "caller binding; validated exact",
+    "digest": "canonical digest excluding digest"
+  },
+  "response": {
+    "native_result": "persisted native result and command; full identity/digests validated",
+    "result_cut": "HistoryView atomic cut at durable result.new_state_version",
+    "current_cut": "HistoryView at head of the same verified SQLite transaction",
+    "effect_verification": "complete exact ordered event interval and command causation, canonical digest",
+    "authority_binding_ref": "project-ledger://authority/confirmation/{policy.digest}",
+    "request_ref": "echo of validated request.request_ref",
+    "request_digest": "echo of validated request.digest",
+    "project_ref": "validated native project",
+    "command_ref": "validated native command",
+    "observed_at": "locally fixed UTC observation time",
+    "read_only": "true; open_read_only; no submit method",
+    "confirmation_ref": "project-ledger://confirmations/{request.digest}",
+    "provenance_ref": "project-ledger://provenance/confirmation/{request.digest}",
+    "schema_version": "0.1.0",
+    "profile": "gskills-record-confirmation/0.1.0",
+    "digest": "canonical complete response excluding digest",
+    "status": "VERIFIED only after integrity, scope, cut and causal checks; otherwise typed failure",
+    "error": "closed code and read retry flag; no native proof data"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:confirmation-manifest:0.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "profile": {
+      "const": "gskills-record-confirmation/0.1.0"
+    },
+    "provider_id": {
+      "const": "project-ledger"
+    },
+    "provider_version": {
+      "const": "0.2.0"
+    },
+    "transport": {
+      "const": "gskills-stdio-jsonrpc-content-length/1.0.0"
+    },
+    "operations": {
+      "const": [
+        "ledger.manifest",
+        "ledger.command_confirmation"
+      ]
+    },
+    "read_only": {
+      "const": true
+    },
+    "schema_sha256": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "response": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "manifest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "request",
+        "response",
+        "manifest",
+        "policy"
+      ],
+      "additionalProperties": false
+    },
+    "policy_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "native_project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "gskills_project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+      "not": {
+        "pattern": "\\.\\."
+      }
+    },
+    "authority_binding_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^project-ledger://authority/confirmation/sha256:[0-9a-f]{64}$"
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_request_bytes": {
+          "const": 32768
+        },
+        "max_response_bytes": {
+          "const": 262144
+        },
+        "max_event_refs": {
+          "const": 256
+        },
+        "timeout_ms": {
+          "const": 5000
+        },
+        "max_response_age_seconds": {
+          "const": 30
+        },
+        "clock_skew_seconds": {
+          "const": 2
+        }
+      },
+      "required": [
+        "max_request_bytes",
+        "max_response_bytes",
+        "max_event_refs",
+        "timeout_ms",
+        "max_response_age_seconds",
+        "clock_skew_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "format": "date-time"
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "provider_id",
+    "provider_version",
+    "transport",
+    "operations",
+    "read_only",
+    "schema_sha256",
+    "policy_digest",
+    "native_project_ref",
+    "gskills_project_ref",
+    "authority_binding_ref",
+    "limits",
+    "created_at",
+    "digest"
+  ],
+  "additionalProperties": false
+}

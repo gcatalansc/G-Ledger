@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1.0",
+  "profile": "gskills-record-confirmation/0.1.0",
+  "confirmation_ref": "project-ledger://confirmations/sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "request_ref": "confirmation-request:fixture",
+  "request_digest": "sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "observed_at": "2026-09-08T04:00:00Z",
+  "project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "command_ref": "command:0198f8c8-7417-7fb0-b88f-0fe0c0a7df64",
+  "read_only": true,
+  "provenance_ref": "project-ledger://provenance/confirmation/sha256:d38353232faa7396f9d210e4491ad872fca97c22e8a8375c5d65015077362f0a",
+  "authority_binding_ref": "project-ledger://authority/confirmation/sha256:5736302f07c563b261b9f9b9ce030dfb61b4944993aeb693fd86605cf74ea812",
+  "status": "VERIFIED",
+  "native_result": {
+    "ref": "project-ledger://command-results/0198f8c8-7417-7fb0-b88f-0fe0c0a7df64",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status": "ACCEPTED",
+    "native_command_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "previous_state_version": 21,
+    "new_state_version": 22,
+    "resulting_checkpoint_ref": "checkpoint:fixture",
+    "emitted_event_refs": [
+      "event:0198f8c8-7417-7fb0-b88f-0fe0c0a7df65"
+    ]
+  },
+  "result_cut": {
+    "state_version": 22,
+    "material_state_version": 21,
+    "state_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "head_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "current_cut": {
+    "state_version": 23,
+    "material_state_version": 21,
+    "state_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "head_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "effect_verification": {
+    "status": "EXACT",
+    "event_count": 1,
+    "digest": "sha256:eb548531e90d0250d84e25e97a1c864ca3d954520838fd349384062927e56612"
+  },
+  "digest": "sha256:2c0300b71eb40c2569826b23fa4696d18d1b853b23611790bd4e3f1658c5a8c7",
+  "unexpected": "rejected"
+}

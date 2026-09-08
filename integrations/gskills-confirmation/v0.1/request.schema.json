@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-ledger:schema:confirmation-request:0.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "profile": {
+      "const": "gskills-record-confirmation/0.1.0"
+    },
+    "request_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "requested_at": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "format": "date-time"
+    },
+    "project_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^project:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "command_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^command:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "idempotency_scope": {
+      "type": "object",
+      "properties": {
+        "command_type": {
+          "type": "string",
+          "enum": [
+            "RECORD_WORK_PROGRESS",
+            "RECORD_VERIFICATION_RESULT",
+            "REQUEST_GATE_EVALUATION",
+            "REQUEST_GATE_REVALIDATION",
+            "CREATE_CONTINUITY_CHECKPOINT"
+          ]
+        },
+        "trust_domain": {
+          "const": "TRUSTED_FOR_RECORDING"
+        },
+        "actor_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+          "not": {
+            "pattern": "\\.\\."
+          }
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_:-][A-Za-z0-9_.:-]*$",
+          "not": {
+            "pattern": "\\.\\."
+          }
+        }
+      },
+      "required": [
+        "command_type",
+        "trust_domain",
+        "actor_ref",
+        "key"
+      ],
+      "additionalProperties": false
+    },
+    "expected_native_result_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^project-ledger://command-results/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "expected_native_result_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "expected_result_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "request_ref",
+    "requested_at",
+    "project_ref",
+    "command_ref",
+    "idempotency_scope",
+    "expected_native_result_ref",
+    "expected_native_result_digest",
+    "expected_result_version",
+    "digest"
+  ],
+  "additionalProperties": false
+}

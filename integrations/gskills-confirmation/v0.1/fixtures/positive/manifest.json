@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.1.0",
+  "profile": "gskills-record-confirmation/0.1.0",
+  "provider_id": "project-ledger",
+  "provider_version": "0.2.0",
+  "transport": "gskills-stdio-jsonrpc-content-length/1.0.0",
+  "operations": [
+    "ledger.manifest",
+    "ledger.command_confirmation"
+  ],
+  "read_only": true,
+  "schema_sha256": {
+    "request": "1e37cfa11a46f0999676eaa2b00e6e6e07c5f7af484303131b63071a93b64bb6",
+    "response": "3a0d70c32cb0dc80625db7dae4f265c68584c0d2e1eda3710ceb6c83fe9fb12f",
+    "manifest": "65a0ffa30277d1bc585d37b24a75ed8b87c7812add357d9400bc5b6c4763d507",
+    "policy": "af6849bfaf677c6a8daf1117344dd495031cc623411ef39f51c71fc750873527"
+  },
+  "policy_digest": "sha256:5736302f07c563b261b9f9b9ce030dfb61b4944993aeb693fd86605cf74ea812",
+  "native_project_ref": "project:0198f8c8-7417-7fb0-b88f-0fe0c0a7df5d",
+  "gskills_project_ref": "project:mempilot",
+  "authority_binding_ref": "project-ledger://authority/confirmation/sha256:5736302f07c563b261b9f9b9ce030dfb61b4944993aeb693fd86605cf74ea812",
+  "limits": {
+    "max_request_bytes": 32768,
+    "max_response_bytes": 262144,
+    "max_event_refs": 256,
+    "timeout_ms": 5000,
+    "max_response_age_seconds": 30,
+    "clock_skew_seconds": 2
+  },
+  "created_at": "2026-09-08T04:00:00Z",
+  "digest": "sha256:4808bf35284c102755796adb2d707602064ffe41def9bddcd4f944ff6423c23b"
+}

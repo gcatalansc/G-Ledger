@@ -1,0 +1,72 @@
+[
+  {
+    "path": "fixtures/positive/request.json",
+    "schema": "request",
+    "valid": true
+  },
+  {
+    "path": "fixtures/negative/request.extra-field.json",
+    "schema": "request",
+    "valid": false
+  },
+  {
+    "path": "fixtures/positive/response.json",
+    "schema": "response",
+    "valid": true
+  },
+  {
+    "path": "fixtures/negative/response.extra-field.json",
+    "schema": "response",
+    "valid": false
+  },
+  {
+    "path": "fixtures/positive/policy.json",
+    "schema": "policy",
+    "valid": true
+  },
+  {
+    "path": "fixtures/negative/policy.extra-field.json",
+    "schema": "policy",
+    "valid": false
+  },
+  {
+    "path": "fixtures/positive/manifest.json",
+    "schema": "manifest",
+    "valid": true
+  },
+  {
+    "path": "fixtures/negative/manifest.extra-field.json",
+    "schema": "manifest",
+    "valid": false
+  },
+  {
+    "path": "fixtures/positive/response.not_found.json",
+    "schema": "response",
+    "valid": true
+  },
+  {
+    "path": "fixtures/positive/response.unavailable.json",
+    "schema": "response",
+    "valid": true
+  },
+  {
+    "path": "fixtures/positive/response.contradiction.json",
+    "schema": "response",
+    "valid": true
+  },
+  {
+    "path": "fixtures/negative/proof-on-error.json",
+    "schema": "response",
+    "valid": false
+  },
+  {
+    "path": "fixtures/negative/invalid-native-id.json",
+    "schema": "request",
+    "valid": false
+  },
+  {
+    "path": "fixtures/negative/too-many-refs.json",
+    "schema": "response",
+    "valid": false
+  }
+]
