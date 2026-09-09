@@ -2,6 +2,7 @@
 
 Fecha: 2026-09-08. Base: `d916a7c`, rama `codex/history-core`.
 Estado al emitir la preparación: **LOCAL_VERIFIED_PENDING_CI**.
+Estado posterior al envío: **BLOCKED_CI_BILLING**, candidato `973db3e479c06a354f672d38a96fa0fd147a7dc3`.
 
 ## Resultado implementado
 
@@ -54,3 +55,32 @@ La última CI observada antes del envío pertenece a rc.1, `22b3eca`, run
 No se ha creado tag, merge ni GitHub Release. El piloto rc.1 y la calificación
 bilateral 12/12 de PL-GSK-004 conservan sus sujetos anteriores. Publicación,
 aceptación del nuevo candidato y adopción real siguen siendo decisiones separadas.
+
+## CI observada — cierre de esta intervención
+
+El candidato se envió a `origin/codex/history-core`, repositorio privado
+`gcatalansc/G-Ledger` (id 1347951316), sin modificar main ni crear tags.
+La revisión automática inicialmente rechazó el push por falta de verificación
+del destino/payload. Tras comprobar mediante la API la propiedad, privacidad y
+permisos, y delimitar los 18 commits/155 archivos pendientes, aprobó el mismo push.
+El bloqueo de transferencia quedó resuelto.
+
+La ejecución [34297786152](https://github.com/gcatalansc/G-Ledger/actions/runs/34297786152)
+corresponde exactamente a `973db3e479c06a354f672d38a96fa0fd147a7dc3`, evento push,
+intento 1. GitHub la cerró con `failure`: sus seis trabajos tienen cero pasos
+y no produjeron artefactos. Las seis anotaciones coinciden: trabajos no iniciados
+por pagos recientes fallidos o por necesidad de aumentar el límite de gasto;
+GitHub remite a **Billing & plans**.
+
+Esto no es un FAIL de las pruebas del candidato ni una CI aprobada. La compilación
+portable 0.3.0-rc.1 y su validación de instalación siguen pendientes. No se generan
+reintentos automáticos ni builds locales duplicados para sustituir esa evidencia.
+
+La captura de ejecución, trabajos, anotaciones, artefactos y hashes de evidencia
+local queda en [DISTRIBUTION_0.3.0-rc.1.json](DISTRIBUTION_0.3.0-rc.1.json).
+El commit documental posterior usa `[skip ci]` porque sólo registra el bloqueo;
+la referencia de calificación sigue siendo el candidato `973db3e`.
+
+**Condición de reanudación:** regularizar pagos/límite de GitHub y reejecutar esta
+CI sobre el mismo sujeto; confirmar seis trabajos y verificar el ZIP de Windows
+por SHA antes de proponer publicación/aceptación. No se cambió la facturación.

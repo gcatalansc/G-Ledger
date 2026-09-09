@@ -1,0 +1,250 @@
+{
+  "profile": "g-ledger-distribution-qualification/1",
+  "product_version": "0.3.0-rc.1",
+  "candidate_sha": "973db3e479c06a354f672d38a96fa0fd147a7dc3",
+  "branch": "codex/history-core",
+  "status": "BLOCKED_CI_BILLING",
+  "local": {
+    "rust_pass_consolidated": 50,
+    "rust_fail": 0,
+    "ignored": 1,
+    "packaging_preflight_pass": 2,
+    "fmt": "PASS",
+    "clippy": "PASS",
+    "clippy_scope": "project-ledger-cli and xtask --all-targets --no-deps",
+    "contracts": "PASS",
+    "generated_schemas": "PASS",
+    "compiled_resources": 485,
+    "full_workspace_repeated": false,
+    "repeat_counts_not_added": true,
+    "portable_distribution_built": false,
+    "source_contract_versions_changed": false,
+    "release_builds": 0,
+    "build_jobs": 2,
+    "offline": true
+  },
+  "remote_identity": {
+    "id": 1347951316,
+    "full_name": "gcatalansc/G-Ledger",
+    "private": true,
+    "owner": "gcatalansc",
+    "html_url": "https://github.com/gcatalansc/G-Ledger",
+    "clone_url": "https://github.com/gcatalansc/G-Ledger.git",
+    "default_branch": "main",
+    "archived": false,
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  },
+  "ci": {
+    "candidate_sha": "973db3e479c06a354f672d38a96fa0fd147a7dc3",
+    "observed_at": "2026-09-08T22:07:01.1395777-03:00",
+    "run": {
+      "id": 34297786152,
+      "head_sha": "973db3e479c06a354f672d38a96fa0fd147a7dc3",
+      "head_branch": "codex/history-core",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_attempt": 1,
+      "html_url": "https://github.com/gcatalansc/G-Ledger/actions/runs/34297786152"
+    },
+    "jobs": [
+      {
+        "id": 102298039110,
+        "name": "live-gsp-sidecar-chaos",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:05:57Z",
+        "steps": []
+      },
+      {
+        "id": 102298039246,
+        "name": "dependency-policy",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:05:58Z",
+        "steps": []
+      },
+      {
+        "id": 102298039274,
+        "name": "test-macos-latest",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:06:01Z",
+        "steps": []
+      },
+      {
+        "id": 102298039375,
+        "name": "physical-disk-full-chaos",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:05:57Z",
+        "steps": []
+      },
+      {
+        "id": 102298039478,
+        "name": "test-ubuntu-latest",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:05:57Z",
+        "steps": []
+      },
+      {
+        "id": 102298039536,
+        "name": "test-windows-latest",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_name": "",
+        "started_at": "2026-09-09T01:05:55Z",
+        "completed_at": "2026-09-09T01:05:57Z",
+        "steps": []
+      }
+    ],
+    "annotations": [
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      },
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      },
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      },
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      },
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      },
+      {
+        "path": ".github",
+        "start_line": 1,
+        "end_line": 1,
+        "annotation_level": "failure",
+        "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings"
+      }
+    ],
+    "artifacts": []
+  },
+  "evidence": [
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/red.log",
+      "bytes": 993,
+      "sha256": "a28bdea5412bc01b16800873743f00223c77dab1c8ee1ad3f6f872e412d04f57"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/packaging-setup.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/packaging-red.log",
+      "bytes": 70,
+      "sha256": "cbd7253ed1a5569e4d074e4758d98cdb50206ea818b3daba3521c86484a4fc7f"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/regression.log",
+      "bytes": 5695,
+      "sha256": "f319dcf4ee1203138c21ab0dee38d210b354c0b159f0df851ffd5c0f7f32c135"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/metadata-tests.log",
+      "bytes": 712,
+      "sha256": "740021954e6f302e46d1b8707b7b3b7bf43d8b19c4a8aa1cd5ab37fadc325a11"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/release-verified.log",
+      "bytes": 652,
+      "sha256": "5ec83670ed729ca9f10b444e4a14e0907c93757bd7a341a0f75aab38f39314cd"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/packaging-green.log",
+      "bytes": 86,
+      "sha256": "294f8adf74c68e3fd6b139580846c4adad66a32fef7b69696d635a9d5d0c0e04"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/clippy.log",
+      "bytes": 5051,
+      "sha256": "b33497649a94e74f42f915666bbf668390c060017fa3e1067901da38e26f7b7f"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/clippy-final.log",
+      "bytes": 207,
+      "sha256": "216353947c91a5aa5f3fd1ec7314c4177020eaf97aaded33fa3d29a63b801943"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/schema.log",
+      "bytes": 118,
+      "sha256": "457d9accb25e60728c4d797367492ab0fe01014ad3eb94686717eb9a5e14174b"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/contracts.log",
+      "bytes": 120,
+      "sha256": "393fa078c6d9e5d26f95063b4688160cbeb105d6ea9d44bb59312121753b8ed8"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/resources.log",
+      "bytes": 146,
+      "sha256": "7f3137c74c86cfa968cdd2357ce5830b7fb1f323e1f5ca226195e4c86f286106"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/ci-latest.json",
+      "bytes": 4109,
+      "sha256": "70156a25c053c716970f61bbde1f0414b5c886f4c07e46118352a06f5085e321"
+    },
+    {
+      "path": ".tooling/distribution-0.3.0-rc.1/remote-identity.json",
+      "bytes": 408,
+      "sha256": "df72d28cffdb6bcd5a499786e9f36ca079a0c4501ab895748e9bb406462df299"
+    }
+  ],
+  "release": {
+    "published": false,
+    "tag_created": false,
+    "main_modified": false,
+    "operational_acceptance": "NOT_GRANTED",
+    "certified_compatibility": false,
+    "portable_artifact": "PENDING_CI"
+  },
+  "resume": "Regularize GitHub Billing & plans, rerun run 34297786152 at the same candidate, inspect all six jobs and the Windows artifact; no automatic retry"
+}

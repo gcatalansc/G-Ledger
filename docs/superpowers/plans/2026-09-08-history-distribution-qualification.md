@@ -59,9 +59,13 @@ de calificación `docs/maintenance/DISTRIBUTION_0.3.0-rc.1.md`.
 - [x] Habilitar push para `codex/history-core`, conservar los seis jobs y usar
   un nombre de ZIP obtenido de la versión CLI. Evitar el release Windows previo
   al build estático que ya realiza `build-windows-package.ps1`.
-- [ ] Formato, Clippy acotado, tests afectados y chequeo de metadatos antes de
+- [x] Formato, Clippy acotado, tests afectados y chequeo de metadatos antes de
   guardar un commit local y enviarlo a su rama remota.
-- [ ] Consultar SHA, conclusión, jobs y artefacto exactos de esa ejecución.
+- [x] Consultar SHA, conclusión, jobs y artefacto exactos de esa ejecución.
   Ante un fallo, leer su causa y corregir sólo lo que corresponda; una restricción
   de infraestructura no se sustituye por un PASS local.
-- [ ] Registrar resultado y condición de entrada para decidir la publicación.
+- [x] Registrar resultado y condición de entrada para decidir la publicación.
+
+Resultado: candidato `973db3e`, CI `34297786152`, **BLOCKED_CI_BILLING**.
+Seis trabajos con cero pasos y cero artefactos; el paquete portable y sus
+recorridos de CI permanecen pendientes. No repetir hasta regularizar GitHub.

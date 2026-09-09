@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Distribución `0.3.0-rc.1` preparada: CLI y manifiesto versionados, aceptación operativa no concedida, paquete Windows perfil 2 y CI de rama habilitada. Verificación local: 50 casos Rust consolidados, 2 negativos del empaquetador, contratos y Clippy; CI del candidato pendiente al emitir esta preparación. Informe: `docs/maintenance/DISTRIBUTION_0.3.0-rc.1.md`. El candidato anterior `952cf77` y su 12/12 bilateral se conservan como sujetos distintos |
+| Trabajo actual | Distribución `0.3.0-rc.1`, candidato `973db3e`, subida a `origin/codex/history-core`. Local: 50 casos Rust consolidados, 2 negativos del empaquetador, contratos y Clippy PASS. CI `34297786152` bloqueada por pagos/límite de GitHub: seis trabajos con cero pasos, sin artefactos. Estado `BLOCKED_CI_BILLING`; informe `docs/maintenance/DISTRIBUTION_0.3.0-rc.1.md`. No hay nueva publicación ni aceptación transferida |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 
