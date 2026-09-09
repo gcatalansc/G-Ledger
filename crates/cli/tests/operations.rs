@@ -1276,7 +1276,6 @@ fn supervised_execution_is_bounded_private_and_uncertain_attempts_never_retry() 
     let exe = std::env::current_exe().unwrap();
     let policy = p.temporary.path().join("supervisor-policy.json");
     let marker = p.temporary.path().join("attempts");
-    fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"timeout_ms":700,"environment":{"LEDGER_EXECUTION_MODE":"hang","LEDGER_EXECUTION_MARKER":marker}}})).unwrap()).unwrap();
     let execute = |key: &str| {
         Command::cargo_bin("project-ledger")
             .unwrap()
@@ -1304,25 +1303,39 @@ fn supervised_execution_is_bounded_private_and_uncertain_attempts_never_retry() 
             .output()
             .unwrap()
     };
-    assert_eq!(
-        value(&execute("run:uncertain"), 12)["error"]["code"],
-        "EXECUTION_TIMEOUT"
-    );
-    let before = fs::read(&marker).unwrap();
-    assert_eq!(
-        value(&execute("run:uncertain"), 12)["error"]["code"],
-        "OUTCOME_UNKNOWN"
-    );
-    assert_eq!(before, fs::read(&marker).unwrap());
+    for (key, mode) in [
+        ("run:before-marker", "hang-before-marker"),
+        ("run:uncertain", "hang"),
+    ] {
+        // The timeout includes process startup: zero child writes is valid.
+        // Own the observation file so a slow start cannot cause NotFound.
+        fs::write(&marker, b"").unwrap();
+        fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"timeout_ms":700,"environment":{"LEDGER_EXECUTION_MODE":mode,"LEDGER_EXECUTION_MARKER":marker}}})).unwrap()).unwrap();
+        assert_eq!(
+            value(&execute(key), 12)["error"]["code"],
+            "EXECUTION_TIMEOUT"
+        );
+        let before = fs::read(&marker).unwrap();
+        assert!(before.is_empty() || before == b"started\n");
+        if mode == "hang-before-marker" {
+            assert!(before.is_empty());
+        }
+        assert_eq!(value(&execute(key), 12)["error"]["code"], "OUTCOME_UNKNOWN");
+        assert_eq!(before, fs::read(&marker).unwrap());
+        assert_eq!(value(&p.run(&["status"]), 0)["state_version"], version);
+    }
     let canary = "CLI_CANARY_582_NEVER_PERSIST";
     fs::write(&policy,serde_json::to_vec(&json!({"allowed_programs":[exe],"process":{"environment":{"LEDGER_EXECUTION_MODE":"fail","LEDGER_EXECUTION_MARKER":marker,"LEDGER_PRIVATE_CANARY":canary}}})).unwrap()).unwrap();
     value(&execute("run:uncertain"), 10);
+    fs::write(&marker, b"").unwrap();
     let result = value(&execute("run:known-failure"), 3);
     assert_eq!(result["status"], "ACCEPTED");
+    assert_eq!(fs::read(&marker).unwrap(), b"started\n");
     assert_eq!(
         value(&execute("run:known-failure"), 3)["status"],
         "DUPLICATE_REPLAY"
     );
+    assert_eq!(fs::read(&marker).unwrap(), b"started\n");
     let after = result["new_state_version"].as_u64().unwrap();
     let evaluated = value(
         &p.write(
@@ -1348,6 +1361,12 @@ fn supervised_execution_is_bounded_private_and_uncertain_attempts_never_retry() 
 #[ignore = "bounded real child fixture, invoked by evidence run with explicit policy"]
 fn execution_fixture() {
     use std::io::Write;
+    let mode = std::env::var("LEDGER_EXECUTION_MODE").unwrap();
+    if mode == "hang-before-marker" {
+        // Reproduce a timeout before the first observable child side effect.
+        std::thread::sleep(std::time::Duration::from_secs(8));
+        return;
+    }
     let mut marker = fs::OpenOptions::new()
         .append(true)
         .create(true)
@@ -1355,7 +1374,7 @@ fn execution_fixture() {
         .unwrap();
     writeln!(marker, "started").unwrap();
     drop(marker);
-    if std::env::var("LEDGER_EXECUTION_MODE").unwrap() == "hang" {
+    if mode == "hang" {
         std::thread::sleep(std::time::Duration::from_secs(8));
     } else {
         println!("token={}", std::env::var("LEDGER_PRIVATE_CANARY").unwrap());

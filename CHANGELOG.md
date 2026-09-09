@@ -15,6 +15,8 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ### Fixed
 
+- Prueba CLI de supervisión: el marcador de ejecución pertenece al arnés y admite cero escrituras cuando el timeout incluye un arranque lento. Un caso controlado reproduce el timeout antes del marcador; se mantienen el plazo de 700 ms, la prohibición de reintentos inciertos y los controles de privacidad/replay. No cambia el ejecutable del producto.
+- G-Skills RecordSink (PL-GSK-004): segunda validación compatible con rechazo nativo por versión obsoleta; finalización transaccional durable de `VERSION_CONFLICT` ante carreras de commit; recuperación ligada al comando nativo completo para impedir atribuciones con clave, scope o payload alterados. Calificación bilateral local 12/12, sin nueva publicación.
 - G-Skills RecordSink (PL-GSK-003, parte interna): `status` y `reconcile` reconstruyen el corte atómico del resultado persistido aunque el proyecto haya avanzado. Conservan resultado/digest y rechazan identidad, cortes o cadena inválidos. La confirmación histórica adicional se incorpora mediante la adenda separada autorizada.
 - G-Skills RecordSink (PL-GSK-002): una versión que cambia antes del envío conserva la versión aprobada y alcanza el rechazo nativo `VERSION_CONFLICT`, recuperable por `status` y `reconcile` sin eventos adicionales. Las validaciones de identidad y aprobación permanecen activas; el alcance no incluye carreras durante el commit.
 - SQLite/WAL en Windows: selección del VFS `win32-longpath` y rutas extendidas para inicialización, lectura, escritura, respaldo, restauración y migración.

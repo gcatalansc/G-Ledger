@@ -1,0 +1,143 @@
+{
+  "profile": "g-ledger-history-candidate-preparation/1",
+  "date": "2026-09-08",
+  "status": "LOCAL_CANDIDATE_PREPARED",
+  "base_commit": "ac2dce0fd4a9234b5bd951caf493fc199e647c96",
+  "product_commit": "952cf77c7f92fc3c3ceedb3b01383b8c40ffaf57",
+  "branch": "codex/history-core",
+  "product_source_changed": false,
+  "binary_sha256": "5cde5898ba6e3bc6decb3245295b808cc0813904585b26b63dd2fce14b64775b",
+  "native_package_version": "0.2.0",
+  "history_extension_version": "0.3.0",
+  "changed_test_sha256": "55414327e9680db0bdbb772d110f403499c6a5889db4101ab422f6f3a00420c0",
+  "tests": {
+    "red": {
+      "exit_code": 101,
+      "failure": "NotFound reading the marker before the test fix",
+      "expected": true
+    },
+    "operations": {
+      "pass": 22,
+      "fail": 0,
+      "ignored": 1,
+      "seconds": 10.7,
+      "ignored_reason": "execution_fixture is invoked explicitly as a supervised child"
+    },
+    "history": {
+      "pass": 6,
+      "fail": 0,
+      "ignored": 0,
+      "seconds": 3.86
+    },
+    "product_under_test": "ZIP-extracted executable selected via CARGO_BIN_EXE_project-ledger",
+    "test_threads": 2,
+    "full_workspace_repeated": false,
+    "bilateral_campaign_repeated": false
+  },
+  "checks": {
+    "fmt": "PASS",
+    "diff_whitespace": "PASS",
+    "clippy": "PASS",
+    "clippy_scope": "project-ledger-cli --test operations --no-deps -- -D warnings",
+    "payload_hashes": 493,
+    "zip_entries": 495,
+    "compiled_resources": 484,
+    "package_checksums": "PASS",
+    "documentation_links": "PASS",
+    "candidate_classification": "PASS"
+  },
+  "package": {
+    "path": "dist/g-ledger-history-952cf77-windows-x86_64.zip",
+    "bytes": 12754442,
+    "sha256": "a41882bf50d0ea8dd82f6d5965c215364a1f1e8e746336b5a96444c01f2df66a",
+    "profile": "g-ledger-local-review-candidate/1",
+    "status": "LOCAL_REVIEW_CANDIDATE",
+    "operational_acceptance": "NOT_GRANTED",
+    "certified_compatibility": false,
+    "published": false
+  },
+  "efficiency": {
+    "release_binary_reused": true,
+    "release_builds": 0,
+    "package_staging_copies": 0,
+    "verification_extraction_removed": true,
+    "build_jobs": 2,
+    "cargo_offline": true,
+    "debug_symbols": false,
+    "incremental": false,
+    "cargo_cache_preexisting": false,
+    "cargo_cache_retained_bytes": 991164912
+  },
+  "evidence": [
+    {
+      "path": ".tooling/history-candidate/red.log",
+      "bytes": 690,
+      "sha256": "dd667dad17933a6e749d4b28176dc9fde38cafdd5a7cdcee7cc367c32a71622d"
+    },
+    {
+      "path": ".tooling/history-candidate/build-operations.log",
+      "bytes": 9511,
+      "sha256": "c374e0d887add45abb5b1a9119c454b55d1859c922c0fefbb7a605480212481a"
+    },
+    {
+      "path": ".tooling/history-candidate/build-final-tests.log",
+      "bytes": 370,
+      "sha256": "ece52db72285ba709c75329e99d8d14e4fc42f044b96b5a6b984e28b9bf35e50"
+    },
+    {
+      "path": ".tooling/history-candidate/build-formatted-tests.log",
+      "bytes": 289,
+      "sha256": "f8b2e5d475d5deeabfdaa8c1ce36238c6333854d1eda649ee2140924bbfdc46f"
+    },
+    {
+      "path": ".tooling/history-candidate/operations-final.log",
+      "bytes": 1876,
+      "sha256": "fd9aef2be72cb04e70055747fd257a69e7c145699b0b8e66ce2374b6f7a5604d"
+    },
+    {
+      "path": ".tooling/history-candidate/history-final.log",
+      "bytes": 581,
+      "sha256": "bc0fb98063f7a95669e09c2e61afd9ced2f20c8ea8b7ef5aa4800cb97f43b7f3"
+    },
+    {
+      "path": ".tooling/history-candidate/installed-resources.log",
+      "bytes": 209,
+      "sha256": "cd627983e71bc90d57013e9e0863c705eedb119703a383d808dc05a386ba227a"
+    },
+    {
+      "path": ".tooling/history-candidate/package-integrity.log",
+      "bytes": 43,
+      "sha256": "e1bc5b28fd67a3ddfa77e0d359afa3dde80c5528a9abffe688d2ac2adcac007e"
+    },
+    {
+      "path": ".tooling/history-candidate/package-metadata.log",
+      "bytes": 76,
+      "sha256": "e691270a4991da393d8ba19d29f7ea7cb7d1c6697c265d2a657f4d2b6c5c5bf4"
+    },
+    {
+      "path": ".tooling/history-candidate/fmt-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tooling/history-candidate/clippy.log",
+      "bytes": 8483,
+      "sha256": "0ffd4819206f5c871b9078452082527d80e9e3810c8870bf9c1f31597d925209"
+    },
+    {
+      "path": ".tooling/history-candidate/cleanup.log",
+      "bytes": 75,
+      "sha256": "4b6e5fbe9f690261fc39f418c7577b1b9a01a4433fa58fcc8af198451de2083a"
+    },
+    {
+      "path": ".tooling/history-candidate/package.ps1",
+      "bytes": 5317,
+      "sha256": "d42dd581985c2df3b7a33128b2e3eeeed967192bca8ae347e591601344ae6d76"
+    }
+  ],
+  "remaining": [
+    "Assign and build the distribution version before a future release",
+    "Run CI for the final release subject and decide acceptance",
+    "Real adoption and comparative utility are not established by local qualification"
+  ]
+}
