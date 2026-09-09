@@ -5,7 +5,7 @@ La entrega portable está diseñada para que una empresa receptora pueda identif
 ## Estructura del ZIP
 
 ```text
-G-Ledger 0.2.0/
+G-Ledger 0.3.0-rc.1/
 ├── START_HERE.md
 ├── project-ledger.exe
 ├── LICENSE

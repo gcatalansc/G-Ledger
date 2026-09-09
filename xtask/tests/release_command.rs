@@ -45,6 +45,16 @@ fn ac_089_previous_peak_rss_waiver_is_rejected() {
 
 #[test]
 fn release_artifacts_are_deterministic_and_the_aggregate_gate_passes() {
+    let distribution: serde_json::Value = serde_json::from_slice(
+        &fs::read(workspace_root().join("release/distribution.json")).unwrap(),
+    )
+    .unwrap();
+    let sbom: serde_json::Value =
+        serde_json::from_slice(&fs::read(workspace_root().join("release/sbom.spdx.json")).unwrap())
+            .unwrap();
+    assert_eq!(distribution["product_version"], "0.3.0-rc.1");
+    assert_eq!(distribution["operational_acceptance"], "NOT_GRANTED");
+    assert_eq!(sbom["name"], "project-ledger-v0.3.0-rc.1");
     let mut generate = Command::cargo_bin("xtask").unwrap();
     generate
         .current_dir(workspace_root())

@@ -4,6 +4,11 @@ Todos los cambios relevantes de Project Ledger se documentan en este archivo.
 
 ## [Unreleased]
 
+### Distribution
+
+- Candidato `0.3.0-rc.1`: versión propia del ejecutable CLI, manifiesto de distribución generado y SBOM coherente. `release verify` distingue evidencia base v0.2 de la distribución candidata sin aceptación operativa concedida.
+- ZIP Windows perfil 2: verificación de versión y clasificación antes de empaquetar, notas propias y recorrido histórico sobre el ejecutable extraído. CI de la rama histórica conserva sus seis trabajos y evita el segundo build release de Windows.
+
 ### Added
 
 - G-Skills: perfil read-only `gskills-record-confirmation/0.1.0` y `ledger.command_confirmation`, con policy independiente, contratos candidatos separados y prueba minimizada de resultado/cortes/eventos sobre un único snapshot verificado. Adenda PL-GSK-003 autorizada el 2026-09-08; se conserva la línea publicada rc.1.

@@ -553,7 +553,23 @@ fn verify_release_cli(
 ) -> Result<String, CliError> {
     let root = resources::resolve(explicit_resources.or(args.root.as_deref()))?;
     let report = verify_release(&root).map_err(CliError::input)?;
-    canonical_stdout(&report)
+    let distribution: Value = serde_json::from_slice(
+        &fs::read(root.join("release/distribution.json")).map_err(CliError::storage)?,
+    )
+    .map_err(CliError::input)?;
+    if distribution["product_version"] != env!("CARGO_PKG_VERSION")
+        || distribution["profile"] != "project-ledger-distribution/1"
+        || distribution["operational_acceptance"] != "NOT_GRANTED"
+        || distribution["certified_compatibility"] != false
+    {
+        return Err(CliError::input(
+            "distribution identity does not match this candidate",
+        ));
+    }
+    let mut output = serde_json::to_value(report).map_err(CliError::input)?;
+    output["verified_evidence_subject"] = serde_json::json!("v0.2.0-baseline");
+    output["distribution"] = distribution;
+    canonical_stdout(&output)
 }
 
 fn initialize_project(args: InitArgs) -> Result<String, CliError> {

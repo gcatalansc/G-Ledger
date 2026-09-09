@@ -13,7 +13,11 @@ const CHECKSUMS_PATH: &str = "release/checksums.sha256";
 pub fn generate(root: &Path, check_only: bool) -> Result<String, String> {
     let package = package_manifest()?;
     let sbom = sbom(root)?;
-    let expected = [(PACKAGE_PATH, package), (SBOM_PATH, sbom)];
+    let expected = [
+        (PACKAGE_PATH, package),
+        (SBOM_PATH, sbom),
+        ("release/distribution.json", distribution_manifest(root)?),
+    ];
     if check_only {
         for (path, bytes) in &expected {
             let actual = fs::read(root.join(path)).map_err(|error| error.to_string())?;
@@ -164,16 +168,58 @@ fn sbom(root: &Path) -> Result<Vec<u8>, String> {
         })
         .collect::<Vec<_>>();
     packages.sort_by(|left, right| left["SPDXID"].as_str().cmp(&right["SPDXID"].as_str()));
+    let product_version = packages
+        .iter()
+        .find(|package| package["name"] == "project-ledger-cli")
+        .and_then(|package| package["versionInfo"].as_str())
+        .ok_or_else(|| "CLI distribution version missing from SBOM".to_owned())?;
     let lock_digest =
         digest(&fs::read(root.join("Cargo.lock")).map_err(|error| error.to_string())?);
     pretty_json(&json!({
         "spdxVersion": "SPDX-2.3",
         "dataLicense": "CC0-1.0",
         "SPDXID": "SPDXRef-DOCUMENT",
-        "name": "project-ledger-v0.2.0",
-        "documentNamespace": format!("https://project-ledger.invalid/spdx/0.2.0/{lock_digest}"),
-        "creationInfo": {"created":"2026-08-23T00:00:00Z","creators":["Tool: project-ledger-xtask-0.2.0"]},
+        "name": format!("project-ledger-v{product_version}"),
+        "documentNamespace": format!("https://project-ledger.invalid/spdx/{product_version}/{lock_digest}"),
+        "creationInfo": {"created":"2026-09-08T00:00:00Z","creators":["Tool: project-ledger-xtask-0.2.0"]},
         "packages": packages
+    }))
+}
+
+fn distribution_manifest(root: &Path) -> Result<Vec<u8>, String> {
+    let output = Command::new("cargo")
+        .current_dir(root)
+        .args([
+            "metadata",
+            "--locked",
+            "--offline",
+            "--no-deps",
+            "--format-version",
+            "1",
+        ])
+        .output()
+        .map_err(|error| error.to_string())?;
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).into_owned());
+    }
+    let metadata: Value =
+        serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())?;
+    let version = metadata["packages"]
+        .as_array()
+        .and_then(|packages| packages.iter().find(|p| p["name"] == "project-ledger-cli"))
+        .and_then(|package| package["version"].as_str())
+        .ok_or_else(|| "CLI distribution version missing".to_owned())?;
+    pretty_json(&json!({
+        "profile": "project-ledger-distribution/1",
+        "product_version": version,
+        "package_profile": "project-ledger-windows-zip/2",
+        "release_status": "ENGINEERING_RELEASE_CANDIDATE",
+        "operational_acceptance": "NOT_GRANTED",
+        "certified_compatibility": false,
+        "baseline_evidence_version": "0.2.0",
+        "history_contract_version": "0.3.0",
+        "release_notes": format!("docs/RELEASE_NOTES_v{version}.md"),
+        "prerelease": true
     }))
 }
 

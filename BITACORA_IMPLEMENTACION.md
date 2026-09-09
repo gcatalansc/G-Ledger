@@ -13,7 +13,7 @@
 | Última entrega publicada | `v0.2.0-rc.1`, prerelease para uso operativo controlado |
 | Commit de la entrega | `22b3eca46ac6b963ab928e0131b0cdf88cd6627c` |
 | Integración y CI de la entrega | PR #5 integrado; run `33890755947`, 6/6 success |
-| Trabajo actual | Candidato local de historia preparado con producto `952cf77` / ejecutable `5cde5898…`, sin recompilarlo ni publicarlo. Fragilidad de la prueba de 700 ms corregida: reproducción controlada RED y 22 operaciones + 6 escenarios históricos PASS contra el ZIP extraído. PL-GSK-004 conserva su calificación bilateral 12/12. Informe: `docs/maintenance/HISTORY_CANDIDATE_952cf77.md`; G-Skills Fase 6 sigue abierta |
+| Trabajo actual | Distribución `0.3.0-rc.1` preparada: CLI y manifiesto versionados, aceptación operativa no concedida, paquete Windows perfil 2 y CI de rama habilitada. Verificación local: 50 casos Rust consolidados, 2 negativos del empaquetador, contratos y Clippy; CI del candidato pendiente al emitir esta preparación. Informe: `docs/maintenance/DISTRIBUTION_0.3.0-rc.1.md`. El candidato anterior `952cf77` y su 12/12 bilateral se conservan como sujetos distintos |
 | Certificación externa | `certified_compatibility=false`; pendientes bilaterales documentados |
 | Investigación de mejoras | C01/E01 preservados como antecedentes. Orientación posterior del propietario: bitácora de alto nivel para LLM; registro y reconstrucción implementados. Superioridad comparativa y adopción pendientes |
 

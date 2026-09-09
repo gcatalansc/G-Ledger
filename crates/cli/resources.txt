@@ -1,4 +1,5 @@
 # Reviewed distribution allowlist. Additions require an explicit review and package regression.
+release/distribution.json
 crates/cli/tests/history.rs
 docs/history/HISTORY_EXTENSION_v0.3.md
 docs/history/LLM_USAGE.md

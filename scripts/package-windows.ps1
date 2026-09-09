@@ -11,6 +11,16 @@ $packageSource = (Resolve-Path -LiteralPath $SourceRoot).Path
 $packageBinary = (Resolve-Path -LiteralPath $Binary).Path
 $packageOutput = [IO.Path]::GetFullPath($Output)
 if (Test-Path -LiteralPath $packageOutput) { throw 'Package destination already exists' }
+$distribution = Get-Content -LiteralPath (Join-Path $packageSource 'release/distribution.json') -Raw | ConvertFrom-Json
+if ($distribution.profile -ne 'project-ledger-distribution/1' -or
+    $distribution.package_profile -ne 'project-ledger-windows-zip/2' -or
+    $distribution.product_version -notmatch '^\d+\.\d+\.\d+-rc\.\d+$' -or
+    $distribution.operational_acceptance -ne 'NOT_GRANTED' -or
+    $distribution.release_status -ne 'ENGINEERING_RELEASE_CANDIDATE' -or
+    $distribution.certified_compatibility -ne $false -or $distribution.prerelease -ne $true -or
+    $distribution.release_notes -ne "docs/RELEASE_NOTES_v$($distribution.product_version).md") { throw 'Invalid distribution classification' }
+$binaryVersion = & $packageBinary --version
+if ($LASTEXITCODE -ne 0 -or ($binaryVersion -join "`n").Trim() -ne "project-ledger $($distribution.product_version)") { throw 'Distribution binary version mismatch' }
 $sourceCommit = & git -C $packageSource rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Cannot identify source commit' }
 $dirty = [bool](& git -C $packageSource status --porcelain)
@@ -45,7 +55,7 @@ foreach ($entry in @(
     @{Source='SECURITY.md'; Target='SECURITY.md'},
     @{Source='SPEC.md'; Target='SPEC.md'},
     @{Source='BITACORA_IMPLEMENTACION.md'; Target='BITACORA_IMPLEMENTACION.md'},
-    @{Source='docs/RELEASE_NOTES_v0.2.0-rc.1.md'; Target='RELEASE_NOTES.md'},
+    @{Source=$distribution.release_notes; Target='RELEASE_NOTES.md'},
     @{Source='release/sbom.spdx.json'; Target='SBOM.spdx.json'},
     @{Source='docs/pilot/results/operational-pilot-report.json'; Target='assurance/operational-pilot-report.json'},
     @{Source='docs/pilot/results/stage-8-risk-close-operational-acceptance.json'; Target='assurance/stage-8-risk-close-operational-acceptance.json'},
@@ -84,10 +94,11 @@ $checksumPath = Join-Path $stage 'CHECKSUMS.sha256'
 if (-not $packagePaths.Add('CHECKSUMS.sha256')) { throw 'Duplicate package checksum path' }
 $null = $files.Add([ordered]@{path='CHECKSUMS.sha256'; size=(Get-Item -LiteralPath $checksumPath).Length; sha256=(Get-FileHash -LiteralPath $checksumPath -Algorithm SHA256).Hash.ToLowerInvariant()})
 $manifest = [ordered]@{
-    profile='project-ledger-windows-zip/1'; source_commit=$sourceCommit; source_tree_dirty=$dirty
+    profile=$distribution.package_profile; source_commit=$sourceCommit; source_tree_dirty=$dirty
+    product_version=$distribution.product_version; distribution_manifest='release/distribution.json'
     binary='project-ledger.exe'; target='x86_64-pc-windows-msvc'; certified_compatibility=$false
-    release_status='ENGINEERING_RELEASE_CANDIDATE'; operational_acceptance='OPERATIONALLY_ACCEPTED'
-    documentation_entrypoint='START_HERE.md'; source_delivery='GitHub source archives for the exact release tag'
+    release_status=$distribution.release_status; operational_acceptance=$distribution.operational_acceptance
+    documentation_entrypoint='START_HERE.md'; source_delivery='Git source at source_commit; candidate may not have a release tag'
     core_requires=@('Windows x86_64','PowerShell 7 for documented operator commands'); optional_gsp='See documentation/WINDOWS_PORTABLE.md; never downloaded automatically'
     files=$files.ToArray()
 }

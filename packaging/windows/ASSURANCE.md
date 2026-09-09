@@ -1,5 +1,9 @@
 # Aseguramiento de la entrega
 
+La distribución actual es 0.3.0-rc.1 y no tiene aceptación operativa concedida.
+Su identidad está en [`distribution.json`](../release/distribution.json).
+Los informes siguientes conservan la aceptación de sus sujetos históricos.
+
 ## Lectura humana
 
 1. [Informe final de aceptación operativa](../documentation/pilot/results/G_LEDGER_OPERATIONAL_ACCEPTANCE_FINAL_REPORT_v1.0.0.md).
@@ -17,4 +21,4 @@
 
 ## Interpretación
 
-La aceptación es `OPERATIONALLY_ACCEPTED` para uso operativo controlado. La distribución permanece `ENGINEERING_RELEASE_CANDIDATE`, no es General Availability y conserva `certified_compatibility=false`. Los JSON son evidencia auditable; el informe final es la lectura humana principal.
+El piloto anterior quedó `OPERATIONALLY_ACCEPTED` para su sujeto exacto. Esta distribución permanece `ENGINEERING_RELEASE_CANDIDATE`, `operational_acceptance=NOT_GRANTED` y `certified_compatibility=false`. Los JSON son evidencia histórica auditable; no sustituyen la verificación del nuevo commit y ejecutable.

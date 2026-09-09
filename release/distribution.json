@@ -1,0 +1,12 @@
+{
+  "baseline_evidence_version": "0.2.0",
+  "certified_compatibility": false,
+  "history_contract_version": "0.3.0",
+  "operational_acceptance": "NOT_GRANTED",
+  "package_profile": "project-ledger-windows-zip/2",
+  "prerelease": true,
+  "product_version": "0.3.0-rc.1",
+  "profile": "project-ledger-distribution/1",
+  "release_notes": "docs/RELEASE_NOTES_v0.3.0-rc.1.md",
+  "release_status": "ENGINEERING_RELEASE_CANDIDATE"
+}

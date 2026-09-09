@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory)][string]$ExpectedSha256,
     [Parameter(Mandatory)][string]$CodexTest,
     [Parameter(Mandatory)][string]$PortableTest,
+    [Parameter(Mandatory)][string]$HistoryTest,
     [string]$Report
 )
 $ErrorActionPreference = 'Stop'
@@ -53,14 +54,18 @@ try {
         'BITACORA_IMPLEMENTACION.md',
         'specs/PROJECT_LEDGER_SPEC_v0.2.0.md',
         'release/release-manifest.json'
+        'release/distribution.json'
+        'documentation/history/LLM_USAGE.md'
     )) {
         if (-not $names.Contains($required)) { throw "Official delivery file missing: $required" }
     }
     [IO.Compression.ZipFileExtensions]::ExtractToDirectory($archive, $install)
 } finally { $archive.Dispose() }
 $manifest = Get-Content -LiteralPath (Join-Path $install 'package.json') -Raw | ConvertFrom-Json
-if ($manifest.profile -ne 'project-ledger-windows-zip/1' -or $manifest.certified_compatibility) { throw 'Invalid package profile' }
-if ($manifest.documentation_entrypoint -ne 'START_HERE.md' -or $manifest.release_status -ne 'ENGINEERING_RELEASE_CANDIDATE' -or $manifest.operational_acceptance -ne 'OPERATIONALLY_ACCEPTED') { throw 'Invalid delivery classification' }
+if ($manifest.profile -ne 'project-ledger-windows-zip/2' -or $manifest.certified_compatibility -ne $false) { throw 'Invalid package profile' }
+if ($manifest.documentation_entrypoint -ne 'START_HERE.md' -or $manifest.release_status -ne 'ENGINEERING_RELEASE_CANDIDATE' -or $manifest.operational_acceptance -ne 'NOT_GRANTED') { throw 'Invalid delivery classification' }
+$distribution = Get-Content -LiteralPath (Join-Path $install 'release/distribution.json') -Raw | ConvertFrom-Json
+if ($distribution.product_version -ne $manifest.product_version -or $distribution.package_profile -ne $manifest.profile -or $distribution.operational_acceptance -ne 'NOT_GRANTED' -or $distribution.certified_compatibility -ne $false) { throw 'Package and distribution differ' }
 $listed = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($entry in $manifest.files) {
     $name = $entry.path
@@ -157,12 +162,16 @@ function Invoke-Isolated([string[]]$Arguments, [int]$ExpectedExit=0) {
     if ($process.ExitCode -ne $ExpectedExit) { throw "Package command failed: $($Arguments -join ' ') / $($stdout.Result) / $($stderr.Result)" }
     return $stdout.Result
 }
-foreach ($family in @('resources','specs','contracts','release')) { $null = Invoke-Isolated @($family,'verify','--json') }
+if ((Invoke-Isolated @('--version')).Trim() -ne "project-ledger $($manifest.product_version)") { throw 'Installed binary version mismatch' }
+foreach ($family in @('resources','specs','contracts')) { $null = Invoke-Isolated @($family,'verify','--json') }
+$releaseReport = Invoke-Isolated @('release','verify','--json') | ConvertFrom-Json
+if ($releaseReport.distribution.product_version -ne $manifest.product_version -or $releaseReport.distribution.operational_acceptance -ne 'NOT_GRANTED' -or $releaseReport.verified_evidence_subject -ne 'v0.2.0-baseline') { throw 'Installed release verification conflates subjects' }
 $harnessResults = [Collections.Generic.List[object]]::new()
 foreach ($test in @(
     @($CodexTest,'published_codex_argv_runs_the_full_governed_flow_without_direct_storage_access'),
     @($PortableTest,'portable_artifact_operates_recovers_and_rejects_private_exports_without_toolchains'),
-    @($PortableTest,'portable_artifact_operates_and_recovers_beyond_windows_max_path')
+    @($PortableTest,'portable_artifact_operates_and_recovers_beyond_windows_max_path'),
+    @($HistoryTest,'trace_reconstructs_supersession_attempts_and_evidence_invalidation')
 )) {
     $start = [Diagnostics.ProcessStartInfo]::new((Resolve-Path -LiteralPath $test[0]).Path)
     $start.UseShellExecute = $false
@@ -171,6 +180,7 @@ foreach ($test in @(
     $start.RedirectStandardError = $true
     $start.WorkingDirectory = $testRoot
     $start.Environment['PROJECT_LEDGER_PACKAGE_BINARY'] = $binary
+    $start.Environment['CARGO_BIN_EXE_project-ledger'] = $binary
     foreach ($argument in @('--exact',$test[1],'--nocapture')) { $start.ArgumentList.Add($argument) }
     $process = [Diagnostics.Process]::Start($start)
     $stdout = $process.StandardOutput.ReadToEndAsync()
@@ -197,7 +207,8 @@ $null = Invoke-Isolated @('resources','verify','--json')
 $result = [ordered]@{
     profile='project-ledger-package-verification/1'; status='PASS'; zip_sha256=$ExpectedSha256.ToLowerInvariant()
     source_commit=$manifest.source_commit; source_tree_dirty=$manifest.source_tree_dirty; extracted_directory=$install
-    scenarios=@('official-document-layout','documentation-links','delivery-checksums','compiled-resource-hashes','specs-contracts-release','Codex-full-flow','portable-backup-restore-replay','windows-long-data-paths','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
+    product_version=$manifest.product_version; operational_acceptance=$manifest.operational_acceptance
+    scenarios=@('official-document-layout','documentation-links','delivery-checksums','compiled-resource-hashes','specs-contracts-release','distribution-identity','Codex-full-flow','portable-backup-restore-replay','windows-long-data-paths','history-decision-trace','privacy-and-error-codes','missing-optional-GSP','resource-tamper-rejected')
     runtime_environment='PATH absent; only SystemRoot/TEMP/TMP passed to Ledger; no Cargo/Git/Python/checkout required by core'
     imported_system_dlls=$imports.ToArray(); certified_compatibility=$false
     harness_results=$harnessResults.ToArray()

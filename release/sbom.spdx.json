@@ -1,14 +1,14 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "creationInfo": {
-    "created": "2026-08-23T00:00:00Z",
+    "created": "2026-09-08T00:00:00Z",
     "creators": [
       "Tool: project-ledger-xtask-0.2.0"
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://project-ledger.invalid/spdx/0.2.0/bd3fe37098b1d40f6e90bf4f61474f3d4a2b872143a479110d98f0db607bf4f5",
-  "name": "project-ledger-v0.2.0",
+  "documentNamespace": "https://project-ledger.invalid/spdx/0.3.0-rc.1/b946ac2e8ece77119785c7100cbc36ac5ec63c1d1a70011c45899ff03e6cae04",
+  "name": "project-ledger-v0.3.0-rc.1",
   "packages": [
     {
       "SPDXID": "SPDXRef-Package-ahash-0-8-12",
@@ -1983,13 +1983,13 @@
       "versionInfo": "0.2.0"
     },
     {
-      "SPDXID": "SPDXRef-Package-project-ledger-cli-0-2-0",
+      "SPDXID": "SPDXRef-Package-project-ledger-cli-0-3-0-rc-1",
       "copyrightText": "NOASSERTION",
       "downloadLocation": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/project-ledger-cli@0.2.0",
+          "referenceLocator": "pkg:cargo/project-ledger-cli@0.3.0-rc.1",
           "referenceType": "purl"
         }
       ],
@@ -1997,7 +1997,7 @@
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "Apache-2.0",
       "name": "project-ledger-cli",
-      "versionInfo": "0.2.0"
+      "versionInfo": "0.3.0-rc.1"
     },
     {
       "SPDXID": "SPDXRef-Package-project-ledger-continuity-0-2-0",

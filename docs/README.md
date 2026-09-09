@@ -1,4 +1,8 @@
-# Centro de documentación de G-Ledger 0.2.0
+# Centro de documentación de G-Ledger
+
+El checkout prepara **0.3.0-rc.1**, sin aceptación operativa transferida desde
+rc.1. Consulte las [notas de distribución](RELEASE_NOTES_v0.3.0-rc.1.md).
+Los documentos de aceptación v0.2 conservan su sujeto y alcance históricos.
 
 Este es el punto de entrada único para la documentación activa. La ruta recomendada evita mezclar instrucciones de uso con especificaciones, evidencia de aceptación o planes internos.
 
